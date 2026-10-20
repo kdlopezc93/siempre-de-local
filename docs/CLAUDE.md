@@ -51,3 +51,10 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | `pnpm test` | Vitest en cada paquete |
 | `pnpm build` | Compila todos los paquetes |
 | `pnpm format` | Prettier |
+| `pnpm db:up` | Levanta Postgres 18 local (`docker compose up -d --wait db`) |
+| `pnpm db:generate` | Genera la migración SQL a partir del esquema Drizzle |
+| `pnpm db:migrate` | Aplica las migraciones pendientes |
+| `pnpm db:check` | Comprueba la consistencia de las migraciones |
+
+Los tests de integración del API levantan su propio Postgres con Testcontainers (requieren Docker).
+Cada app tiene su `.env.example`; cópialo a `.env` en la misma carpeta.

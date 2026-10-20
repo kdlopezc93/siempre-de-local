@@ -1,0 +1,22 @@
+name: siempre-de-local
+
+services:
+  db:
+    image: postgres:18.6-alpine
+    environment:
+      POSTGRES_USER: sdl
+      POSTGRES_PASSWORD: sdl
+      POSTGRES_DB: sdl
+    ports:
+      - '5432:5432'
+    volumes:
+      # Postgres 18+ guarda los datos en /var/lib/postgresql/<versión>; se monta el padre.
+      - db-data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U sdl -d sdl']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  db-data:
