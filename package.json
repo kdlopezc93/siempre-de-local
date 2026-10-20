@@ -13,7 +13,11 @@
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:up": "docker compose up -d --wait db",
+    "db:generate": "pnpm --filter @sdl/api db:generate",
+    "db:migrate": "pnpm --filter @sdl/api db:migrate",
+    "db:check": "pnpm --filter @sdl/api db:check"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
