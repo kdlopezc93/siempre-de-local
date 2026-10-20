@@ -1,0 +1,272 @@
+# 03 · Modelo de datos (PostgreSQL)
+
+> Convenciones: `id uuid` (v7, ordenable) como PK; `created_at`/`updated_at timestamptz`; nombres en `snake_case` e inglés; borrado lógico solo donde se indica. Las tablas de identidad (`user`, `session`, `account`, `verification`) las gestiona Better Auth y solo las toca el módulo `identity`.
+
+---
+
+## 1. Diagrama de entidades
+
+```
+user ─┬─< account (Google; en el futuro otros proveedores / OIDC)
+      ├─< data_consent
+      ├── player_profile (1:1) ──< player_preferred_position
+      ├─< club_membership >── club ──< team ──< team_membership >── user
+      │                                  │
+      │                                  ├──< invitation
+      │                                  ├──< coach_assessment
+      │                                  ├──< player_rating ──< player_rating_value
+      │                                  ├──< field_test_result   (futuro)
+      │                                  └──< lineup
+      │
+      ├──< quiz_attempt ── questionnaire_version ──< position_item ──< position_option ──< option_weight
+      │       ├──< attempt_item                    └──< prep_item ──< prep_option
+      │       ├──< attempt_answer
+      │       └──< attempt_result
+      │
+      └──< cert_exam ── cert_bank_version ──< cert_item ──< cert_option
+              └──< cert_exam_item        (el puntaje de cada posición es el mejor cert_exam válido)
+```
+
+## 2. Identidad y consentimiento
+
+`user`, `session`, `account`, `verification`: de Better Auth. Columnas propias añadidas a `user`: `platform_admin boolean`.
+`account` permite varias identidades externas por usuario (hoy solo `provider = 'google'`).
+
+**data_consent** — aceptación de la política de tratamiento de datos (aplica también a adultos)
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| user_id | uuid FK | |
+| policy_version | text | |
+| accepted_at | timestamptz | |
+| revoked_at | timestamptz null | |
+| age_confirmed | boolean | declaró ser mayor de 18 al aceptar |
+
+> Las tablas `guardian_consent`, `birth_year` e `is_minor` del diseño anterior **se eliminan** mientras todos los usuarios sean adultos. Ver `04`, §5.1 para reactivarlas.
+
+## 3. Organización y membresías
+
+**club** — `id, name, slug unique`
+
+**club_membership** — `club_id, user_id, role club_role ('owner','admin')` · PK (club_id, user_id)
+
+**team**
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| club_id | uuid FK | |
+| name | text | |
+| format | enum `match_format` (`F8`,`F11`) | |
+| season | text | |
+| ratings_visible_to_players | boolean default true | ¿el jugador ve su tarjeta? (D8) |
+| archived_at | timestamptz null | |
+
+**team_membership** — `team_id, user_id, role team_role ('coach','assistant','player'), jersey_number smallint null, joined_at, left_at` · PK (team_id, user_id, role)
+
+**invitation** — `id, team_id, role, code_hash, created_by, expires_at, max_uses, used_count, revoked_at`
+
+## 4. Perfil del jugador
+
+**player_profile** (1:1 con `user`)
+| Columna | Tipo | Notas |
+|---|---|---|
+| user_id | uuid PK FK | |
+| display_name | text | |
+| dominant_foot | enum (`left`,`right`,`both`) null | |
+| plays_goalkeeper | boolean default false | habilita atributos de portero |
+
+**player_preferred_position** — `user_id, position position_code, rank smallint (1–3)` · PK (user_id, position)
+
+## 5. Test de orientación (versionado)
+
+**questionnaire_version** — `id, label, status ('draft','published','retired'), position_items_per_attempt (15), published_at`
+
+**position_item** — `id, version_id, code, context ('situation','attribute'), text, sort`
+**position_option** — `id, item_id, label, sort`
+**option_weight** — `option_id, position, points smallint` · PK (option_id, position)
+**prep_item** — `id, version_id, position, text, sort`
+**prep_option** — `id, item_id, label, is_correct boolean, sort` · exactamente una correcta por ítem (validado al publicar)
+
+**quiz_attempt**
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| client_attempt_id | uuid unique | idempotencia offline |
+| user_id | uuid FK | |
+| team_id | uuid FK null | |
+| questionnaire_version_id | uuid FK | |
+| format | `match_format` | |
+| status | enum (`in_progress`,`submitted`,`scored`,`void`) | |
+| started_at / submitted_at / received_at | timestamptz | |
+| void_reason | text null | |
+
+**attempt_item** — `attempt_id, phase ('position','prep'), item_id, shown_order, option_order uuid[]`
+**attempt_answer** — `attempt_id, item_id, option_id, answered_at`
+**attempt_result** — `attempt_id, scoring_version, winner, ranking jsonb [{pos,pct,earned,maxp}], prep_score, prep_total, is_official, computed_at` · PK (attempt_id, scoring_version)
+
+**legacy_result** — `id, team_id, imported_by, player_name, player_user_id null, taken_at, format, winner, affinity_pct, podium, prep_score, prep_total, raw jsonb`
+
+## 6. Certificación
+
+**cert_bank_version** — un banco por posición y versión
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| position | `position_code` | |
+| label | text | |
+| status | enum (`draft`,`published`,`retired`) | publicado = inmutable |
+| items_per_exam | smallint | 20 |
+| time_limit_s | int | 1200 |
+| attempt_interval_days | int | 30 | un intento por posición cada N días |
+| min_items_to_publish | smallint | 40 |
+| retired_for_quality | boolean default false | al retirar por calidad, sus puntajes pasan a "a revisar" |
+| difficulty_mix | jsonb | `{ "1": 0.3, "2": 0.5, "3": 0.2 }` |
+| published_at | timestamptz | |
+
+Restricción: como máximo una versión `published` por posición a la vez.
+
+**cert_area** — `id, position, code, name` (catálogo de áreas de competencia por posición)
+
+**cert_item**
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| bank_version_id | uuid FK | |
+| area_id | uuid FK | |
+| difficulty | smallint 1–3 | |
+| kind | enum (`text`,`pitch_situation`) | |
+| text | text | |
+| diagram | jsonb null | posiciones para el tipo pizarra (v2) |
+| explanation | text | nunca se envía al jugador durante el examen |
+
+**cert_option** — `id, item_id, label, is_correct boolean, sort` · exactamente una correcta
+
+**cert_exam** — un intento de examen
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| user_id | uuid FK | |
+| team_id | uuid FK null | |
+| bank_version_id | uuid FK | |
+| position | `position_code` | redundante para consultas |
+| status | enum (`in_progress`,`submitted`,`expired`,`void`) | |
+| started_at | timestamptz | |
+| deadline_at | timestamptz | `started_at + time_limit_s`, fijado por el servidor |
+| submitted_at | timestamptz null | |
+| score / total | smallint | |
+| pct | numeric(4,3) | |
+| band | enum (`mastery`,`solid`,`developing`,`insufficient`) | solo para mostrar |
+| by_area | jsonb | `[{area, correct, total}]` |
+| next_attempt_at | timestamptz | `started_at + attempt_interval_days`; se fija al iniciar |
+| under_review | boolean default false | puntaje "a revisar" (§6.5 de `02`); permite repetir sin esperar |
+| review_request_id | uuid FK null | si este intento responde a una re-evaluación |
+| superseded_at | timestamptz null | lo marca una re-evaluación completada; deja de contar |
+| void_reason / voided_by / voided_at | text / uuid / timestamptz, null | anulación por el entrenador |
+
+Índice parcial único: `(user_id) where status = 'in_progress'` → un examen activo por jugador.
+
+**cert_exam_item** — `exam_id, item_id, shown_order, option_order uuid[], answer_option_id uuid null, answered_at`
+
+**Puntaje de conocimiento** — no es una tabla: es el **mejor** `cert_exam` válido (`status = 'submitted'`) de ese jugador y posición. No caduca. Se expone como vista:
+
+```sql
+create view knowledge_score as
+select distinct on (user_id, position)
+       user_id, position, id as exam_id, pct, band, submitted_at, under_review
+from cert_exam
+where status = 'submitted' and superseded_at is null
+order by user_id, position, pct desc, submitted_at desc;
+```
+
+**Espera de 30 días:** al iniciar un examen se comprueba el último `cert_exam` de esa posición (cualquier estado salvo `void` con reinicio autorizado): si `now() < next_attempt_at`, se rechaza. Si el último intento tiene `under_review = true`, no se espera.
+
+Al anular un examen (`status = 'void'`) la vista toma automáticamente el mejor de los restantes.
+
+**cert_review_request** — re-evaluación solicitada por el entrenador
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| team_id | uuid FK | |
+| player_user_id | uuid FK | |
+| position | `position_code` | |
+| requested_by | uuid FK | |
+| reason | text | obligatorio, visible para el jugador |
+| requested_at | timestamptz | |
+| due_at | timestamptz | por defecto `requested_at + 14 días` |
+| status | enum (`pending`,`completed`,`expired`,`cancelled`) | |
+| resolved_exam_id | uuid FK null | examen que la cerró |
+
+Índice parcial único `(player_user_id, position) where status = 'pending'`. Al cerrar un examen ligado a la solicitud: `status = 'completed'` y se marca `superseded_at` en todos los intentos anteriores de esa posición. Un job diario pasa a `expired` las vencidas; mientras haya una `expired` sin resolver, el planificador usa C = 0 para esa posición.
+
+## 7. Tarjeta del jugador
+
+**rating_attribute** (catálogo, *seed*)
+| Columna | Tipo | Notas |
+|---|---|---|
+| code | text PK | `PAC`, `SHO`, `PAS`, `DRI`, `DEF`, `PHY`, `GK_DIV`, `GK_HAN`, `GK_KIC`, `GK_REF`, `GK_SPD`, `GK_POS` |
+| name_es | text | Ritmo, Tiro, Pase, Regate, Defensa, Físico, Estirada, Manejo, Saque, Reflejos, Velocidad de reacción, Colocación |
+| group | enum (`outfield`,`goalkeeper`) | |
+
+**player_rating** — una "foto" de la tarjeta
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| team_id | uuid FK | contexto del equipo (la escala es relativa a su categoría) |
+| player_user_id | uuid FK | |
+| rated_by | uuid FK | |
+| rated_at | timestamptz | |
+| source | enum (`manual`,`field_test`) | |
+| notes | text null | |
+
+**player_rating_value** — `rating_id, attribute_code, value smallint check (value between 0 and 99)` · PK (rating_id, attribute_code)
+
+Las medias por posición **no se guardan**: se calculan en el dominio con `rating-formula-vN` (§7.3 de `02`).
+
+### 7.1 Pruebas de campo (futuro — esquema reservado, no migrar todavía)
+
+**field_test_type** — `code PK, name, unit, better ('lower','higher'), attribute_code FK, protocol text`
+**field_test_reference** — `test_code, category text, sex, value_at_40, value_at_99` (marcas para convertir a 0–99)
+**field_test_result** — `id, team_id, player_user_id, test_code, value numeric, attempts jsonb, timing_method ('manual','photocell','app'), measured_at, measured_by, conditions jsonb`
+
+## 8. Cuerpo técnico
+
+**coach_assessment** — `id, team_id, player_user_id, coach_user_id, primary_position, secondary_positions position_code[], confidence 1–5, blind boolean, notes, created_at`
+
+**lineup**
+| Columna | Tipo | Notas |
+|---|---|---|
+| id | uuid PK | |
+| team_id | uuid FK | |
+| created_by | uuid FK | |
+| name | text | |
+| format / formation | enum / text | |
+| mode | enum (`balanced`,`performance`,`development`) | |
+| weights | jsonb | pesos A/V/C/R usados (por si el entrenador los ajustó) |
+| fit_version | text | versión del algoritmo de encaje |
+| pins | jsonb | `[{slot, player_user_id}]` |
+| min_knowledge_pct | numeric(4,3) null | umbral de "conocimiento mínimo"; null = apagado |
+| assignments | jsonb | `[{slot, player_user_id, cost, breakdown:{A,V,C,R}}]` |
+| bench | uuid[] | |
+| match_date | date null | |
+
+Se guarda la foto completa del cálculo: si mañana cambian tarjetas o certificaciones, la alineación guardada sigue explicando por qué se eligió.
+
+## 9. Auditoría
+
+**audit_log** — `id, actor_user_id, action, entity, entity_id, team_id, at, meta jsonb`. Se registra: cambios de rol, invitaciones, consentimientos, exportaciones, anulación de intentos y exámenes, **anulación de exámenes de conocimiento, solicitudes de re-evaluación**, **cambios en tarjetas**, borrados.
+
+## 10. Índices clave
+
+- `team_membership (user_id)` y `(team_id, role)` — autorización en cada petición.
+- `quiz_attempt (user_id, submitted_at desc)`, `(team_id, status)`.
+- `attempt_result (attempt_id) where is_official`.
+- `cert_exam (user_id) where status = 'in_progress'` (único).
+- `cert_exam (user_id, position, started_at desc)` — comprobar la espera de 30 días.
+- `cert_exam_item (item_id)` + `cert_exam (user_id)` — ítems ya vistos por el jugador, para priorizar los no vistos.
+- `cert_exam (user_id, position, pct desc) where status = 'submitted'` — vista `knowledge_score`.
+- `player_rating (team_id, player_user_id, rated_at desc)`.
+
+## 11. Retención y borrado
+
+- Borrar cuenta: anonimizar intentos y exámenes (romper `user_id`) solo si el club conserva estadísticas agregadas; si no, borrado en cascada. Los exámenes de conocimiento y las tarjetas se borran siempre (son datos personales sin valor agregado).
+- Revocar `data_consent` bloquea el tratamiento de sus datos hasta nueva aceptación.
