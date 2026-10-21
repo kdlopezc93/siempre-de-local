@@ -57,11 +57,12 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | `pnpm db:generate` | Genera la migración SQL a partir del esquema Drizzle |
 | `pnpm db:migrate` | Aplica las migraciones pendientes |
 | `pnpm db:check` | Comprueba la consistencia de las migraciones |
+| `pnpm db:seed` | Compila el API y publica el contenido inicial (cuestionario v1); idempotente |
 | `pnpm proxy:up` | Levanta Caddy (HTTPS local en `app.`/`api.sdl.localtest.me`) |
 | `pnpm spike:pwa <url-túnel>` | Spike PWA en celulares: compila y sirve web + API por un túnel de VS Code (`docs/spikes/pwa.md`) |
 | `pnpm proxy:cert` | Exporta el certificado raíz de Caddy a `.certs/` para importarlo en Windows |
 
 Los tests de integración del API levantan su propio Postgres con Testcontainers (requieren Docker).
-**CI** (`.github/workflows/ci.yml`, en cada PR y en `main`): formato, lint, typecheck, tests y build; y migraciones en seco (`db:check`, esquema ↔ migraciones sincronizados y `db:migrate` dos veces sobre una BD vacía). Si cambias el esquema, sube la migración generada o la CI falla.
+**CI** (`.github/workflows/ci.yml`, en cada PR y en `main`): formato, lint, typecheck, tests y build; y migraciones en seco (`db:check`, esquema ↔ migraciones sincronizados, `db:migrate` dos veces sobre una BD vacía y `db:seed` dos veces). Si cambias el esquema, sube la migración generada o la CI falla.
 Cada app tiene su `.env.example`; cópialo a `.env` en la misma carpeta.
 En WSL con el repo bajo `/mnt/c`, Vite y `tsc --watch` sondean archivos (no hay eventos inotify); mover el repo al disco de Linux (`~/`) acelera todo.

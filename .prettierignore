@@ -4,3 +4,4 @@ coverage
 docs
 .agents
 apps/api/drizzle
+apps/api/src/modules/questionnaires/infrastructure/seed/orientation-v1.content.ts

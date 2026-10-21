@@ -84,13 +84,17 @@ user ─┬─< account (Google; en el futuro otros proveedores / OIDC)
 
 ## 5. Test de orientación (versionado)
 
-**questionnaire_version** — `id, label, status ('draft','published','retired'), position_items_per_attempt (15), published_at`
+**questionnaire_version** — `id, label unique, status questionnaire_status ('draft','published','retired'), position_items_per_attempt (15), published_at, created_at`
 
-**position_item** — `id, version_id, code, context ('situation','attribute'), text, sort`
-**position_option** — `id, item_id, label, sort`
-**option_weight** — `option_id, position, points smallint` · PK (option_id, position)
-**prep_item** — `id, version_id, position, text, sort`
-**prep_option** — `id, item_id, label, is_correct boolean, sort` · exactamente una correcta por ítem (validado al publicar)
+**position_item** — `id, version_id, code, context position_item_context ('situation','attribute'), text, sort` · unique (version_id, code) y (version_id, sort)
+**position_option** — `id, item_id, label, sort` · unique (item_id, sort)
+**option_weight** — `option_id, position position_code, points smallint > 0` · PK (option_id, position)
+**prep_item** — `id, version_id, position position_code, text, sort` · unique (version_id, position, sort)
+**prep_option** — `id, item_id, label, is_correct boolean, sort` · unique (item_id, sort). Índice único parcial `prep_option_one_correct` (como mucho una correcta); "exactamente una" se valida al publicar (`validateOrientationContent`)
+
+Implementado en `apps/api/src/modules/questionnaires/infrastructure/schema.ts` (migración `0001_questionnaire_v1`). El enum `position_code` vive en `shared/db/enums.ts` y sale del orden canónico de `@sdl/domain`. Las FK no borran en cascada: una versión publicada no se borra, se retira.
+
+**Contenido v1:** `pnpm db:seed` publica la versión `v1` con las 31 preguntas de posición y las 64 de preparación del prototipo (idempotente por `label`). El contenido se genera con `apps/api/scripts/extract-prototype-content.mjs` y un test comprueba que coincide con `docs/prototipo/detector-posicion.jsx`. Al extraerlo se barajan las opciones de preparación (de forma determinista), porque en el prototipo la correcta siempre era la primera.
 
 **quiz_attempt**
 | Columna | Tipo | Notas |
