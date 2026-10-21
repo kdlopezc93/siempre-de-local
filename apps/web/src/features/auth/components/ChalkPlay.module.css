@@ -1,0 +1,59 @@
+.board {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  /* Alineada a la izquierda, con el mismo borde que el texto de la pantalla. */
+  margin-inline: 0 auto;
+  overflow: visible;
+}
+
+.pitch {
+  fill: none;
+  stroke: var(--sdl-pitch-stroke);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.spot {
+  fill: var(--sdl-pitch-stroke);
+}
+
+.ours {
+  fill: none;
+  stroke: var(--sdl-chalk-stroke);
+  stroke-width: 2.6;
+}
+
+.rival {
+  fill: none;
+  stroke: var(--sdl-fg-muted);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.pass {
+  fill: none;
+  stroke: var(--sdl-chalk-stroke);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  opacity: 0.75;
+}
+
+.run {
+  fill: none;
+  stroke: var(--sdl-primary);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-dasharray: 2 9;
+}
+
+.arrowhead {
+  fill: var(--sdl-primary);
+}
+
+.passhead {
+  fill: var(--sdl-chalk-stroke);
+  opacity: 0.75;
+}

@@ -27,7 +27,7 @@ Tono de la UI: cercano, de barrio y en español latinoamericano; nada de jerga c
 1. **Sistema de diseño primero** — skill `ui-ux-pro-max`. Antes de la primera pantalla, genera el sistema de diseño (paleta, tipografía, espaciado, estilo, anti-patrones) partiendo de la identidad existente "pizarra táctica" del prototipo, y guárdalo en `docs/design-system.md` + tokens en `apps/web/src/shared/styles/`. Cada pantalla nueva consulta ese documento; no se inventan colores ni tamaños sueltos.
 2. **Dirección estética e implementación** — skill `frontend-design`. Úsala al construir o rediseñar pantallas y componentes de `shared/ui` para evitar el look genérico de plantilla.
 3. **Animaciones** — solo donde aporten (transición entre pasos del test, revelado del podio, cambios en la pizarra). Usa la skill de animación instalada; siempre respetando `prefers-reduced-motion`, animando solo `transform`/`opacity` y sin bloquear la interacción.
-4. **Auditoría antes de dar por terminada una pantalla** — skills `web-design-guidelines` (accesibilidad, foco, formularios, táctil, dark mode) y `react-best-practices` (re-renders, bundle, data fetching). Corrige los hallazgos críticos y altos; deja los demás anotados en el PR.
+4. **Auditoría antes de dar por terminada una pantalla** — skills `web-design-guidelines` (accesibilidad, foco, formularios, táctil, dark mode) y `vercel-react-best-practices` (re-renders, bundle, data fetching). Corrige los hallazgos críticos y altos; deja los demás anotados en el PR.
 
 Mobile first: la mayoría de jugadores lo usará en el celular. Objetivos táctiles ≥ 44 px, sin scroll horizontal, probado a 360 px de ancho.
 
@@ -46,7 +46,8 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | Comando | Qué hace |
 |---|---|
 | `pnpm install` | Instala el workspace |
-| `pnpm dev` | Levanta las apps en modo desarrollo (API en `:3000`, prefijo `/api/v1`) |
+| `pnpm dev` | Levanta API (`:3000`, prefijo `/api/v1`) y web (`:5173`); se usan vía Caddy en `https://app.sdl.localtest.me` |
+| `pnpm --filter @sdl/web icons` | Regenera los iconos de la PWA desde `apps/web/public/favicon.svg` |
 | `pnpm lint` | ESLint en todo el repo (incluye reglas de frontera entre capas) |
 | `pnpm typecheck` | `tsc --noEmit` en cada paquete |
 | `pnpm test` | Vitest en cada paquete |
@@ -61,3 +62,4 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 
 Los tests de integración del API levantan su propio Postgres con Testcontainers (requieren Docker).
 Cada app tiene su `.env.example`; cópialo a `.env` en la misma carpeta.
+En WSL con el repo bajo `/mnt/c`, Vite y `tsc --watch` sondean archivos (no hay eventos inotify); mover el repo al disco de Linux (`~/`) acelera todo.

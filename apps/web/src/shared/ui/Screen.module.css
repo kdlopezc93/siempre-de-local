@@ -1,0 +1,12 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  width: 100%;
+  max-width: var(--sdl-content-max);
+  margin-inline: auto;
+  padding-block: max(var(--sdl-space-6), env(safe-area-inset-top))
+    max(var(--sdl-space-8), env(safe-area-inset-bottom));
+  padding-inline: max(var(--sdl-gutter), env(safe-area-inset-left))
+    max(var(--sdl-gutter), env(safe-area-inset-right));
+}
