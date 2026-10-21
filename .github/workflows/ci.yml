@@ -94,3 +94,9 @@ jobs:
 
       - name: Volver a aplicarlas (deben ser idempotentes)
         run: pnpm db:migrate
+
+      - name: Seed del contenido inicial
+        run: pnpm db:seed
+
+      - name: Volver a sembrar (debe ser idempotente)
+        run: pnpm --filter @sdl/api db:seed
