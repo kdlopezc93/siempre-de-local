@@ -1,5 +1,7 @@
 # Siempre de Local
 
+[![CI](https://github.com/kdlopezc93/siempre-de-local/actions/workflows/ci.yml/badge.svg)](https://github.com/kdlopezc93/siempre-de-local/actions/workflows/ci.yml)
+
 La mano derecha de los equipos y técnicos de fútbol amateur, donde el fútbol es más pasión que profesión. **Tu equipo, siempre de local.**
 
 PWA (React + Vite) + API (NestJS + Fastify) + PostgreSQL, en un monorepo pnpm. La documentación del proyecto está en [`docs/`](docs/); empieza por [`docs/00-contexto-proyecto.md`](docs/00-contexto-proyecto.md).

@@ -61,5 +61,6 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | `pnpm proxy:cert` | Exporta el certificado raíz de Caddy a `.certs/` para importarlo en Windows |
 
 Los tests de integración del API levantan su propio Postgres con Testcontainers (requieren Docker).
+**CI** (`.github/workflows/ci.yml`, en cada PR y en `main`): formato, lint, typecheck, tests y build; y migraciones en seco (`db:check`, esquema ↔ migraciones sincronizados y `db:migrate` dos veces sobre una BD vacía). Si cambias el esquema, sube la migración generada o la CI falla.
 Cada app tiene su `.env.example`; cópialo a `.env` en la misma carpeta.
 En WSL con el repo bajo `/mnt/c`, Vite y `tsc --watch` sondean archivos (no hay eventos inotify); mover el repo al disco de Linux (`~/`) acelera todo.
