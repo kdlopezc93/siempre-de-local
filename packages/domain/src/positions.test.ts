@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { POSITION_CODES, isPositionCode } from './positions.js';
+import { ELIGIBLE_POSITIONS, POSITION_CODES, isPositionCode } from './positions.js';
 
 describe('positions', () => {
   it('mantiene el orden canónico de 02 §1', () => {
@@ -10,5 +10,10 @@ describe('positions', () => {
   it('reconoce solo códigos válidos', () => {
     expect(isPositionCode('DFC')).toBe(true);
     expect(isPositionCode('CB')).toBe(false);
+  });
+
+  it('en F8 compiten 6 posiciones: sin pivote ni mediapunta', () => {
+    expect(ELIGIBLE_POSITIONS.F8).toEqual(['POR', 'LAT', 'DFC', 'MC', 'EXT', 'DC']);
+    expect(ELIGIBLE_POSITIONS.F11).toEqual(POSITION_CODES);
   });
 });
