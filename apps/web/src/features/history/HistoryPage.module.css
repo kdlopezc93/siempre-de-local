@@ -1,0 +1,117 @@
+.screen {
+  gap: var(--sdl-space-5);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: var(--sdl-touch-min);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  text-underline-offset: 4px;
+  touch-action: manipulation;
+}
+
+.title {
+  font-size: var(--sdl-text-display);
+  line-height: var(--sdl-leading-display);
+  letter-spacing: var(--sdl-tracking-display);
+  text-transform: uppercase;
+}
+
+.muted {
+  color: var(--sdl-fg-muted);
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-4);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry,
+.entryLink {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-1);
+  padding: var(--sdl-space-3) var(--sdl-space-4);
+  border: var(--sdl-stroke) solid var(--sdl-border);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface);
+}
+
+.entryLink {
+  border-color: var(--sdl-border-control);
+  color: var(--sdl-fg);
+  text-decoration: none;
+  touch-action: manipulation;
+  transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
+}
+
+.entryLink:active {
+  transform: scale(0.98);
+}
+
+.meta {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.first {
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-lg);
+  font-weight: 600;
+  letter-spacing: var(--sdl-tracking-button);
+  text-transform: uppercase;
+}
+
+.rest {
+  color: var(--sdl-fg-muted);
+}
+
+.pending {
+  color: var(--sdl-primary);
+}
+
+.primaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: var(--sdl-space-3) var(--sdl-space-5);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-primary);
+  color: var(--sdl-on-primary);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-lg);
+  font-weight: 600;
+  letter-spacing: var(--sdl-tracking-button);
+  text-decoration: none;
+  text-transform: uppercase;
+  touch-action: manipulation;
+}
+
+@media (hover: hover) {
+  .entryLink:hover {
+    background: var(--sdl-surface-hover);
+  }
+
+  .back:hover {
+    color: var(--sdl-fg);
+  }
+
+  .primaryLink:hover {
+    background: var(--sdl-primary-hover);
+  }
+}

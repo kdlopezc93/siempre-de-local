@@ -1,6 +1,8 @@
 import {
+  AttemptListResponseSchema,
   AttemptResultSchema,
   QuestionnaireResponseSchema,
+  type AttemptListResponse,
   type AttemptResult,
   type QuestionnaireResponse,
   type SubmitAttemptRequest,
@@ -22,4 +24,8 @@ export function submitAttempt(attempt: SubmitAttemptRequest): Promise<AttemptRes
 
 export function fetchAttempt(attemptId: string): Promise<AttemptResult> {
   return apiRequest(`/api/v1/attempts/${attemptId}`, AttemptResultSchema);
+}
+
+export function fetchMyAttempts(): Promise<AttemptListResponse> {
+  return apiRequest('/api/v1/me/attempts', AttemptListResponseSchema);
 }

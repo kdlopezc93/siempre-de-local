@@ -56,6 +56,15 @@ export function HomePage({ me }: { me: Me }) {
           </ul>
         )}
 
+        <nav aria-label="Más" className={styles.more}>
+          <Link to="/historial" className={styles.teamAction}>
+            Tus tests
+          </Link>
+          <Link to="/bases" className={styles.teamAction}>
+            En qué se basa el test
+          </Link>
+        </nav>
+
         {/* TEMPORAL · spike PWA (docs/spikes/pwa.md) */}
         <Link to="/prueba-pwa" className={styles.spikeLink}>
           Probar la app sin conexión

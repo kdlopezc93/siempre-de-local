@@ -110,6 +110,9 @@ function Intro({
           Si te quedas sin señal, sigue respondiendo: lo enviamos cuando vuelva. Es una orientación,
           no un veredicto.
         </p>
+        <Link to="/bases" className={styles.back}>
+          En qué se basa el test
+        </Link>
       </div>
     </Screen>
   );

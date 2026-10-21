@@ -10,8 +10,10 @@ import { JoinPage } from '../join/JoinPage';
 import { useInvitationPreview } from '../join/use-join';
 import { ConsentPage } from '../onboarding/ConsentPage';
 import { NoTeamPage } from '../onboarding/NoTeamPage';
+import { HistoryPage } from '../history/HistoryPage';
 import { QuizPage } from '../quiz/QuizPage';
 import { ResultPage } from '../result/ResultPage';
+import { SciencePage } from '../science/SciencePage';
 import { InvitePage } from '../team-admin/InvitePage';
 import { SpikePwaPage } from '../spike-pwa/SpikePwaPage';
 import { LoginPage } from './LoginPage';
@@ -98,4 +100,14 @@ export function QuizRoute() {
 export function ResultRoute() {
   const { attemptId = '' } = useParams();
   return <RequireSession>{() => <ResultPage attemptId={attemptId} />}</RequireSession>;
+}
+
+/** "/historial" — mis tests. */
+export function HistoryRoute() {
+  return <RequireSession>{(me) => <HistoryPage me={me} />}</RequireSession>;
+}
+
+/** "/bases" — en qué se basa el test. */
+export function ScienceRoute() {
+  return <RequireSession>{() => <SciencePage />}</RequireSession>;
 }
