@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fakeApi } from '../../test/fake-api';
 import { JoinRoute } from '../auth/SessionRoutes';
+import { DEFAULT_PROFILE } from '../../test/me-fixture';
 
 const CODE = 'K7Q2M9XDAB';
 const PREVIEW = {
@@ -37,7 +38,7 @@ function renderJoin() {
 
 const me = (consent: typeof CONSENT | null) => ({
   status: 200,
-  body: { user: USER, consent, teams: [], clubs: [] },
+  body: { user: USER, consent, teams: [], profile: DEFAULT_PROFILE, clubs: [] },
 });
 
 describe('JoinPage', () => {

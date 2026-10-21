@@ -17,7 +17,9 @@ export function HomePage({ me }: { me: Me }) {
 
   const busy = signOut.isPending || signOutEverywhere.isPending;
   const failed = signOut.isError || signOutEverywhere.isError;
-  const firstName = user.name.split(' ')[0] || user.name;
+  // Como le dicen en la cancha (perfil); por defecto, su nombre de Google.
+  const displayName = me.profile.displayName;
+  const firstName = displayName.split(' ')[0] || displayName;
 
   useEffect(() => {
     if (confirming) confirmRef.current?.focus();
@@ -57,6 +59,9 @@ export function HomePage({ me }: { me: Me }) {
         )}
 
         <nav aria-label="Más" className={styles.more}>
+          <Link to="/perfil" className={styles.teamAction}>
+            Tu perfil
+          </Link>
           <Link to="/historial" className={styles.teamAction}>
             Tus tests
           </Link>

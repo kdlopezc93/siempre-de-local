@@ -12,6 +12,7 @@ import { resetOutboxForTests } from '../../shared/offline/outbox';
 import { fakeApi } from '../../test/fake-api';
 import { QUESTIONNAIRE, uuid } from '../../test/questionnaire-fixture';
 import { QuizPage } from './QuizPage';
+import { DEFAULT_PROFILE } from '../../test/me-fixture';
 
 const TEAM_ID = uuid(9);
 const me = (roles: ('player' | 'coach')[]): Me => ({
@@ -24,6 +25,7 @@ const me = (roles: ('player' | 'coach')[]): Me => ({
       roles,
     },
   ],
+  profile: DEFAULT_PROFILE,
   clubs: [],
 });
 

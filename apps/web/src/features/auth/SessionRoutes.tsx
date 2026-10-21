@@ -11,6 +11,7 @@ import { useInvitationPreview } from '../join/use-join';
 import { ConsentPage } from '../onboarding/ConsentPage';
 import { NoTeamPage } from '../onboarding/NoTeamPage';
 import { HistoryPage } from '../history/HistoryPage';
+import { ProfilePage } from '../player-profile/ProfilePage';
 import { QuizPage } from '../quiz/QuizPage';
 import { ResultPage } from '../result/ResultPage';
 import { SciencePage } from '../science/SciencePage';
@@ -110,4 +111,9 @@ export function HistoryRoute() {
 /** "/bases" — en qué se basa el test. */
 export function ScienceRoute() {
   return <RequireSession>{() => <SciencePage />}</RequireSession>;
+}
+
+/** "/perfil" — el perfil propio. */
+export function ProfileRoute() {
+  return <RequireSession>{(me) => <ProfilePage me={me} />}</RequireSession>;
 }

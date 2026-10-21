@@ -87,7 +87,9 @@ Implementado en `apps/api/src/modules/teams/infrastructure/schema.ts`, migracion
 | dominant_foot | enum (`left`,`right`,`both`) null | |
 | plays_goalkeeper | boolean default false | habilita atributos de portero |
 
-**player_preferred_position** — `user_id, position position_code, rank smallint (1–3)` · PK (user_id, position)
+**player_preferred_position** — `user_id, position position_code, rank smallint (1–3)` · PK (user_id, position) · unique (user_id, rank) · check rank 1–3
+
+Implementado en `apps/api/src/modules/player-profile/infrastructure/schema.ts` (migración `0007_player_profile`), con `player_profile.updated_at`; ambas tablas se borran en cascada con el usuario. Mientras no exista la fila, `/me` devuelve el perfil por defecto (nombre visible = el de Google, sin pie, no portero, sin preferidas).
 
 ## 5. Test de orientación (versionado)
 

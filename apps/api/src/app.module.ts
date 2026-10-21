@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from './config/config.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { IdentityModule } from './modules/identity/identity.module.js';
+import { PlayerProfileModule } from './modules/player-profile/player-profile.module.js';
 import { QuestionnairesModule } from './modules/questionnaires/questionnaires.module.js';
 import { QuizModule } from './modules/quiz/quiz.module.js';
 import { SpikePwaModule } from './modules/spike-pwa/spike-pwa.module.js';
@@ -18,6 +19,7 @@ import { DbModule } from './shared/db/db.module.js';
     DbModule,
     IdentityModule,
     TeamsModule,
+    PlayerProfileModule,
     QuestionnairesModule,
     QuizModule,
     HealthModule,

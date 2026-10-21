@@ -4,5 +4,6 @@ export * from './health.js';
 export * from './invitations.js';
 export * from './me.js';
 export * from './orientation.js';
+export * from './profile.js';
 export * from './spike-pwa.js';
 export * from './teams.js';
