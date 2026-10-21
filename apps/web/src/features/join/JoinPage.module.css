@@ -1,0 +1,123 @@
+.screen {
+  gap: var(--sdl-space-8);
+}
+
+/* La convocatoria ocupa el aire de arriba; el texto y la acción quedan abajo, al pulgar. */
+.convocation {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--sdl-space-2);
+  min-height: 180px;
+}
+
+.club {
+  color: var(--sdl-fg-muted);
+  overflow-wrap: anywhere;
+}
+
+.team {
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-display);
+  font-weight: 700;
+  line-height: var(--sdl-leading-display);
+  letter-spacing: var(--sdl-tracking-display);
+  text-transform: uppercase;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-4);
+}
+
+.title {
+  font-size: var(--sdl-text-xl);
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.lead {
+  max-width: 36ch;
+  color: var(--sdl-fg-muted);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+  margin-top: var(--sdl-space-2);
+}
+
+/* El logo de Google va sobre blanco, como piden sus directrices de marca. */
+.googleBadge {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-color-google-badge);
+}
+
+.note {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.email {
+  color: var(--sdl-fg);
+  overflow-wrap: anywhere;
+}
+
+.alert {
+  padding: var(--sdl-space-3) var(--sdl-space-4);
+  border: var(--sdl-stroke) solid var(--sdl-danger);
+  border-radius: var(--sdl-radius-sm);
+  background: var(--sdl-surface);
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}
+
+.textLink,
+.primaryLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--sdl-touch-min);
+  touch-action: manipulation;
+}
+
+.textLink {
+  align-self: flex-start;
+  color: var(--sdl-fg);
+  text-underline-offset: 4px;
+}
+
+/* Enlace con la misma presencia que el botón principal: lleva a otra pantalla. */
+.primaryLink {
+  min-height: 52px;
+  padding: var(--sdl-space-3) var(--sdl-space-5);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-primary);
+  color: var(--sdl-on-primary);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-lg);
+  font-weight: 600;
+  letter-spacing: var(--sdl-tracking-button);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+@media (hover: hover) {
+  .primaryLink:hover {
+    background: var(--sdl-primary-hover);
+  }
+
+  .textLink:hover {
+    color: var(--sdl-primary);
+  }
+}

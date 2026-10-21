@@ -1,0 +1,119 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-4);
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Viñeta de tiza: un trazo corto ámbar, como las marcas del técnico. */
+.summary li {
+  position: relative;
+  padding-left: var(--sdl-space-5);
+}
+
+.summary li::before {
+  content: '';
+  position: absolute;
+  top: 0.75em;
+  left: 0;
+  width: 10px;
+  height: 2px;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-primary);
+}
+
+.details {
+  border-block: var(--sdl-stroke) solid var(--sdl-border);
+}
+
+.details summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--sdl-touch-min);
+  color: var(--sdl-fg);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.details[open] {
+  padding-bottom: var(--sdl-space-4);
+}
+
+.age {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+  min-height: var(--sdl-touch-min);
+  padding: var(--sdl-space-2) var(--sdl-space-4);
+  border: var(--sdl-stroke) solid var(--sdl-border-control);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.check:has(input:checked) {
+  border-color: var(--sdl-primary);
+  background: var(--sdl-surface-selected);
+}
+
+.check:has(input:focus-visible) {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+}
+
+.check input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--sdl-primary);
+}
+
+.check input:focus-visible {
+  outline: none;
+}
+
+.fieldError,
+.alert {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}
+
+.alert {
+  padding: var(--sdl-space-3) var(--sdl-space-4);
+  border: var(--sdl-stroke) solid var(--sdl-danger);
+  border-radius: var(--sdl-radius-sm);
+  background: var(--sdl-surface);
+}
+
+.note {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+@media (hover: hover) {
+  .check:hover {
+    background: var(--sdl-surface-hover);
+  }
+
+  .details summary:hover {
+    color: var(--sdl-primary);
+  }
+}
