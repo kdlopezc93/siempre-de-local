@@ -66,6 +66,12 @@
   touch-action: manipulation;
 }
 
+.more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sdl-space-2) var(--sdl-space-5);
+}
+
 .spikeLink {
   display: inline-flex;
   align-items: center;

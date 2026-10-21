@@ -60,7 +60,7 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | `pnpm db:seed` | Compila el API y publica el contenido inicial (cuestionario v1); idempotente |
 | `pnpm admin:bootstrap-team -- --club-name … --club-slug … --team-name … --format F11 --season 2026 --owner-email … --coach-email …` | Alta de club con su dueño y un equipo con su entrenador (deben haber entrado una vez con Google); idempotente |
 | `pnpm proxy:up` | Levanta Caddy (HTTPS local en `app.`/`api.sdl.localtest.me`) |
-| `pnpm dev:tunnel <url-túnel>` | Desarrollo desde el celular: app (con recarga en vivo) y API (en vigilancia) por el túnel de VS Code al puerto 4173. Reemplaza a `pnpm dev` mientras corre |
+| `pnpm dev:tunnel <url-túnel>` | Desarrollo desde el celular: app (con recarga en vivo) y API (en vigilancia) por el túnel de VS Code al puerto 4173. Reemplaza a `pnpm dev` mientras corre. **No tiene service worker:** lo que es sin conexión (abrir sin señal, cola, podio provisional) se prueba con `spike:pwa`. Al cambiar de un modo al otro, cierra todas las pestañas de la app y la app instalada en el celular (el service worker anterior manda hasta que no quede ninguna abierta) |
 | `pnpm spike:pwa <url-túnel>` | Spike PWA en celulares: compila y sirve web + API por un túnel de VS Code (`docs/spikes/pwa.md`) |
 | `pnpm proxy:cert` | Exporta el certificado raíz de Caddy a `.certs/` para importarlo en Windows |
 

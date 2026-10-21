@@ -1,12 +1,14 @@
 import { createBrowserRouter, Navigate } from 'react-router';
 
 import {
+  HistoryRoute,
   HomeRoute,
   InviteRoute,
   JoinRoute,
   LoginRoute,
   QuizRoute,
   ResultRoute,
+  ScienceRoute,
   SpikePwaRoute,
 } from '../features/auth/SessionRoutes';
 
@@ -17,6 +19,8 @@ export const router = createBrowserRouter([
   { path: '/equipos/:teamId/invitar', element: <InviteRoute /> },
   { path: '/equipos/:teamId/test', element: <QuizRoute /> },
   { path: '/resultados/:attemptId', element: <ResultRoute /> },
+  { path: '/historial', element: <HistoryRoute /> },
+  { path: '/bases', element: <ScienceRoute /> },
   { path: '/prueba-pwa', element: <SpikePwaRoute /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ]);
