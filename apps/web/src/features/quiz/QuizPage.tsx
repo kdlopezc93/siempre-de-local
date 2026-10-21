@@ -1,11 +1,11 @@
-import type { PositionCode } from '@sdl/contracts';
-import { POSITIONS } from '@sdl/domain';
+import type { MatchFormat } from '@sdl/contracts';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useBlocker } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
+import { ResultView } from '../result/ResultView';
 import { CONTEXT, FORMAT } from './labels';
 import { isDone, type ShownItem } from './quiz-engine';
 import styles from './QuizPage.module.css';
@@ -57,7 +57,9 @@ function Quiz({ userId, team }: { userId: string; team: Me['teams'][number]['tea
   }
 
   if (!quiz.state) return <Intro team={team} quiz={quiz} />;
-  if (isDone(quiz.state)) return <Submitted status={quiz.submit!} onRestart={quiz.restart} />;
+  if (isDone(quiz.state)) {
+    return <Submitted status={quiz.submit!} format={team.format} onRestart={quiz.restart} />;
+  }
 
   const { index, items } = quiz.state;
   return (
@@ -186,22 +188,6 @@ function Question({
   );
 }
 
-/** Las 3 posiciones en orden: la primera grande, las otras dos debajo. */
-function Podium({ podium, title }: { podium: PositionCode[]; title: string }) {
-  const [first, ...rest] = podium;
-  return (
-    <div className={styles.intro}>
-      <p className={styles.meta}>{title}</p>
-      <h1 className={styles.display}>{POSITIONS[first!].name}</h1>
-      <ol className={styles.podium} start={2}>
-        {rest.map((pos) => (
-          <li key={pos}>{POSITIONS[pos].name}</li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
 const PENDING_NOTE = {
   sending: 'Calculando tu resultado oficial…',
   'saved-offline':
@@ -210,21 +196,15 @@ const PENDING_NOTE = {
     'Tu sesión venció. Tu test sigue guardado en el celular: entra de nuevo y se envía solo.',
 } as const;
 
-function Submitted({ status, onRestart }: { status: SubmitStatus; onRestart: () => void }) {
-  if (status.kind === 'scored') {
-    return (
-      <Screen className={styles.screen}>
-        <Podium podium={status.result.podium} title="Tus 3 posiciones" />
-        <p className={styles.note}>
-          Muy pronto vas a ver aquí tu pizarra y vas a poder certificarte en cualquiera de las tres.
-        </p>
-        <Link to="/" className={styles.primaryLink}>
-          Volver al inicio
-        </Link>
-      </Screen>
-    );
-  }
-
+function Submitted({
+  status,
+  format,
+  onRestart,
+}: {
+  status: SubmitStatus;
+  format: MatchFormat;
+  onRestart: () => void;
+}) {
   if (status.kind === 'rejected') {
     return (
       <Screen className={styles.screen}>
@@ -242,18 +222,29 @@ function Submitted({ status, onRestart }: { status: SubmitStatus; onRestart: () 
     );
   }
 
+  const official = status.kind === 'scored';
+  const podium = official ? status.result.ranking.slice(0, 3) : status.provisionalPodium;
+
   return (
     <Screen className={styles.screen}>
-      <Podium podium={status.provisionalPodium} title="Tu podio provisional" />
-      <p className={styles.note} role="status">
-        {PENDING_NOTE[status.kind]}
-      </p>
+      {/* La clave cambia al llegar el oficial: el podio se vuelve a revelar con los datos buenos. */}
+      <ResultView
+        key={official ? 'official' : 'provisional'}
+        format={format}
+        podium={podium}
+        provisional={!official}
+      />
+      {!official && (
+        <p className={styles.note} role="status">
+          {PENDING_NOTE[status.kind]}
+        </p>
+      )}
       {status.kind === 'needs-auth' ? (
         <Link to="/entrar" className={styles.primaryLink}>
           Entrar
         </Link>
       ) : (
-        <Link to="/" className={styles.back}>
+        <Link to="/" className={official ? styles.primaryLink : styles.back}>
           Volver al inicio
         </Link>
       )}

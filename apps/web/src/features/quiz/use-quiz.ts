@@ -32,9 +32,9 @@ export function useQuestionnaire() {
 
 /** Mientras no llega el oficial se muestra el podio calculado en el celular. */
 export type SubmitStatus =
-  | { kind: 'sending'; provisionalPodium: PositionCode[] }
-  | { kind: 'saved-offline'; provisionalPodium: PositionCode[] }
-  | { kind: 'needs-auth'; provisionalPodium: PositionCode[] }
+  | { kind: 'sending'; provisionalPodium: { pos: PositionCode; pct: number }[] }
+  | { kind: 'saved-offline'; provisionalPodium: { pos: PositionCode; pct: number }[] }
+  | { kind: 'needs-auth'; provisionalPodium: { pos: PositionCode; pct: number }[] }
   | { kind: 'rejected' }
   | { kind: 'scored'; result: AttemptResult };
 

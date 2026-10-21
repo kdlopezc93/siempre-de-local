@@ -27,8 +27,8 @@ export interface QuizState {
   index: number;
   items: ShownItem[];
   answers: string[];
-  /** Al terminar: el podio calculado en el celular, provisional hasta el oficial. */
-  provisionalPodium: PositionCode[] | null;
+  /** Al terminar: el podio (con su afinidad) calculado en el celular, provisional hasta el oficial. */
+  provisionalPodium: { pos: PositionCode; pct: number }[] | null;
 }
 
 export const isDone = (state: QuizState) => state.provisionalPodium !== null;
@@ -87,7 +87,11 @@ export function answer(
     answers,
     state.format,
   );
-  return { ...state, answers, provisionalPodium: ranking.slice(0, 3).map((entry) => entry.pos) };
+  return {
+    ...state,
+    answers,
+    provisionalPodium: ranking.slice(0, 3).map(({ pos, pct }) => ({ pos, pct })),
+  };
 }
 
 /** El envío de 05 · POST /attempts con lo que se mostró y lo que eligió. */

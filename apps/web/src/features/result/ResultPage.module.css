@@ -1,0 +1,24 @@
+.screen {
+  gap: var(--sdl-space-4);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: var(--sdl-touch-min);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  text-underline-offset: 4px;
+  touch-action: manipulation;
+}
+
+.alert {
+  color: var(--sdl-danger-fg);
+}
+
+@media (hover: hover) {
+  .back:hover {
+    color: var(--sdl-fg);
+  }
+}
