@@ -31,10 +31,10 @@ Solo para probar caché y cola offline en celulares (`docs/spikes/pwa.md`). Se b
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/me` | `{ user, consent: { policyVersion, acceptedAt } \| null, teams: [{ team, club, roles }], clubs: [{ id, name, role }] }` (`MeResponseSchema`). `consent` es null si no aceptó la versión vigente. El perfil se añade con su PR |
+| GET | `/me` | `{ user, profile, consent: { policyVersion, acceptedAt } \| null, teams: [{ team, club, roles }], clubs: [{ id, name, role }] }` (`MeResponseSchema`). `consent` es null si no aceptó la versión vigente; `profile` trae valores por defecto si nunca se editó |
 | POST | `/me/consent` | Aceptar la política vigente: `{ policyVersion, ageConfirmed: true }` → 201 `{ consent }`, idempotente. 400 sin `ageConfirmed`; 422 `POLICY_VERSION_OUTDATED` si la versión no es la vigente (`POLICY_VERSION` en `packages/contracts/src/consent.ts`) |
-| PATCH | `/me/profile` | Nombre visible, pie dominante, `playsGoalkeeper` |
-| PUT | `/me/preferred-positions` | `[{ position, rank }]` (1–3) |
+| PATCH | `/me/profile` | **Implementado.** Solo los campos que cambian: `{ displayName? (2–40), dominantFoot? ('left'\|'right'\|'both'\|null), playsGoalkeeper? }` → `{ profile }`. Exige la política aceptada (`CONSENT_REQUIRED`) |
+| PUT | `/me/preferred-positions` | **Implementado.** Reemplaza la lista: `{ positions: PositionCode[] }`, hasta 3, sin repetir y en orden de preferencia → `{ profile }` |
 | GET | `/me/export` | Exportación de mis datos (JSON) |
 | DELETE | `/me` | Solicitar borrado de cuenta |
 

@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fetchMe, signOutEverywhere, startGoogleSignIn } from './auth';
+import { DEFAULT_PROFILE } from '../../test/me-fixture';
 
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -15,7 +16,7 @@ describe('cliente de identidad', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('devuelve la sesión (usuario, consentimiento y equipos) enviando la cookie', async () => {
-    const me = { user: USER, consent: null, teams: [], clubs: [] };
+    const me = { user: USER, consent: null, teams: [], profile: DEFAULT_PROFILE, clubs: [] };
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, me));
     vi.stubGlobal('fetch', fetchMock);
 

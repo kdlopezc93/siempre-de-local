@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { HomePage } from './HomePage';
+import { DEFAULT_PROFILE } from '../../test/me-fixture';
 
 const USER = {
   id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f70',
@@ -27,6 +28,7 @@ const ME = {
       roles: ['coach' as const],
     },
   ],
+  profile: DEFAULT_PROFILE,
   clubs: [],
 };
 

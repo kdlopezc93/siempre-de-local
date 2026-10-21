@@ -6,6 +6,7 @@ import {
   InviteRoute,
   JoinRoute,
   LoginRoute,
+  ProfileRoute,
   QuizRoute,
   ResultRoute,
   ScienceRoute,
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
   { path: '/resultados/:attemptId', element: <ResultRoute /> },
   { path: '/historial', element: <HistoryRoute /> },
   { path: '/bases', element: <ScienceRoute /> },
+  { path: '/perfil', element: <ProfileRoute /> },
   { path: '/prueba-pwa', element: <SpikePwaRoute /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ]);

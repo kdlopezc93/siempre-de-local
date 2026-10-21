@@ -1,13 +1,13 @@
 import { z } from 'zod';
 
 import { ConsentSchema } from './consent.js';
+import { ProfileSchema } from './profile.js';
 import { MatchFormatSchema, TeamRoleSchema } from './teams.js';
 
 export const ClubRoleSchema = z.enum(['owner', 'admin']);
 
 /**
- * GET /api/v1/me — usuario, consentimiento y membresías activas (docs/05-api.md · Yo).
- * El perfil del jugador se añade con su PR.
+ * GET /api/v1/me — usuario, perfil, consentimiento y membresías activas (docs/05-api.md · Yo).
  */
 export const MeResponseSchema = z.object({
   user: z.object({
@@ -15,6 +15,8 @@ export const MeResponseSchema = z.object({
     name: z.string(),
     email: z.email(),
   }),
+  /** Con valores por defecto si todavía no lo editó (nombre visible = el de Google). */
+  profile: ProfileSchema,
   /** Aceptación de la versión vigente de la política, o null si falta. */
   consent: ConsentSchema.nullable(),
   teams: z.array(

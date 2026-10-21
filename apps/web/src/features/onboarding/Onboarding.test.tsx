@@ -7,6 +7,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fakeApi } from '../../test/fake-api';
 import { HomeRoute } from '../auth/SessionRoutes';
+import { DEFAULT_PROFILE } from '../../test/me-fixture';
 
 const USER = {
   id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f70',
@@ -51,7 +52,7 @@ describe('puertas de entrada al inicio', () => {
     fakeApi({
       'GET /api/v1/me': {
         status: 200,
-        body: { user: USER, consent: CONSENT, teams: [], clubs: [] },
+        body: { user: USER, consent: CONSENT, teams: [], profile: DEFAULT_PROFILE, clubs: [] },
       },
     });
     const router = renderHome();
@@ -76,7 +77,7 @@ describe('puertas de entrada al inicio', () => {
     fakeApi({
       'GET /api/v1/me': () => ({
         status: 200,
-        body: { user: USER, consent, teams: [TEAM], clubs: [] },
+        body: { user: USER, consent, teams: [TEAM], profile: DEFAULT_PROFILE, clubs: [] },
       }),
       'POST /api/v1/me/consent': () => {
         consent = CONSENT;

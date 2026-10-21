@@ -11,6 +11,7 @@ import { enqueue, resetOutboxForTests } from '../../shared/offline/outbox';
 import { fakeApi } from '../../test/fake-api';
 import { uuid } from '../../test/questionnaire-fixture';
 import { HistoryPage } from './HistoryPage';
+import { DEFAULT_PROFILE } from '../../test/me-fixture';
 
 const TEAM_ID = uuid(9);
 const ME: Me = {
@@ -23,6 +24,7 @@ const ME: Me = {
       roles: ['player'],
     },
   ],
+  profile: DEFAULT_PROFILE,
   clubs: [],
 };
 
