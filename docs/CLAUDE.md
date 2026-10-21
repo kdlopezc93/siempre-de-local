@@ -58,6 +58,7 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | `pnpm db:migrate` | Aplica las migraciones pendientes |
 | `pnpm db:check` | Comprueba la consistencia de las migraciones |
 | `pnpm proxy:up` | Levanta Caddy (HTTPS local en `app.`/`api.sdl.localtest.me`) |
+| `pnpm spike:pwa <url-túnel>` | Spike PWA en celulares: compila y sirve web + API por un túnel de VS Code (`docs/spikes/pwa.md`) |
 | `pnpm proxy:cert` | Exporta el certificado raíz de Caddy a `.certs/` para importarlo en Windows |
 
 Los tests de integración del API levantan su propio Postgres con Testcontainers (requieren Docker).

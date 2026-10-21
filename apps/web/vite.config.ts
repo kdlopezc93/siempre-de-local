@@ -3,6 +3,9 @@ import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 const APP_HOST = 'app.sdl.localtest.me';
+/** Mismo nombre que API_CACHE_NAME en src/shared/offline/api-cache.ts. */
+const API_CACHE_NAME = 'sdl-api';
+
 // En WSL, los archivos bajo /mnt/c no emiten eventos de cambio: hay que sondear.
 const ON_WINDOWS_DRIVE = process.cwd().startsWith('/mnt/');
 
@@ -41,7 +44,25 @@ export default defineConfig({
         // Solo woff2: los .woff de respaldo no hacen falta en navegadores con service worker.
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
         navigateFallback: '/index.html',
-        // El API vive en otro origen: el service worker no lo intercepta.
+        // Si el API comparte origen (túnel del spike), su callback de OAuth no es la SPA.
+        navigateFallbackDenylist: [/^\/api\//],
+        runtimeCaching: [
+          {
+            // Respuestas del API que deben verse sin conexión (ADR-06, docs/spikes/pwa.md).
+            // Por ruta y no por origen: en producción el API está en api.<dominio>.
+            // La función se copia tal cual al service worker: no puede usar variables de aquí.
+            urlPattern: ({ url, request }) =>
+              request.method === 'GET' &&
+              ['/api/v1/me', '/api/v1/spike/questionnaire'].includes(url.pathname),
+            // Con red manda el servidor (revalida con ETag); sin red, la última copia.
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: API_CACHE_NAME,
+              networkTimeoutSeconds: 4,
+              cacheableResponse: { statuses: [200] },
+            },
+          },
+        ],
       },
     }),
   ],
@@ -53,5 +74,29 @@ export default defineConfig({
     allowedHosts: [APP_HOST],
     hmr: { host: APP_HOST, protocol: 'wss', clientPort: 443 },
     watch: ON_WINDOWS_DRIVE ? { usePolling: true, interval: 300 } : null,
+  },
+  // Spike PWA (pnpm --filter @sdl/web spike:pwa): build real con service worker servido
+  // por un túnel HTTPS; /api se reenvía al API local para que todo sea un solo origen.
+  preview: {
+    port: 4173,
+    strictPort: true,
+    allowedHosts: ['.devtunnels.ms'],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        xfwd: true,
+        // El túnel de VS Code reescribe Origin a http://localhost:4173 y Better Auth y el
+        // chequeo CSRF lo rechazan: se devuelve al origen público que pasa scripts/spike-pwa.sh.
+        configure: (proxy) => {
+          const publicOrigin = process.env.SPIKE_PUBLIC_ORIGIN;
+          if (!publicOrigin) return;
+          proxy.on('proxyReq', (proxyReq) => {
+            if (proxyReq.getHeader('origin') === 'http://localhost:4173') {
+              proxyReq.setHeader('origin', publicOrigin);
+            }
+          });
+        },
+      },
+    },
   },
 });
