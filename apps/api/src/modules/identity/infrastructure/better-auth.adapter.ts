@@ -10,7 +10,12 @@ export class BetterAuthIdentityProvider implements IdentityProvider {
     return {
       sessionId: result.session.id,
       expiresAt: result.session.expiresAt,
-      user: { id: result.user.id, name: result.user.name, email: result.user.email },
+      user: {
+        id: result.user.id,
+        name: result.user.name,
+        email: result.user.email,
+        platformAdmin: result.user.platformAdmin === true,
+      },
     };
   }
 }

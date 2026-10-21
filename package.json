@@ -19,6 +19,7 @@
     "db:migrate": "pnpm --filter @sdl/api db:migrate",
     "db:check": "pnpm --filter @sdl/api db:check",
     "db:seed": "pnpm --filter \"@sdl/api...\" build && pnpm --filter @sdl/api db:seed",
+    "admin:bootstrap-team": "pnpm --filter \"@sdl/api...\" build && pnpm --filter @sdl/api admin:bootstrap-team",
     "proxy:up": "docker compose up -d proxy",
     "spike:pwa": "bash scripts/spike-pwa.sh",
     "proxy:cert": "mkdir -p .certs && docker compose cp proxy:/data/caddy/pki/authorities/local/root.crt .certs/caddy-local-root.crt"

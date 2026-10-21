@@ -5,3 +5,4 @@
 export * from './enums.js';
 export * from '../../modules/identity/infrastructure/schema.js';
 export * from '../../modules/questionnaires/infrastructure/schema.js';
+export * from '../../modules/teams/infrastructure/schema.js';

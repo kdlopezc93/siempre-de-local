@@ -1,0 +1,22 @@
+import { z } from 'zod';
+
+export const MatchFormatSchema = z.enum(['F8', 'F11']);
+export const TeamRoleSchema = z.enum(['coach', 'assistant', 'player']);
+
+export type MatchFormat = z.infer<typeof MatchFormatSchema>;
+export type TeamRole = z.infer<typeof TeamRoleSchema>;
+
+/** GET /api/v1/teams/:teamId — miembros del equipo y admins de su club. */
+export const TeamResponseSchema = z.object({
+  team: z.object({
+    id: z.uuid(),
+    name: z.string(),
+    format: MatchFormatSchema,
+    season: z.string(),
+    club: z.object({ id: z.uuid(), name: z.string() }),
+  }),
+  /** Roles activos de quien pregunta en este equipo (vacío si entra como admin del club). */
+  myRoles: z.array(TeamRoleSchema),
+});
+
+export type TeamResponse = z.infer<typeof TeamResponseSchema>;

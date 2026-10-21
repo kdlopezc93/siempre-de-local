@@ -44,7 +44,7 @@ Solo para probar caché y cola offline en celulares (`docs/spikes/pwa.md`). Se b
 |---|---|---|
 | POST | `/clubs` | platform admin |
 | GET / POST | `/clubs/:clubId/teams` | club admin |
-| GET | `/teams/:teamId` | miembro |
+| GET | `/teams/:teamId` | miembro activo o admin del club. **Implementado:** `{ team: { id, name, format, season, club: { id, name } }, myRoles }` (`TeamResponseSchema`) |
 | PATCH | `/teams/:teamId` | club admin, coach (incluye `ratingsVisibleToPlayers`) |
 | GET | `/teams/:teamId/members` | coach, assistant |
 | PATCH / DELETE | `/teams/:teamId/members/:userId` | según matriz |

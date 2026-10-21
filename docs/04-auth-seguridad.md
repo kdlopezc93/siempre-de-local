@@ -80,7 +80,8 @@ Decisiones de producto: ver D1, D2 y D8 en `06`.
 ### 2.3 Implementación
 - **Guard** global en NestJS: exige sesión salvo rutas `@Public()`.
 - Decorador por endpoint: `@Can('team.ratings.write', { teamParam: 'teamId' })`.
-- `AuthorizationService` resuelve con las membresías del usuario (cacheadas por petición).
+- La matriz vive en `apps/api/src/shared/authz/policy.ts` como función pura `can(actor, permiso, { teamId, clubId })`, probada contra esta tabla. `PermissionGuard` (global, después de `SessionGuard`) carga las membresías activas una vez por petición y responde **404** si el equipo no existe o el id no es válido, y **403** si no hay permiso. El caso de uso vuelve a llamar a `can()` antes de responder.
+- El admin de plataforma **no** tiene acceso implícito todavía: el acceso de soporte llega junto con `audit_log`.
 - Los repositorios **siempre filtran por equipo/usuario autorizado** (defensa en profundidad).
 - Opcional más adelante: Row Level Security de Postgres como tercera barrera.
 - Por cada endpoint, test de "rol permitido" y de "rol denegado / otro equipo".
