@@ -68,9 +68,12 @@ user ─┬─< account (Google; en el futuro otros proveedores / OIDC)
 
 **team_membership** — `team_id, user_id, role team_role ('coach','assistant','player'), jersey_number smallint null, joined_at, left_at` · PK (team_id, user_id, role)
 
-**invitation** — `id, team_id, role, code_hash, created_by, expires_at, max_uses, used_count, revoked_at`
+**invitation** — `id, team_id, role, code_hash unique, created_by null, expires_at, max_uses, used_count, revoked_at, created_at` · check `0 ≤ used_count ≤ max_uses`
+- `code_hash` = SHA-256 del código normalizado (10 caracteres de un alfabeto sin 0/O/1/I/L, ~50 bits); el código en claro no se guarda.
+- `created_by` queda en null si se borra la cuenta de quien la creó.
+- Aceptar gasta un uso con un `UPDATE … WHERE used_count < max_uses` condicionado, dentro de la misma transacción que crea o reactiva la membresía.
 
-Implementado (salvo `invitation`, que llega con las invitaciones) en `apps/api/src/modules/teams/infrastructure/schema.ts`, migración `0002_teams`. Además: `team` es único por `(club_id, name, season)`; `club_membership` y `team_membership` tienen índice por `user_id` y se borran en cascada con el usuario. Un miembro que sale del equipo conserva su fila con `left_at` y deja de contar para los permisos.
+Implementado en `apps/api/src/modules/teams/infrastructure/schema.ts`, migraciones `0002_teams` y `0003_invitations`. Además: `team` es único por `(club_id, name, season)`; `club_membership` y `team_membership` tienen índice por `user_id` y se borran en cascada con el usuario. Un miembro que sale del equipo conserva su fila con `left_at` y deja de contar para los permisos.
 
 ## 4. Perfil del jugador
 

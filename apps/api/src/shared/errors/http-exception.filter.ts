@@ -9,7 +9,7 @@ import {
 import type { ErrorBody } from '@sdl/contracts';
 import type { FastifyReply } from 'fastify';
 
-import { ForbiddenError, NotFoundError } from './application-errors.js';
+import { ApplicationError } from './application-errors.js';
 
 const CODE_BY_STATUS: Record<number, string> = {
   [HttpStatus.BAD_REQUEST]: 'VALIDATION_ERROR',
@@ -29,13 +29,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost): void {
     const reply = host.switchToHttp().getResponse<FastifyReply>();
 
-    if (exception instanceof NotFoundError || exception instanceof ForbiddenError) {
-      const status =
-        exception instanceof NotFoundError ? HttpStatus.NOT_FOUND : HttpStatus.FORBIDDEN;
-      const body: ErrorBody = {
-        error: { code: CODE_BY_STATUS[status]!, message: exception.message },
-      };
-      void reply.status(status).send(body);
+    if (exception instanceof ApplicationError) {
+      const body: ErrorBody = { error: { code: exception.code, message: exception.message } };
+      void reply.status(exception.status).send(body);
       return;
     }
 

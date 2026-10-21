@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   index,
   pgEnum,
   pgTable,
@@ -81,4 +82,28 @@ export const teamMembership = pgTable(
     leftAt: timestamp({ withTimezone: true }),
   },
   (t) => [primaryKey({ columns: [t.teamId, t.userId, t.role] }), index().on(t.userId)],
+);
+
+export const invitation = pgTable(
+  'invitation',
+  {
+    id: id(),
+    teamId: uuid()
+      .notNull()
+      .references(() => team.id),
+    role: teamRole().notNull(),
+    /** SHA-256 del código; el código en claro no se guarda (se muestra una vez). */
+    codeHash: text().notNull().unique(),
+    /** Null si se borró la cuenta de quien la creó (derecho de supresión, 04 §5). */
+    createdBy: uuid().references(() => user.id, { onDelete: 'set null' }),
+    expiresAt: timestamp({ withTimezone: true }).notNull(),
+    maxUses: smallint().notNull(),
+    usedCount: smallint().notNull().default(0),
+    revokedAt: timestamp({ withTimezone: true }),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    index().on(t.teamId),
+    check('invitation_uses_in_range', sql`${t.usedCount} >= 0 and ${t.usedCount} <= ${t.maxUses}`),
+  ],
 );

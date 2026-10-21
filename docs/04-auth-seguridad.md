@@ -32,6 +32,8 @@ No hay registro abierto. Se entra por **invitación**:
 3. Acepta la política de datos y **declara ser mayor de 18 años** (`data_consent.age_confirmed`). Si no lo es, no se completa el alta y se le muestra un mensaje (no hay flujo de menores por ahora).
 4. Queda como `player` en el equipo.
 
+Implementación: código de 10 caracteres sin caracteres ambiguos (~50 bits), guardado solo como hash; caducidad de 1–30 días (7 por defecto) y usos de 1–100. **Pendiente:** límite de peticiones en `GET /invitations/:code` y en `accept` antes de abrirlo al público (staging, PR 12).
+
 Los admins de club se crean por script al inicio; ellos crean equipos e invitan entrenadores.
 
 ## 2. Autorización (qué puedes hacer)
