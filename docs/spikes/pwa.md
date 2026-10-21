@@ -64,6 +64,7 @@ Hallazgos de implementación, antes de probar en celulares:
 - **Background Sync no existe en iOS:** la cola se vacía al abrir la app, al volver la red (`online`) y al volver a la app (`visibilitychange`). Un vaciado a la vez, también entre pestañas (Web Locks).
 - **Errores:** sin red, 5xx, 408 o 429 → sigue pendiente y se para (no se reordenan envíos); 401 → pendiente, hay que volver a entrar; otro 4xx → "Rechazado" y sigue con el resto.
 - **Con el API en el mismo origen**, el service worker respondía `index.html` a la vuelta de Google (`/api/auth/callback/google`). Se excluye `/api/` del fallback de navegación.
+- **El túnel de VS Code reescribe `Origin`** de su URL pública a `http://localhost:4173`, y Better Auth respondía 403 `INVALID_ORIGIN` al cerrar sesión. El proxy de `vite preview` devuelve ese valor al origen público (`SPIKE_PUBLIC_ORIGIN`); los demás orígenes pasan tal cual y se siguen rechazando. Solo afecta al túnel: en staging y producción no hay reescritura.
 - **Las rutas de `runtimeCaching` se copian tal cual al service worker:** no pueden usar variables de `vite.config.ts`.
 - **iOS borra IndexedDB y caché de webs no instaladas tras 7 días sin uso.** Instalada no aplica; además se pide `navigator.storage.persist()` al guardar el primer envío.
 

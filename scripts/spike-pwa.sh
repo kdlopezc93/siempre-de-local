@@ -29,4 +29,4 @@ trap 'kill "$API_PID" 2>/dev/null || true' EXIT
 cd "$ROOT/apps/web"
 echo
 echo "Abre $TUNNEL_URL/prueba-pwa en el celular (Ctrl+C para parar)."
-pnpm exec vite preview --mode spike
+SPIKE_PUBLIC_ORIGIN="$TUNNEL_URL" pnpm exec vite preview --mode spike

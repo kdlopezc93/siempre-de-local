@@ -81,6 +81,22 @@ export default defineConfig({
     port: 4173,
     strictPort: true,
     allowedHosts: ['.devtunnels.ms'],
-    proxy: { '/api': { target: 'http://localhost:3000', xfwd: true } },
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        xfwd: true,
+        // El túnel de VS Code reescribe Origin a http://localhost:4173 y Better Auth y el
+        // chequeo CSRF lo rechazan: se devuelve al origen público que pasa scripts/spike-pwa.sh.
+        configure: (proxy) => {
+          const publicOrigin = process.env.SPIKE_PUBLIC_ORIGIN;
+          if (!publicOrigin) return;
+          proxy.on('proxyReq', (proxyReq) => {
+            if (proxyReq.getHeader('origin') === 'http://localhost:4173') {
+              proxyReq.setHeader('origin', publicOrigin);
+            }
+          });
+        },
+      },
+    },
   },
 });
