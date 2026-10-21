@@ -13,8 +13,8 @@ fi
 TUNNEL_HOST="${TUNNEL_URL#https://}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
-# El API se compila igual que en `pnpm dev`; contracts primero porque el API importa su dist.
-pnpm --filter @sdl/contracts build
+# El API se compila igual que en `pnpm dev`; antes sus paquetes (contracts, domain), cuyo dist importa.
+pnpm --filter "@sdl/api^..." build
 pnpm --filter @sdl/api exec tsc -p tsconfig.build.json
 VITE_API_URL="$TUNNEL_URL" pnpm --filter @sdl/web exec vite build --mode spike
 
