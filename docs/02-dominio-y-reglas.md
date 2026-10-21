@@ -73,6 +73,11 @@ Versión del algoritmo: `orientation-v1` (`ORIENTATION_SCORING_VERSION`), que se
 
 - `prepScore` = aciertos sobre 8. Bandas: `≥ 0.85` muy preparado · `≥ 0.60` buena base · `≥ 0.375` reforzar fundamentos · resto terreno para crecer.
 - Respuesta correcta guardada por **id de opción**, no por índice.
+- Ids de banda: `very_prepared` · `good` · `reinforce` · `room_to_grow` (mismos umbrales que los mensajes del prototipo).
+
+```ts
+scorePrep(items: ServedPrepItem[], answers: OptionId[]): { score, total, band }   // solo en servidor
+```
 
 > **Problema del contenido heredado:** en las 64 preguntas la correcta es siempre la primera en los datos, suele ser la más larga y matizada, y las incorrectas son absolutos ("siempre", "nunca"). Quien detecte el patrón acierta sin saber fútbol. Por eso **la certificación no reutiliza estas preguntas** y su banco se escribe con reglas de calidad (§6.4).
 
