@@ -114,7 +114,7 @@ Decisiones de producto: ver D1, D2 y D8 en `06`.
 Aunque todos sean adultos, en Colombia aplica la **Ley 1581 de 2012**: el tratamiento de datos personales requiere **autorización previa, expresa e informada** del titular, y este tiene derecho a conocer, actualizar, rectificar y suprimir sus datos.
 
 Medidas:
-1. **Política de tratamiento** versionada, aceptada al entrar (`data_consent`), que explique para qué se usan los datos: orientación de posición, examen de conocimiento, tarjeta y alineaciones dentro del equipo.
+1. **Política de tratamiento** versionada, aceptada al entrar (`data_consent`), que explique para qué se usan los datos: orientación de posición, examen de conocimiento, tarjeta y alineaciones dentro del equipo. Texto: `docs/legal/politica-tratamiento-datos.md` (**borrador `2026-10-borrador`, pendiente de revisión legal, D7**). Unirse a un equipo exige haberla aceptado (`CONSENT_REQUIRED`).
 2. **Minimización:** nombre visible, email (viene de Google), foto de perfil de Google **no** se guarda, datos del test, exámenes, tarjeta y valoraciones. Nada de documento de identidad, dirección ni fecha de nacimiento.
 3. **La tarjeta 0–99 y las notas del entrenador son datos personales evaluativos:** solo los ve el cuerpo técnico (y el propio jugador si el equipo lo permite). Nunca públicos.
 4. **Derechos del titular desde la app:** exportar (`GET /me/export`) y solicitar borrado.
