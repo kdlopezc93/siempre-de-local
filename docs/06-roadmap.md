@@ -4,14 +4,14 @@
 
 ## Fases
 
-Cada fase termina en algo desplegado y usable, no en "código a medias".
+Cada fase termina en algo usable, no en "código a medias". Desde la Fase 2, además, desplegado en staging.
 
 ### Fase 0 · Cimientos y spikes (riesgos primero)
 - Monorepo pnpm, `apps/web`, `apps/api`, `packages/domain`, `packages/contracts`, CI.
 - Docker compose local con Postgres.
-- **Spike auth:** Better Auth en NestJS con Google; cookie compartida entre `app.` y `api.` en local y staging; puerto `IdentityProvider` definido. Si no convence en 1–2 días → plan B (Auth0/Clerk, ADR-04).
-- **Spike PWA:** instalación en Android e iPhone, caché del cuestionario, cola offline en IndexedDB.
-- Staging con un "hola mundo" con login.
+- **Spike auth:** Better Auth en NestJS con Google; cookie compartida entre `app.` y `api.` en local (en staging, Fase 2); puerto `IdentityProvider` definido. Si no convence en 1–2 días → plan B (Auth0/Clerk, ADR-04).
+- **Spike PWA:** instalación en Android e iPhone, caché del cuestionario, cola offline en IndexedDB. Android validado; iPhone pendiente (`docs/spikes/pwa.md`).
+- ~~Staging con un "hola mundo" con login~~ → movido a la Fase 2: el riesgo de la cookie ya quedó cubierto en local (Caddy con subdominios HTTPS) y por el túnel con un celular real; lo que falta es trabajo de despliegue, no de arquitectura.
 
 ### Fase 1 · Dominio con paridad
 - Portar puntuación, plegado F8 y preparación a `packages/domain`, con tests de paridad contra el prototipo.
@@ -22,6 +22,7 @@ Cada fase termina en algo desplegado y usable, no en "código a medias".
 - Invitación → Google → consentimiento → test (online y offline) → resultado oficial → historial.
 - Pizarra, podio, preparación (UI portada, paleta pizarra). Bases científicas.
 - Perfil propio: nombre, pie, posiciones preferidas.
+- **Antes de invitar al primer equipo:** staging con login en dominio propio (D5) y repetir el spike PWA en un iPhone.
 
 ### Fase 3 · Entrenador
 - Panel: plantilla en pizarra, reparto, huecos, tabla, preparación media por posición, filtro por formato, preparación baja en rojo.
@@ -80,7 +81,7 @@ Cada fase termina en algo desplegado y usable, no en "código a medias".
 | D2 | ¿El jugador ve las valoraciones del entrenador sobre él? | No |
 | D3 | ¿Multi-club desde el día 1? | Modelo multi-club, UI de un club |
 | D4 | ¿Cuántos intentos del test cuentan? | Todos se guardan; panel usa el último oficial; el entrenador puede anular |
-| D5 | Dominio y hosting | Elegir en Fase 0 comparando precios del momento |
+| D5 | Dominio y hosting | Elegir al cerrar la Fase 2, antes del primer equipo. Comparativa de oct-2026: Cloudflare (dominio, DNS, Pages) + Fly.io (API en `iad`) + Neon (`us-east-1`), ≈ US$0–4/mes en staging; dominio candidato `siempredelocal.app`. Revisar precios al momento |
 | D6 | Adjuntar `planificador-partido.jsx` | Necesario antes de Fase 5 |
 | D7 | Revisión legal de la política de datos | Antes de usar con equipos reales |
 | D8 | ¿El jugador ve su tarjeta 0–99? | Sí, configurable por equipo |
