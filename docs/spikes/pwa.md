@@ -42,17 +42,18 @@ No hace falta tocar `apps/api/.env`: el script sobrescribe `BETTER_AUTH_URL`, `W
 
 ## Resultados
 
-| Paso | Android (modelo / navegador) | iPhone (modelo / iOS) |
+| Paso | Android · Samsung SM-S938B (Galaxy S25 Ultra), Android 16, Chrome 155 | iPhone (modelo / iOS) |
 |---|---|---|
-| 1 Login en navegador | | |
-| 2 Instalación | | |
-| 3 Abrir instalada | | |
-| 4 Login en instalada | | |
-| 5 Abrir sin red | | |
-| 6–7 Cola sin red | | |
-| 8 Sincroniza al volver | | |
-| 9 Sin duplicados | | |
-| 10 Datos protegidos | | |
+| 1 Login en navegador | ✅ | |
+| 2 Instalación | ✅ | |
+| 3 Abrir instalada | ✅ "App instalada", service worker activo | |
+| 4 Login en instalada | ✅ | |
+| 5 Abrir sin red | ✅ Sesión y cuestionario tras cerrar la app del todo | |
+| 6–7 Cola sin red | ✅ Pendientes sobreviven a cerrar y abrir la app | |
+| 8 Sincroniza al volver | ✅ Guardados 10:55 p. m., enviados 10:56 p. m. al volver la red | |
+| 9 Sin duplicados | ✅ | |
+| 10 Datos protegidos | ✅ "Sí" en la app instalada | |
+| Extra: cerrar sesión en todos | ✅ Desde el celular, la PC también vuelve a /entrar | |
 
 ## Lo que ya salió al construirlo
 
