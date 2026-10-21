@@ -61,11 +61,13 @@ afinidad(p) = maxp(p) > 0 ? earned(p) / maxp(p) : 0
 
 **Plegado F8** (antes de rankear): `earned/maxp` de MCD → MC y de MP → DC. Solo compiten las 6 elegibles.
 
-**Ranking:** descendente por afinidad. **Empates:** mayor `earned` absoluto; si persiste, orden canónico. Determinista para que cliente y servidor coincidan.
+**Ranking:** descendente por afinidad. **Empates:** mayor `earned` absoluto; si persiste, orden canónico. Determinista para que cliente y servidor coincidan. *(El prototipo desempataba solo por orden canónico; es el único cambio frente a él y lo cubren los tests de paridad de `position-scoring.test.ts`.)*
 
 ```ts
-scorePosition(items: ServedItem[], answers: OptionId[], format: 'F8' | 'F11'): RankingEntry[]
+scorePosition(items: ServedPositionItem[], answers: OptionId[], format: 'F8' | 'F11'): RankingEntry[]
 ```
+
+Versión del algoritmo: `orientation-v1` (`ORIENTATION_SCORING_VERSION`), que se guarda en `attempt_result.scoring_version`.
 
 ## 5. Preparación
 
