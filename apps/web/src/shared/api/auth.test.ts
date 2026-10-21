@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { fetchCurrentUser, signOutEverywhere, startGoogleSignIn } from './auth';
+import { fetchMe, signOutEverywhere, startGoogleSignIn } from './auth';
 
 function jsonResponse(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -14,13 +14,12 @@ const USER = { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f70', name: 'Kevin', email:
 describe('cliente de identidad', () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it('devuelve el usuario de la sesión enviando la cookie', async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue(jsonResponse(200, { user: USER, consent: null, teams: [], clubs: [] }));
+  it('devuelve la sesión (usuario, consentimiento y equipos) enviando la cookie', async () => {
+    const me = { user: USER, consent: null, teams: [], clubs: [] };
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, me));
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(fetchCurrentUser()).resolves.toEqual(USER);
+    await expect(fetchMe()).resolves.toEqual(me);
     const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit];
     expect(url.toString()).toBe('https://api.sdl.test/api/v1/me');
     expect(init.credentials).toBe('include');
@@ -33,7 +32,7 @@ describe('cliente de identidad', () => {
         .fn()
         .mockResolvedValue(jsonResponse(401, { error: { code: 'UNAUTHENTICATED', message: 'x' } })),
     );
-    await expect(fetchCurrentUser()).resolves.toBeNull();
+    await expect(fetchMe()).resolves.toBeNull();
   });
 
   it('otros errores del API se propagan', async () => {
@@ -41,7 +40,21 @@ describe('cliente de identidad', () => {
       'fetch',
       vi.fn().mockResolvedValue(jsonResponse(500, { error: { code: 'INTERNAL', message: 'x' } })),
     );
-    await expect(fetchCurrentUser()).rejects.toMatchObject({ status: 500, code: 'INTERNAL' });
+    await expect(fetchMe()).rejects.toMatchObject({ status: 500, code: 'INTERNAL' });
+  });
+
+  it('el login desde una invitación vuelve a esa invitación, también si Google falla', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse(200, { url: 'https://accounts.google.com/o/oauth2/auth?x' }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await startGoogleSignIn('/unirse/K7Q2M9XDAB');
+    const [, init] = fetchMock.mock.calls[0] as [URL, RequestInit];
+    expect(JSON.parse(init.body as string)).toMatchObject({
+      callbackURL: `${window.location.origin}/unirse/K7Q2M9XDAB`,
+      errorCallbackURL: `${window.location.origin}/unirse/K7Q2M9XDAB?error=google`,
+    });
   });
 
   it('pide a Better Auth el login con Google con callbacks a la PWA', async () => {

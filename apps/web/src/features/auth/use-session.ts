@@ -1,29 +1,25 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
-import {
-  fetchCurrentUser,
-  signOut,
-  signOutEverywhere,
-  startGoogleSignIn,
-} from '../../shared/api/auth';
+import { fetchMe, signOut, signOutEverywhere, startGoogleSignIn } from '../../shared/api/auth';
 import { clearApiCache } from '../../shared/offline/api-cache';
 
-const SESSION_KEY = ['session'] as const;
+export const SESSION_KEY = ['session'] as const;
 
 export function useSession() {
   return useQuery({
     queryKey: SESSION_KEY,
-    queryFn: fetchCurrentUser,
+    queryFn: fetchMe,
     staleTime: 5 * 60_000,
     // Sin red, el service worker responde con la última sesión conocida (docs/spikes/pwa.md).
     networkMode: 'offlineFirst',
   });
 }
 
-export function useGoogleSignIn() {
+/** `returnTo`: ruta de la app a la que vuelve Google (por defecto, el inicio). */
+export function useGoogleSignIn(returnTo = '/') {
   const mutation = useMutation({
-    mutationFn: startGoogleSignIn,
+    mutationFn: () => startGoogleSignIn(returnTo),
     onSuccess: (url) => window.location.assign(url),
   });
   const { reset } = mutation;

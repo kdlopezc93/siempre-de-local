@@ -130,6 +130,7 @@ Con `prefers-reduced-motion: reduce`, las duraciones pasan a 0 y la entrada se m
 | `Card` / panel | — | Superficie + línea + `radius-lg` |
 | `Eyebrow` | — | Oswald 12px, ámbar, tracking 0.22em |
 | `Pitch` (Fase 2) | — | Única fuente de la cancha (`domain/pitch-layout.ts`) |
+| `ChalkUnderline` (`features/join`) | — | Subrayado a mano en tiza ámbar bajo un nombre que el técnico "marca" (la convocatoria). Se dibuja una vez con `scaleX` sobre el contenedor; es el único movimiento de su pantalla. Usarlo solo para ese gesto, no como decoración de títulos |
 
 ## 10. Anti-patrones
 
