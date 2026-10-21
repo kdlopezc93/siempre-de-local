@@ -11,7 +11,12 @@
 - Solo se aceptan cuentas con `email_verified = true` según Google.
 - No hay contraseñas propias: nada de hash, reseteos ni bloqueo por fuerza bruta en nuestra BD.
 - **Sesión en cookie** `httpOnly`, `Secure`, `SameSite=Lax`, en el dominio padre para que `app.` y `api.` la compartan. Expiración deslizante (p. ej. 30 días), revocable desde "cerrar sesión en todos los dispositivos".
-- CSRF: `SameSite` + verificación de cabecera `Origin` en métodos que modifican.
+- CSRF: `SameSite` + verificación de cabecera `Origin` en métodos que modifican (`/api/v1/*`: hook `registerOriginCheck`; `/api/auth/*`: Better Auth con `trustedOrigins`, forzado con `disableOriginCheck: false` porque Better Auth lo apaga solo si detecta un entorno de test).
+- Cookies con prefijo `sdl` (`__Secure-sdl.session_token`, `__Secure-sdl.state`…), `Domain` = `COOKIE_DOMAIN`.
+- **Fase 0:** aún no hay control de invitación; puede entrar cualquier cuenta de Google que esté en los *usuarios de prueba* del cliente OAuth. El alta por invitación (§1.2) llega en Fase 2.
+
+### 1.0 Entorno local (spike de Fase 0)
+Google no acepta `*.localhost` como origen ni como redirección, así que en local se usa **`https://app.sdl.localtest.me`** y **`https://api.sdl.localtest.me`** (`*.localtest.me` resuelve a la máquina local por DNS público) detrás de **Caddy** con certificados locales (`docker/caddy/Caddyfile`). La cookie usa `Domain=sdl.localtest.me`, `Secure`, `HttpOnly` y `SameSite=Lax`, igual que en producción. Pasos en el `README.md`.
 - **Offline:** la PWA no necesita sesión para responder un test de orientación ya iniciado; sí para enviarlo. Los exámenes de certificación exigen sesión y conexión durante todo el examen.
 
 ### 1.1 Extensibilidad (ver ADR-07)

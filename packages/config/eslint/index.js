@@ -53,6 +53,14 @@ export const config = defineConfig(
     },
   },
   {
+    // Nest inyecta por metadatos: los imports de clases usadas en constructores
+    // deben quedar como valores, no como `import type`.
+    files: ['apps/api/**/*.ts'],
+    languageOptions: {
+      parserOptions: { emitDecoratorMetadata: true, experimentalDecorators: true },
+    },
+  },
+  {
     files: ['apps/**/*.{ts,tsx}', 'packages/**/*.{ts,tsx}'],
     ignores: ['apps/api/src/modules/identity/infrastructure/**'],
     rules: {

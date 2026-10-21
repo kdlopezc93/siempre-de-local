@@ -22,7 +22,7 @@
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/me` | Usuario, perfil, membresías, estado del consentimiento |
+| GET | `/me` | Usuario, perfil, membresías, estado del consentimiento. **Fase 0:** solo `{ user: { id, name, email } }` (`MeResponseSchema`) |
 | POST | `/me/consent` | Aceptar la política vigente (`policyVersion`, `ageConfirmed: true`) |
 | PATCH | `/me/profile` | Nombre visible, pie dominante, `playsGoalkeeper` |
 | PUT | `/me/preferred-positions` | `[{ position, rank }]` (1–3) |

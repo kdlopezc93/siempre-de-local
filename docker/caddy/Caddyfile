@@ -1,0 +1,14 @@
+# Proxy HTTPS local: simula app. y api. bajo un mismo dominio padre, como en producción.
+# *.localtest.me resuelve a 127.0.0.1 / ::1 por DNS público (Google exige un TLD público).
+{
+	local_certs
+	skip_install_trust
+}
+
+app.sdl.localtest.me {
+	reverse_proxy host.docker.internal:5173
+}
+
+api.sdl.localtest.me {
+	reverse_proxy host.docker.internal:3000
+}

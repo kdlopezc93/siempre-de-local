@@ -224,4 +224,4 @@ Organizado **por funcionalidad**, no por tipo de archivo. La lógica de negocio 
 | Postgres | Neon o Supabase (solo como BD) |
 | Dominio | Propio, con `app.` y `api.` |
 
-Entornos: `local` (docker compose con Postgres), `staging`, `prod`. Secretos en el proveedor, nunca en el repo.
+Entornos: `local` (docker compose con Postgres y Caddy como proxy HTTPS en `app.`/`api.sdl.localtest.me`, ver `04` §1.0), `staging`, `prod`. Secretos en el proveedor, nunca en el repo.

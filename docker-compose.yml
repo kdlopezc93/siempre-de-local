@@ -18,5 +18,18 @@ services:
       timeout: 3s
       retries: 10
 
+  proxy:
+    image: caddy:2.11.7-alpine
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+    extra_hosts:
+      # Llega a Vite (:5173) y al API (:3000) que corren en el host.
+      - 'host.docker.internal:host-gateway'
+
 volumes:
   db-data:
+  caddy-data:
