@@ -1,18 +1,78 @@
 import react from '@vitejs/plugin-react';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin, type ProxyOptions } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 const APP_HOST = 'app.sdl.localtest.me';
+/**
+ * Origen público del túnel de VS Code (scripts/dev-tunnel.sh y scripts/spike-pwa.sh). Con él,
+ * app y API van por un solo origen: el puerto del túnel sirve la app y reenvía /api al API.
+ */
+const TUNNEL_ORIGIN = process.env.SDL_TUNNEL_ORIGIN;
+const TUNNEL_PORT = 4173;
 /** Mismo nombre que API_CACHE_NAME en src/shared/offline/api-cache.ts. */
 const API_CACHE_NAME = 'sdl-api';
 
 // En WSL, los archivos bajo /mnt/c no emiten eventos de cambio: hay que sondear.
+// Fuera de /mnt/c, la vigilancia por defecto de Vite. Ojo: `watch: null` la apaga.
 const ON_WINDOWS_DRIVE = process.cwd().startsWith('/mnt/');
+const watchOptions = ON_WINDOWS_DRIVE ? { watch: { usePolling: true, interval: 300 } } : {};
+
+/**
+ * /api → API local. El túnel reescribe Origin a http://localhost:4173 y Better Auth y el
+ * chequeo CSRF lo rechazarían: se devuelve al origen público (solo ese valor; los demás
+ * orígenes pasan tal cual y se siguen rechazando).
+ */
+/**
+ * En `pnpm dev:tunnel` no hay service worker (solo en builds). Si el celular tiene instalado
+ * el de una build anterior (spike:pwa), seguiría sirviendo la app vieja desde su caché: este
+ * reemplazo borra los cachés, se da de baja y recarga, y desde ahí manda el servidor de dev.
+ */
+const SELF_DESTROYING_SW = `
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (event) => {
+  event.waitUntil((async () => {
+    for (const key of await caches.keys()) await caches.delete(key);
+    await self.registration.unregister();
+    for (const client of await self.clients.matchAll({ type: 'window' })) client.navigate(client.url);
+  })());
+});
+`;
+
+function selfDestroyingServiceWorker(): Plugin {
+  return {
+    name: 'sdl-self-destroying-sw',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use('/sw.js', (_req, res) => {
+        res.setHeader('content-type', 'text/javascript');
+        res.setHeader('cache-control', 'no-store');
+        res.end(SELF_DESTROYING_SW);
+      });
+    },
+  };
+}
+
+function tunnelProxy(publicOrigin: string): Record<string, ProxyOptions> {
+  return {
+    '/api': {
+      target: 'http://localhost:3000',
+      xfwd: true,
+      configure: (proxy) => {
+        proxy.on('proxyReq', (proxyReq) => {
+          if (proxyReq.getHeader('origin') === `http://localhost:${TUNNEL_PORT}`) {
+            proxyReq.setHeader('origin', publicOrigin);
+          }
+        });
+      },
+    },
+  };
+}
 
 export default defineConfig({
   resolve: { conditions: ['@sdl/source'] },
   plugins: [
     react(),
+    ...(TUNNEL_ORIGIN ? [selfDestroyingServiceWorker()] : []),
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false,
@@ -66,38 +126,31 @@ export default defineConfig({
       },
     }),
   ],
-  server: {
-    // Caddy (https://app.sdl.localtest.me) reenvía al puerto 5173 del host.
-    host: '0.0.0.0',
-    port: 5173,
-    strictPort: true,
-    allowedHosts: [APP_HOST],
-    hmr: { host: APP_HOST, protocol: 'wss', clientPort: 443 },
-    // Fuera de /mnt/c, la vigilancia por defecto de Vite. Ojo: `watch: null` la apaga.
-    ...(ON_WINDOWS_DRIVE ? { watch: { usePolling: true, interval: 300 } } : {}),
-  },
-  // Spike PWA (pnpm --filter @sdl/web spike:pwa): build real con service worker servido
-  // por un túnel HTTPS; /api se reenvía al API local para que todo sea un solo origen.
+  server: TUNNEL_ORIGIN
+    ? {
+        // pnpm dev:tunnel: el celular abre el túnel y recibe los cambios en vivo (HMR).
+        port: TUNNEL_PORT,
+        strictPort: true,
+        allowedHosts: ['.devtunnels.ms'],
+        // Sin `host`: el cliente de HMR se conecta al mismo host de la página (el túnel).
+        hmr: { protocol: 'wss', clientPort: 443 },
+        proxy: tunnelProxy(TUNNEL_ORIGIN),
+        ...watchOptions,
+      }
+    : {
+        // Caddy (https://app.sdl.localtest.me) reenvía al puerto 5173 del host.
+        host: '0.0.0.0',
+        port: 5173,
+        strictPort: true,
+        allowedHosts: [APP_HOST],
+        hmr: { host: APP_HOST, protocol: 'wss', clientPort: 443 },
+        ...watchOptions,
+      },
+  // pnpm spike:pwa: build real con service worker servida por el mismo túnel.
   preview: {
-    port: 4173,
+    port: TUNNEL_PORT,
     strictPort: true,
     allowedHosts: ['.devtunnels.ms'],
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3000',
-        xfwd: true,
-        // El túnel de VS Code reescribe Origin a http://localhost:4173 y Better Auth y el
-        // chequeo CSRF lo rechazan: se devuelve al origen público que pasa scripts/spike-pwa.sh.
-        configure: (proxy) => {
-          const publicOrigin = process.env.SPIKE_PUBLIC_ORIGIN;
-          if (!publicOrigin) return;
-          proxy.on('proxyReq', (proxyReq) => {
-            if (proxyReq.getHeader('origin') === 'http://localhost:4173') {
-              proxyReq.setHeader('origin', publicOrigin);
-            }
-          });
-        },
-      },
-    },
+    ...(TUNNEL_ORIGIN ? { proxy: tunnelProxy(TUNNEL_ORIGIN) } : {}),
   },
 });
