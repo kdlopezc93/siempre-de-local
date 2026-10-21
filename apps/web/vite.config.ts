@@ -73,7 +73,8 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: [APP_HOST],
     hmr: { host: APP_HOST, protocol: 'wss', clientPort: 443 },
-    watch: ON_WINDOWS_DRIVE ? { usePolling: true, interval: 300 } : null,
+    // Fuera de /mnt/c, la vigilancia por defecto de Vite. Ojo: `watch: null` la apaga.
+    ...(ON_WINDOWS_DRIVE ? { watch: { usePolling: true, interval: 300 } } : {}),
   },
   // Spike PWA (pnpm --filter @sdl/web spike:pwa): build real con service worker servido
   // por un túnel HTTPS; /api se reenvía al API local para que todo sea un solo origen.

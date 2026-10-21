@@ -1,10 +1,11 @@
-import type { ButtonHTMLAttributes } from 'react';
+import type { ComponentProps } from 'react';
 
 import styles from './Button.module.css';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+/** ComponentProps incluye `ref` (React 19 lo pasa como prop): permite mover el foco. */
+interface ButtonProps extends ComponentProps<'button'> {
   variant?: ButtonVariant;
   /** Mientras es true el botón se deshabilita y se anuncia como ocupado. */
   busy?: boolean;

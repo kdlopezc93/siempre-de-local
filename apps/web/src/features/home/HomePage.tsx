@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 
-import type { CurrentUser } from '../../shared/api/auth';
+import type { Me } from '../../shared/api/auth';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
 import { useSignOut, useSignOutEverywhere } from '../auth/use-session';
 import styles from './HomePage.module.css';
 
 /** Pantalla provisional de Fase 0: confirma que la sesión funciona. */
-export function HomePage({ user }: { user: CurrentUser }) {
+export function HomePage({ me }: { me: Me }) {
+  const { user } = me;
   const signOut = useSignOut();
   const signOutEverywhere = useSignOutEverywhere();
   const [confirming, setConfirming] = useState(false);
@@ -33,6 +34,22 @@ export function HomePage({ user }: { user: CurrentUser }) {
           </span>
           . Muy pronto vas a poder hacer tu test de posición desde aquí.
         </p>
+
+        {me.teams.length > 0 && (
+          <ul className={styles.teams} aria-label="Tus equipos">
+            {me.teams.map(({ team, club, roles }) => (
+              <li key={team.id} className={styles.team}>
+                <p className={styles.teamName}>{team.name}</p>
+                <p className={styles.teamClub}>{club.name}</p>
+                {roles.includes('coach') && (
+                  <Link to={`/equipos/${team.id}/invitar`} className={styles.teamAction}>
+                    Invitar jugadores
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
 
         {/* TEMPORAL · spike PWA (docs/spikes/pwa.md) */}
         <Link to="/prueba-pwa" className={styles.spikeLink}>
