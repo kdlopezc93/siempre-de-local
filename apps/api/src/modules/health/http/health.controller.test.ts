@@ -1,18 +1,9 @@
-import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { ErrorBodySchema, HealthResponseSchema } from '@sdl/contracts';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
-import { createApp } from '../../../app.factory.js';
+import { bootApp } from '../../../test/app.js';
 import { startPostgres } from '../../../test/postgres.js';
-
-async function bootApp(databaseUrl: string): Promise<NestFastifyApplication> {
-  vi.stubEnv('DATABASE_URL', databaseUrl);
-  const app = await createApp({ logger: false });
-  await app.init();
-  await app.getHttpAdapter().getInstance().ready();
-  return app;
-}
 
 describe('GET /api/v1/health', () => {
   let container: StartedPostgreSqlContainer;

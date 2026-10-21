@@ -3,9 +3,11 @@ import type { HealthResponse } from '@sdl/contracts';
 import { sql } from 'drizzle-orm';
 import type { FastifyReply } from 'fastify';
 
+import { Public } from '../../../shared/authz/public.decorator.js';
 import type { DbConnection } from '../../../shared/db/client.js';
 import { DB_CONNECTION } from '../../../shared/db/db.module.js';
 
+@Public()
 @Controller('health')
 export class HealthController {
   constructor(@Inject(DB_CONNECTION) private readonly connection: DbConnection) {}

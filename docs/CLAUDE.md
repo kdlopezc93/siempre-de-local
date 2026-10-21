@@ -56,6 +56,8 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | `pnpm db:generate` | Genera la migración SQL a partir del esquema Drizzle |
 | `pnpm db:migrate` | Aplica las migraciones pendientes |
 | `pnpm db:check` | Comprueba la consistencia de las migraciones |
+| `pnpm proxy:up` | Levanta Caddy (HTTPS local en `app.`/`api.sdl.localtest.me`) |
+| `pnpm proxy:cert` | Exporta el certificado raíz de Caddy a `.certs/` para importarlo en Windows |
 
 Los tests de integración del API levantan su propio Postgres con Testcontainers (requieren Docker).
 Cada app tiene su `.env.example`; cópialo a `.env` en la misma carpeta.

@@ -1,7 +1,11 @@
 import { defineConfig } from 'vitest/config';
 
+// Los paquetes del workspace se resuelven a su código fuente (src/*.ts), no a dist/.
+const conditions = ['@sdl/source'];
+
 export default defineConfig({
-  resolve: { conditions: ['@sdl/source'] },
+  resolve: { conditions },
+  ssr: { resolve: { conditions, externalConditions: conditions } },
   test: {
     setupFiles: ['reflect-metadata'],
     // Levantar un contenedor de Postgres tarda más que el timeout por defecto.
