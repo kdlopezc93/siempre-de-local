@@ -6,6 +6,7 @@ export interface AuthSession {
     id: string;
     name: string;
     email: string;
+    platformAdmin: boolean;
   };
 }
 

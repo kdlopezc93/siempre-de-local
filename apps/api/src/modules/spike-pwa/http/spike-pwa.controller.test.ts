@@ -26,7 +26,7 @@ function sessionOf(userId: string): AuthSession {
   return {
     sessionId: 's',
     expiresAt: new Date(),
-    user: { id: userId, name: 'Kevin', email: 'k@example.com' },
+    user: { id: userId, name: 'Kevin', email: 'k@example.com', platformAdmin: false },
   };
 }
 

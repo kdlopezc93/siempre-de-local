@@ -71,7 +71,8 @@ export const config = defineConfig(
   },
   {
     files: ['apps/**/*.{ts,tsx}', 'packages/**/*.{ts,tsx}'],
-    ignores: ['apps/api/src/modules/identity/infrastructure/**'],
+    // Los helpers de test firman cookies de sesión como Better Auth.
+    ignores: ['apps/api/src/modules/identity/infrastructure/**', 'apps/api/src/test/**'],
     rules: {
       'no-restricted-imports': ['error', { patterns: [BETTER_AUTH] }],
     },

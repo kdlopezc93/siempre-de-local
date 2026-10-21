@@ -70,6 +70,8 @@ user ─┬─< account (Google; en el futuro otros proveedores / OIDC)
 
 **invitation** — `id, team_id, role, code_hash, created_by, expires_at, max_uses, used_count, revoked_at`
 
+Implementado (salvo `invitation`, que llega con las invitaciones) en `apps/api/src/modules/teams/infrastructure/schema.ts`, migración `0002_teams`. Además: `team` es único por `(club_id, name, season)`; `club_membership` y `team_membership` tienen índice por `user_id` y se borran en cascada con el usuario. Un miembro que sale del equipo conserva su fila con `left_at` y deja de contar para los permisos.
+
 ## 4. Perfil del jugador
 
 **player_profile** (1:1 con `user`)

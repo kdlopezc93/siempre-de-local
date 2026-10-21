@@ -24,6 +24,28 @@ Cada fase termina en algo usable, no en "código a medias". Desde la Fase 2, ade
 - Perfil propio: nombre, pie, posiciones preferidas.
 - **Antes de invitar al primer equipo:** staging con login en dominio propio (D5) y repetir el spike PWA en un iPhone.
 
+Plan en PRs (acordado el 2026-10-21):
+
+| # | PR | Depende de |
+|---|---|---|
+| 1 | Clubs, equipos, membresías y autorización (`@Can`, matriz de `04` §2.2); script de alta de club/equipo/entrenador; `GET /teams/:teamId` | — |
+| 2 | Invitaciones (API): crear, listar, revocar, validar (pública) y aceptar; código hasheado con caducidad y usos | 1 |
+| 3 | Consentimiento (`data_consent`, política v1 en borrador) y `/me` con membresías; sin equipo → "pide tu invitación" | 1 |
+| 4 | Pantalla `/unirse/<código>`: Google → política + mayor de 18 → al equipo | 2, 3 |
+| 5 | Pantalla mínima del entrenador para invitar (enlace, compartir, revocar), adelantada de la Fase 3 | 2 |
+| 6 | Test de orientación (API): intentos, `GET /questionnaires/current` con ETag y sin correctas, `POST /attempts` idempotente con recálculo y `WINNER_MISMATCH`, historial | 1 |
+| 7 | Test (UI): flujo portado del prototipo, ganador en cliente, envío por la cola offline | 6 |
+| 8 | Resultado: `shared/ui/Pitch` única, podio con revelado, banda de preparación | 7 |
+| 9 | Historial y bases científicas | 8 |
+| 10 | Perfil propio | 3 |
+| 11 | Retirar el código temporal del spike PWA | 7 |
+| 12 | Staging (D5), despliegue desde CI, Playwright del flujo crítico y prueba en iPhone | todo |
+
+Decisiones de este plan:
+- **Política de datos (D7):** borrador v1 en lenguaje claro basado en `04` §5; revisión legal antes del primer equipo real, no antes de programar.
+- **Sin invitación:** Better Auth crea el usuario al entrar con Google, pero la app no se puede usar hasta pertenecer a un equipo.
+- **Formato del test:** lo da el equipo (F8/F11); si el jugador está en varios, elige equipo al empezar.
+
 ### Fase 3 · Entrenador
 - Panel: plantilla en pizarra, reparto, huecos, tabla, preparación media por posición, filtro por formato, preparación baja en rojo.
 - **Tarjeta del jugador (entrada manual 0–99)** con anclas e histórico; medias por posición; pantalla de perfil del jugador.
@@ -77,7 +99,7 @@ Cada fase termina en algo usable, no en "código a medias". Desde la Fase 2, ade
 
 | # | Pregunta | Propuesta por defecto |
 |---|---|---|
-| D1 | ¿El jugador ve su preparación? | Sí |
+| D1 | ¿El jugador ve su preparación? | **Decidido: sí** (2026-10-21) |
 | D2 | ¿El jugador ve las valoraciones del entrenador sobre él? | No |
 | D3 | ¿Multi-club desde el día 1? | Modelo multi-club, UI de un club |
 | D4 | ¿Cuántos intentos del test cuentan? | Todos se guardan; panel usa el último oficial; el entrenador puede anular |

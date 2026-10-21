@@ -1,34 +1,11 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import { ErrorBodySchema, MeResponseSchema } from '@sdl/contracts';
-import { makeSignature } from 'better-auth/crypto';
-import pg from 'pg';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { bootApp, TEST_ENV } from '../../../test/app.js';
 import { startMigratedPostgres } from '../../../test/postgres.js';
-
-/** Nombre real de la cookie: prefijo `sdl` + `__Secure-` por ir sobre HTTPS. */
-const SESSION_COOKIE = '__Secure-sdl.session_token';
-
-/** Siembra un usuario con sesión y devuelve la cookie firmada como la emite Better Auth. */
-async function seedSession(databaseUrl: string): Promise<{ userId: string; cookie: string }> {
-  const client = new pg.Client({ connectionString: databaseUrl });
-  await client.connect();
-  const { rows } = await client.query<{ id: string }>(
-    `insert into "user" (name, email, email_verified) values ('Kevin', 'kevin@example.com', true)
-     returning id`,
-  );
-  const userId = rows[0]!.id;
-  const token = 'token-de-prueba';
-  await client.query(
-    `insert into session (user_id, token, expires_at) values ($1, $2, now() + interval '30 days')`,
-    [userId, token],
-  );
-  await client.end();
-  const signature = await makeSignature(token, TEST_ENV.BETTER_AUTH_SECRET);
-  return { userId, cookie: `${SESSION_COOKIE}=${encodeURIComponent(`${token}.${signature}`)}` };
-}
+import { SESSION_COOKIE, seedUserWithSession } from '../../../test/sessions.js';
 
 describe('spike de auth: Better Auth + Nest + Fastify', () => {
   let container: StartedPostgreSqlContainer;
@@ -37,7 +14,10 @@ describe('spike de auth: Better Auth + Nest + Fastify', () => {
 
   beforeAll(async () => {
     container = await startMigratedPostgres();
-    session = await seedSession(container.getConnectionUri());
+    session = await seedUserWithSession(container.getConnectionUri(), {
+      name: 'Kevin',
+      email: 'kevin@example.com',
+    });
     app = await bootApp(container.getConnectionUri());
   });
 
