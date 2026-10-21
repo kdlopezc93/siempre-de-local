@@ -31,6 +31,8 @@ const MEMBERS: readonly TeamRole[] = ['coach', 'assistant', 'player'];
  */
 const TEAM_PERMISSIONS = {
   'team.read': { roles: MEMBERS, clubAdmin: true },
+  /** El test de orientación es propio del jugador (04 §2.2). */
+  'team.quiz.take': { roles: ['player'], clubAdmin: false },
   'team.results.read': { roles: STAFF, clubAdmin: true },
   'team.ratings.write': { roles: STAFF, clubAdmin: false },
   'team.assessments.write': { roles: STAFF, clubAdmin: false },

@@ -7,3 +7,4 @@ export * from '../../modules/identity/infrastructure/consent.schema.js';
 export * from '../../modules/identity/infrastructure/schema.js';
 export * from '../../modules/questionnaires/infrastructure/schema.js';
 export * from '../../modules/teams/infrastructure/schema.js';
+export * from '../../modules/quiz/infrastructure/schema.js';

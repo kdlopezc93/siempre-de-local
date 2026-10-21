@@ -20,6 +20,7 @@ function actor({
 /** Matriz de 04 §2.2 para las acciones de equipo: player, assistant, coach, club admin. */
 const MATRIX: [TeamPermission, boolean, boolean, boolean, boolean][] = [
   ['team.read', true, true, true, true],
+  ['team.quiz.take', true, false, false, false],
   ['team.results.read', false, true, true, true],
   ['team.ratings.write', false, true, true, false],
   ['team.assessments.write', false, true, true, false],

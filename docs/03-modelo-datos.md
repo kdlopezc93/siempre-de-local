@@ -107,7 +107,7 @@ Implementado en `apps/api/src/modules/questionnaires/infrastructure/schema.ts` (
 | Columna | Tipo | Notas |
 |---|---|---|
 | id | uuid PK | |
-| client_attempt_id | uuid unique | idempotencia offline |
+| client_attempt_id | uuid | idempotencia offline; único por usuario |
 | user_id | uuid FK | |
 | team_id | uuid FK null | |
 | questionnaire_version_id | uuid FK | |
@@ -119,6 +119,12 @@ Implementado en `apps/api/src/modules/questionnaires/infrastructure/schema.ts` (
 **attempt_item** — `attempt_id, phase ('position','prep'), item_id, shown_order, option_order uuid[]`
 **attempt_answer** — `attempt_id, item_id, option_id, answered_at`
 **attempt_result** — `attempt_id, scoring_version, winner, ranking jsonb [{pos,pct,earned,maxp}], prep_score, prep_total, is_official, computed_at` · PK (attempt_id, scoring_version)
+
+Implementado en `apps/api/src/modules/quiz/infrastructure/schema.ts` (migración `0005_quiz_attempts`), con estas precisiones:
+- `client_attempt_id` es único **por usuario** (`unique (user_id, client_attempt_id)`), no global: un id repetido de otra persona no choca ni revela nada.
+- `attempt_item.item_id` y `attempt_answer.item_id/option_id` no llevan FK porque apuntan a `position_*` o `prep_*` según la fase; se validan contra la versión al recibir el intento.
+- `attempt_answer.answered_at` = `submitted_at`: el celular no envía la hora de cada respuesta.
+- Índices: `(user_id, submitted_at desc)` y `(team_id, status)`. Los hijos se borran en cascada con el intento; el intento, con el usuario.
 
 **legacy_result** — `id, team_id, imported_by, player_name, player_user_id null, taken_at, format, winner, affinity_pct, podium, prep_score, prep_total, raw jsonb`
 

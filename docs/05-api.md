@@ -60,10 +60,10 @@ Errores de invitación: 404 `INVITATION_NOT_FOUND` · 422 `INVITATION_EXPIRED`, 
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/questionnaires/current?format=F11` | Para cachear offline: ítems de posición **con pesos**, de preparación **sin `isCorrect`**. `ETag`. |
-| POST | `/attempts` | Envío completo (online u offline-sincronizado) |
-| GET | `/me/attempts` | Mi historial |
-| GET | `/attempts/:id` | Detalle (dueño o staff del equipo) |
+| GET | `/questionnaires/current` | **Implementado.** Versión publicada vigente para cachear offline: ítems de posición **con pesos**, de preparación **sin la correcta** (`QuestionnaireResponseSchema`). `ETag` = id de la versión (inmutable), `If-None-Match` → 304. El formato no cambia el contenido (solo la puntuación), así que no lleva `?format` |
+| POST | `/attempts` | **Implementado.** Envío completo (online u offline-sincronizado) → 201, o 200 si se reenvía |
+| GET | `/me/attempts` | **Implementado.** Mi historial, del más reciente al más antiguo (`{ items }`) |
+| GET | `/attempts/:id` | **Implementado** para el dueño (404 si es ajeno); el staff del equipo, en Fase 3 |
 | POST | `/attempts/:id/void` | Anular con motivo (coach) |
 
 `POST /attempts` — cuerpo:
@@ -76,7 +76,9 @@ Errores de invitación: 404 `INVITATION_NOT_FOUND` · 422 `INVITATION_EXPIRED`, 
   "clientResult":  { "winner": "DFC" }
 }
 ```
-Reglas: `clientAttemptId` repetido → mismo resultado (200). El servidor recalcula todo; si `clientResult.winner` no coincide → 422 `WINNER_MISMATCH`. Verifica 15 ítems de posición distintos de esa versión, 8 de preparación de la ganadora y opciones de su ítem.
+Reglas: `clientAttemptId` repetido (por el mismo usuario) → mismo resultado (200), también si llegan dos a la vez. El servidor recalcula todo; si `clientResult.winner` no coincide → 422 `WINNER_MISMATCH`. Verifica 15 ítems de posición distintos de esa versión, 8 de preparación de la ganadora y opciones de su ítem.
+
+Errores: 403 `CONSENT_REQUIRED` · 403 si no es jugador activo del equipo (`team.quiz.take`) · 404 equipo inexistente · 422 `FORMAT_MISMATCH` (el formato es el del equipo), `QUESTIONNAIRE_VERSION_UNKNOWN`, `ATTEMPT_INVALID` (ítems que faltan o se repiten, orden mostrado fuera de 1..n, opciones u respuesta ajenas al ítem, preparación de otra posición, fechas al revés o en el futuro) y `WINNER_MISMATCH`.
 
 Respuesta:
 ```json
@@ -86,6 +88,8 @@ Respuesta:
   "prep": { "score": 6, "total": 8, "band": "good" },
   "suggestedKnowledgeExams": ["DFC", "MCD"] }
 ```
+
+Implementado además con `clientAttemptId`, `teamId`, `format` y `submittedAt` (`AttemptResultSchema`). `suggestedKnowledgeExams` es por ahora solo la ganadora; las preferidas se suman con el perfil.
 
 ## Examen de conocimiento (certificación)
 
