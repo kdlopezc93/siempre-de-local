@@ -22,7 +22,12 @@ export async function createApp(
 
   app.setGlobalPrefix('api/v1');
   app.useGlobalFilters(new HttpExceptionFilter());
-  app.enableCors({ origin: env.WEB_ORIGIN, credentials: true });
+  // @fastify/cors solo permite GET, HEAD y POST por defecto: hay que declarar el resto.
+  app.enableCors({
+    origin: env.WEB_ORIGIN,
+    credentials: true,
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  });
   registerOriginCheck(app.getHttpAdapter().getInstance(), env.WEB_ORIGIN);
   app.enableShutdownHooks();
   return app;

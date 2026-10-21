@@ -1,14 +1,20 @@
 import {
   AcceptConsentResponseSchema,
   AcceptInvitationResponseSchema,
+  CreateInvitationResponseSchema,
+  InvitationListResponseSchema,
   InvitationPreviewResponseSchema,
   POLICY_VERSION,
+  TeamResponseSchema,
   type AcceptConsentResponse,
   type AcceptInvitationResponse,
+  type CreateInvitationResponse,
+  type InvitationListResponse,
   type InvitationPreviewResponse,
+  type TeamResponse,
 } from '@sdl/contracts';
 
-import { apiRequest } from './http';
+import { apiFetch, apiRequest } from './http';
 
 /** Público: a qué equipo invita el enlace. */
 export function fetchInvitationPreview(code: string): Promise<InvitationPreviewResponse> {
@@ -32,4 +38,24 @@ export function acceptConsent(): Promise<AcceptConsentResponse> {
     method: 'POST',
     body: JSON.stringify({ policyVersion: POLICY_VERSION, ageConfirmed: true }),
   });
+}
+
+export function fetchTeam(teamId: string): Promise<TeamResponse> {
+  return apiRequest(`/api/v1/teams/${teamId}`, TeamResponseSchema);
+}
+
+/** Enlace grupal por defecto: 7 días y hasta 30 personas (docs/05-api.md). */
+export function createInvitation(teamId: string): Promise<CreateInvitationResponse> {
+  return apiRequest(`/api/v1/teams/${teamId}/invitations`, CreateInvitationResponseSchema, {
+    method: 'POST',
+    body: JSON.stringify({ role: 'player' }),
+  });
+}
+
+export function fetchInvitations(teamId: string): Promise<InvitationListResponse> {
+  return apiRequest(`/api/v1/teams/${teamId}/invitations`, InvitationListResponseSchema);
+}
+
+export async function revokeInvitation(teamId: string, invitationId: string): Promise<void> {
+  await apiFetch(`/api/v1/teams/${teamId}/invitations/${invitationId}`, { method: 'DELETE' });
 }

@@ -105,6 +105,17 @@ describe('spike de auth: Better Auth + Nest + Fastify', () => {
     expect(res.statusCode).toBe(403);
   });
 
+  it('el preflight de CORS permite los métodos que usa la PWA (incluido DELETE)', async () => {
+    for (const method of ['POST', 'PUT', 'PATCH', 'DELETE']) {
+      const res = await app.inject({
+        method: 'OPTIONS',
+        url: '/api/v1/teams/x/invitations/y',
+        headers: { origin: TEST_ENV.WEB_ORIGIN, 'access-control-request-method': method },
+      });
+      expect(res.headers['access-control-allow-methods']).toContain(method);
+    }
+  });
+
   it('CORS permite solo el origen de la PWA, con credenciales', async () => {
     const res = await app.inject({
       method: 'OPTIONS',

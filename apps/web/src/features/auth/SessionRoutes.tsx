@@ -10,6 +10,7 @@ import { JoinPage } from '../join/JoinPage';
 import { useInvitationPreview } from '../join/use-join';
 import { ConsentPage } from '../onboarding/ConsentPage';
 import { NoTeamPage } from '../onboarding/NoTeamPage';
+import { InvitePage } from '../team-admin/InvitePage';
 import { SpikePwaPage } from '../spike-pwa/SpikePwaPage';
 import { LoginPage } from './LoginPage';
 import { useSession } from './use-session';
@@ -52,7 +53,7 @@ function RequireSession({ children }: { children: (me: Me) => ReactNode }) {
 
 /** "/" */
 export function HomeRoute() {
-  return <RequireSession>{(me) => <HomePage user={me.user} />}</RequireSession>;
+  return <RequireSession>{(me) => <HomePage me={me} />}</RequireSession>;
 }
 
 /** "/prueba-pwa" — TEMPORAL, spike PWA (docs/spikes/pwa.md). */
@@ -77,4 +78,10 @@ export function JoinRoute() {
   if (session.isPending) return <SessionPending />;
   if (session.isError) return <SessionError retry={() => void session.refetch()} />;
   return <JoinPage code={code} me={session.data} />;
+}
+
+/** "/equipos/:teamId/invitar" — el API decide si puede (coach o admin del club). */
+export function InviteRoute() {
+  const { teamId = '' } = useParams();
+  return <RequireSession>{() => <InvitePage teamId={teamId} />}</RequireSession>;
 }
