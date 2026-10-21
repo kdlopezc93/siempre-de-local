@@ -41,6 +41,11 @@ export function HomePage({ me }: { me: Me }) {
               <li key={team.id} className={styles.team}>
                 <p className={styles.teamName}>{team.name}</p>
                 <p className={styles.teamClub}>{club.name}</p>
+                {roles.includes('player') && (
+                  <Link to={`/equipos/${team.id}/test`} className={styles.teamAction}>
+                    Hacer mi test de posición
+                  </Link>
+                )}
                 {roles.includes('coach') && (
                   <Link to={`/equipos/${team.id}/invitar`} className={styles.teamAction}>
                     Invitar jugadores
