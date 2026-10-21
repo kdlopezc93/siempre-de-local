@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router';
 
 import type { CurrentUser } from '../../shared/api/auth';
 import { Button } from '../../shared/ui/Button';
@@ -32,6 +33,11 @@ export function HomePage({ user }: { user: CurrentUser }) {
           </span>
           . Muy pronto vas a poder hacer tu test de posición desde aquí.
         </p>
+
+        {/* TEMPORAL · spike PWA (docs/spikes/pwa.md) */}
+        <Link to="/prueba-pwa" className={styles.spikeLink}>
+          Probar la app sin conexión
+        </Link>
 
         <div className={styles.actions}>
           {failed && (

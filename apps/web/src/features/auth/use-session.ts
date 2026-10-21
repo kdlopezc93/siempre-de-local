@@ -7,6 +7,7 @@ import {
   signOutEverywhere,
   startGoogleSignIn,
 } from '../../shared/api/auth';
+import { clearApiCache } from '../../shared/offline/api-cache';
 
 const SESSION_KEY = ['session'] as const;
 
@@ -15,6 +16,8 @@ export function useSession() {
     queryKey: SESSION_KEY,
     queryFn: fetchCurrentUser,
     staleTime: 5 * 60_000,
+    // Sin red, el service worker responde con la última sesión conocida (docs/spikes/pwa.md).
+    networkMode: 'offlineFirst',
   });
 }
 
@@ -41,7 +44,10 @@ export function useGoogleSignIn() {
 function useEndSession(end: () => Promise<void>) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: end,
+    mutationFn: async () => {
+      await end();
+      await clearApiCache();
+    },
     onSuccess: () => queryClient.setQueryData(SESSION_KEY, null),
   });
 }
