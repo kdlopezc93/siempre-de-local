@@ -6,6 +6,7 @@ import {
   ErrorBodySchema,
   InvitationListResponseSchema,
   InvitationPreviewResponseSchema,
+  POLICY_VERSION,
 } from '@sdl/contracts';
 import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -26,12 +27,18 @@ describe('invitaciones', () => {
   let teamId: string;
   let counter = 0;
 
-  const newUser = () => {
+  /** Jugador nuevo que ya aceptó la política vigente. */
+  const newUser = async () => {
     counter++;
-    return seedUserWithSession(url, {
+    const user = await seedUserWithSession(url, {
       name: `Jugador ${counter}`,
       email: `j${counter}@example.com`,
     });
+    await request('POST', '/me/consent', user, {
+      policyVersion: POLICY_VERSION,
+      ageConfirmed: true,
+    });
+    return user;
   };
 
   const request = (
@@ -178,9 +185,19 @@ describe('invitaciones', () => {
     expect(row!.usedCount).toBe(1);
   });
 
-  it('aceptar exige sesión', async () => {
+  it('aceptar exige sesión y haber aceptado la política de datos', async () => {
     const { code } = await invite(coach);
     expect((await request('POST', `/invitations/${code}/accept`)).statusCode).toBe(401);
+
+    const withoutConsent = await seedUserWithSession(url, {
+      name: 'Sin consentimiento',
+      email: 'sin-consentimiento@example.com',
+    });
+    const res = await request('POST', `/invitations/${code}/accept`, withoutConsent);
+    expect(res.statusCode).toBe(403);
+    expect(ErrorBodySchema.parse(res.json()).error.code).toBe('CONSENT_REQUIRED');
+    // Ver a qué equipo invita sí se puede antes de aceptar nada.
+    expect((await request('GET', `/invitations/${code}`, withoutConsent)).statusCode).toBe(200);
   });
 
   it('una invitación individual no la usan dos personas, ni a la vez', async () => {

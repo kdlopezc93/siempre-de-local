@@ -3,6 +3,7 @@
  * `infrastructure/` y se reexportan aquí (docs/03-modelo-datos.md).
  */
 export * from './enums.js';
+export * from '../../modules/identity/infrastructure/consent.schema.js';
 export * from '../../modules/identity/infrastructure/schema.js';
 export * from '../../modules/questionnaires/infrastructure/schema.js';
 export * from '../../modules/teams/infrastructure/schema.js';

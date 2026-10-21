@@ -42,6 +42,9 @@ describe('spike de auth: Better Auth + Nest + Fastify', () => {
     expect(res.statusCode).toBe(200);
     expect(MeResponseSchema.parse(res.json())).toEqual({
       user: { id: session.userId, name: 'Kevin', email: 'kevin@example.com' },
+      consent: null,
+      teams: [],
+      clubs: [],
     });
   });
 

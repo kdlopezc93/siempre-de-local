@@ -15,7 +15,9 @@ describe('cliente de identidad', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('devuelve el usuario de la sesión enviando la cookie', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, { user: USER }));
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse(200, { user: USER, consent: null, teams: [], clubs: [] }));
     vi.stubGlobal('fetch', fetchMock);
 
     await expect(fetchCurrentUser()).resolves.toEqual(USER);

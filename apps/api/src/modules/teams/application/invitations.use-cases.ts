@@ -9,6 +9,7 @@ import type {
 import type { z } from 'zod';
 
 import { can, type Actor, type TeamPermission } from '../../../shared/authz/policy.js';
+import { CONSENT_CHECKER, type ConsentChecker } from '../../../shared/consent/consent.port.js';
 import {
   BusinessRuleError,
   ForbiddenError,
@@ -104,6 +105,7 @@ export class TeamInvitations {
 export class InvitationRedemption {
   constructor(
     @Inject(INVITATIONS_REPOSITORY) private readonly invitations: InvitationsRepository,
+    @Inject(CONSENT_CHECKER) private readonly consent: ConsentChecker,
   ) {}
 
   /** Público: lo que ve quien abre el enlace antes de entrar. */
@@ -118,6 +120,10 @@ export class InvitationRedemption {
 
   async accept(userId: string, code: string, now = new Date()): Promise<AcceptInvitationResponse> {
     const invitation = await this.usable(code, now);
+    // Ley 1581: sin autorización previa no entra al equipo (04 §1.2, paso 3).
+    if (!(await this.consent.hasCurrentConsent(userId))) {
+      throw new ForbiddenError('Antes de unirte acepta la política de datos.', 'CONSENT_REQUIRED');
+    }
     const outcome = await this.invitations.redeem(invitation, userId, now);
     if (outcome === 'unavailable') throw unusable('used_up');
     return {

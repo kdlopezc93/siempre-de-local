@@ -31,8 +31,8 @@ Solo para probar caché y cola offline en celulares (`docs/spikes/pwa.md`). Se b
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/me` | Usuario, perfil, membresías, estado del consentimiento. **Fase 0:** solo `{ user: { id, name, email } }` (`MeResponseSchema`) |
-| POST | `/me/consent` | Aceptar la política vigente (`policyVersion`, `ageConfirmed: true`) |
+| GET | `/me` | `{ user, consent: { policyVersion, acceptedAt } \| null, teams: [{ team, club, roles }], clubs: [{ id, name, role }] }` (`MeResponseSchema`). `consent` es null si no aceptó la versión vigente. El perfil se añade con su PR |
+| POST | `/me/consent` | Aceptar la política vigente: `{ policyVersion, ageConfirmed: true }` → 201 `{ consent }`, idempotente. 400 sin `ageConfirmed`; 422 `POLICY_VERSION_OUTDATED` si la versión no es la vigente (`POLICY_VERSION` en `packages/contracts/src/consent.ts`) |
 | PATCH | `/me/profile` | Nombre visible, pie dominante, `playsGoalkeeper` |
 | PUT | `/me/preferred-positions` | `[{ position, rank }]` (1–3) |
 | GET | `/me/export` | Exportación de mis datos (JSON) |
@@ -52,7 +52,7 @@ Solo para probar caché y cola offline en celulares (`docs/spikes/pwa.md`). Se b
 | GET | `/teams/:teamId/invitations` | Lista sin códigos (`{ items }`), con `status`: `active`, `expired`, `used_up`, `revoked`. El coach no ve las de cuerpo técnico |
 | DELETE | `/teams/:teamId/invitations/:id` | Revoca → 204, idempotente. 404 si no es de ese equipo |
 | GET | `/invitations/:code` | Público: `{ team: { id, name, format }, club: { name }, role }`. El código se acepta en minúsculas o con guiones |
-| POST | `/invitations/:code/accept` | Con sesión: une al equipo → 201 `{ teamId, role, alreadyMember }`; si ya era miembro activo no gasta un uso. El consentimiento se exige desde el PR de `data_consent` |
+| POST | `/invitations/:code/accept` | Con sesión: une al equipo → 201 `{ teamId, role, alreadyMember }`; si ya era miembro activo no gasta un uso. Exige el consentimiento vigente: si falta, 403 `CONSENT_REQUIRED` |
 
 Errores de invitación: 404 `INVITATION_NOT_FOUND` · 422 `INVITATION_EXPIRED`, `INVITATION_USED_UP`, `INVITATION_REVOKED`. Esquemas en `packages/contracts/src/invitations.ts`.
 

@@ -45,7 +45,9 @@ user ─┬─< account (Google; en el futuro otros proveedores / OIDC)
 | policy_version | text | |
 | accepted_at | timestamptz | |
 | revoked_at | timestamptz null | |
-| age_confirmed | boolean | declaró ser mayor de 18 al aceptar |
+| age_confirmed | boolean | declaró ser mayor de 18 al aceptar · check: siempre `true` |
+
+Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts` (migración `0004_data_consent`), con índice por `user_id` y borrado en cascada con el usuario. Una fila por versión aceptada (es la prueba de la autorización); la vigente es la de `POLICY_VERSION` sin `revoked_at`.
 
 > Las tablas `guardian_consent`, `birth_year` e `is_minor` del diseño anterior **se eliminan** mientras todos los usuarios sean adultos. Ver `04`, §5.1 para reactivarlas.
 
