@@ -7,7 +7,6 @@ import { IdentityModule } from './modules/identity/identity.module.js';
 import { PlayerProfileModule } from './modules/player-profile/player-profile.module.js';
 import { QuestionnairesModule } from './modules/questionnaires/questionnaires.module.js';
 import { QuizModule } from './modules/quiz/quiz.module.js';
-import { SpikePwaModule } from './modules/spike-pwa/spike-pwa.module.js';
 import { TeamsModule } from './modules/teams/teams.module.js';
 import { PermissionGuard } from './shared/authz/permission.guard.js';
 import { SessionGuard } from './shared/authz/session.guard.js';
@@ -23,7 +22,6 @@ import { DbModule } from './shared/db/db.module.js';
     QuestionnairesModule,
     QuizModule,
     HealthModule,
-    SpikePwaModule,
   ],
   // En este orden: primero la sesión, después los permisos de @Can.
   providers: [

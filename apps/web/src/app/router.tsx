@@ -10,7 +10,6 @@ import {
   QuizRoute,
   ResultRoute,
   ScienceRoute,
-  SpikePwaRoute,
 } from '../features/auth/SessionRoutes';
 
 export const router = createBrowserRouter([
@@ -23,6 +22,5 @@ export const router = createBrowserRouter([
   { path: '/historial', element: <HistoryRoute /> },
   { path: '/bases', element: <ScienceRoute /> },
   { path: '/perfil', element: <ProfileRoute /> },
-  { path: '/prueba-pwa', element: <SpikePwaRoute /> },
   { path: '*', element: <Navigate to="/" replace /> },
 ]);

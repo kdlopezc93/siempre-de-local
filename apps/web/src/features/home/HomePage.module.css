@@ -72,15 +72,6 @@
   gap: var(--sdl-space-2) var(--sdl-space-5);
 }
 
-.spikeLink {
-  display: inline-flex;
-  align-items: center;
-  align-self: flex-start;
-  min-height: var(--sdl-touch-min);
-  color: var(--sdl-primary);
-  text-underline-offset: 4px;
-}
-
 .actions {
   display: flex;
   flex-direction: column;

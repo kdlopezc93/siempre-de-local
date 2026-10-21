@@ -1,8 +1,8 @@
 # Spike PWA · instalación, caché del cuestionario y cola offline
 
 > Fase 0 (`06-roadmap.md`). Valida ADR-06 en celulares reales antes de construir el test de orientación.
-> **Código temporal:** módulo `apps/api/src/modules/spike-pwa`, `packages/contracts/src/spike-pwa.ts`, `apps/web/src/features/spike-pwa` y la ruta `/prueba-pwa`. Se borran en Fase 3, cuando existan `GET /questionnaires/current` y `POST /attempts`.
-> **Se queda:** `apps/web/src/shared/offline/` (cola en IndexedDB y caché del API), el caché del service worker para `/me` y la sesión con `networkMode: 'offlineFirst'`.
+> **El código temporal del spike** (módulo `spike-pwa` del API, sus contratos y la pantalla `/prueba-pwa`) **se retiró en la Fase 2 (PR 11)**, cuando ya existían el test real (`GET /questionnaires/current`, `POST /attempts`) y su cola. Lo que validó se quedó: `apps/web/src/shared/offline/`, el caché del service worker y la sesión con `networkMode: 'offlineFirst'`.
+> **Para repetir la prueba (iPhone pendiente)** ya no hay pantalla de diagnóstico: se hace con la app real servida por `pnpm preview:tunnel <url-túnel>` y el flujo del test de posición (abrir sin red, responder, podio provisional, envío al volver la señal).
 
 ## Qué se prueba
 
@@ -20,7 +20,7 @@ Todo va por **un solo origen HTTPS** (túnel → `vite preview` en `:4173`, que 
 3. Google Cloud Console → Google Auth Platform → Clientes → el cliente web de desarrollo:
    - **Orígenes de JavaScript autorizados:** la URL del túnel.
    - **URI de redirección autorizados:** `<URL del túnel>/api/auth/callback/google`.
-4. `pnpm spike:pwa <URL del túnel>` — compila contracts, API y la web en modo spike, y levanta el API y `vite preview`.
+4. `pnpm preview:tunnel <URL del túnel>` — compila contracts, API y la web en modo spike, y levanta el API y `vite preview`.
 5. En el celular abre `<URL del túnel>/prueba-pwa`. La primera vez el túnel muestra un aviso de Microsoft: toca **Continuar**.
 
 No hace falta tocar `apps/api/.env`: el script sobrescribe `BETTER_AUTH_URL`, `WEB_ORIGIN` y `COOKIE_DOMAIN` solo para ese proceso.
@@ -73,4 +73,4 @@ Hallazgos de implementación, antes de probar en celulares:
 
 **Android: validado** (2026-10-21). Instalación, login dentro de la app instalada, apertura sin red, cola que sobrevive a cerrar la app, sincronización al volver la red sin duplicados y almacenamiento persistente concedido. ADR-06 se sostiene tal cual en Android.
 
-**iPhone: pendiente** por falta de dispositivo. Es el riesgo abierto: login con Google desde la app instalada (cookies separadas de Safari) y apertura sin red. Repetir el guion con `pnpm spike:pwa <url-túnel>` antes de la Fase 3, cuando el test de orientación empiece a depender de la cola offline. Si el login falla en iOS, la alternativa a evaluar es iniciar sesión en Safari antes de instalar o un enlace de login de un solo uso hacia la app instalada.
+**iPhone: pendiente** por falta de dispositivo. Es el riesgo abierto: login con Google desde la app instalada (cookies separadas de Safari) y apertura sin red. Repetir el guion con `pnpm preview:tunnel <url-túnel>` antes de la Fase 3, cuando el test de orientación empiece a depender de la cola offline. Si el login falla en iOS, la alternativa a evaluar es iniciar sesión en Safari antes de instalar o un enlace de login de un solo uso hacia la app instalada.

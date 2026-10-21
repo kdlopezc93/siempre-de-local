@@ -23,7 +23,7 @@ Cada fase termina en algo usable, no en "código a medias". Desde la Fase 2, ade
 - Pizarra y podio (UI portada, paleta pizarra). Bases científicas.
 - **Cambio del 2026-10-21 (test v2):** 20 preguntas de posición y un podio como resultado; se retira la preparación, que pasa a medirse con la certificación (`02` §2–5).
 - Perfil propio: nombre, pie, posiciones preferidas.
-- **Antes de invitar al primer equipo:** staging con login en dominio propio (D5) y repetir el spike PWA en un iPhone.
+- **Antes de invitar al primer equipo:** staging con login en dominio propio (D5) y repetir la prueba sin conexión en un iPhone (`docs/spikes/pwa.md`).
 
 Plan en PRs (acordado el 2026-10-21):
 
@@ -39,7 +39,7 @@ Plan en PRs (acordado el 2026-10-21):
 | 8 | Resultado: `shared/ui/Pitch` única, podio con revelado, invitación a certificarse | 7 |
 | 9 | Historial y bases científicas | 8 |
 | 10 | Perfil propio | 3 |
-| 11 | Retirar el código temporal del spike PWA | 7 |
+| 11 | Retirar el código temporal del spike PWA (`spike:pwa` pasa a `preview:tunnel`) | 7 |
 | 12 | Staging (D5), despliegue desde CI, Playwright del flujo crítico y prueba en iPhone | todo |
 
 Decisiones de este plan:

@@ -16,7 +16,6 @@ import { QuizPage } from '../quiz/QuizPage';
 import { ResultPage } from '../result/ResultPage';
 import { SciencePage } from '../science/SciencePage';
 import { InvitePage } from '../team-admin/InvitePage';
-import { SpikePwaPage } from '../spike-pwa/SpikePwaPage';
 import { LoginPage } from './LoginPage';
 import { useSession } from './use-session';
 
@@ -59,11 +58,6 @@ function RequireSession({ children }: { children: (me: Me) => ReactNode }) {
 /** "/" */
 export function HomeRoute() {
   return <RequireSession>{(me) => <HomePage me={me} />}</RequireSession>;
-}
-
-/** "/prueba-pwa" — TEMPORAL, spike PWA (docs/spikes/pwa.md). */
-export function SpikePwaRoute() {
-  return <RequireSession>{(me) => <SpikePwaPage user={me.user} />}</RequireSession>;
 }
 
 /** "/entrar" — si ya hay sesión, vuelve al inicio. */
