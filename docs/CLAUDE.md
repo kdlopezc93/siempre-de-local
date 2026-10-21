@@ -41,4 +41,13 @@ Mobile first: la mayoría de jugadores lo usará en el celular. Objetivos tácti
 
 ## Comandos
 
-(Completar en Fase 0 cuando existan.) `pnpm dev`, `pnpm test`, `pnpm lint`, `pnpm typecheck`, `docker compose up -d db`.
+Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
+
+| Comando | Qué hace |
+|---|---|
+| `pnpm install` | Instala el workspace |
+| `pnpm lint` | ESLint en todo el repo (incluye reglas de frontera entre capas) |
+| `pnpm typecheck` | `tsc --noEmit` en cada paquete |
+| `pnpm test` | Vitest en cada paquete |
+| `pnpm build` | Compila todos los paquetes |
+| `pnpm format` | Prettier |
