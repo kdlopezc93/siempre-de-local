@@ -47,6 +47,24 @@
   text-transform: uppercase;
 }
 
+.podium {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-1);
+  margin: 0;
+  padding-left: var(--sdl-space-6);
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-xl);
+  letter-spacing: var(--sdl-tracking-button);
+  text-transform: uppercase;
+}
+
+.podium li::marker {
+  color: var(--sdl-primary);
+  font-variant-numeric: tabular-nums;
+}
+
 .actions {
   display: flex;
   flex-direction: column;

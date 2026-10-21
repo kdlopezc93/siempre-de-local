@@ -1,3 +1,4 @@
+import type { PositionCode } from '@sdl/contracts';
 import { POSITIONS } from '@sdl/domain';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useBlocker } from 'react-router';
@@ -5,8 +6,8 @@ import { Link, useBlocker } from 'react-router';
 import type { Me } from '../../shared/api/auth';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
-import { CONTEXT, FORMAT, PREP_BAND } from './labels';
-import type { ShownItem } from './quiz-engine';
+import { CONTEXT, FORMAT } from './labels';
+import { isDone, type ShownItem } from './quiz-engine';
 import styles from './QuizPage.module.css';
 import { useQuiz, type SubmitStatus } from './use-quiz';
 
@@ -29,7 +30,7 @@ export function QuizPage({ me, teamId }: { me: Me; teamId: string }) {
 
 function Quiz({ userId, team }: { userId: string; team: Me['teams'][number]['team'] }) {
   const quiz = useQuiz(userId, team);
-  const inProgress = quiz.state !== null && quiz.state.phase !== 'done';
+  const inProgress = quiz.state !== null && !isDone(quiz.state);
   const blocker = useBlocker(inProgress);
 
   // Cerrar o recargar la pestaña a mitad del test también avisa.
@@ -55,23 +56,13 @@ function Quiz({ userId, team }: { userId: string; team: Me['teams'][number]['tea
     );
   }
 
-  if (!quiz.state) {
-    return <Intro team={team} quiz={quiz} />;
-  }
-  if (quiz.state.phase === 'done') {
-    return <Submitted status={quiz.submit!} onRestart={quiz.restart} />;
-  }
+  if (!quiz.state) return <Intro team={team} quiz={quiz} />;
+  if (isDone(quiz.state)) return <Submitted status={quiz.submit!} onRestart={quiz.restart} />;
 
-  const { phase, index } = quiz.state;
-  const items = phase === 'position' ? quiz.state.positionItems : quiz.state.prepItems;
-  const label =
-    phase === 'position'
-      ? 'Tu posición'
-      : `Preparación de ${POSITIONS[quiz.state.winner!].name.toLowerCase()}`;
+  const { index, items } = quiz.state;
   return (
     <Question
       key={items[index]!.id}
-      label={label}
       index={index}
       total={items.length}
       item={items[index]!}
@@ -96,8 +87,8 @@ function Intro({
       <div className={styles.intro}>
         <h1 className={styles.display}>¿Dónde deberías jugar?</h1>
         <p className={styles.lead}>
-          Son 23 preguntas: 15 sobre situaciones de juego y tus cualidades, y 8 sobre lo que sabes
-          de tu posición. Toma unos 5 minutos.
+          Son 20 preguntas sobre situaciones de juego y tus cualidades. Al final ves las 3
+          posiciones donde mejor encajas. Toma unos 5 minutos.
         </p>
         <p className={styles.meta}>
           {team.name}, {FORMAT[team.format]}
@@ -122,17 +113,16 @@ function Intro({
   );
 }
 
+const QUESTION_LABEL = 'Test de posición';
 /** Pausa breve tras tocar una opción: se ve la elección antes de pasar a la siguiente. */
 const CONFIRM_MS = 220;
 
 function Question({
-  label,
   index,
   total,
   item,
   onChoose,
 }: {
-  label: string;
   index: number;
   total: number;
   item: ShownItem;
@@ -155,7 +145,7 @@ function Question({
   return (
     <Screen className={styles.screen}>
       <div className={styles.progressHead}>
-        <span className={styles.phase}>{label}</span>
+        <span className={styles.phase}>{QUESTION_LABEL}</span>
         <span className={styles.count}>
           {index + 1} de {total}
         </span>
@@ -163,7 +153,7 @@ function Question({
       <div
         className={styles.progress}
         role="progressbar"
-        aria-label={label}
+        aria-label={QUESTION_LABEL}
         aria-valuemin={0}
         aria-valuemax={total}
         aria-valuenow={index}
@@ -172,7 +162,7 @@ function Question({
       </div>
 
       <div className={styles.question}>
-        {item.context && <p className={styles.context}>{CONTEXT[item.context]}</p>}
+        <p className={styles.context}>{CONTEXT[item.context]}</p>
         <h1 ref={headingRef} tabIndex={-1} className={styles.text}>
           {item.text}
         </h1>
@@ -196,19 +186,38 @@ function Question({
   );
 }
 
+/** Las 3 posiciones en orden: la primera grande, las otras dos debajo. */
+function Podium({ podium, title }: { podium: PositionCode[]; title: string }) {
+  const [first, ...rest] = podium;
+  return (
+    <div className={styles.intro}>
+      <p className={styles.meta}>{title}</p>
+      <h1 className={styles.display}>{POSITIONS[first!].name}</h1>
+      <ol className={styles.podium} start={2}>
+        {rest.map((pos) => (
+          <li key={pos}>{POSITIONS[pos].name}</li>
+        ))}
+      </ol>
+    </div>
+  );
+}
+
+const PENDING_NOTE = {
+  sending: 'Calculando tu resultado oficial…',
+  'saved-offline':
+    'Sin señal: este es tu podio provisional. Tu test quedó guardado y lo enviamos solito cuando vuelva la conexión.',
+  'needs-auth':
+    'Tu sesión venció. Tu test sigue guardado en el celular: entra de nuevo y se envía solo.',
+} as const;
+
 function Submitted({ status, onRestart }: { status: SubmitStatus; onRestart: () => void }) {
   if (status.kind === 'scored') {
-    const { winner, prep } = status.result;
     return (
       <Screen className={styles.screen}>
-        <div className={styles.intro}>
-          <p className={styles.meta}>Tu posición</p>
-          <h1 className={styles.display}>{POSITIONS[winner].name}</h1>
-          <p className={styles.lead}>
-            Preparación: {PREP_BAND[prep.band].toLowerCase()} ({prep.score} de {prep.total}).
-          </p>
-          <p className={styles.note}>Muy pronto vas a ver aquí tu pizarra y tu podio completo.</p>
-        </div>
+        <Podium podium={status.result.podium} title="Tus 3 posiciones" />
+        <p className={styles.note}>
+          Muy pronto vas a ver aquí tu pizarra y vas a poder certificarte en cualquiera de las tres.
+        </p>
         <Link to="/" className={styles.primaryLink}>
           Volver al inicio
         </Link>
@@ -216,43 +225,38 @@ function Submitted({ status, onRestart }: { status: SubmitStatus; onRestart: () 
     );
   }
 
-  const copy = {
-    sending: ['Calculando tu resultado…', 'Un momento: lo estamos calculando con tus respuestas.'],
-    'saved-offline': [
-      'Tu test quedó guardado',
-      'No hay señal ahora. Lo enviamos solito cuando vuelva la conexión, y ahí ves tu resultado.',
-    ],
-    'needs-auth': [
-      'Entra de nuevo para enviarlo',
-      'Tu sesión venció. Tu test sigue guardado en el celular: entra y se envía solo.',
-    ],
-    rejected: [
-      'No pudimos validar tu test',
-      'Algo no cuadró al revisarlo. Hazlo de nuevo, por favor.',
-    ],
-  } as const;
-  const [title, lead] = copy[status.kind];
-
-  return (
-    <Screen className={styles.screen}>
-      <div className={styles.intro}>
-        <h1 className={styles.display} aria-live="polite">
-          {title}
-        </h1>
-        <p className={styles.lead}>{lead}</p>
-      </div>
-      <div className={styles.actions}>
-        {status.kind === 'rejected' && <Button onClick={onRestart}>Hacer el test de nuevo</Button>}
-        {status.kind === 'needs-auth' ? (
-          <Link to="/entrar" className={styles.primaryLink}>
-            Entrar
-          </Link>
-        ) : (
+  if (status.kind === 'rejected') {
+    return (
+      <Screen className={styles.screen}>
+        <div className={styles.intro}>
+          <h1 className={styles.display}>No pudimos validar tu test</h1>
+          <p className={styles.lead}>Algo no cuadró al revisarlo. Hazlo de nuevo, por favor.</p>
+        </div>
+        <div className={styles.actions}>
+          <Button onClick={onRestart}>Hacer el test de nuevo</Button>
           <Link to="/" className={styles.back}>
             Volver al inicio
           </Link>
-        )}
-      </div>
+        </div>
+      </Screen>
+    );
+  }
+
+  return (
+    <Screen className={styles.screen}>
+      <Podium podium={status.provisionalPodium} title="Tu podio provisional" />
+      <p className={styles.note} role="status">
+        {PENDING_NOTE[status.kind]}
+      </p>
+      {status.kind === 'needs-auth' ? (
+        <Link to="/entrar" className={styles.primaryLink}>
+          Entrar
+        </Link>
+      ) : (
+        <Link to="/" className={styles.back}>
+          Volver al inicio
+        </Link>
+      )}
     </Screen>
   );
 }

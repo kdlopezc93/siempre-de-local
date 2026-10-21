@@ -1,11 +1,16 @@
-import type { AttemptResult, MatchFormat, SubmitAttemptRequest } from '@sdl/contracts';
+import type {
+  AttemptResult,
+  MatchFormat,
+  PositionCode,
+  SubmitAttemptRequest,
+} from '@sdl/contracts';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { fetchQuestionnaire, submitAttempt } from '../../shared/api/quiz';
 import { enqueue, requestPersistentStorage, type OutboxSender } from '../../shared/offline/outbox';
 import { useOutbox, useOutboxSync } from '../../shared/offline/use-outbox';
-import { answer, startQuiz, toSubmission, type QuizState } from './quiz-engine';
+import { answer, isDone, startQuiz, toSubmission, type QuizState } from './quiz-engine';
 
 const KIND = 'orientation-attempt';
 const SENDERS: Record<string, OutboxSender> = {
@@ -25,11 +30,12 @@ export function useQuestionnaire() {
   });
 }
 
+/** Mientras no llega el oficial se muestra el podio calculado en el celular. */
 export type SubmitStatus =
-  | { kind: 'sending' }
-  | { kind: 'saved-offline' }
-  | { kind: 'needs-auth' }
-  | { kind: 'rejected'; reason: string }
+  | { kind: 'sending'; provisionalPodium: PositionCode[] }
+  | { kind: 'saved-offline'; provisionalPodium: PositionCode[] }
+  | { kind: 'needs-auth'; provisionalPodium: PositionCode[] }
+  | { kind: 'rejected' }
   | { kind: 'scored'; result: AttemptResult };
 
 /**
@@ -54,9 +60,9 @@ export function useQuiz(userId: string, team: { id: string; format: MatchFormat 
 
   async function choose(optionId: string) {
     if (!state || !questionnaire.data) return;
-    const next = answer(state, optionId, questionnaire.data, cryptoRandom);
+    const next = answer(state, optionId, questionnaire.data);
     setState(next);
-    if (next.phase === 'done') {
+    if (isDone(next)) {
       await enqueue({
         id: next.clientAttemptId,
         kind: KIND,
@@ -68,17 +74,27 @@ export function useQuiz(userId: string, team: { id: string; format: MatchFormat 
     }
   }
 
-  // El estado del envío sale de la cola (sobrevive a cerrar la app).
-  const item = state && outbox.items.find((i) => i.id === state.clientAttemptId);
-  let submit: SubmitStatus | null = null;
-  if (state?.phase === 'done') {
-    if (item?.status === 'sent') submit = { kind: 'scored', result: item.result as AttemptResult };
-    else if (item?.status === 'rejected')
-      submit = { kind: 'rejected', reason: item.lastError ?? '' };
-    else if (outbox.lastOutcome === 'needs-auth') submit = { kind: 'needs-auth' };
-    else if (item && item.tries > 0) submit = { kind: 'saved-offline' };
-    else submit = { kind: 'sending' };
-  }
+  return {
+    questionnaire,
+    state,
+    start,
+    choose,
+    submit: submitStatus(state, outbox),
+    restart: () => setState(null),
+  };
+}
 
-  return { questionnaire, state, start, choose, submit, restart: () => setState(null) };
+/** El estado del envío sale de la cola (sobrevive a cerrar la app). */
+function submitStatus(
+  state: QuizState | null,
+  outbox: ReturnType<typeof useOutbox>,
+): SubmitStatus | null {
+  if (!state || !isDone(state)) return null;
+  const provisionalPodium = state.provisionalPodium!;
+  const item = outbox.items.find((i) => i.id === state.clientAttemptId);
+  if (item?.status === 'sent') return { kind: 'scored', result: item.result as AttemptResult };
+  if (item?.status === 'rejected') return { kind: 'rejected' };
+  if (outbox.lastOutcome === 'needs-auth') return { kind: 'needs-auth', provisionalPodium };
+  if (item && item.tries > 0) return { kind: 'saved-offline', provisionalPodium };
+  return { kind: 'sending', provisionalPodium };
 }
