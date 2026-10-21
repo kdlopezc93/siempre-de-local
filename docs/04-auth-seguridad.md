@@ -57,7 +57,7 @@ Los admins de club se crean por script al inicio; ellos crean equipos e invitan 
 | Ver su historial, resultados y puntajes de conocimiento | ✔ | – | – | – | – |
 | Ver su tarjeta 0–99 | ✔ si el equipo lo permite (D8) | – | – | – | – |
 | Editar su perfil (nombre, pie, posiciones preferidas) | ✔ | – | – | – | – |
-| Ver resultados y preparación del equipo | ✘ | ✔ | ✔ | ✔ (sus equipos) | soporte* |
+| Ver resultados del equipo | ✘ | ✔ | ✔ | ✔ (sus equipos) | soporte* |
 | Ver conocimiento del equipo | ✔ (banda de compañeros, sin puntaje) | ✔ | ✔ | ✔ | soporte* |
 | Ver resultados detallados de otros jugadores | ✘ | ✔ | ✔ | ✔ | soporte* |
 | Puntuar la tarjeta 0–99 | ✘ | ✔ | ✔ | ✘ | ✘ |

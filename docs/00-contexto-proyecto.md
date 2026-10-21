@@ -61,7 +61,7 @@ El porqué de cada elección, y por qué no las alternativas, está en `01-arqui
 ## 5. Principios no negociables
 
 1. **El servidor es la fuente de verdad de todo resultado** (orientación, conocimiento, puntuación de alineación).
-2. **Las respuestas correctas nunca viajan al cliente** (preparación y examen de conocimiento).
+2. **Las respuestas correctas nunca viajan al cliente** (examen de conocimiento; antes también la preparación).
 3. **Se guardan respuestas crudas, no solo puntajes.** Así se puede re-puntuar con nuevos pesos y hacer validación.
 4. **Contenido versionado.** Un intento o examen siempre apunta a la versión exacta con la que se respondió.
 5. **Mínimo dato personal**, aunque los usuarios sean adultos. La ley de datos personales aplica igual (ver `04`).
@@ -84,11 +84,11 @@ El porqué de cada elección, y por qué no las alternativas, está en `01-arqui
 
 ## 7. Glosario
 
-- **Test de orientación**: el test de 23 preguntas (15 de posición + 8 de preparación) heredado del prototipo.
+- **Test de orientación**: 20 preguntas de posición que dan un **podio** (top 3). Heredado del prototipo, que además tenía 8 de preparación (retiradas en v2, ver `02` §5).
 - **Afinidad**: % de puntos obtenidos por una posición sobre el máximo posible en las preguntas servidas.
 - **Exposición**: suma, por pregunta servida, del máximo puntaje que una posición podía obtener.
 - **Plegado F8**: en Fútbol 8, Pivote suma en Mediocentro y Mediapunta en Delantero.
-- **Preparación**: aciertos en 8 preguntas de conocimiento táctico de la posición ganadora (chequeo rápido).
+- **Preparación** *(retirada en v2)*: aciertos en 8 preguntas de la posición ganadora. Su papel lo cumple el examen de conocimiento.
 - **Certificación / puntaje de conocimiento**: mejor resultado (0–100%) en el examen de una posición. Sin aprobado ni suspenso; no caduca; un intento por posición cada 30 días; pesa en el planificador según su valor.
 - **Tarjeta del jugador**: atributos 0–99 (ritmo, tiro, pase, regate, defensa, físico; o los de portero) puntuados por el entrenador.
 - **Media por posición (MP)**: combinación ponderada de los atributos de la tarjeta según la posición.

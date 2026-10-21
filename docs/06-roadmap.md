@@ -14,13 +14,14 @@ Cada fase termina en algo usable, no en "código a medias". Desde la Fase 2, ade
 - ~~Staging con un "hola mundo" con login~~ → movido a la Fase 2: el riesgo de la cookie ya quedó cubierto en local (Caddy con subdominios HTTPS) y por el túnel con un celular real; lo que falta es trabajo de despliegue, no de arquitectura.
 
 ### Fase 1 · Dominio con paridad
-- Portar puntuación, plegado F8 y preparación a `packages/domain`, con tests de paridad contra el prototipo.
+- Portar puntuación, plegado F8 y preparación a `packages/domain`, con tests de paridad contra el prototipo. *(La preparación se retiró después, en la Fase 2: ver `02` §5.)*
 - Desempate determinista.
 - *Seed*: contenido del prototipo → `questionnaire_version` v1.
 
 ### Fase 2 · Jugador (MVP)
 - Invitación → Google → consentimiento → test (online y offline) → resultado oficial → historial.
-- Pizarra, podio, preparación (UI portada, paleta pizarra). Bases científicas.
+- Pizarra y podio (UI portada, paleta pizarra). Bases científicas.
+- **Cambio del 2026-10-21 (test v2):** 20 preguntas de posición y un podio como resultado; se retira la preparación, que pasa a medirse con la certificación (`02` §2–5).
 - Perfil propio: nombre, pie, posiciones preferidas.
 - **Antes de invitar al primer equipo:** staging con login en dominio propio (D5) y repetir el spike PWA en un iPhone.
 
@@ -33,9 +34,9 @@ Plan en PRs (acordado el 2026-10-21):
 | 3 | Consentimiento (`data_consent`, política v1 en borrador) y `/me` con membresías; sin equipo → "pide tu invitación" | 1 |
 | 4 | Pantalla `/unirse/<código>`: Google → política + mayor de 18 → al equipo | 2, 3 |
 | 5 | Pantalla mínima del entrenador para invitar (enlace, compartir, revocar), adelantada de la Fase 3 | 2 |
-| 6 | Test de orientación (API): intentos, `GET /questionnaires/current` con ETag y sin correctas, `POST /attempts` idempotente con recálculo y `WINNER_MISMATCH`, historial | 1 |
-| 7 | Test (UI): flujo portado del prototipo, ganador en cliente, envío por la cola offline | 6 |
-| 8 | Resultado: `shared/ui/Pitch` única, podio con revelado, banda de preparación | 7 |
+| 6 | Test de orientación (API): intentos, `GET /questionnaires/current` con ETag, `POST /attempts` idempotente con recálculo, historial. Luego, test v2 (solo posición) | 1 |
+| 7 | Test (UI): 20 preguntas, podio provisional sin conexión, envío por la cola offline | 6 |
+| 8 | Resultado: `shared/ui/Pitch` única, podio con revelado, invitación a certificarse | 7 |
 | 9 | Historial y bases científicas | 8 |
 | 10 | Perfil propio | 3 |
 | 11 | Retirar el código temporal del spike PWA | 7 |
@@ -47,7 +48,7 @@ Decisiones de este plan:
 - **Formato del test:** lo da el equipo (F8/F11); si el jugador está en varios, elige equipo al empezar.
 
 ### Fase 3 · Entrenador
-- Panel: plantilla en pizarra, reparto, huecos, tabla, preparación media por posición, filtro por formato, preparación baja en rojo.
+- Panel: plantilla en pizarra, reparto, huecos, tabla, filtro por formato. *("Preparación media por posición" y "preparación baja en rojo" pasan a la Fase 4 como conocimiento por posición.)*
 - **Tarjeta del jugador (entrada manual 0–99)** con anclas e histórico; medias por posición; pantalla de perfil del jugador.
 - Valoración del entrenador (con `blind`). Importación de CSV heredados. Exportación.
 
@@ -62,7 +63,7 @@ Decisiones de este plan:
 - Informe de validación (test vs. entrenador; conocimiento vs. tarjeta).
 
 ### Fase 6 · Contenido, psicometría y medición
-- Re-escribir distractores de preparación del test de orientación.
+- Ampliar el banco de posición del test de orientación a ~40 ítems (hoy 31, 20 por intento).
 - Análisis de ítems de los bancos de conocimiento (dificultad, discriminación) → nuevas versiones del banco.
 - Afinar pesos del test, de las medias por posición y del encaje con datos reales.
 - Ítems tipo pizarra en los bancos de conocimiento.
@@ -75,8 +76,8 @@ Decisiones de este plan:
 | 1. Afinar ponderaciones con estudios | Fase 6 |
 | 2. Estudio de validación con el equipo | Fase 5 |
 | 3. Panel con historial propio | Resuelto por la BD |
-| 4. Preparación media por posición | Fase 3 |
-| 5. Filtro por formato y rojo en baja preparación | Fase 3 |
+| 4. Preparación media por posición | Fase 4, como conocimiento por posición (la preparación se retiró) |
+| 5. Filtro por formato y rojo en baja preparación | Filtro: Fase 3 · rojo en bajo conocimiento: Fase 4 |
 | 6. Cómo compartir con el equipo | Resuelto: invitación a la PWA |
 
 ## Bugs/deuda del prototipo a no arrastrar
@@ -99,7 +100,7 @@ Decisiones de este plan:
 
 | # | Pregunta | Propuesta por defecto |
 |---|---|---|
-| D1 | ¿El jugador ve su preparación? | **Decidido: sí** (2026-10-21) |
+| D1 | ¿El jugador ve su preparación? | **Ya no aplica:** la preparación se retiró del test (v2, 2026-10-21) |
 | D2 | ¿El jugador ve las valoraciones del entrenador sobre él? | No |
 | D3 | ¿Multi-club desde el día 1? | Modelo multi-club, UI de un club |
 | D4 | ¿Cuántos intentos del test cuentan? | Todos se guardan; panel usa el último oficial; el entrenador puede anular |

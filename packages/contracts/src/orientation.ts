@@ -8,7 +8,7 @@ export type PositionCode = z.infer<typeof PositionCodeSchema>;
 
 /**
  * GET /api/v1/questionnaires/current — la versión publicada, para cachearla y responder
- * sin conexión (ADR-06). Ítems de posición con sus pesos; de preparación **sin la correcta**.
+ * sin conexión (ADR-06): ítems de posición con sus pesos.
  */
 export const QuestionnaireResponseSchema = z.object({
   versionId: z.uuid(),
@@ -27,14 +27,6 @@ export const QuestionnaireResponseSchema = z.object({
           points: z.partialRecord(PositionCodeSchema, z.int()),
         }),
       ),
-    }),
-  ),
-  prepItems: z.array(
-    z.object({
-      id: z.uuid(),
-      position: PositionCodeSchema,
-      text: z.string(),
-      options: z.array(z.object({ id: z.uuid(), label: z.string() })),
     }),
   ),
 });
@@ -56,12 +48,7 @@ export const SubmitAttemptRequestSchema = z.object({
   startedAt: z.iso.datetime(),
   submittedAt: z.iso.datetime(),
   positionItems: z.array(ServedItemSchema).min(1),
-  prepItems: z.array(ServedItemSchema).min(1),
-  /** Lo que calculó el celular para elegir la preparación; el servidor lo comprueba. */
-  clientResult: z.object({ winner: PositionCodeSchema }),
 });
-
-export const PrepBandSchema = z.enum(['very_prepared', 'good', 'reinforce', 'room_to_grow']);
 
 /** Resultado oficial (calculado en el servidor). 201 la primera vez; 200 si se reenvía. */
 export const AttemptResultSchema = z.object({
@@ -70,10 +57,12 @@ export const AttemptResultSchema = z.object({
   teamId: z.uuid(),
   format: MatchFormatSchema,
   submittedAt: z.iso.datetime(),
+  /** La primera del podio. */
   winner: PositionCodeSchema,
   ranking: z.array(z.object({ pos: PositionCodeSchema, pct: z.number() })),
+  /** Las 3 posiciones con más afinidad: el resultado principal del test. */
   podium: z.array(PositionCodeSchema),
-  prep: z.object({ score: z.int(), total: z.int(), band: PrepBandSchema }),
+  /** Dónde certificarse en conocimiento (Fase 4): las del podio. */
   suggestedKnowledgeExams: z.array(PositionCodeSchema),
 });
 

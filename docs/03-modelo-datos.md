@@ -101,7 +101,7 @@ Implementado en `apps/api/src/modules/teams/infrastructure/schema.ts`, migracion
 
 Implementado en `apps/api/src/modules/questionnaires/infrastructure/schema.ts` (migración `0001_questionnaire_v1`). El enum `position_code` vive en `shared/db/enums.ts` y sale del orden canónico de `@sdl/domain`. Las FK no borran en cascada: una versión publicada no se borra, se retira.
 
-**Contenido v1:** `pnpm db:seed` publica la versión `v1` con las 31 preguntas de posición y las 64 de preparación del prototipo (idempotente por `label`). El contenido se genera con `apps/api/scripts/extract-prototype-content.mjs` y un test comprueba que coincide con `docs/prototipo/detector-posicion.jsx`. Al extraerlo se barajan las opciones de preparación (de forma determinista), porque en el prototipo la correcta siempre era la primera.
+**Contenido:** `pnpm db:seed` publica `v1` (las 31 de posición y las 64 de preparación del prototipo) y después `v2` (las mismas 31, 20 por intento, sin preparación), que retira a `v1` (idempotente por `label`). Las tablas `prep_*` quedan por el histórico de v1. El contenido se genera con `apps/api/scripts/extract-prototype-content.mjs` y un test comprueba que coincide con `docs/prototipo/detector-posicion.jsx`. Al extraerlo se barajan las opciones de preparación (de forma determinista), porque en el prototipo la correcta siempre era la primera.
 
 **quiz_attempt**
 | Columna | Tipo | Notas |
@@ -124,6 +124,7 @@ Implementado en `apps/api/src/modules/quiz/infrastructure/schema.ts` (migración
 - `client_attempt_id` es único **por usuario** (`unique (user_id, client_attempt_id)`), no global: un id repetido de otra persona no choca ni revela nada.
 - `attempt_item.item_id` y `attempt_answer.item_id/option_id` no llevan FK porque apuntan a `position_*` o `prep_*` según la fase; se validan contra la versión al recibir el intento.
 - `attempt_answer.answered_at` = `submitted_at`: el celular no envía la hora de cada respuesta.
+- `attempt_result.prep_score/prep_total` admiten null desde la migración `0006_orientation_v2`: solo los intentos v1 tienen preparación.
 - Índices: `(user_id, submitted_at desc)` y `(team_id, status)`. Los hijos se borran en cascada con el intento; el intento, con el usuario.
 
 **legacy_result** — `id, team_id, imported_by, player_name, player_user_id null, taken_at, format, winner, affinity_pct, podium, prep_score, prep_total, raw jsonb`

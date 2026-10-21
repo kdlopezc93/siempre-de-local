@@ -1,5 +1,5 @@
 import type { MatchFormat, SubmitAttemptRequest } from '@sdl/contracts';
-import type { PositionCode, RankingEntry } from '@sdl/domain';
+import type { RankingEntry } from '@sdl/domain';
 
 export interface StoredAttempt {
   id: string;
@@ -9,10 +9,8 @@ export interface StoredAttempt {
   format: MatchFormat;
   submittedAt: Date;
   result: {
-    winner: PositionCode;
+    /** Ranking completo, de mayor a menor afinidad (el primero es la ganadora). */
     ranking: RankingEntry[];
-    prepScore: number;
-    prepTotal: number;
   };
 }
 

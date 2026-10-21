@@ -103,8 +103,9 @@ export const attemptResult = pgTable(
     scoringVersion: text().notNull(),
     winner: positionCode().notNull(),
     ranking: jsonb().$type<StoredRankingEntry[]>().notNull(),
-    prepScore: smallint().notNull(),
-    prepTotal: smallint().notNull(),
+    /** Solo intentos v1 (histórico): desde v2 el test no tiene preparación. */
+    prepScore: smallint(),
+    prepTotal: smallint(),
     isOfficial: boolean().notNull(),
     computedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },

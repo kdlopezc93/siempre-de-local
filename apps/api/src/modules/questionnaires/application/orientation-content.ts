@@ -10,9 +10,12 @@ export interface OrientationContent {
     text: string;
     options: { label: string; points: Partial<Record<PositionCode, number>> }[];
   }[];
-  prepItems: Record<
-    PositionCode,
-    { text: string; options: { label: string; isCorrect: boolean }[] }[]
+  /**
+   * Solo v1 (histórico): 8 de preparación por posición. Desde v2 el test es solo de posición
+   * y el conocimiento se mide con el examen de certificación (02 §5).
+   */
+  prepItems: Partial<
+    Record<PositionCode, { text: string; options: { label: string; isCorrect: boolean }[] }[]>
   >;
 }
 
@@ -43,9 +46,13 @@ export function validateOrientationContent(content: OrientationContent): string[
     }
   }
 
-  for (const pos of POSITION_CODES) {
+  // La preparación es opcional (v1); si viene, cada posición la trae completa y bien formada.
+  const withPrep = POSITION_CODES.filter((pos) => (prepItems[pos]?.length ?? 0) > 0);
+  if (withPrep.length > 0 && withPrep.length < POSITION_CODES.length) {
+    problems.push('La preparación debe venir para todas las posiciones o para ninguna');
+  }
+  for (const pos of withPrep) {
     const items = prepItems[pos] ?? [];
-    if (items.length === 0) problems.push(`Preparación de ${pos}: sin ítems`);
     items.forEach((item, i) => {
       const correct = item.options.filter((option) => option.isCorrect).length;
       if (correct !== 1) {

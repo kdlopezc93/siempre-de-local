@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { AttemptResult, SubmitAttemptRequest } from '@sdl/contracts';
-import { ORIENTATION_SCORING_VERSION, prepBand, scorePosition, scorePrep } from '@sdl/domain';
+import { ORIENTATION_SCORING_VERSION, scorePosition } from '@sdl/domain';
 
 import {
   AUTHORIZATION_READER,
@@ -26,22 +26,22 @@ import {
   type AttemptsRepository,
   type StoredAttempt,
 } from './ports/attempts.repository.js';
-import { checkTimes, positionPart, prepPart } from './validate-submission.js';
+import { checkTimes, positionPart } from './validate-submission.js';
 
 export function toAttemptResult(attempt: StoredAttempt): AttemptResult {
-  const { winner, ranking, prepScore, prepTotal } = attempt.result;
+  const { ranking } = attempt.result;
+  const podium = ranking.slice(0, 3).map((entry) => entry.pos);
   return {
     attemptId: attempt.id,
     clientAttemptId: attempt.clientAttemptId,
     teamId: attempt.teamId,
     format: attempt.format,
     submittedAt: attempt.submittedAt.toISOString(),
-    winner,
+    winner: ranking[0]!.pos,
     ranking: ranking.map(({ pos, pct }) => ({ pos, pct })),
-    podium: ranking.slice(0, 3).map((entry) => entry.pos),
-    prep: { score: prepScore, total: prepTotal, band: prepBand(prepScore, prepTotal) },
-    // Las preferidas del perfil se suman cuando exista el perfil (Fase 2, PR 10).
-    suggestedKnowledgeExams: [winner],
+    podium,
+    // Puede certificarse en cualquiera de las tres (Fase 4).
+    suggestedKnowledgeExams: podium,
   };
 }
 
@@ -55,7 +55,10 @@ export class SubmitAttempt {
     @Inject(CONSENT_CHECKER) private readonly consent: ConsentChecker,
   ) {}
 
-  /** El servidor recalcula todo; el cliente solo dice qué vio y qué eligió (00 §5). */
+  /**
+   * El servidor calcula el resultado oficial; el cliente solo dice qué vio y qué eligió
+   * (00 §5). El podio que el celular muestra sin conexión es provisional.
+   */
   async execute(
     userId: string,
     request: SubmitAttemptRequest,
@@ -93,22 +96,13 @@ export class SubmitAttempt {
 
     const position = positionPart(content, request);
     const ranking = scorePosition(position.items, position.answers, request.format);
-    const winner = ranking[0]!.pos;
-    if (winner !== request.clientResult.winner) {
-      throw new BusinessRuleError(
-        'El resultado calculado en el celular no coincide con el del servidor.',
-        'WINNER_MISMATCH',
-      );
-    }
-    const prep = prepPart(content, request, winner);
-    const prepResult = scorePrep(prep.items, prep.answers);
 
     const saved = await this.attempts.save({
       userId,
       request,
       scoringVersion: ORIENTATION_SCORING_VERSION,
       receivedAt: now,
-      result: { winner, ranking, prepScore: prepResult.score, prepTotal: prepResult.total },
+      result: { ranking },
     });
     if (saved === 'duplicate') {
       const winnerOfRace = await this.attempts.findByClientId(userId, request.clientAttemptId);
