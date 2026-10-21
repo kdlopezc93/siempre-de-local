@@ -48,12 +48,12 @@ describe('motor del test', () => {
   it('al terminar calcula el podio provisional', () => {
     const state = run('F11', choose('MP'));
     expect(state.answers).toHaveLength(20);
-    expect(state.provisionalPodium?.[0]).toBe('MP');
+    expect(state.provisionalPodium?.[0]).toEqual({ pos: 'MP', pct: 1 });
     expect(state.provisionalPodium).toHaveLength(3);
   });
 
   it('en F8 la mediapunta se pliega en delantero', () => {
-    expect(run('F8', choose('MP')).provisionalPodium?.[0]).toBe('DC');
+    expect(run('F8', choose('MP')).provisionalPodium?.[0]?.pos).toBe('DC');
   });
 
   it('arma un envío válido para el contrato, con el orden mostrado de las opciones', () => {

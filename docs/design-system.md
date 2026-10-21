@@ -129,8 +129,14 @@ Con `prefers-reduced-motion: reduce`, las duraciones pasan a 0 y la entrada se m
 | `Button` | `primary` (ámbar), `secondary` (borde `border-control`), `ghost` | Oswald en mayúsculas, ancho completo en móvil, `min-height: 48px` |
 | `Card` / panel | — | Superficie + línea + `radius-lg` |
 | `Eyebrow` | — | Oswald 12px, ámbar, tracking 0.22em |
-| `Pitch` (Fase 2) | — | Única fuente de la cancha (`domain/pitch-layout.ts`) |
+| `Pitch` (`shared/ui`) | — | Única fuente de la cancha (`PITCH_LAYOUT` de `@sdl/domain`), solo con las posiciones del formato. Marca una lista ordenada: la 1.ª rellena de ámbar con halo que respira (se detiene con movimiento reducido); las demás, aro ámbar. Lleva `role="img"` con las posiciones en su etiqueta |
 | `ChalkUnderline` (`features/join`) | — | Subrayado a mano en tiza ámbar bajo un nombre que el técnico "marca" (la convocatoria). Se dibuja una vez con `scaleX` sobre el contenedor; es el único movimiento de su pantalla. Usarlo solo para ese gesto, no como decoración de títulos |
+
+## 9.1 Movimiento con intención (Fase 2)
+
+- **Paso de pregunta en el test:** la pregunta entra de lado (`translateX(16px)` + opacidad, `--sdl-duration-base`).
+- **Revelado del podio:** filas de la 3.ª a la 1.ª, separadas 260 ms, y cada barra de afinidad se llena con `scaleX`. Cuando llega el resultado oficial tras el provisional, el podio se vuelve a revelar.
+- Todo con `transform`/`opacity` y sin animación con `prefers-reduced-motion`.
 
 ## 10. Anti-patrones
 

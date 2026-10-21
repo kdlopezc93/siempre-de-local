@@ -1,0 +1,144 @@
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-5);
+}
+
+.eyebrow {
+  color: var(--sdl-primary);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-sm);
+  letter-spacing: var(--sdl-tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-4);
+}
+
+/* El dorsal, como se escribe en la pizarra: grande y en tiza ámbar. */
+.number {
+  flex: none;
+  min-width: 2ch;
+  color: var(--sdl-primary);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-display);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.name {
+  font-size: var(--sdl-text-xl);
+  line-height: 1.05;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.tagline {
+  color: var(--sdl-fg-muted);
+}
+
+.description {
+  max-width: 40ch;
+}
+
+.board {
+  padding: var(--sdl-space-4);
+  border: var(--sdl-stroke) solid var(--sdl-border);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+}
+
+.sectionTitle {
+  margin-bottom: var(--sdl-space-3);
+  font-size: var(--sdl-text-lg);
+  letter-spacing: var(--sdl-tracking-button);
+  text-transform: uppercase;
+}
+
+.podium {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+  margin: 0 0 var(--sdl-space-3);
+  padding: 0;
+  list-style: none;
+}
+
+/* Revelado: cada fila entra con su retraso (--reveal), de la 3.ª a la 1.ª. */
+.row {
+  display: grid;
+  grid-template-columns: 1.5ch minmax(0, 7.5rem) 1fr 4ch;
+  align-items: center;
+  gap: var(--sdl-space-3);
+  animation: row-in var(--sdl-duration-enter) var(--sdl-ease-out) both;
+  animation-delay: calc(var(--reveal, 0) * 260ms + 200ms);
+}
+
+.rank {
+  color: var(--sdl-primary);
+  font-family: var(--sdl-font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rowName {
+  overflow-wrap: anywhere;
+}
+
+.bar {
+  height: 7px;
+  overflow: hidden;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-border);
+}
+
+.bar span {
+  display: block;
+  height: 100%;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-success);
+  transform-origin: left center;
+  animation: bar-in var(--sdl-duration-enter) var(--sdl-ease-out) both;
+  animation-delay: calc(var(--reveal, 0) * 260ms + 320ms);
+}
+
+.pct {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.next {
+  padding: var(--sdl-space-4);
+  border: var(--sdl-stroke) dashed var(--sdl-border-control);
+  border-radius: var(--sdl-radius-md);
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* Solo el punto de partida: el final es el scaleX en línea de cada barra. */
+@keyframes bar-in {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row,
+  .bar span {
+    animation: none;
+  }
+}

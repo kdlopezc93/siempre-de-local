@@ -1,0 +1,73 @@
+.pitch {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin-inline: auto;
+}
+
+.lines {
+  fill: none;
+  stroke: var(--sdl-pitch-stroke);
+  stroke-width: 0.8;
+}
+
+.spot {
+  fill: var(--sdl-pitch-stroke);
+}
+
+.dot {
+  fill: var(--sdl-surface-selected);
+  stroke: var(--sdl-pitch-stroke);
+  stroke-width: 1;
+}
+
+.number {
+  fill: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-display);
+  font-size: 6px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+/* 2.ª y 3.ª del podio: aro de tiza ámbar. */
+.podium .dot {
+  stroke: var(--sdl-primary);
+  stroke-width: 1.4;
+}
+
+.podium .number {
+  fill: var(--sdl-fg);
+}
+
+/* La primera: rellena de ámbar, con un halo que respira. */
+.first .dot {
+  fill: var(--sdl-primary);
+  stroke: var(--sdl-primary);
+}
+
+.first .number {
+  fill: var(--sdl-on-primary);
+}
+
+.halo {
+  fill: none;
+  stroke: var(--sdl-primary);
+  stroke-width: 1;
+  opacity: 0.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: breathe 1.8s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  50% {
+    opacity: 0.15;
+    transform: scale(1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halo {
+    animation: none;
+  }
+}

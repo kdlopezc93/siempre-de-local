@@ -11,6 +11,7 @@ import { useInvitationPreview } from '../join/use-join';
 import { ConsentPage } from '../onboarding/ConsentPage';
 import { NoTeamPage } from '../onboarding/NoTeamPage';
 import { QuizPage } from '../quiz/QuizPage';
+import { ResultPage } from '../result/ResultPage';
 import { InvitePage } from '../team-admin/InvitePage';
 import { SpikePwaPage } from '../spike-pwa/SpikePwaPage';
 import { LoginPage } from './LoginPage';
@@ -91,4 +92,10 @@ export function InviteRoute() {
 export function QuizRoute() {
   const { teamId = '' } = useParams();
   return <RequireSession>{(me) => <QuizPage me={me} teamId={teamId} />}</RequireSession>;
+}
+
+/** "/resultados/:attemptId" — un resultado oficial guardado. */
+export function ResultRoute() {
+  const { attemptId = '' } = useParams();
+  return <RequireSession>{() => <ResultPage attemptId={attemptId} />}</RequireSession>;
 }

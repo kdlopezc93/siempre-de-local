@@ -19,3 +19,7 @@ export function submitAttempt(attempt: SubmitAttemptRequest): Promise<AttemptRes
     body: JSON.stringify(attempt),
   });
 }
+
+export function fetchAttempt(attemptId: string): Promise<AttemptResult> {
+  return apiRequest(`/api/v1/attempts/${attemptId}`, AttemptResultSchema);
+}
