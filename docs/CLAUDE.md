@@ -46,6 +46,7 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | Comando | Qué hace |
 |---|---|
 | `pnpm install` | Instala el workspace |
+| `pnpm dev` | Levanta las apps en modo desarrollo (API en `:3000`, prefijo `/api/v1`) |
 | `pnpm lint` | ESLint en todo el repo (incluye reglas de frontera entre capas) |
 | `pnpm typecheck` | `tsc --noEmit` en cada paquete |
 | `pnpm test` | Vitest en cada paquete |
