@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # Los tipos de Node siguen la versión mayor de .nvmrc (24); se suben a mano con Node.
+      - dependency-name: '@types/node'
+        update-types: [version-update:semver-major]
     groups:
       menores:
         update-types: [minor, patch]
