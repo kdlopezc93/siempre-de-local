@@ -48,11 +48,13 @@ Solo para probar caché y cola offline en celulares (`docs/spikes/pwa.md`). Se b
 | PATCH | `/teams/:teamId` | club admin, coach (incluye `ratingsVisibleToPlayers`) |
 | GET | `/teams/:teamId/members` | coach, assistant |
 | PATCH / DELETE | `/teams/:teamId/members/:userId` | según matriz |
-| POST | `/teams/:teamId/invitations` | Devuelve el código **una sola vez** |
-| GET | `/teams/:teamId/invitations` | Lista sin códigos |
-| DELETE | `/teams/:teamId/invitations/:id` | Revoca |
-| GET | `/invitations/:code` | Público: valida y devuelve equipo y rol |
-| POST | `/invitations/:code/accept` | Con sesión y consentimiento: une al equipo |
+| POST | `/teams/:teamId/invitations` | Jugadores: coach o admin del club; cuerpo técnico: solo admin del club. `{ role='player', expiresInDays=7 (1–30), maxUses=30 (1–100) }` → 201 `{ invitation, code, joinUrl }`. Devuelve el código **una sola vez** |
+| GET | `/teams/:teamId/invitations` | Lista sin códigos (`{ items }`), con `status`: `active`, `expired`, `used_up`, `revoked`. El coach no ve las de cuerpo técnico |
+| DELETE | `/teams/:teamId/invitations/:id` | Revoca → 204, idempotente. 404 si no es de ese equipo |
+| GET | `/invitations/:code` | Público: `{ team: { id, name, format }, club: { name }, role }`. El código se acepta en minúsculas o con guiones |
+| POST | `/invitations/:code/accept` | Con sesión: une al equipo → 201 `{ teamId, role, alreadyMember }`; si ya era miembro activo no gasta un uso. El consentimiento se exige desde el PR de `data_consent` |
+
+Errores de invitación: 404 `INVITATION_NOT_FOUND` · 422 `INVITATION_EXPIRED`, `INVITATION_USED_UP`, `INVITATION_REVOKED`. Esquemas en `packages/contracts/src/invitations.ts`.
 
 ## Test de orientación
 
