@@ -1,5 +1,6 @@
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
+import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
@@ -36,6 +37,7 @@ export const config = defineConfig(
       'docs/prototipo/**',
       '.agents/**',
       'apps/api/drizzle/**',
+      '.claude/**',
     ],
   },
   js.configs.recommended,
@@ -50,6 +52,13 @@ export const config = defineConfig(
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+    },
+  },
+  {
+    files: ['apps/web/**/*.{ts,tsx}'],
+    extends: [reactHooks.configs.flat['recommended-latest']],
+    languageOptions: {
+      globals: { ...globals.browser },
     },
   },
   {

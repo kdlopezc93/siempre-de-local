@@ -1,0 +1,72 @@
+.board {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: 200px;
+  padding-block: var(--sdl-space-4) var(--sdl-space-8);
+  animation: board-in var(--sdl-duration-enter) var(--sdl-ease-out) both;
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-4);
+  animation: copy-in var(--sdl-duration-enter) var(--sdl-ease-out) 120ms both;
+}
+
+.title {
+  font-size: var(--sdl-text-display);
+  line-height: var(--sdl-leading-display);
+  letter-spacing: var(--sdl-tracking-display);
+  text-transform: uppercase;
+}
+
+.lead {
+  max-width: 34ch;
+  color: var(--sdl-fg-muted);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+  margin-top: var(--sdl-space-4);
+}
+
+/* El logo de Google va sobre blanco, como piden sus directrices de marca. */
+.googleBadge {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-color-google-badge);
+}
+
+.note {
+  font-size: var(--sdl-text-sm);
+  color: var(--sdl-fg-muted);
+}
+
+.alert {
+  padding: var(--sdl-space-3) var(--sdl-space-4);
+  border: var(--sdl-stroke) solid var(--sdl-danger);
+  border-radius: var(--sdl-radius-sm);
+  background: var(--sdl-surface);
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}
+
+@keyframes board-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes copy-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}

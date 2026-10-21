@@ -14,7 +14,8 @@ pnpm db:up            # Postgres 18
 pnpm db:migrate
 pnpm proxy:up         # Caddy: HTTPS en app.sdl.localtest.me y api.sdl.localtest.me
 cp apps/api/.env.example apps/api/.env   # y rellena los valores
-pnpm dev
+cp apps/web/.env.example apps/web/.env
+pnpm dev              # abre https://app.sdl.localtest.me
 ```
 
 ### HTTPS local (una sola vez)

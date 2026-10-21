@@ -1,0 +1,102 @@
+/*
+ * Tokens del sistema de diseño "pizarra táctica" (docs/design-system.md).
+ * Los componentes usan los roles semánticos (--sdl-fg, --sdl-primary…), nunca hex sueltos.
+ */
+:root {
+  color-scheme: dark;
+
+  /* Paleta base (§3.1) */
+  --sdl-color-bg: #0b140f;
+  --sdl-color-bg-glow: #12241a;
+  --sdl-color-surface: #111e17;
+  --sdl-color-surface-hover: #14241b;
+  --sdl-color-surface-selected: #1a2b1f;
+  --sdl-color-line: #2c4f3d;
+  --sdl-color-border-strong: #4a7d62;
+  --sdl-color-pitch-line: #3a6b52;
+  --sdl-color-chalk: #eef1ea;
+  --sdl-color-dim: #8ba192;
+  --sdl-color-accent: #e8b84b;
+  --sdl-color-accent-hover: #f0c661;
+  --sdl-color-on-accent: #0b140f;
+  --sdl-color-green: #4cc38a;
+  --sdl-color-blue: #5aa8e0;
+  --sdl-color-red: #e5555a;
+  --sdl-color-red-text: #ef6b6f;
+  /* Fondo del logo de Google: exigido por sus directrices de marca. */
+  --sdl-color-google-badge: #ffffff;
+
+  /* Roles semánticos (§3.2) */
+  --sdl-bg: var(--sdl-color-bg);
+  --sdl-fg: var(--sdl-color-chalk);
+  --sdl-fg-muted: var(--sdl-color-dim);
+  --sdl-surface: var(--sdl-color-surface);
+  --sdl-surface-hover: var(--sdl-color-surface-hover);
+  --sdl-surface-selected: var(--sdl-color-surface-selected);
+  --sdl-border: var(--sdl-color-line);
+  --sdl-border-control: var(--sdl-color-border-strong);
+  --sdl-primary: var(--sdl-color-accent);
+  --sdl-primary-hover: var(--sdl-color-accent-hover);
+  --sdl-on-primary: var(--sdl-color-on-accent);
+  --sdl-focus-ring: var(--sdl-color-accent);
+  --sdl-success: var(--sdl-color-green);
+  --sdl-info: var(--sdl-color-blue);
+  --sdl-danger: var(--sdl-color-red);
+  --sdl-danger-fg: var(--sdl-color-red-text);
+  --sdl-chalk-stroke: var(--sdl-color-chalk);
+  --sdl-pitch-stroke: var(--sdl-color-pitch-line);
+
+  /* Tipografía (§4) */
+  --sdl-font-display: 'Oswald', 'Arial Narrow', sans-serif;
+  --sdl-font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --sdl-text-xs: 12px;
+  --sdl-text-sm: 13px;
+  --sdl-text-base: 16px;
+  --sdl-text-lg: 17px;
+  --sdl-text-xl: clamp(22px, 5.5vw, 28px);
+  --sdl-text-display: clamp(34px, 9vw, 52px);
+  --sdl-leading-body: 1.6;
+  --sdl-leading-display: 0.98;
+  --sdl-tracking-display: 0.01em;
+  --sdl-tracking-button: 0.1em;
+  --sdl-tracking-eyebrow: 0.22em;
+
+  /* Espaciado: escala de 4px (§5) */
+  --sdl-space-1: 4px;
+  --sdl-space-2: 8px;
+  --sdl-space-3: 12px;
+  --sdl-space-4: 16px;
+  --sdl-space-5: 20px;
+  --sdl-space-6: 24px;
+  --sdl-space-8: 32px;
+  --sdl-space-10: 40px;
+  --sdl-space-14: 56px;
+  --sdl-gutter: 18px;
+  --sdl-content-max: 560px;
+
+  /* Forma (§5) */
+  --sdl-stroke: 1.5px;
+  --sdl-radius-sm: 11px;
+  --sdl-radius-md: 13px;
+  --sdl-radius-lg: 16px;
+  --sdl-radius-pill: 999px;
+
+  /* Interacción (§6) */
+  --sdl-touch-min: 48px;
+  --sdl-focus-width: 2px;
+  --sdl-focus-offset: 3px;
+
+  /* Movimiento (§7) */
+  --sdl-duration-fast: 160ms;
+  --sdl-duration-base: 240ms;
+  --sdl-duration-enter: 450ms;
+  --sdl-ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --sdl-duration-fast: 0ms;
+    --sdl-duration-base: 0ms;
+    --sdl-duration-enter: 0ms;
+  }
+}
