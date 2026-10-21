@@ -17,7 +17,7 @@ Tono de la UI: cercano, de barrio y en español latinoamericano; nada de jerga c
 - `packages/domain` no importa NestJS, Drizzle, React ni nada de I/O.
 - API: `http → application → domain`; `application` define puertos, `infrastructure` los implementa. Solo `identity/infrastructure` importa Better Auth.
 - La autorización se decide en `application`; el guard en `http` es la primera barrera, no la única.
-- Validar con Zod en todos los bordes. Las respuestas correctas de preparación y de exámenes **nunca** llegan al cliente.
+- Validar con Zod en todos los bordes. Las respuestas correctas de los exámenes **nunca** llegan al cliente.
 - Web organizada por funcionalidad (`features/*`). La lógica de negocio no vive en componentes: componentes → hooks → `shared/api` o `packages/domain`.
 - Cambios de esquema → actualizar `docs/03-modelo-datos.md` y la migración juntos. Cambios de endpoints → `packages/contracts` y `docs/05-api.md`. Cambios de reglas de puntuación → nueva versión del algoritmo y `docs/02-dominio-y-reglas.md`.
 - Secretos nunca en el repo. `.env.example` siempre al día.

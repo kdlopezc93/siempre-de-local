@@ -18,8 +18,9 @@ import {
 export type SeedOutcome = 'created' | 'already-exists';
 
 /**
- * Guarda y publica una versión del test de orientación. Idempotente: si la etiqueta
- * ya existe no toca nada, porque una versión publicada es inmutable.
+ * Guarda y publica una versión del test de orientación y retira las publicadas antes.
+ * Idempotente: si la etiqueta ya existe no toca nada, porque una versión publicada es
+ * inmutable.
  */
 export async function seedOrientationContent(
   db: Database,
@@ -36,6 +37,12 @@ export async function seedOrientationContent(
       .from(questionnaireVersion)
       .where(eq(questionnaireVersion.label, content.label));
     if (existing.length > 0) return 'already-exists';
+
+    // Solo una vigente: los intentos viejos siguen apuntando a su versión, ya retirada.
+    await tx
+      .update(questionnaireVersion)
+      .set({ status: 'retired' })
+      .where(eq(questionnaireVersion.status, 'published'));
 
     const [version] = await tx
       .insert(questionnaireVersion)
@@ -70,7 +77,7 @@ export async function seedOrientationContent(
       );
     }
 
-    for (const [position, items] of Object.entries(content.prepItems)) {
+    for (const [position, items = []] of Object.entries(content.prepItems)) {
       for (const [sort, item] of items.entries()) {
         const [row] = await tx
           .insert(prepItem)

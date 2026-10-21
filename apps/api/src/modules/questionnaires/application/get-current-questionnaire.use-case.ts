@@ -13,7 +13,7 @@ export class GetCurrentQuestionnaire {
     const content = versionId && (await this.reader.load(versionId));
     if (!content) throw new NotFoundError('Todavía no hay un test publicado', 'NO_QUESTIONNAIRE');
 
-    // Se copia campo a campo: la respuesta correcta de preparación nunca sale del servidor.
+    // Se copia campo a campo: nada del contenido interno sale si no está en el contrato.
     return {
       versionId: content.versionId,
       label: content.label,
@@ -24,12 +24,6 @@ export class GetCurrentQuestionnaire {
         context: item.context,
         text: item.text,
         options: item.options.map(({ id, label, points }) => ({ id, label, points })),
-      })),
-      prepItems: content.prepItems.map((item) => ({
-        id: item.id,
-        position: item.position,
-        text: item.text,
-        options: item.options.map(({ id, label }) => ({ id, label })),
       })),
     };
   }

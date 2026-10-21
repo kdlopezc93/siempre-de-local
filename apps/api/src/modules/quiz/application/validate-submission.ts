@@ -1,5 +1,5 @@
 import type { SubmitAttemptRequest } from '@sdl/contracts';
-import type { PositionCode, ServedPositionItem, ServedPrepItem } from '@sdl/domain';
+import type { ServedPositionItem } from '@sdl/domain';
 
 import { BusinessRuleError } from '../../../shared/errors/application-errors.js';
 import type { QuestionnaireContent } from '../../questionnaires/application/ports/questionnaire.reader.js';
@@ -52,7 +52,7 @@ export function checkTimes(request: SubmitAttemptRequest, now: Date): void {
   }
 }
 
-/** Ítems de posición en el orden mostrado, listos para `scorePosition` (02 §3). */
+/** Ítems en el orden mostrado, listos para `scorePosition` (02 §3). */
 export function positionPart(
   content: QuestionnaireContent,
   request: SubmitAttemptRequest,
@@ -61,40 +61,12 @@ export function positionPart(
     throw invalid(`Se esperaban ${content.positionItemsPerAttempt} preguntas de posición`);
   }
   const byId = new Map(content.positionItems.map((item) => [item.id, item]));
-  const items = checkServed(request.positionItems, byId, 'Posición');
+  const items = checkServed(request.positionItems, byId, 'Pregunta');
   const ordered = [...request.positionItems].sort((a, b) => a.shownOrder - b.shownOrder);
   return {
     items: items.map((item) => ({
       id: item.id,
       options: item.options.map((o) => ({ id: o.id, points: o.points })),
-    })),
-    answers: ordered.map((s) => s.answerOptionId),
-  };
-}
-
-/** Las de preparación tienen que ser exactamente las de la posición ganadora (02 §3, paso 4). */
-export function prepPart(
-  content: QuestionnaireContent,
-  request: SubmitAttemptRequest,
-  winner: PositionCode,
-): { items: ServedPrepItem[]; answers: string[] } {
-  const winnerItems = content.prepItems.filter((item) => item.position === winner);
-  if (
-    !sameSet(
-      request.prepItems.map((s) => s.itemId),
-      winnerItems.map((i) => i.id),
-    )
-  ) {
-    throw invalid(`Las preguntas de preparación no son las de ${winner}`);
-  }
-  const byId = new Map(winnerItems.map((item) => [item.id, item]));
-  const items = checkServed(request.prepItems, byId, 'Preparación');
-  const ordered = [...request.prepItems].sort((a, b) => a.shownOrder - b.shownOrder);
-  return {
-    items: items.map((item) => ({
-      id: item.id,
-      optionIds: item.options.map((o) => o.id),
-      correctOptionId: item.options.find((o) => o.isCorrect)!.id,
     })),
     answers: ordered.map((s) => s.answerOptionId),
   };

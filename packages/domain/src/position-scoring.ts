@@ -6,8 +6,12 @@ import {
   type PositionCode,
 } from './positions.js';
 
-/** Versión del algoritmo del test de orientación; se guarda con cada resultado (03 §5). */
-export const ORIENTATION_SCORING_VERSION = 'orientation-v1';
+/**
+ * Versión del algoritmo del test de orientación; se guarda con cada resultado (03 §5).
+ * v2: el test es solo de posición (20 preguntas, podio); la preparación se retiró en favor
+ * del examen de conocimiento. La afinidad se calcula igual que en v1.
+ */
+export const ORIENTATION_SCORING_VERSION = 'orientation-v2';
 
 export type PositionPoints = Readonly<Partial<Record<PositionCode, number>>>;
 

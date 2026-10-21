@@ -60,36 +60,33 @@ Errores de invitación: 404 `INVITATION_NOT_FOUND` · 422 `INVITATION_EXPIRED`, 
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/questionnaires/current` | **Implementado.** Versión publicada vigente para cachear offline: ítems de posición **con pesos**, de preparación **sin la correcta** (`QuestionnaireResponseSchema`). `ETag` = id de la versión (inmutable), `If-None-Match` → 304. El formato no cambia el contenido (solo la puntuación), así que no lleva `?format` |
+| GET | `/questionnaires/current` | **Implementado.** Versión vigente para cachear offline: ítems de posición **con pesos** (`QuestionnaireResponseSchema`). `ETag` = id de la versión (inmutable), `If-None-Match` → 304. El formato no cambia el contenido (solo la puntuación), así que no lleva `?format` |
 | POST | `/attempts` | **Implementado.** Envío completo (online u offline-sincronizado) → 201, o 200 si se reenvía |
 | GET | `/me/attempts` | **Implementado.** Mi historial, del más reciente al más antiguo (`{ items }`) |
 | GET | `/attempts/:id` | **Implementado** para el dueño (404 si es ajeno); el staff del equipo, en Fase 3 |
 | POST | `/attempts/:id/void` | Anular con motivo (coach) |
 
-`POST /attempts` — cuerpo:
+`POST /attempts` — cuerpo (v2, solo posición):
 ```json
 {
   "clientAttemptId": "uuid", "teamId": "uuid", "questionnaireVersionId": "uuid",
   "format": "F11", "startedAt": "…", "submittedAt": "…",
-  "positionItems": [{ "itemId": "…", "shownOrder": 1, "optionOrder": ["…"], "answerOptionId": "…" }],
-  "prepItems":     [{ "itemId": "…", "shownOrder": 1, "optionOrder": ["…"], "answerOptionId": "…" }],
-  "clientResult":  { "winner": "DFC" }
+  "positionItems": [{ "itemId": "…", "shownOrder": 1, "optionOrder": ["…"], "answerOptionId": "…" }]
 }
 ```
-Reglas: `clientAttemptId` repetido (por el mismo usuario) → mismo resultado (200), también si llegan dos a la vez. El servidor recalcula todo; si `clientResult.winner` no coincide → 422 `WINNER_MISMATCH`. Verifica 15 ítems de posición distintos de esa versión, 8 de preparación de la ganadora y opciones de su ítem.
+Reglas: `clientAttemptId` repetido (por el mismo usuario) → mismo resultado (200), también si llegan dos a la vez. El servidor calcula el resultado oficial; el podio que muestra el celular sin conexión es provisional. Verifica tantos ítems distintos de esa versión como `positionItemsPerAttempt` (20 en v2), orden mostrado 1..n y que opciones y respuesta sean del ítem.
 
-Errores: 403 `CONSENT_REQUIRED` · 403 si no es jugador activo del equipo (`team.quiz.take`) · 404 equipo inexistente · 422 `FORMAT_MISMATCH` (el formato es el del equipo), `QUESTIONNAIRE_VERSION_UNKNOWN`, `ATTEMPT_INVALID` (ítems que faltan o se repiten, orden mostrado fuera de 1..n, opciones u respuesta ajenas al ítem, preparación de otra posición, fechas al revés o en el futuro) y `WINNER_MISMATCH`.
+Errores: 403 `CONSENT_REQUIRED` · 403 si no es jugador activo del equipo (`team.quiz.take`) · 404 equipo inexistente · 422 `FORMAT_MISMATCH` (el formato es el del equipo), `QUESTIONNAIRE_VERSION_UNKNOWN` y `ATTEMPT_INVALID` (ítems que faltan o se repiten, orden fuera de 1..n, opciones o respuesta ajenas al ítem, fechas al revés o en el futuro).
 
-Respuesta:
+Respuesta (`AttemptResultSchema`):
 ```json
-{ "attemptId": "…", "winner": "DFC",
+{ "attemptId": "…", "clientAttemptId": "…", "teamId": "…", "format": "F11", "submittedAt": "…",
+  "winner": "DFC",
   "ranking": [{ "pos": "DFC", "pct": 0.82 }],
   "podium": ["DFC", "MCD", "LAT"],
-  "prep": { "score": 6, "total": 8, "band": "good" },
-  "suggestedKnowledgeExams": ["DFC", "MCD"] }
+  "suggestedKnowledgeExams": ["DFC", "MCD", "LAT"] }
 ```
-
-Implementado además con `clientAttemptId`, `teamId`, `format` y `submittedAt` (`AttemptResultSchema`). `suggestedKnowledgeExams` es por ahora solo la ganadora; las preferidas se suman con el perfil.
+`winner` es la primera del podio. Hasta v1 el cuerpo llevaba `prepItems` y `clientResult` (con `WINNER_MISMATCH`) y la respuesta `prep`; se retiraron con la preparación (`02` §5).
 
 ## Examen de conocimiento (certificación)
 
@@ -146,7 +143,7 @@ Pruebas de campo (futuro, no implementar): `GET /field-tests`, `POST /teams/:tea
 | Método | Ruta | Descripción |
 |---|---|---|
 | GET | `/teams/:teamId/squad` | Por jugador: último resultado oficial, puntajes de conocimiento, tarjeta vigente (medias), valoración más reciente |
-| GET | `/teams/:teamId/squad/summary` | Reparto por posición (test, valoración y conocimiento), huecos, preparación media **por posición**, filtro `?format=` |
+| GET | `/teams/:teamId/squad/summary` | Reparto por posición (test, valoración y conocimiento), huecos, conocimiento medio **por posición** (Fase 4), filtro `?format=` |
 | GET | `/teams/:teamId/export.csv` | Exportación consolidada (auditada) |
 | POST | `/teams/:teamId/legacy-import` | Subir CSV del prototipo (multipart) |
 

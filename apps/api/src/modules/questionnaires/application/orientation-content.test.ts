@@ -2,6 +2,7 @@ import { POSITION_CODES } from '@sdl/domain';
 import { describe, expect, it } from 'vitest';
 
 import { ORIENTATION_V1 } from '../infrastructure/seed/orientation-v1.content.js';
+import { ORIENTATION_V2 } from '../infrastructure/seed/orientation-v2.content.js';
 import { type OrientationContent, validateOrientationContent } from './orientation-content.js';
 
 describe('contenido v1 del test de orientación', () => {
@@ -11,10 +12,17 @@ describe('contenido v1 del test de orientación', () => {
     expect(validateOrientationContent(ORIENTATION_V1)).toEqual([]);
   });
 
+  it('v2: las mismas 31 de posición, 20 por intento y sin preparación', () => {
+    expect(ORIENTATION_V2.positionItems).toEqual(ORIENTATION_V1.positionItems);
+    expect(ORIENTATION_V2.positionItemsPerAttempt).toBe(20);
+    expect(ORIENTATION_V2.prepItems).toEqual({});
+    expect(validateOrientationContent(ORIENTATION_V2)).toEqual([]);
+  });
+
   it('la correcta de preparación ya no está siempre en la misma posición', () => {
     const correctIndexes = new Set(
       POSITION_CODES.flatMap((pos) =>
-        ORIENTATION_V1.prepItems[pos].map((item) => item.options.findIndex((o) => o.isCorrect)),
+        ORIENTATION_V1.prepItems[pos]!.map((item) => item.options.findIndex((o) => o.isCorrect)),
       ),
     );
     expect(correctIndexes).toEqual(new Set([0, 1, 2, 3]));
@@ -31,12 +39,18 @@ describe('validateOrientationContent', () => {
   it('detecta un ítem de preparación sin correcta o con dos', () => {
     expect(
       withChange((c) => {
-        c.prepItems.DFC[0]!.options.forEach((o) => (o.isCorrect = false));
-        c.prepItems.POR[2]!.options.forEach((o) => (o.isCorrect = true));
+        c.prepItems.DFC![0]!.options.forEach((o) => (o.isCorrect = false));
+        c.prepItems.POR![2]!.options.forEach((o) => (o.isCorrect = true));
       }),
     ).toEqual([
       'Preparación de POR #3: 4 correctas (debe ser 1)',
       'Preparación de DFC #1: 0 correctas (debe ser 1)',
+    ]);
+  });
+
+  it('la preparación va para todas las posiciones o para ninguna', () => {
+    expect(withChange((c) => delete c.prepItems.MCD)).toEqual([
+      'La preparación debe venir para todas las posiciones o para ninguna',
     ]);
   });
 

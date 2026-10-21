@@ -9,8 +9,7 @@ import {
   type QuestionnaireResponse,
   type SubmitAttemptRequest,
 } from '@sdl/contracts';
-import { scorePosition } from '@sdl/domain';
-import { and, count, eq, inArray } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -18,8 +17,9 @@ import { createDb, type DbConnection } from '../../../shared/db/client.js';
 import { bootApp, TEST_ENV } from '../../../test/app.js';
 import { startMigratedPostgres } from '../../../test/postgres.js';
 import { seedUserWithSession, type SeededUser } from '../../../test/sessions.js';
-import { prepOption } from '../../questionnaires/infrastructure/schema.js';
+import { questionnaireVersion } from '../../questionnaires/infrastructure/schema.js';
 import { ORIENTATION_V1 } from '../../questionnaires/infrastructure/seed/orientation-v1.content.js';
+import { ORIENTATION_V2 } from '../../questionnaires/infrastructure/seed/orientation-v2.content.js';
 import { seedOrientationContent } from '../../questionnaires/infrastructure/seed/seed-orientation.js';
 import { bootstrapTeam } from '../../teams/infrastructure/bootstrap-team.js';
 import { teamMembership } from '../../teams/infrastructure/schema.js';
@@ -46,7 +46,7 @@ describe('test de orientación (API)', () => {
       ...(payload ? { payload } : {}),
     });
 
-  async function seedPlayer(name: string, { consent = true, role = 'player' as const } = {}) {
+  async function seedPlayer(name: string, { consent = true } = {}) {
     const user = await seedUserWithSession(url, { name, email: `${name}@example.com` });
     if (consent) {
       await call('POST', '/me/consent', user, {
@@ -54,31 +54,17 @@ describe('test de orientación (API)', () => {
         ageConfirmed: true,
       });
     }
-    await connection.db.insert(teamMembership).values({ teamId, userId: user.userId, role });
+    await connection.db
+      .insert(teamMembership)
+      .values({ teamId, userId: user.userId, role: 'player' });
     return user;
   }
 
-  /**
-   * Lo que hace la PWA: 15 ítems, una respuesta cada uno, ganador calculado en el
-   * celular con @sdl/domain y las 8 de preparación de esa posición.
-   */
+  /** Lo que hace la PWA: los ítems que tocan en la versión vigente, una respuesta cada uno. */
   function buildAttempt(
     pick: (optionIds: string[], i: number) => string = (ids) => ids[0]!,
-    overrides: Partial<SubmitAttemptRequest> = {},
   ): SubmitAttemptRequest {
     const items = questionnaire.positionItems.slice(0, questionnaire.positionItemsPerAttempt);
-    const answers = items.map((item, i) =>
-      pick(
-        item.options.map((o) => o.id),
-        i,
-      ),
-    );
-    const winner = scorePosition(
-      items.map((item) => ({ id: item.id, options: item.options })),
-      answers,
-      'F8',
-    )[0]!.pos;
-    const prep = questionnaire.prepItems.filter((p) => p.position === winner);
     return {
       clientAttemptId: randomUUID(),
       teamId,
@@ -86,20 +72,15 @@ describe('test de orientación (API)', () => {
       format: 'F8',
       startedAt: new Date(Date.now() - 5 * 60_000).toISOString(),
       submittedAt: new Date().toISOString(),
-      positionItems: items.map((item, i) => ({
-        itemId: item.id,
-        shownOrder: i + 1,
-        optionOrder: item.options.map((o) => o.id).reverse(),
-        answerOptionId: answers[i]!,
-      })),
-      prepItems: prep.map((item, i) => ({
-        itemId: item.id,
-        shownOrder: i + 1,
-        optionOrder: item.options.map((o) => o.id),
-        answerOptionId: item.options[0]!.id,
-      })),
-      clientResult: { winner },
-      ...overrides,
+      positionItems: items.map((item, i) => {
+        const ids = item.options.map((o) => o.id);
+        return {
+          itemId: item.id,
+          shownOrder: i + 1,
+          optionOrder: [...ids].reverse(),
+          answerOptionId: pick(ids, i),
+        };
+      }),
     };
   }
 
@@ -107,7 +88,9 @@ describe('test de orientación (API)', () => {
     container = await startMigratedPostgres();
     url = container.getConnectionUri();
     connection = createDb(url);
+    // Como `pnpm db:seed`: v1 y después v2, que la retira.
     await seedOrientationContent(connection.db, ORIENTATION_V1);
+    await seedOrientationContent(connection.db, ORIENTATION_V2);
     coach = await seedUserWithSession(url, { name: 'coach', email: 'coach@example.com' });
     ({ teamId } = await bootstrapTeam(connection.db, {
       clubName: 'Los del Barrio',
@@ -134,14 +117,26 @@ describe('test de orientación (API)', () => {
   });
 
   describe('GET /questionnaires/current', () => {
-    it('trae la versión publicada completa y nunca la respuesta correcta', async () => {
+    it('trae la versión vigente (v2: 20 de 31, sin preparación) y nada de respuestas', async () => {
       const res = await call('GET', '/questionnaires/current', player);
+      expect(questionnaire.label).toBe('v2');
       expect(questionnaire.positionItems).toHaveLength(31);
-      expect(questionnaire.prepItems).toHaveLength(64);
-      // Ninguna clave del JSON delata la correcta (los textos sí pueden decir "correcta").
+      expect(questionnaire.positionItemsPerAttempt).toBe(20);
+      // Ninguna clave del JSON delata respuestas (los textos sí pueden decir "correcta").
       const keys = new Set<string>();
       JSON.parse(res.body, (key, value: unknown) => (keys.add(key), value));
-      expect([...keys].filter((key) => /correct|right|answer/i.test(key))).toEqual([]);
+      expect([...keys].filter((key) => /correct|right|answer|prep/i.test(key))).toEqual([]);
+    });
+
+    it('publicar v2 retiró la v1', async () => {
+      const versions = await connection.db
+        .select({ label: questionnaireVersion.label, status: questionnaireVersion.status })
+        .from(questionnaireVersion)
+        .orderBy(questionnaireVersion.label);
+      expect(versions).toEqual([
+        { label: 'v1', status: 'retired' },
+        { label: 'v2', status: 'published' },
+      ]);
     });
 
     it('usa la versión como ETag y responde 304 si no cambió', async () => {
@@ -157,46 +152,27 @@ describe('test de orientación (API)', () => {
   });
 
   describe('POST /attempts', () => {
-    it('calcula el resultado oficial en el servidor y guarda las respuestas crudas', async () => {
-      const attempt = buildAttempt((ids, i) => ids[i % ids.length]!);
-      const res = await call('POST', '/attempts', player, attempt);
+    it('calcula el resultado oficial (podio) y guarda las respuestas crudas', async () => {
+      const res = await call(
+        'POST',
+        '/attempts',
+        player,
+        buildAttempt((ids, i) => ids[i % ids.length]!),
+      );
       expect(res.statusCode).toBe(201);
 
       const result = AttemptResultSchema.parse(res.json());
-      expect(result.winner).toBe(attempt.clientResult.winner);
       expect(result.ranking).toHaveLength(6); // F8: sin pivote ni mediapunta
       expect(result.podium).toEqual(result.ranking.slice(0, 3).map((r) => r.pos));
-      expect(result.prep.total).toBe(8);
+      expect(result.winner).toBe(result.podium[0]);
+      expect(result.suggestedKnowledgeExams).toEqual(result.podium);
+      expect(res.body).not.toMatch(/prep/i);
 
       const items = await connection.db
         .select({ n: count() })
         .from(attemptItem)
         .where(eq(attemptItem.attemptId, result.attemptId));
-      expect(items[0]!.n).toBe(23);
-    });
-
-    it('acertar las 8 de preparación da "muy preparado"', async () => {
-      const attempt = buildAttempt();
-      // El test lee las correctas de la BD; el API nunca las expone.
-      const correct = await connection.db
-        .select({ id: prepOption.id, itemId: prepOption.itemId })
-        .from(prepOption)
-        .where(
-          and(
-            inArray(
-              prepOption.itemId,
-              attempt.prepItems.map((p) => p.itemId),
-            ),
-            eq(prepOption.isCorrect, true),
-          ),
-        );
-      for (const served of attempt.prepItems) {
-        served.answerOptionId = correct.find((c) => c.itemId === served.itemId)!.id;
-      }
-      const result = AttemptResultSchema.parse(
-        (await call('POST', '/attempts', player, attempt)).json(),
-      );
-      expect(result.prep).toEqual({ score: 8, total: 8, band: 'very_prepared' });
+      expect(items[0]!.n).toBe(20);
     });
 
     it('un reenvío de la cola devuelve el mismo resultado sin duplicar, también a la vez', async () => {
@@ -219,24 +195,13 @@ describe('test de orientación (API)', () => {
       expect(rows[0]!.n).toBe(1);
     });
 
-    it('WINNER_MISMATCH si el celular calculó otro ganador', async () => {
-      const attempt = buildAttempt();
-      const wrong = attempt.clientResult.winner === 'POR' ? 'DC' : 'POR';
-      const res = await call('POST', '/attempts', player, {
-        ...attempt,
-        clientResult: { winner: wrong },
-      });
-      expect(res.statusCode).toBe(422);
-      expect(ErrorBodySchema.parse(res.json()).error.code).toBe('WINNER_MISMATCH');
-    });
-
     it.each([
       [
-        'faltan ítems de posición',
+        'faltan preguntas',
         (a: SubmitAttemptRequest) => ({ positionItems: a.positionItems.slice(1) }),
       ],
       [
-        'un ítem repetido',
+        'una pregunta repetida',
         (a: SubmitAttemptRequest) => ({
           positionItems: a.positionItems.map((s, i) =>
             i === 1 ? { ...a.positionItems[0]!, shownOrder: 2 } : s,
@@ -244,26 +209,12 @@ describe('test de orientación (API)', () => {
         }),
       ],
       [
-        'una respuesta que no es del ítem',
+        'una respuesta que no es de la pregunta',
         (a: SubmitAttemptRequest) => ({
           positionItems: a.positionItems.map((s, i) =>
             i === 0 ? { ...s, answerOptionId: a.positionItems[1]!.answerOptionId } : s,
           ),
         }),
-      ],
-      [
-        'preparación de otra posición',
-        (a: SubmitAttemptRequest) => {
-          const other = questionnaire.prepItems.filter((p) => p.position !== a.clientResult.winner);
-          return {
-            prepItems: a.prepItems.map((s, i) => ({
-              ...s,
-              itemId: other[i]!.id,
-              optionOrder: other[i]!.options.map((o) => o.id),
-              answerOptionId: other[i]!.options[0]!.id,
-            })),
-          };
-        },
       ],
       [
         'fechas al revés',
@@ -305,7 +256,7 @@ describe('test de orientación (API)', () => {
       const mine = AttemptListResponseSchema.parse(
         (await call('GET', '/me/attempts', player)).json(),
       );
-      expect(mine.items.length).toBeGreaterThanOrEqual(3);
+      expect(mine.items.length).toBeGreaterThanOrEqual(2);
       const dates = mine.items.map((i) => i.submittedAt);
       expect(dates).toEqual([...dates].sort().reverse());
 

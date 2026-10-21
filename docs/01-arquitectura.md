@@ -49,7 +49,7 @@ Frontend y API en **subdominios del mismo dominio** para que las cookies de sesi
 **Decisión:** NestJS sobre Node, en TypeScript.
 
 **El argumento decisivo no es "qué lenguaje es mejor".** Es este: la lógica de puntuación (`packages/domain`) tiene que ejecutarse **en dos sitios**:
-1. En el cliente, para que el jugador complete el test offline y vea el flujo sin cortes (elegir la posición ganadora para servir las 8 de preparación).
+1. En el cliente, para que el jugador complete el test offline y vea su **podio provisional** en el momento, sin señal. *(Hasta v1 también servía para elegir la ganadora y servir sus 8 de preparación; ver `02` §5.)*
 2. En el servidor, para recalcular el resultado oficial.
 
 Con TypeScript en ambos lados es **un único paquete con sus tests**. Con Java habría dos implementaciones (TS en el cliente, Java en el servidor) que tarde o temprano divergen, y eso en un algoritmo de puntuación es un bug silencioso de los peores. Lo mismo aplica a los contratos de la API (esquemas Zod compartidos → tipos en el front sin generar código).
@@ -94,9 +94,9 @@ Un repo, tres paquetes que importan, uno de contratos. Despliegues independiente
 
 ### ADR-06 · Offline: "completa offline, resultado oficial al sincronizar"
 
-- El contenido del cuestionario (preguntas de posición **con pesos**; preguntas de preparación **sin la respuesta correcta**) se cachea en el dispositivo.
+- El contenido del cuestionario (preguntas de posición **con pesos**) se cachea en el dispositivo.
 - El jugador puede responder todo sin conexión; el intento queda en IndexedDB con un `client_attempt_id`.
-- Al volver la conexión se envía; el servidor puntúa y devuelve el resultado oficial. **La preparación solo se conoce online.**
+- Sin conexión, el celular muestra un **podio provisional** calculado con `@sdl/domain`. Al volver la conexión se envía; el servidor puntúa y devuelve el resultado oficial, que es el que cuenta. *(v1 tenía además preparación, que solo se conocía online; se retiró en v2.)*
 - Exponer los pesos de posición no es un problema real: la "fakeabilidad" del test viene de que las preguntas son transparentes, no de que alguien lea el código.
 - **Los exámenes de conocimiento son solo online.** El servidor sirve las preguntas una vez iniciado el examen, controla el tiempo y nunca envía las correctas; no se pueden cachear sin regalar el banco.
 
@@ -129,7 +129,7 @@ Un repo, tres paquetes que importan, uno de contratos. Despliegues independiente
 **Dónde GraphQL brilla y por qué aquí no aplica:**
 - Su valor es que **muchos clientes distintos** pidan formas distintas del mismo grafo de datos sin crear endpoints nuevos. Aquí hay **un solo cliente** (la PWA) con pantallas conocidas; cada pantalla tiene su endpoint.
 - **Offline y caché:** el cuestionario se cachea en el service worker por URL con `ETag`. GraphQL va casi todo por `POST` a un solo endpoint, y el caché HTTP y del service worker deja de funcionar sin capas extra (persisted queries, caché normalizada).
-- **Autorización:** en REST se autoriza por endpoint. En GraphQL hay que autorizar **por campo y por resolver**, porque cualquier consulta puede atravesar el grafo (de un equipo a sus jugadores, y de ahí a sus exámenes). Es justo donde hay datos sensibles (preparación, notas del entrenador) y donde es fácil equivocarse.
+- **Autorización:** en REST se autoriza por endpoint. En GraphQL hay que autorizar **por campo y por resolver**, porque cualquier consulta puede atravesar el grafo (de un equipo a sus jugadores, y de ahí a sus exámenes). Es justo donde hay datos sensibles (puntajes de conocimiento, notas del entrenador) y donde es fácil equivocarse.
 - **Coste operativo:** problema N+1 (requiere DataLoader), límites de profundidad y coste de consultas para evitar abusos, más herramientas.
 - **Los tipos compartidos** ya los dan los esquemas Zod compartidos; esa ventaja de GraphQL no se pierde.
 
@@ -147,7 +147,7 @@ Un repo, tres paquetes que importan, uno de contratos. Despliegues independiente
 │   ├── web/                 PWA React
 │   └── api/                 NestJS
 ├── packages/
-│   ├── domain/              TS puro: puntuación, plegado, preparación, certificación,
+│   ├── domain/              TS puro: puntuación, plegado, certificación,
 │   │                        medias por posición, encaje y húngaro
 │   ├── contracts/           Esquemas Zod de la API (request/response)
 │   └── config/              tsconfig, eslint compartidos

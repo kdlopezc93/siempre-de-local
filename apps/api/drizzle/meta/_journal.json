@@ -43,6 +43,13 @@
       "when": 1792620771579,
       "tag": "0005_quiz_attempts",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792623135650,
+      "tag": "0006_orientation_v2",
+      "breakpoints": true
     }
   ]
 }

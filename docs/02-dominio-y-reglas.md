@@ -35,20 +35,20 @@ El jugador puede declarar en su perfil sus **posiciones preferidas** (1–3). Es
 ## 2. Cuestionario
 
 - **Banco de posición:** 31 ítems (`p1`…`p31`), 4 opciones; cada opción reparte puntos enteros a 1–3 posiciones. Contexto: `Situación` o `Atributo`.
-- **Banco de preparación:** 8 ítems por posición (64), 4 opciones, 1 correcta. Es un **chequeo rápido**, no la certificación.
-- **Versionado:** `QuestionnaireVersion` inmutable una vez publicado. Cambiar un peso = nueva versión.
-- Contenido inicial = el del prototipo, migrado con un script de *seed*.
+- **Versionado:** `QuestionnaireVersion` inmutable una vez publicado. Cambiar un peso = nueva versión. Publicar una versión retira la anterior; los intentos viejos siguen apuntando a la suya.
+- **v1** (contenido del prototipo, histórico): 15 ítems de posición por intento + 8 de preparación de la ganadora.
+- **v2** (vigente desde el 2026-10-21): **solo posición**, los mismos 31 ítems, **20 por intento**. Sin preparación (§5).
+- Objetivo de contenido: ampliar el banco a ~40 ítems para que dos intentos no se parezcan tanto (Fase 6).
 
-## 3. Flujo de un intento
+## 3. Flujo de un intento (v2)
 
-1. Se eligen **15 ítems aleatorios** del banco de posición; se barajan también las opciones. Se guarda **qué ítems salieron y en qué orden**.
-2. El jugador responde los 15.
-3. Se calcula la posición ganadora (§4).
-4. Se sirven las **8 de preparación de la ganadora**, en orden aleatorio y con opciones barajadas.
-5. Se calcula la preparación (§5) — **solo en servidor**.
-6. Resultado: ganadora, ranking completo, podio (top 3), preparación, y una invitación a hacer el **examen de conocimiento** de la posición ganadora o de sus preferidas.
+1. Se eligen **20 ítems aleatorios** del banco de posición; se barajan también las opciones. Se guarda **qué ítems salieron, en qué orden y en qué orden se mostraron sus opciones**.
+2. El jugador responde los 20, con o sin conexión.
+3. El celular calcula un **podio provisional** con el mismo `@sdl/domain` (para mostrarlo sin conexión).
+4. El envío llega al servidor, que calcula el **resultado oficial** (§4).
+5. Resultado: **podio (top 3)** como resultado principal, ranking completo y la invitación a hacer el **examen de conocimiento** de cualquiera de las tres.
 
-Total: 23 preguntas. *(Bug del prototipo: la portada decía "20". Corregido.)*
+Total: 20 preguntas. *(Bug del prototipo: la portada decía "20" cuando eran 23. Con v2, ahora sí son 20.)*
 
 ## 4. Puntuación de posición (normalizada por exposición)
 
@@ -63,23 +63,21 @@ afinidad(p) = maxp(p) > 0 ? earned(p) / maxp(p) : 0
 
 **Ranking:** descendente por afinidad. **Empates:** mayor `earned` absoluto; si persiste, orden canónico. Determinista para que cliente y servidor coincidan. *(El prototipo desempataba solo por orden canónico; es el único cambio frente a él y lo cubren los tests de paridad de `position-scoring.test.ts`.)*
 
+**Podio:** las 3 primeras del ranking. La primera es la "ganadora", pero la app presenta las tres como opciones: el test orienta, no encasilla.
+
 ```ts
 scorePosition(items: ServedPositionItem[], answers: OptionId[], format: 'F8' | 'F11'): RankingEntry[]
 ```
 
-Versión del algoritmo: `orientation-v1` (`ORIENTATION_SCORING_VERSION`), que se guarda en `attempt_result.scoring_version`.
+Versión del algoritmo: `orientation-v2` (`ORIENTATION_SCORING_VERSION`), que se guarda en `attempt_result.scoring_version`. La afinidad se calcula igual que en `orientation-v1`; cambió el test (sin preparación).
 
-## 5. Preparación
+## 5. Preparación (retirada en v2)
 
-- `prepScore` = aciertos sobre 8. Bandas: `≥ 0.85` muy preparado · `≥ 0.60` buena base · `≥ 0.375` reforzar fundamentos · resto terreno para crecer.
-- Respuesta correcta guardada por **id de opción**, no por índice.
-- Ids de banda: `very_prepared` · `good` · `reinforce` · `room_to_grow` (mismos umbrales que los mensajes del prototipo).
+En v1, tras las 15 de posición se servían 8 preguntas de conocimiento de la posición ganadora (`prepScore` = aciertos sobre 8, con bandas). **Se retiró el 2026-10-21:**
+- **Su contenido no medía bien:** en las 64 preguntas la correcta era siempre la más larga y matizada, y las incorrectas eran absolutos ("siempre", "nunca"); quien detectara el patrón acertaba sin saber fútbol.
+- **Duplicaba la certificación** (Parte B), que mide el conocimiento de una posición con un banco escrito con reglas de calidad (§6.5).
 
-```ts
-scorePrep(items: ServedPrepItem[], answers: OptionId[]): { score, total, band }   // solo en servidor
-```
-
-> **Problema del contenido heredado:** en las 64 preguntas la correcta es siempre la primera en los datos, suele ser la más larga y matizada, y las incorrectas son absolutos ("siempre", "nunca"). Quien detecte el patrón acierta sin saber fútbol. Por eso **la certificación no reutiliza estas preguntas** y su banco se escribe con reglas de calidad (§6.4).
+Consecuencia: hasta que exista la certificación (Fase 4) no hay medida de conocimiento; el cuerpo técnico cuenta con la tarjeta (§7) y su valoración. Los intentos v1 conservan `prep_score`/`prep_total` como histórico.
 
 ---
 
@@ -300,7 +298,7 @@ solveLineup(matrix: CostMatrix, pins: Pin[]): Assignment[]
 
 1. **Afinidad ipsativa:** compara posiciones *dentro* de un jugador. En el panel no se ordenan ni promedian afinidades entre jugadores.
 2. **Ítems transparentes y sesgo de prestigio** en el test (muchos quieren ser 9 o 10). Se mitiga con la valoración del entrenador y la tarjeta.
-3. **Muestreo aleatorio** reduce la fiabilidad entre intentos; se mide gracias a los ítems guardados.
+3. **Muestreo aleatorio** reduce la fiabilidad entre intentos; se mide gracias a los ítems guardados. Con 20 de 31 (v2) pesa menos que con 15, pero dos intentos comparten muchas preguntas.
 4. **Tarjeta subjetiva:** depende del criterio del entrenador; las anclas (§7.1) y en el futuro las pruebas de campo la objetivan.
 5. **Examen sin supervisión:** mide conocimiento en un examen abierto; ver §6.1. Como el puntaje no caduca, no refleja si el jugador ha olvidado algo con el tiempo.
 6. Ni el test ni la certificación miden rendimiento en partido.
@@ -308,7 +306,7 @@ solveLineup(matrix: CostMatrix, pins: Pin[]): Assignment[]
 | Escala | ¿Comparable entre jugadores? |
 |---|---|
 | Afinidad del test | No |
-| Preparación (x/8) | Con cautela (preguntas débiles) |
+| Preparación x/8 (solo intentos v1 e importados) | Con cautela (preguntas débiles) |
 | Puntaje de conocimiento | Sí, dentro de la misma posición y versión del banco |
 | Tarjeta 0–99 y MP | Sí, dentro del mismo equipo y evaluador |
 

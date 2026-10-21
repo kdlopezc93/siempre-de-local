@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { PositionCode, RankingEntry } from '@sdl/domain';
+import type { RankingEntry } from '@sdl/domain';
 import { and, desc, eq } from 'drizzle-orm';
 import { DatabaseError } from 'pg';
 
@@ -21,10 +21,7 @@ const SELECTION = {
   teamId: quizAttempt.teamId,
   format: quizAttempt.format,
   submittedAt: quizAttempt.submittedAt,
-  winner: attemptResult.winner,
   ranking: attemptResult.ranking,
-  prepScore: attemptResult.prepScore,
-  prepTotal: attemptResult.prepTotal,
 };
 
 type Row = {
@@ -34,10 +31,7 @@ type Row = {
   teamId: string | null;
   format: StoredAttempt['format'];
   submittedAt: Date;
-  winner: PositionCode;
   ranking: { pos: string; pct: number; earned: number; maxp: number }[];
-  prepScore: number;
-  prepTotal: number;
 };
 
 function toStored(row: Row): StoredAttempt {
@@ -48,12 +42,7 @@ function toStored(row: Row): StoredAttempt {
     teamId: row.teamId!,
     format: row.format,
     submittedAt: row.submittedAt,
-    result: {
-      winner: row.winner,
-      ranking: row.ranking as RankingEntry[],
-      prepScore: row.prepScore,
-      prepTotal: row.prepTotal,
-    },
+    result: { ranking: row.ranking as RankingEntry[] },
   };
 }
 
@@ -111,10 +100,7 @@ export class DrizzleAttemptsRepository implements AttemptsRepository {
           .returning({ id: quizAttempt.id });
         const attemptId = attempt!.id;
 
-        const served = [
-          ...request.positionItems.map((s) => ({ ...s, phase: 'position' as const })),
-          ...request.prepItems.map((s) => ({ ...s, phase: 'prep' as const })),
-        ];
+        const served = request.positionItems.map((s) => ({ ...s, phase: 'position' as const }));
         await tx.insert(attemptItem).values(
           served.map((s) => ({
             attemptId,
@@ -136,10 +122,8 @@ export class DrizzleAttemptsRepository implements AttemptsRepository {
         await tx.insert(attemptResult).values({
           attemptId,
           scoringVersion,
-          winner: result.winner,
+          winner: result.ranking[0]!.pos,
           ranking: result.ranking,
-          prepScore: result.prepScore,
-          prepTotal: result.prepTotal,
           isOfficial: true,
         });
 
