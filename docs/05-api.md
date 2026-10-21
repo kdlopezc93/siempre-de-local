@@ -12,6 +12,12 @@
 - Fechas ISO 8601 UTC.
 - Idempotencia en envíos offline mediante `clientAttemptId`.
 
+## Operación
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/health` | Público. `{ status: 'ok' \| 'degraded', checks: { database: 'up' \| 'down' } }`; 503 si una dependencia está caída |
+
 ## Yo
 
 | Método | Ruta | Descripción |
