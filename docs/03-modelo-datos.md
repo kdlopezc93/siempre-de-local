@@ -29,8 +29,13 @@ user ─┬─< account (Google; en el futuro otros proveedores / OIDC)
 
 ## 2. Identidad y consentimiento
 
-`user`, `session`, `account`, `verification`: de Better Auth. Columnas propias añadidas a `user`: `platform_admin boolean`.
-`account` permite varias identidades externas por usuario (hoy solo `provider = 'google'`).
+`user`, `session`, `account`, `verification`: de Better Auth (esquema en `apps/api/src/modules/identity/infrastructure/schema.ts`, migración `0000_identity`). Columnas propias añadidas a `user`: `platform_admin boolean`.
+`account` permite varias identidades externas por usuario (hoy solo `provider_id = 'google'`); único `(provider_id, account_id)`.
+
+- Los ids los genera Postgres 18 con `uuidv7()` (Better Auth con `generateId: false`).
+- `user.image` queda siempre `null`: la foto de Google no se guarda (`04` §5).
+- `account.access_token`, `refresh_token` e `id_token` quedan `null`: los tokens de Google no se usan tras el login y no se guardan.
+- `session`: `token` único, `expires_at`, `ip_address`, `user_agent`; borrado en cascada con el usuario.
 
 **data_consent** — aceptación de la política de tratamiento de datos (aplica también a adultos)
 | Columna | Tipo | Notas |
