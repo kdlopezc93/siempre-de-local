@@ -25,6 +25,6 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
     TeamInvitations,
     InvitationRedemption,
   ],
-  exports: [AUTHORIZATION_READER, MEMBERSHIPS_QUERY],
+  exports: [AUTHORIZATION_READER, MEMBERSHIPS_QUERY, TEAMS_REPOSITORY],
 })
 export class TeamsModule {}
