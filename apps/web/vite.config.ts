@@ -113,7 +113,11 @@ export default defineConfig({
             // La función se copia tal cual al service worker: no puede usar variables de aquí.
             urlPattern: ({ url, request }) =>
               request.method === 'GET' &&
-              ['/api/v1/me', '/api/v1/spike/questionnaire'].includes(url.pathname),
+              [
+                '/api/v1/me',
+                '/api/v1/questionnaires/current',
+                '/api/v1/spike/questionnaire',
+              ].includes(url.pathname),
             // Con red manda el servidor (revalida con ETag); sin red, la última copia.
             handler: 'NetworkFirst',
             options: {

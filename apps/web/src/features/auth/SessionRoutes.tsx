@@ -10,6 +10,7 @@ import { JoinPage } from '../join/JoinPage';
 import { useInvitationPreview } from '../join/use-join';
 import { ConsentPage } from '../onboarding/ConsentPage';
 import { NoTeamPage } from '../onboarding/NoTeamPage';
+import { QuizPage } from '../quiz/QuizPage';
 import { InvitePage } from '../team-admin/InvitePage';
 import { SpikePwaPage } from '../spike-pwa/SpikePwaPage';
 import { LoginPage } from './LoginPage';
@@ -84,4 +85,10 @@ export function JoinRoute() {
 export function InviteRoute() {
   const { teamId = '' } = useParams();
   return <RequireSession>{() => <InvitePage teamId={teamId} />}</RequireSession>;
+}
+
+/** "/equipos/:teamId/test" — el test de orientación del jugador. */
+export function QuizRoute() {
+  const { teamId = '' } = useParams();
+  return <RequireSession>{(me) => <QuizPage me={me} teamId={teamId} />}</RequireSession>;
 }

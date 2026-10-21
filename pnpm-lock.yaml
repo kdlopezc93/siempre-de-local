@@ -263,6 +263,9 @@ importers:
       '@sdl/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@sdl/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@tanstack/react-query':
         specifier: 5.104.5
         version: 5.104.5(@types/react@19.3.0)(react@19.3.1)
