@@ -71,4 +71,6 @@ Hallazgos de implementación, antes de probar en celulares:
 
 ## Conclusión
 
-_Pendiente de la prueba en celulares._
+**Android: validado** (2026-10-21). Instalación, login dentro de la app instalada, apertura sin red, cola que sobrevive a cerrar la app, sincronización al volver la red sin duplicados y almacenamiento persistente concedido. ADR-06 se sostiene tal cual en Android.
+
+**iPhone: pendiente** por falta de dispositivo. Es el riesgo abierto: login con Google desde la app instalada (cookies separadas de Safari) y apertura sin red. Repetir el guion con `pnpm spike:pwa <url-túnel>` antes de la Fase 3, cuando el test de orientación empiece a depender de la cola offline. Si el login falla en iOS, la alternativa a evaluar es iniciar sesión en Safari antes de instalar o un enlace de login de un solo uso hacia la app instalada.
