@@ -166,11 +166,18 @@ El entrenador puede pedirle a un jugador que vuelva a presentar el examen de una
 
 La re-evaluación aplica **solo al examen de conocimiento**. El test de orientación es independiente y no se ve afectado.
 
+Implementado en `@sdl/domain` (`knowledge.ts`, `bank-lint.ts`):
+
 ```ts
-selectExamItems(bank: CertItem[], seenItemIds: Set<ItemId>, cfg: ExamConfig, rng): CertItem[]
-scoreExam(items: ServedCertItem[], answers: OptionId[]): { score, total, pct, byArea, band }
-bestKnowledge(exams: ExamSummary[], position): { pct, examId, reviewStatus } | null   // ignora intentos sustituidos
-nextAttemptAt(exams: ExamSummary[], position, cfg): Date
+DEFAULT_EXAM_CONFIG          // 20 ítems · 30/50/20 · 30 días · 20 min · 40 para publicar
+selectExamItems(bank, seenItemIds, cfg, rng)   // no vistos primero, todas las áreas, mezcla de dificultad
+scoreExam(items, answers)    // { score, total, pct (3 decimales), band, byArea }; sin responder = fallo
+bandFor(pct)                 // §6.4
+bestKnowledge(exams, position)                 // mejor válido; ignora anulados, vencidos y sustituidos
+canStartExam(exams, position, now, { pendingReview })  // un activo a la vez; 30 días desde el inicio
+                             // del último; sin espera si "a revisar", anulado con reinicio o re-evaluación
+lintBank(draft, cfg)         // errores (tamaño, 4 opciones, 1 correcta, áreas, cupo por dificultad)
+                             // y avisos (correcta casi siempre la más larga, absolutos en distractores)
 ```
 
 ---
