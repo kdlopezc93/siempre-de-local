@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import {
   type AcceptInvitationResponse,
   type CreateInvitationResponse,
@@ -62,7 +73,9 @@ export class TeamInvitationsController {
   }
 }
 
+/** 20 peticiones por minuto y por IP entre ver y aceptar (ThrottlerModule en TeamsModule). */
 @Controller('invitations')
+@UseGuards(ThrottlerGuard)
 export class InvitationsController {
   constructor(private readonly redemption: InvitationRedemption) {}
 
