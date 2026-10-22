@@ -88,12 +88,22 @@ export class DrizzleAttemptsRepository implements AttemptsRepository, LatestResu
       .orderBy(desc(quizAttempt.submittedAt));
     const latest = new Map<
       string,
-      { attemptId: string; submittedAt: Date; podium: PositionCode[] }
+      {
+        attemptId: string;
+        submittedAt: Date;
+        podium: PositionCode[];
+        ranking: { pos: PositionCode; pct: number }[];
+      }
     >();
     for (const row of rows) {
       if (latest.has(row.userId)) continue;
-      const podium = (row.ranking as RankingEntry[]).slice(0, 3).map((entry) => entry.pos);
-      latest.set(row.userId, { attemptId: row.id, submittedAt: row.submittedAt, podium });
+      const ranking = (row.ranking as RankingEntry[]).map(({ pos, pct }) => ({ pos, pct }));
+      latest.set(row.userId, {
+        attemptId: row.id,
+        submittedAt: row.submittedAt,
+        podium: ranking.slice(0, 3).map((entry) => entry.pos),
+        ranking,
+      });
     }
     return latest;
   }

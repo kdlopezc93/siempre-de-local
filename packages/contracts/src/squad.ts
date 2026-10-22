@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 import { AssessmentSchema } from './assessments.js';
 import { PositionCodeSchema } from './orientation.js';
+import { ProfileSchema } from './profile.js';
+import { PlayerRatingSchema } from './ratings.js';
 
 /**
  * GET /api/v1/teams/:teamId/squad — la plantilla para el cuerpo técnico. El test de cada
@@ -43,3 +45,36 @@ export const SquadResponseSchema = z.object({
 
 export type SquadResponse = z.infer<typeof SquadResponseSchema>;
 export type SquadPlayer = SquadResponse['players'][number];
+
+/**
+ * GET /api/v1/teams/:teamId/players/:userId/profile — todo lo de un jugador en una pantalla
+ * (cuerpo técnico y admin del club). Misma regla que la plantilla: para quien valora, el
+ * test queda oculto hasta que lo valora. Los puntajes de conocimiento llegan en la Fase 4.
+ */
+export const PlayerProfileResponseSchema = z.object({
+  player: ProfileSchema.extend({
+    userId: z.uuid(),
+    jerseyNumber: z.int().nullable(),
+  }),
+  test: z.discriminatedUnion('status', [
+    z.object({ status: z.literal('none') }),
+    z.object({ status: z.literal('hidden') }),
+    z.object({
+      status: z.literal('visible'),
+      attemptId: z.uuid(),
+      submittedAt: z.iso.datetime(),
+      podium: z.array(PositionCodeSchema),
+      /** Afinidad 0–1 de cada posición del formato, de mayor a menor. */
+      ranking: z.array(z.object({ pos: PositionCodeSchema, pct: z.number() })),
+    }),
+  ]),
+  /** Todas las valoraciones del cuerpo técnico, de la más reciente a la más antigua. */
+  assessments: z.array(AssessmentSchema),
+  assessedByMe: z.boolean(),
+  /** La foto vigente de la tarjeta, o null. */
+  card: PlayerRatingSchema.nullable(),
+  /** Cuántas fotos tiene en total (las anteriores se ven en …/ratings). */
+  cardCount: z.int(),
+});
+
+export type PlayerProfileResponse = z.infer<typeof PlayerProfileResponseSchema>;

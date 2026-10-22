@@ -8,7 +8,7 @@ export const DominantFootSchema = z.enum(['left', 'right', 'both']);
 export const ProfileSchema = z.object({
   displayName: z.string(),
   dominantFoot: DominantFootSchema.nullable(),
-  /** Habilita los atributos de portero en la tarjeta (02 §7). */
+  /** Lo declara el jugador; en la tarjeta, el cuerpo técnico decide si suma los de portero (02 §7). */
   playsGoalkeeper: z.boolean(),
   /** De 1 a 3, en orden de preferencia. */
   preferredPositions: z.array(PositionCodeSchema).max(3),
