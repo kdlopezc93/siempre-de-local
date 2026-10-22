@@ -30,7 +30,7 @@ export const DFC_V1: CertBankContent = {
       [
         'Meter la pierna enseguida para robar antes de que controle',
         'Soltarlo un par de metros para que no te haga falta',
-        'Mirar al árbitro para que pite cualquier contacto',
+        'Hacerle una falta táctica antes de que intente girar',
       ],
       'De espaldas al arco es menos peligroso. El error típico es tirarse y dejar que te gire; lo correcto es impedir el giro y esperar el error o la ayuda.',
     ),
@@ -82,7 +82,7 @@ export const DFC_V1: CertBankContent = {
       [
         'Salir fuerte a quitarle el balón antes de que acelere y aproveche su velocidad',
         'Adelantarte para dejarlo en fuera de juego tú solo',
-        'Hacerle falta lejos del arco de inmediato',
+        'Tirarte al piso para cortarle la carrera',
       ],
       'Contra alguien más rápido y con espacio, ir al choque es perder. Retrasar la jugada da tiempo a que tu equipo vuelva.',
     ),
@@ -104,13 +104,13 @@ export const DFC_V1: CertBankContent = {
       'marcaje',
       2,
       'El rival amaga con ir a su pie bueno, el derecho. ¿Hacia dónde lo guías?',
-      'Hacia su perfil malo, el izquierdo, o hacia fuera del área',
+      'Hacia su pie malo, el izquierdo, o lejos de la zona de remate',
       [
         'Hacia su pie derecho, porque así lo esperas',
         'Hacia el centro del área, donde están tus compañeros para ayudarte',
         'Te da igual: lo importante es meter el pie rápido',
       ],
-      'Orientar al rival hacia su perfil débil o hacia la banda baja la calidad de su remate o de su pase.',
+      'Orientarlo hacia su pie malo o lejos de la zona de remate baja la calidad de su remate o de su pase. Cuidado: si viene por la banda, su pie malo puede quedar hacia el centro; ahí manda alejarlo del arco.',
     ),
     q(
       'DFC-MAR-08',
@@ -142,14 +142,14 @@ export const DFC_V1: CertBankContent = {
       'DFC-MAR-10',
       'marcaje',
       3,
-      'Tu equipo pierde 1 a 0 a falta de 5 minutos y el delantero rival corre solo hacia el área, fuera de ella. Eres el último defensor. ¿Qué tienes que pesar?',
-      'Si la falta sería ocasión manifiesta y roja, frente a la chance real de gol',
+      'Van 0 a 0 en el minuto 20. El delantero rival corre solo hacia tu arco, todavía fuera del área, y eres el último defensor. ¿Qué es lo más inteligente?',
+      'Retrasarlo sin hacer falta y cerrarle el ángulo hasta que llegue ayuda',
       [
-        'Que, si vas perdiendo, la falta conviene sin pensarlo',
-        'Si el árbitro está cerca, porque lejos de la jugada es probable que no la cobre',
-        'Que una amarilla más no cambia el partido',
+        'Hacerle falta enseguida, porque fuera del área no es penal',
+        'Tirarte al piso a quitarle la pelota aunque llegues tarde',
+        'Dejarlo pasar para que lo resuelva el portero',
       ],
-      'Cortar una clara ocasión de gol como último hombre suele ser roja. Hay que pesar quedarte con uno menos contra la probabilidad de que sea gol.',
+      'Siendo el último hombre, la falta corta una ocasión manifiesta de gol: es roja. Con 70 minutos por delante, jugar con uno menos cuesta mucho más que el riesgo de la jugada; retrasar sin falta da tiempo a que vuelvan tus compañeros.',
     ),
 
     // ── Línea defensiva y fuera de juego ─────────────────────────────
@@ -183,7 +183,7 @@ export const DFC_V1: CertBankContent = {
       'DFC-LIN-03',
       'linea',
       1,
-      '¿Quién suele dar la voz para que la línea suba o baje junta?',
+      'Dentro de la línea de cuatro, ¿quién suele dar la voz para que suba o baje junta?',
       'Uno de los centrales, que ve la jugada de frente',
       [
         'El delantero centro, porque está más adelante',
@@ -289,7 +289,7 @@ export const DFC_V1: CertBankContent = {
       'DFC-AER-01',
       'aereo',
       1,
-      'Vas a despejar un balón aéreo dentro de tu área sin rival cerca. ¿Hacia dónde?',
+      'Tienes que rechazar de urgencia un balón aéreo dentro de tu área, con un delantero encima. ¿Hacia dónde?',
       'Alto, lejos y hacia una banda',
       [
         'Al centro, hacia donde está el mediocampista',
@@ -316,7 +316,7 @@ export const DFC_V1: CertBankContent = {
       'aereo',
       1,
       'Ganas un cabezazo defensivo en la mitad de la cancha. ¿Qué intentas?',
-      'Peinarla hacia un compañero o hacia adelante, no hacia tu propia área',
+      'Cabecearla hacia un compañero o hacia adelante, no hacia tu propia área',
       [
         'Devolverla hacia tu portero de cabeza',
         'Tirarla fuera de la cancha por la línea de fondo',
@@ -435,13 +435,13 @@ export const DFC_V1: CertBankContent = {
       'salida',
       1,
       'Para recibir del portero en la salida, ¿dónde te conviene estar?',
-      'Abierto a los lados del área, a la altura del borde',
+      'Abierto a los costados del área, ensanchando el campo para darle un pase al portero',
       [
         'Dentro del área chica, cerca del portero',
         'Pegado a tu compañero central',
         'En la mitad de la cancha',
       ],
-      'Abrirse a los lados del área da espacio para recibir y deja líneas de pase hacia adelante.',
+      'Abrirse a los costados estira la presión rival y le da al portero una línea de pase limpia. Desde la regla de 2019 puedes recibir dentro del área en el saque de meta, pero igual conviene abrirse.',
     ),
     q(
       'DFC-SAL-03',
@@ -452,7 +452,7 @@ export const DFC_V1: CertBankContent = {
       [
         'Con la suela, frenando el balón en seco para no perder el control',
         'Dejándola pasar para ver qué hace el rival',
-        'Con el pecho, aunque venga por el piso',
+        'Con el empeine del pie más cercano, para asegurarla',
       ],
       'Controlar orientado y con el pie lejano protege la pelota y te deja jugar hacia donde no está la presión.',
     ),
@@ -476,7 +476,7 @@ export const DFC_V1: CertBankContent = {
       'Tienes el balón y un compañero está libre entre líneas, pero el pase pasa cerca de un rival. ¿Qué tomas en cuenta?',
       'El riesgo de perderla en tu campo frente al premio de superar una línea',
       [
-        'Que el pase al costado es más bonito',
+        'Que, si sale bien, el riesgo valió la pena',
         'Que el pase entre líneas hay que intentarlo de una',
         'Que cerca de tu área es mejor tirarla larga, porque así no corres ningún riesgo',
       ],
@@ -503,7 +503,7 @@ export const DFC_V1: CertBankContent = {
       'Para saber dónde están rivales y compañeros y decidir rápido',
       [
         'Para que el rival crea que vas a pasarla',
-        'Para ubicar dónde está el árbitro',
+        'Para encontrar al compañero que la pide más fuerte',
         'Solo para controlar mejor la pelota',
       ],
       'Escanear antes de recibir te deja jugar a uno o dos toques. Mirar recién con la pelota en los pies te hace lento y predecible.',
@@ -538,7 +538,7 @@ export const DFC_V1: CertBankContent = {
       'DFC-SAL-10',
       'salida',
       3,
-      'Vas ganando 1 a 0, quedan 3 minutos y el rival presiona alto con mucha gente. ¿Qué es lo más razonable en la salida?',
+      'Vas ganando 1 a 0, quedan 3 minutos, el rival presiona alto con mucha gente y tu entrenador pidió priorizar la seguridad. ¿Qué es lo más razonable en la salida?',
       'Priorizar la seguridad: jugar largo hacia la banda y presionar desde ahí',
       [
         'Salir jugando corto para mostrar el estilo del equipo',
@@ -570,7 +570,7 @@ export const DFC_V1: CertBankContent = {
       'El portero, porque ve el arco y el ángulo del tiro',
       [
         'El jugador más alto del equipo',
-        'El árbitro, según la distancia',
+        'El entrenador, desde la banda, antes de cada tiro',
         'El central que esté más cerca del balón',
       ],
       'El portero tapa un lado y la barrera el otro. Él sabe qué parte del arco necesita cubierta.',
@@ -658,7 +658,7 @@ export const DFC_V1: CertBankContent = {
       'parado',
       3,
       'En un córner en contra, un rival se para delante de tu portero para taparle la salida. ¿Qué hacen?',
-      'Uno de ustedes se pone a su lado para que el portero salga sin bloqueo',
+      'Uno de ustedes se ubica entre ese rival y el portero, sin empujarlo',
       [
         'Lo empujan fuera del área chica antes del saque, para que no moleste al portero',
         'Lo ignoran: el portero lo tiene que resolver solo',
@@ -703,7 +703,7 @@ export const DFC_V1: CertBankContent = {
       [
         'Subir al área rival para sumar en el ataque',
         'Descansar en la mitad de la cancha',
-        'Mirar la jugada para festejar el gol',
+        'Quedarte en la línea del mediocampo, lejos de los delanteros rivales',
       ],
       'Las vigilancias evitan el contragolpe: mientras atacas, controlas a quienes quedaron para recibir.',
     ),

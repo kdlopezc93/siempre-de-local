@@ -12,7 +12,7 @@ Antes de recibir un pase en el medio, ¿qué deberías hacer?
 
 - [ ] Fijar la vista en la pelota desde que sale del pie del compañero
 - [x] **Mirar alrededor para saber dónde están rivales y compañeros**
-- [ ] Levantar la mano para que te la pasen más fuerte
+- [ ] Gritarle al que la tiene para que acelere el pase
 - [ ] Quedarte quieto para que el pase te llegue justo
 
 > Mirar antes de recibir (perfilarse con información) te deja decidir antes de que llegue el balón y jugar más rápido.
@@ -57,7 +57,7 @@ El balón viene por la izquierda y quieres jugar hacia la derecha. ¿Con qué pi
 - [ ] Con el izquierdo, el más cercano al pase, para que no se te escape
 - [x] **Con el derecho, el más alejado, para abrir el juego de una**
 - [ ] Con la suela de cualquiera de los dos
-- [ ] Con el pecho, aunque venga por el piso
+- [ ] Con el empeine del pie más cercano, para asegurar la posesión
 
 > Recibir con el pie lejano acompaña la dirección del juego y te deja ya mirando hacia donde quieres ir.
 
@@ -190,7 +190,7 @@ Das un pase y te quedas quieto. ¿Qué pierde tu equipo?
 
 - [ ] Poco, porque tu parte de la jugada ya la cumpliste al dar el pase
 - [x] **Una opción de devolución o de apoyo para la siguiente jugada**
-- [ ] La posibilidad de que el árbitro te vea
+- [ ] Amplitud: el equipo se queda sin un jugador abierto en la banda
 - [ ] El derecho a pedir la pelota de nuevo
 
 > Pasar y moverte (para ofrecerte otra vez o arrastrar a un rival) mantiene viva la jugada.
@@ -202,7 +202,7 @@ Tienes la pelota en tu campo y un delantero tuyo corre en diagonal a la espalda 
 - [ ] Que el delantero esté lejos de los defensores, para que no lo alcancen
 - [ ] Que el portero rival esté en su línea
 - [x] **Si la defensa rival está alta y si puedes pasar sin presión encima**
-- [ ] Si el árbitro está mirando la jugada
+- [ ] Si el delantero ya levantó la mano para pedirla
 
 > El pase en profundidad funciona contra una línea adelantada y con tiempo para darlo; con presión encima, el error es probable.
 
@@ -248,7 +248,7 @@ Tu equipo tiene la pelota y tú y otro mediocampista están en la misma zona. ¿
 - [x] **Separarse para ocupar espacios distintos**
 - [ ] Quedarse juntos para ayudarse
 - [ ] Que los dos pidan la pelota a la vez
-- [ ] Que uno de los dos salga de la cancha
+- [ ] Que ambos bajen a la altura de los centrales
 
 > Dos jugadores en el mismo lugar se marcan con un solo rival. Repartirse estira al rival y crea opciones.
 
@@ -311,10 +311,10 @@ El delantero baja a pedir la pelota al mediocampo. ¿Qué movimiento tuyo lo com
 
 ¿Por qué conviene no estar en la misma línea horizontal que tus compañeros cuando tienen la pelota?
 
-- [ ] Porque el reglamento lo pide
+- [ ] Porque así el equipo ocupa mejor el ancho de la cancha
 - [ ] Porque así se defiende mejor
 - [x] **Porque un solo rival puede cortar varios pases a la vez**
-- [ ] Porque los pases horizontales están prohibidos
+- [ ] Porque los pases horizontales son más lentos
 
 > Estar escalonado crea líneas de pase en diagonal, que son más difíciles de tapar que las horizontales.
 
@@ -357,8 +357,8 @@ Vas a presionar a un rival que tiene la pelota. ¿Cómo te acercas?
 
 Al presionar, ¿qué buscas además de quitar la pelota?
 
-- [ ] Que te vea el entrenador
-- [ ] Que el rival se enoje y haga falta
+- [ ] Ir derecho al balón, aunque quede abierto el pase hacia adentro
+- [ ] Que el rival se canse de tener la pelota en su campo
 - [ ] Apurarlo para que la pierda solo, aunque dejes libre a un compañero suyo
 - [x] **Tapar un pase peligroso y llevarlo hacia donde tu equipo puede robar**
 
@@ -393,7 +393,7 @@ El rival recibe de espaldas en el medio. ¿Qué momento es bueno para presionar?
 - [ ] Cuando ya se giró y te mira de frente
 - [ ] Cuando pasa la pelota
 - [x] **Justo cuando controla, antes de que pueda girarse**
-- [ ] Cuando el árbitro no mira
+- [ ] Cuando ya levantó la cabeza para buscar un pase
 
 > Un rival de espaldas tiene poca visión. Llegar en el control lo obliga a jugar hacia atrás o a perderla.
 
@@ -413,7 +413,7 @@ Un compañero presiona al rival con la pelota. ¿Qué haces tú si estás cerca?
 La pelota está en la banda y el rival tiene poco espacio. ¿Por qué es buen lugar para recuperarla?
 
 - [x] **Porque la línea de banda funciona como un defensor más**
-- [ ] Porque ahí el árbitro cobra menos faltas
+- [ ] Porque en la banda los rivales tienen más compañeros cerca
 - [ ] Porque los rivales juegan peor por fuera
 - [ ] Porque la pelota sale y el saque es tuyo
 
@@ -443,7 +443,7 @@ Tu equipo presiona alto y el rival rompe la primera línea con un pase al medio.
 
 ### MC-PRE-10 · difícil
 
-El rival sale jugando desde el portero con dos centrales abiertos. ¿Qué trayectoria de presión suele funcionar?
+Tu equipo presiona alto y te toca saltar sobre los centrales rivales, que salen abiertos desde el portero. ¿Qué trayectoria suele funcionar?
 
 - [ ] Ir directo al portero en línea recta
 - [ ] Esperar en la mitad de la cancha
@@ -526,7 +526,7 @@ Hacer una falta táctica en la mitad de la cancha para cortar un contragolpe… 
 
 - [x] **Si ya tienes amarilla y si la falta evita un ataque realmente peligroso**
 - [ ] Que la falta conviene en cualquier contragolpe, porque frena el ataque de raíz
-- [ ] Que el árbitro no la va a ver
+- [ ] Que es mejor hacerla en el área rival, lejos de tu arco
 - [ ] Que sea lo más fuerte posible para que no se repita
 
 > Una falta táctica puede salvar un gol, pero cuesta tarjeta y puede dejarte con uno menos si ya tenías amarilla.
@@ -568,7 +568,7 @@ Pierdes la pelota y la presión tras pérdida no funcionó: el rival ya pasó tu
 
 ### MC-EQU-01 · fácil
 
-Tu compañero mediocampista sube al ataque. ¿Qué haces tú?
+Juegan con doble mediocentro y tu compañero sube al ataque. ¿Qué haces tú?
 
 - [ ] Subir también para sumar en el área
 - [ ] Irte a una banda

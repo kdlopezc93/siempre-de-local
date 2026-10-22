@@ -13,7 +13,7 @@ El delantero recibe de espaldas a tu arco y tú estás pegado a él. ¿Qué es l
 - [x] **Que no pueda girarse: cuerpo cerca, sin tirarte al balón**
 - [ ] Meter la pierna enseguida para robar antes de que controle
 - [ ] Soltarlo un par de metros para que no te haga falta
-- [ ] Mirar al árbitro para que pite cualquier contacto
+- [ ] Hacerle una falta táctica antes de que intente girar
 
 > De espaldas al arco es menos peligroso. El error típico es tirarse y dejar que te gire; lo correcto es impedir el giro y esperar el error o la ayuda.
 
@@ -57,7 +57,7 @@ Te quedaste solo con un delantero más rápido que tú y hay mucho espacio a tu 
 - [x] **Retroceder ganando tiempo hasta que llegue ayuda o se cierre el espacio**
 - [ ] Salir fuerte a quitarle el balón antes de que acelere y aproveche su velocidad
 - [ ] Adelantarte para dejarlo en fuera de juego tú solo
-- [ ] Hacerle falta lejos del arco de inmediato
+- [ ] Tirarte al piso para cortarle la carrera
 
 > Contra alguien más rápido y con espacio, ir al choque es perder. Retrasar la jugada da tiempo a que tu equipo vuelva.
 
@@ -78,10 +78,10 @@ El rival amaga con ir a su pie bueno, el derecho. ¿Hacia dónde lo guías?
 
 - [ ] Hacia su pie derecho, porque así lo esperas
 - [ ] Hacia el centro del área, donde están tus compañeros para ayudarte
-- [x] **Hacia su perfil malo, el izquierdo, o hacia fuera del área**
+- [x] **Hacia su pie malo, el izquierdo, o lejos de la zona de remate**
 - [ ] Te da igual: lo importante es meter el pie rápido
 
-> Orientar al rival hacia su perfil débil o hacia la banda baja la calidad de su remate o de su pase.
+> Orientarlo hacia su pie malo o lejos de la zona de remate baja la calidad de su remate o de su pase. Cuidado: si viene por la banda, su pie malo puede quedar hacia el centro; ahí manda alejarlo del arco.
 
 ### DFC-MAR-08 · media
 
@@ -107,14 +107,14 @@ Estás marcando en zona y un delantero entra a tu espacio mientras otro sale. ¿
 
 ### DFC-MAR-10 · difícil
 
-Tu equipo pierde 1 a 0 a falta de 5 minutos y el delantero rival corre solo hacia el área, fuera de ella. Eres el último defensor. ¿Qué tienes que pesar?
+Van 0 a 0 en el minuto 20. El delantero rival corre solo hacia tu arco, todavía fuera del área, y eres el último defensor. ¿Qué es lo más inteligente?
 
-- [x] **Si la falta sería ocasión manifiesta y roja, frente a la chance real de gol**
-- [ ] Que, si vas perdiendo, la falta conviene sin pensarlo
-- [ ] Si el árbitro está cerca, porque lejos de la jugada es probable que no la cobre
-- [ ] Que una amarilla más no cambia el partido
+- [x] **Retrasarlo sin hacer falta y cerrarle el ángulo hasta que llegue ayuda**
+- [ ] Hacerle falta enseguida, porque fuera del área no es penal
+- [ ] Tirarte al piso a quitarle la pelota aunque llegues tarde
+- [ ] Dejarlo pasar para que lo resuelva el portero
 
-> Cortar una clara ocasión de gol como último hombre suele ser roja. Hay que pesar quedarte con uno menos contra la probabilidad de que sea gol.
+> Siendo el último hombre, la falta corta una ocasión manifiesta de gol: es roja. Con 70 minutos por delante, jugar con uno menos cuesta mucho más que el riesgo de la jugada; retrasar sin falta da tiempo a que vuelvan tus compañeros.
 
 ## Línea defensiva y fuera de juego
 
@@ -142,7 +142,7 @@ Un compañero presiona fuerte al rival que tiene el balón y este no puede levan
 
 ### DFC-LIN-03 · fácil
 
-¿Quién suele dar la voz para que la línea suba o baje junta?
+Dentro de la línea de cuatro, ¿quién suele dar la voz para que suba o baje junta?
 
 - [ ] El delantero centro, porque está más adelante
 - [x] **Uno de los centrales, que ve la jugada de frente**
@@ -232,7 +232,7 @@ Juegan en una cancha corta y el rival tira pelotazos a la espalda de tu línea. 
 
 ### DFC-AER-01 · fácil
 
-Vas a despejar un balón aéreo dentro de tu área sin rival cerca. ¿Hacia dónde?
+Tienes que rechazar de urgencia un balón aéreo dentro de tu área, con un delantero encima. ¿Hacia dónde?
 
 - [x] **Alto, lejos y hacia una banda**
 - [ ] Al centro, hacia donde está el mediocampista
@@ -258,7 +258,7 @@ Ganas un cabezazo defensivo en la mitad de la cancha. ¿Qué intentas?
 
 - [ ] Devolverla hacia tu portero de cabeza
 - [ ] Tirarla fuera de la cancha por la línea de fondo
-- [x] **Peinarla hacia un compañero o hacia adelante, no hacia tu propia área**
+- [x] **Cabecearla hacia un compañero o hacia adelante, no hacia tu propia área**
 - [ ] Bajarla con el pecho para jugarla al pie, aunque tengas un rival encima
 
 > Lejos del arco puedes dar dirección al cabezazo. Devolverlo hacia atrás invita a un rival a ganarla cerca de tu área.
@@ -358,11 +358,11 @@ Tu portero te da el balón y no tienes presión. ¿Qué haces?
 Para recibir del portero en la salida, ¿dónde te conviene estar?
 
 - [ ] Dentro del área chica, cerca del portero
-- [x] **Abierto a los lados del área, a la altura del borde**
+- [x] **Abierto a los costados del área, ensanchando el campo para darle un pase al portero**
 - [ ] Pegado a tu compañero central
 - [ ] En la mitad de la cancha
 
-> Abrirse a los lados del área da espacio para recibir y deja líneas de pase hacia adelante.
+> Abrirse a los costados estira la presión rival y le da al portero una línea de pase limpia. Desde la regla de 2019 puedes recibir dentro del área en el saque de meta, pero igual conviene abrirse.
 
 ### DFC-SAL-03 · fácil
 
@@ -371,7 +371,7 @@ Recibes un pase del lateral con un rival corriendo hacia ti. ¿Cuál es la forma
 - [ ] Con la suela, frenando el balón en seco para no perder el control
 - [ ] Dejándola pasar para ver qué hace el rival
 - [x] **Con el pie lejano al rival, orientando hacia el espacio libre**
-- [ ] Con el pecho, aunque venga por el piso
+- [ ] Con el empeine del pie más cercano, para asegurarla
 
 > Controlar orientado y con el pie lejano protege la pelota y te deja jugar hacia donde no está la presión.
 
@@ -391,7 +391,7 @@ El rival presiona a los dos centrales con dos delanteros. ¿Qué ayuda a salir?
 Tienes el balón y un compañero está libre entre líneas, pero el pase pasa cerca de un rival. ¿Qué tomas en cuenta?
 
 - [x] **El riesgo de perderla en tu campo frente al premio de superar una línea**
-- [ ] Que el pase al costado es más bonito
+- [ ] Que, si sale bien, el riesgo valió la pena
 - [ ] Que el pase entre líneas hay que intentarlo de una
 - [ ] Que cerca de tu área es mejor tirarla larga, porque así no corres ningún riesgo
 
@@ -413,7 +413,7 @@ Te presionan fuerte y no tienes pases cortos claros. ¿Qué es lo más sensato?
 Al recibir, miras antes de que llegue el balón. ¿Para qué sirve?
 
 - [ ] Para que el rival crea que vas a pasarla
-- [ ] Para ubicar dónde está el árbitro
+- [ ] Para encontrar al compañero que la pide más fuerte
 - [x] **Para saber dónde están rivales y compañeros y decidir rápido**
 - [ ] Solo para controlar mejor la pelota
 
@@ -443,7 +443,7 @@ Conduces y el mediocampista rival sale a presionarte. ¿Qué te dice eso?
 
 ### DFC-SAL-10 · difícil
 
-Vas ganando 1 a 0, quedan 3 minutos y el rival presiona alto con mucha gente. ¿Qué es lo más razonable en la salida?
+Vas ganando 1 a 0, quedan 3 minutos, el rival presiona alto con mucha gente y tu entrenador pidió priorizar la seguridad. ¿Qué es lo más razonable en la salida?
 
 - [x] **Priorizar la seguridad: jugar largo hacia la banda y presionar desde ahí**
 - [ ] Salir jugando corto para mostrar el estilo del equipo
@@ -471,7 +471,7 @@ Hay un tiro libre en contra cerca del área. ¿Quién decide cuántos van a la b
 
 - [x] **El portero, porque ve el arco y el ángulo del tiro**
 - [ ] El jugador más alto del equipo
-- [ ] El árbitro, según la distancia
+- [ ] El entrenador, desde la banda, antes de cada tiro
 - [ ] El central que esté más cerca del balón
 
 > El portero tapa un lado y la barrera el otro. Él sabe qué parte del arco necesita cubierta.
@@ -549,7 +549,7 @@ En un córner en contra, un rival se para delante de tu portero para taparle la 
 - [ ] Lo empujan fuera del área chica antes del saque, para que no moleste al portero
 - [ ] Lo ignoran: el portero lo tiene que resolver solo
 - [ ] Le piden al árbitro que lo saque de ahí
-- [x] **Uno de ustedes se pone a su lado para que el portero salga sin bloqueo**
+- [x] **Uno de ustedes se ubica entre ese rival y el portero, sin empujarlo**
 
 > El bloqueo al portero es común. Tener a alguien que lo neutralice deja salir al portero; empujarlo puede ser falta o penal.
 
@@ -584,7 +584,7 @@ Tu equipo ataca y estás en la mitad de la cancha. ¿Qué haces mientras tanto?
 - [ ] Subir al área rival para sumar en el ataque
 - [x] **Vigilar a los delanteros rivales que quedaron arriba**
 - [ ] Descansar en la mitad de la cancha
-- [ ] Mirar la jugada para festejar el gol
+- [ ] Quedarte en la línea del mediocampo, lejos de los delanteros rivales
 
 > Las vigilancias evitan el contragolpe: mientras atacas, controlas a quienes quedaron para recibir.
 
