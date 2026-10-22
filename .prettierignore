@@ -5,3 +5,6 @@ docs
 .agents
 apps/api/drizzle
 apps/api/src/modules/questionnaires/infrastructure/seed/orientation-v1.content.ts
+e2e/.fixtures.json
+e2e/test-results
+e2e/playwright-report
