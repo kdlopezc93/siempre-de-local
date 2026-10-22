@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - packages/*
+  - e2e
 
 minimumReleaseAgeExclude:
   - '@better-auth/core@1.7.12'

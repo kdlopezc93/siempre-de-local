@@ -51,6 +51,7 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | `pnpm lint` | ESLint en todo el repo (incluye reglas de frontera entre capas) |
 | `pnpm typecheck` | `tsc --noEmit` en cada paquete |
 | `pnpm test` | Vitest en cada paquete |
+| `pnpm e2e` | Playwright: invitar → unirse → test → resultado en Chromium, con su propia base `sdl_e2e` y puertos 3100/4273 (`e2e/`). Requiere `pnpm db:up`; la primera vez, `pnpm --filter @sdl/e2e exec playwright install --with-deps chromium` (pide sudo) |
 | `pnpm build` | Compila todos los paquetes |
 | `pnpm format` | Prettier |
 | `pnpm db:up` | Levanta Postgres 18 local (`docker compose up -d --wait db`) |

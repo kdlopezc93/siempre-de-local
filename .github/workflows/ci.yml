@@ -111,3 +111,49 @@ jobs:
       # Solo construye: que el Dockerfile no se rompa sin que nadie lo note (docs/deploy.md).
       - name: Construir apps/api/Dockerfile
         run: docker build -f apps/api/Dockerfile -t sdl-api:ci .
+
+  e2e:
+    name: Flujo completo en el navegador
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:18.6-alpine
+        env:
+          POSTGRES_USER: sdl
+          POSTGRES_PASSWORD: sdl
+          POSTGRES_DB: sdl
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sdl -d sdl"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      E2E_ADMIN_DATABASE_URL: postgres://sdl:sdl@localhost:5432/sdl
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Chromium para Playwright
+        run: pnpm --filter @sdl/e2e exec playwright install --with-deps chromium
+
+      # Invitar → unirse (política y mayoría de edad) → test de 20 → podio → historial.
+      - run: pnpm e2e
+
+      - name: Reporte si falla
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: playwright-report
+          path: e2e/playwright-report
+          retention-days: 7

@@ -38,6 +38,8 @@ export const config = defineConfig(
       '.agents/**',
       'apps/api/drizzle/**',
       '.claude/**',
+      'e2e/test-results/**',
+      'e2e/playwright-report/**',
     ],
   },
   js.configs.recommended,

@@ -212,7 +212,7 @@ Organizado **por funcionalidad**, no por tipo de archivo. La lógica de negocio 
 
 - **Tests de dominio de paridad:** antes de refactorizar, se fijan con tests los resultados del prototipo (mismas respuestas → mismo ranking).
 - Vitest en `domain`, `contracts` y web; tests de integración del API contra Postgres real en contenedor (Testcontainers).
-- Playwright para el flujo crítico: invitar → registrarse → hacer test → entrenador ve resultado.
+- Playwright para el flujo crítico (`e2e/`, job de CI): invitar → unirse (política y mayoría de edad) → hacer el test → ver el podio y el historial. Sin Google: las sesiones se siembran firmadas en una base propia. "Entrenador ve resultado" se suma con el panel (Fase 3).
 - CI en GitHub Actions: lint, typecheck, tests, migraciones en seco.
 
 ## 5. Despliegue (D5: Cloudflare + Fly.io + Neon; pasos en `docs/deploy.md`)

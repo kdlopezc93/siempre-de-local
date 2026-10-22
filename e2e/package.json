@@ -1,0 +1,19 @@
+{
+  "name": "@sdl/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "e2e": "pnpm --filter \"@sdl/api...\" build && playwright test",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0",
+    "@sdl/config": "workspace:*",
+    "@sdl/contracts": "workspace:*",
+    "@types/node": "24.19.2",
+    "@types/pg": "8.23.1",
+    "better-auth": "1.7.12",
+    "pg": "8.23.1"
+  }
+}

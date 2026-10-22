@@ -55,7 +55,8 @@ function selfDestroyingServiceWorker(): Plugin {
 function tunnelProxy(publicOrigin: string): Record<string, ProxyOptions> {
   return {
     '/api': {
-      target: 'http://localhost:3000',
+      // e2e levanta su propio API en otro puerto (e2e/README.md).
+      target: process.env.SDL_API_TARGET ?? 'http://localhost:3000',
       xfwd: true,
       configure: (proxy) => {
         proxy.on('proxyReq', (proxyReq) => {
@@ -153,7 +154,7 @@ export default defineConfig({
   preview: {
     port: TUNNEL_PORT,
     strictPort: true,
-    allowedHosts: ['.devtunnels.ms'],
+    allowedHosts: ['.devtunnels.ms', APP_HOST],
     ...(TUNNEL_ORIGIN ? { proxy: tunnelProxy(TUNNEL_ORIGIN) } : {}),
   },
 });
