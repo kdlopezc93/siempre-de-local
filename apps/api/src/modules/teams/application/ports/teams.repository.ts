@@ -12,6 +12,8 @@ export interface TeamRecord {
 export interface TeamsRepository {
   findById(teamId: string): Promise<TeamRecord | null>;
   updateSettings(teamId: string, settings: { ratingsVisibleToPlayers: boolean }): Promise<void>;
+  /** Cambia el dorsal del jugador activo; false si no es jugador activo del equipo. */
+  setJerseyNumber(teamId: string, userId: string, jerseyNumber: number | null): Promise<boolean>;
 }
 
 export const TEAMS_REPOSITORY = Symbol('TEAMS_REPOSITORY');

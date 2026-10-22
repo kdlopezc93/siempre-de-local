@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { createAssessment, fetchPlayerProfile, fetchSquad } from '../../shared/api/squad';
 import { downloadTeamExport } from '../../shared/api/team-data';
+import { updateMember } from '../../shared/api/teams';
 import { saveFile } from '../../shared/save-file';
 
 const squadKey = (teamId: string) => ['team', teamId, 'squad'] as const;
@@ -33,5 +34,14 @@ export function useExportTeam(teamId: string) {
   return useMutation({
     mutationFn: () => downloadTeamExport(teamId),
     onSuccess: ({ blob, filename }) => saveFile(blob, filename),
+  });
+}
+
+/** El dorsal se ve en la plantilla, el perfil y el CSV: se refresca todo lo del equipo. */
+export function useSetJersey(teamId: string, playerId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (jerseyNumber: number | null) => updateMember(teamId, playerId, { jerseyNumber }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team', teamId] }),
   });
 }

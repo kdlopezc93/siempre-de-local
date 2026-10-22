@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { TeamResponse, UpdateTeamRequest } from '@sdl/contracts';
+import type { TeamResponse, UpdateMemberRequest, UpdateTeamRequest } from '@sdl/contracts';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
 import { ForbiddenError, NotFoundError } from '../../../shared/errors/application-errors.js';
@@ -44,5 +44,39 @@ export class UpdateTeam {
       meta: { ...patch },
     });
     return { team: { ...team, ...patch }, myRoles: [...(actor.teams.get(team.id) ?? [])] };
+  }
+}
+
+/** El cuerpo técnico pone el dorsal de un jugador (coach y admin del club). */
+@Injectable()
+export class UpdateMember {
+  constructor(
+    @Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+  ) {}
+
+  async execute(
+    actor: Actor,
+    teamId: string,
+    userId: string,
+    patch: UpdateMemberRequest,
+  ): Promise<void> {
+    const team = await this.teams.findById(teamId);
+    if (!team) throw new NotFoundError('Equipo no encontrado');
+    if (!can(actor, 'team.members.manage', { teamId: team.id, clubId: team.club.id })) {
+      throw new ForbiddenError('No tienes permiso para esto');
+    }
+    // El coach solo gestiona jugadores (04 §2.2): el dorsal es de la fila de jugador.
+    if (!(await this.teams.setJerseyNumber(team.id, userId, patch.jerseyNumber))) {
+      throw new NotFoundError('Ese jugador no está en el equipo', 'PLAYER_NOT_IN_TEAM');
+    }
+    await this.audit.record({
+      actorUserId: actor.userId,
+      action: 'team.member_updated',
+      entity: 'team_membership',
+      entityId: userId,
+      teamId: team.id,
+      meta: { ...patch },
+    });
   }
 }
