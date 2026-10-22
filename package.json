@@ -21,6 +21,7 @@
     "db:check": "pnpm --filter @sdl/api db:check",
     "db:seed": "pnpm --filter \"@sdl/api...\" build && pnpm --filter @sdl/api db:seed",
     "admin:bootstrap-team": "pnpm --filter \"@sdl/api...\" build && pnpm --filter @sdl/api admin:bootstrap-team",
+    "admin:seed-demo": "pnpm --filter \"@sdl/api...\" build && pnpm --filter @sdl/api admin:seed-demo",
     "proxy:up": "docker compose up -d proxy",
     "dev:tunnel": "bash scripts/dev-tunnel.sh",
     "preview:tunnel": "bash scripts/preview-tunnel.sh",
