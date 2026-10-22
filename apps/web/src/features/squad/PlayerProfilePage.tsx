@@ -9,8 +9,8 @@ import { RATED_ON } from '../card/card-view';
 import { PlayerCard } from '../card/PlayerCard';
 import { useTeam } from '../team-admin/use-invitations';
 import styles from './PlayerProfilePage.module.css';
-import { agreement } from './profile-view';
-import { usePlayerProfile, useSetJersey } from './use-squad';
+import { agreement, jerseyHolders } from './profile-view';
+import { usePlayerProfile, useSetJersey, useSquad } from './use-squad';
 
 const FOOT = { left: 'Zurdo', right: 'Diestro', both: 'Ambidiestro' } as const;
 const name = (pos: PositionCode) => POSITIONS[pos].name;
@@ -252,6 +252,8 @@ function JerseyEditor({
   current: number | null;
 }) {
   const setJersey = useSetJersey(teamId, playerId);
+  // La plantilla casi siempre ya está en caché (se llega al perfil desde ella).
+  const squad = useSquad(teamId);
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(current?.toString() ?? '');
   const [invalid, setInvalid] = useState(false);
@@ -268,6 +270,12 @@ function JerseyEditor({
     setInvalid(false);
     setJersey.mutate(n, { onSuccess: () => setEditing(false) });
   }
+
+  const typed = value.trim() === '' ? null : Number(value);
+  const holders =
+    typed !== null && typed !== current && squad.data
+      ? jerseyHolders(squad.data.players, typed, playerId)
+      : [];
 
   if (!editing) {
     return (
@@ -304,7 +312,7 @@ function JerseyEditor({
           onChange={(event) => setValue(event.target.value.replace(/\D/g, ''))}
         />
         <button type="submit" className={styles.primaryLink} disabled={setJersey.isPending}>
-          {setJersey.isPending ? 'Guardando…' : 'Guardar'}
+          {setJersey.isPending ? 'Guardando…' : holders.length ? 'Guardar igual' : 'Guardar'}
         </button>
         <button
           type="button"
@@ -315,10 +323,16 @@ function JerseyEditor({
           Cancelar
         </button>
       </div>
-      <p id={hintId} className={invalid ? styles.error : styles.muted}>
+      <p
+        id={hintId}
+        aria-live="polite"
+        className={invalid ? styles.error : holders.length ? styles.warning : styles.muted}
+      >
         {invalid
           ? 'Escribe un número de 0 a 99.'
-          : 'De 0 a 99. Puede repetirse si dos comparten camiseta.'}
+          : holders.length
+            ? `El ${typed} ya lo usa ${listNames(holders)}. Si comparten camiseta, guárdalo igual.`
+            : 'De 0 a 99. Puede repetirse si dos comparten camiseta.'}
       </p>
       {current !== null && (
         <button
@@ -337,4 +351,8 @@ function JerseyEditor({
       )}
     </form>
   );
+}
+
+function listNames(names: string[]): string {
+  return names.length === 1 ? names[0]! : `${names.slice(0, -1).join(', ')} y ${names.at(-1)}`;
 }

@@ -244,6 +244,11 @@
   border-color: var(--sdl-danger);
 }
 
+.warning {
+  color: var(--sdl-primary);
+  font-size: var(--sdl-text-sm);
+}
+
 .error {
   color: var(--sdl-danger-fg);
   font-size: var(--sdl-text-sm);
