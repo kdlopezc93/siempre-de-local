@@ -81,7 +81,7 @@ Plan en PRs (acordado el 2026-10-22):
 | 4 | API del examen: empezar, responder (una a una), entregar o abandonar, plazo en servidor; `/certification/positions`, `/me/cert-exams`; `db:seed -- --drafts` (solo desarrollo) | #42 ✔ |
 | 5 | Pantallas del jugador: elegir posición, examen con reloj, resultado con desglose por área | #43 ✔ |
 | 6 | API del cuerpo técnico: conocimiento en plantilla, perfil y CSV; anular; re-evaluación | #46 ✔ |
-| 7 | Pantallas: lo del PR 6 para el cuerpo técnico, y la re-evaluación y los anulados para el jugador | |
+| 7 | Pantallas: lo del PR 6 para el cuerpo técnico, y la re-evaluación y los anulados para el jugador | #47 ✔ (+ arreglo #48) |
 
 Decisiones de este plan:
 - **Posiciones piloto:** Defensa central y Mediocentro (distintas entre sí, existen en F8 y F11).
@@ -89,7 +89,16 @@ Decisiones de este plan:
 - **Dónde viven los bancos:** archivos en el repo, revisados en un PR y con el lint en la CI. La pantalla de administración queda para cuando haya varios revisores.
 
 ### Fase 5 · Alineaciones y validación
-- Reconciliar con `planificador-partido.jsx` (D6).
+Plan en PRs (2026-10-22; decisiones en `02` §9.5):
+
+| # | PR | Estado |
+|---|---|---|
+| 1 | Dominio: encaje `fit-v1`, húngaro, formaciones F8/F11, fijados, conocimiento mínimo, prioridad por línea, banca y avisos | |
+| 2 | API: señales de cada jugador para el planificador (respetando a ciegas) y guardar alineaciones | |
+| 3 | Planificador en el celular: convocatoria, formación, modos, pizarra, armar a mano, desglose, guardar | |
+| 4 | Informe de validación: test vs. entrenador (solo `blind`) y conocimiento vs. tarjeta | |
+
+- Reconciliar con `planificador-partido.jsx` (D6): **hecho**, ver `02` §9.5.
 - Encaje multi-fuente (A/V/C/R, con C = conocimiento corregido por azar), modos, umbral opcional de conocimiento mínimo, fijar jugadores, desglose explicable.
 - Informe de validación (test vs. entrenador; conocimiento vs. tarjeta).
 
@@ -136,13 +145,13 @@ Decisiones de este plan:
 | D3 | ¿Multi-club desde el día 1? | Modelo multi-club, UI de un club |
 | D4 | ¿Cuántos intentos del test cuentan? | Todos se guardan; panel usa el último oficial; el entrenador puede anular |
 | D5 | Dominio y hosting | Elegir al cerrar la Fase 2, antes del primer equipo. Comparativa de oct-2026: Cloudflare (dominio, DNS, Pages) + Fly.io (API en `iad`) + Neon (`us-east-1`), ≈ US$0–4/mes en staging; dominio candidato `siempredelocal.app`. Revisar precios al momento |
-| D6 | Adjuntar `planificador-partido.jsx` | Necesario antes de Fase 5 |
+| D6 | Adjuntar `planificador-partido.jsx` | **Resuelto** (2026-10-22): se conserva su mecánica y se cambia su puntaje por el encaje v2 (`02` §9.5) |
 | D7 | Revisión legal de la política de datos | Antes de usar con equipos reales. Borrador en `docs/legal/politica-tratamiento-datos.md`: completar los `[…]` (responsable, contacto, plazos) y revisar la transferencia internacional (art. 26) |
 | D8 | ¿El jugador ve su tarjeta 0–99? | **Decidido: sí, configurable por equipo** (`team.ratings_visible_to_players`, interruptor del entrenador) (2026-10-22) |
 | D9 | Vigencia del puntaje de conocimiento | **Decidido: no caduca.** Un intento por posición cada 30 días. Reabrir solo si se ve que puntajes viejos no reflejan la realidad |
 | D10 | ¿Quién escribe los bancos de conocimiento? | Kevin + un entrenador revisor por posición; nunca un entrenador cuyos jugadores vayan a examinarse sin rotar revisores |
 | D11 | ¿Los compañeros ven el conocimiento de otros? | Solo la banda, sin puntaje |
-| D12 | Formación por defecto para F8 y F11 en el planificador | Definir con el planificador original |
+| D12 | Formación por defecto para F8 y F11 en el planificador | **Decidido** (2026-10-22): F8 1-3-3-1 (más 1-2-4-1, 1-3-4, 1-2-3-2, del prototipo); F11 1-4-3-3 (más 1-4-4-2, 1-4-2-3-1, 1-3-5-2) |
 | D13 | Plazo por defecto para presentar una re-evaluación | 14 días; al vencer, C = 0 en el planificador hasta que presente |
 
 ## Cómo trabajar con Claude en este proyecto
