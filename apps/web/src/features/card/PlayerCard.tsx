@@ -16,7 +16,17 @@ type Card = Pick<PlayerRating, 'ratedAt' | 'values' | 'positionAverages'>;
  * La ficha 0–99: su mejor media del formato en grande, los atributos y las medias por
  * posición. La comparten el jugador (su tarjeta) y el cuerpo técnico.
  */
-export function PlayerCard({ card, format }: { card: Card; format: MatchFormat }) {
+export function PlayerCard({
+  card,
+  format,
+  headingLevel = 2,
+}: {
+  card: Card;
+  format: MatchFormat;
+  /** Nivel de sus subtítulos: 3 si la ficha va dentro de una sección con h2. */
+  headingLevel?: 2 | 3;
+}) {
+  const Heading = headingLevel === 2 ? 'h2' : 'h3';
   const ranked = rankedAverages(card.positionAverages, format);
   const best = ranked[0];
   const hasGoalkeeper = card.values.GK_DIV !== undefined;
@@ -38,12 +48,12 @@ export function PlayerCard({ card, format }: { card: Card; format: MatchFormat }
       <Attributes codes={OUTFIELD_ATTRIBUTES} values={card.values} />
       {hasGoalkeeper && (
         <>
-          <h2 className={styles.groupTitle}>De portero</h2>
+          <Heading className={styles.groupTitle}>De portero</Heading>
           <Attributes codes={GOALKEEPER_ATTRIBUTES} values={card.values} />
         </>
       )}
 
-      <h2 className={styles.groupTitle}>Media por posición</h2>
+      <Heading className={styles.groupTitle}>Media por posición</Heading>
       <ol className={styles.averages}>
         {ranked.map(({ pos, value }, i) => (
           <li key={pos} className={i === 0 ? styles.top : undefined}>

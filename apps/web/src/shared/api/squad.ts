@@ -1,8 +1,10 @@
 import {
   AssessmentResponseSchema,
+  PlayerProfileResponseSchema,
   SquadResponseSchema,
   type Assessment,
   type CreateAssessmentRequest,
+  type PlayerProfileResponse,
   type SquadResponse,
 } from '@sdl/contracts';
 
@@ -22,4 +24,14 @@ export async function createAssessment(
     { method: 'POST', body: JSON.stringify(request) },
   );
   return assessment;
+}
+
+export function fetchPlayerProfile(
+  teamId: string,
+  playerId: string,
+): Promise<PlayerProfileResponse> {
+  return apiRequest(
+    `/api/v1/teams/${teamId}/players/${playerId}/profile`,
+    PlayerProfileResponseSchema,
+  );
 }

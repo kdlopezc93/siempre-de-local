@@ -24,6 +24,7 @@ import {
   TEAM_PLAYERS_QUERY,
   type TeamPlayersQuery,
 } from './ports/squad.ports.js';
+import { assessesIn, testView } from './staff-view.js';
 
 @Injectable()
 export class GetSquad {
@@ -51,10 +52,7 @@ export class GetSquad {
       this.assessments.assessedBy(actor.userId, teamId),
       this.ratings.latestByTeam(teamId),
     ]);
-    // Quien valora (coach o assistant) no ve el test hasta haber valorado al jugador:
-    // así su primera valoración es a ciegas (06 · Fase 3). El admin del club no valora.
-    const roles = actor.teams.get(teamId) ?? [];
-    const assesses = roles.includes('coach') || roles.includes('assistant');
+    const assesses = assessesIn(actor, teamId);
 
     return {
       players: players
@@ -63,16 +61,7 @@ export class GetSquad {
           const result = results.get(player.userId);
           const mine = assessedByMe.has(player.userId);
           const card = cards.get(player.userId);
-          const test: SquadResponse['players'][number]['test'] = !result
-            ? { status: 'none' }
-            : assesses && !mine
-              ? { status: 'hidden' }
-              : {
-                  status: 'visible',
-                  attemptId: result.attemptId,
-                  submittedAt: result.submittedAt.toISOString(),
-                  podium: result.podium,
-                };
+          const test = testView(result, assesses && !mine);
           return {
             userId: player.userId,
             displayName: profile.displayName,

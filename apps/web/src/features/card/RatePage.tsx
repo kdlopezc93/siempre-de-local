@@ -14,6 +14,7 @@ import { Link, useNavigate } from 'react-router';
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
+import { useBackTo } from '../squad/back';
 import { useSquad } from '../squad/use-squad';
 import { useTeam } from '../team-admin/use-invitations';
 import { rankedAverages } from './card-view';
@@ -29,7 +30,7 @@ export function RatePage({ teamId, playerId }: { teamId: string; playerId: strin
   const squad = useSquad(teamId);
   const history = useRatingHistory(teamId, playerId);
 
-  const cardPath = `/equipos/${teamId}/plantilla/${playerId}/tarjeta`;
+  const cardPath = useBackTo(`/equipos/${teamId}/plantilla/${playerId}/tarjeta`);
   if (team.isPending || squad.isPending || history.isPending) {
     return (
       <Screen>
@@ -44,7 +45,7 @@ export function RatePage({ teamId, playerId }: { teamId: string; playerId: strin
     return (
       <Screen className={styles.screen}>
         <Link to={cardPath} className={styles.back}>
-          Volver a la tarjeta
+          {cardPath.endsWith('/tarjeta') ? 'Volver a la tarjeta' : 'Volver al perfil'}
         </Link>
         <p role="alert">Ese jugador no está en la plantilla.</p>
       </Screen>
@@ -126,7 +127,7 @@ function RateForm({
   return (
     <Screen className={styles.screen}>
       <Link to={cardPath} className={styles.back}>
-        Volver a la tarjeta
+        {cardPath.endsWith('/tarjeta') ? 'Volver a la tarjeta' : 'Volver al perfil'}
       </Link>
       <header>
         <h1 className={styles.title}>Puntuar a {name}</h1>

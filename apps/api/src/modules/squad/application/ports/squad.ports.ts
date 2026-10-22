@@ -15,10 +15,16 @@ export interface ProfilesQuery {
 }
 export const PROFILES_QUERY = Symbol('PROFILES_QUERY');
 
+export interface LatestResult {
+  attemptId: string;
+  submittedAt: Date;
+  podium: PositionCode[];
+  /** Afinidad 0–1 de cada posición del formato, de mayor a menor. */
+  ranking: { pos: PositionCode; pct: number }[];
+}
+
 /** Último resultado oficial de cada jugador en el equipo (lo implementa quiz). */
 export interface LatestResultsQuery {
-  latestByTeam(
-    teamId: string,
-  ): Promise<Map<string, { attemptId: string; submittedAt: Date; podium: PositionCode[] }>>;
+  latestByTeam(teamId: string): Promise<Map<string, LatestResult>>;
 }
 export const LATEST_RESULTS_QUERY = Symbol('LATEST_RESULTS_QUERY');

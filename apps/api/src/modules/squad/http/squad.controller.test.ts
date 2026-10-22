@@ -4,6 +4,7 @@ import {
   AssessmentListResponseSchema,
   AssessmentResponseSchema,
   ErrorBodySchema,
+  PlayerProfileResponseSchema,
   POLICY_VERSION,
   QuestionnaireResponseSchema,
   SquadResponseSchema,
@@ -189,5 +190,47 @@ describe('plantilla y valoraciones (a ciegas impuesto)', () => {
       confidence: 6,
     });
     expect(bad.statusCode).toBe(400);
+  });
+
+  describe('perfil del jugador', () => {
+    const profile = (who: SeededUser, playerId: string) =>
+      call('GET', `/teams/${teamId}/players/${playerId}/profile`, who);
+
+    it('junta perfil, test, valoraciones y tarjeta; el test sigue la regla a ciegas', async () => {
+      // El asistente aún no valoró a Ana: ve sus datos y valoraciones, pero no su test.
+      const hidden = PlayerProfileResponseSchema.parse(
+        (await profile(assistant, tested.userId)).json(),
+      );
+      expect(hidden.player).toMatchObject({ userId: tested.userId, displayName: 'Ana Probada' });
+      expect(hidden.test).toEqual({ status: 'hidden' });
+      expect(hidden.assessments.map((a) => a.primaryPosition)).toEqual(['MCD', 'DFC']);
+      expect(hidden.assessedByMe).toBe(false);
+      expect(JSON.stringify(hidden)).not.toMatch(/podium|ranking/);
+
+      await call('POST', `/teams/${teamId}/players/${tested.userId}/ratings`, coach, {
+        values: { PAC: 80, SHO: 60, PAS: 70, DRI: 75, DEF: 40, PHY: 65 },
+      });
+      const seen = PlayerProfileResponseSchema.parse((await profile(coach, tested.userId)).json());
+      expect(seen.test.status).toBe('visible');
+      if (seen.test.status === 'visible') {
+        expect(seen.test.ranking).toHaveLength(8);
+        expect(seen.test.ranking.slice(0, 3).map((r) => r.pos)).toEqual(seen.test.podium);
+      }
+      expect(seen.card?.positionAverages.EXT).toBe(74);
+      expect(seen.cardCount).toBe(1);
+    });
+
+    it('sin test ni tarjeta, lo dice; fuera del equipo, 404; jugadores y de afuera, 403', async () => {
+      const beto = PlayerProfileResponseSchema.parse(
+        (await profile(owner, untested.userId)).json(),
+      );
+      expect(beto).toMatchObject({ test: { status: 'none' }, card: null, cardCount: 0 });
+
+      const res = await profile(coach, outsider.userId);
+      expect(res.statusCode).toBe(404);
+      expect(ErrorBodySchema.parse(res.json()).error.code).toBe('PLAYER_NOT_IN_TEAM');
+      expect((await profile(tested, tested.userId)).statusCode).toBe(403);
+      expect((await profile(outsider, tested.userId)).statusCode).toBe(403);
+    });
   });
 });
