@@ -2,15 +2,17 @@ import type { CertBankContent } from '../../../application/cert-bank.js';
 import { q } from './authoring.js';
 
 /**
- * Defensa central, v1 (borrador, 2026-10-22). Lo redactó Claude a partir de los principios
- * de la posición; falta la revisión de Kevin y un entrenador (D10) antes de publicarlo.
+ * Defensa central, v1 (2026-10-22). Lo redactó Claude a partir de los principios de la
+ * posición; lo revisaron Kevin, una auditoría psicométrica y un entrenador (D10).
  * Nivel: fútbol amateur, no profesional. 10 preguntas por área: 3 fáciles, 5 medias y
  * 2 difíciles.
  */
 export const DFC_V1: CertBankContent = {
   position: 'DFC',
   label: 'v1',
-  review: null,
+  // Revisado por un entrenador el 2026-10-22 (D10), además de la auditoría psicométrica
+  // (docs/bancos/revisiones/). Su nombre se completa cuando llegue.
+  review: { by: 'Entrenador revisor (nombre pendiente)', on: '2026-10-22' },
   areas: [
     { code: 'marcaje', name: 'Marcaje y duelos' },
     { code: 'linea', name: 'Línea defensiva y fuera de juego' },

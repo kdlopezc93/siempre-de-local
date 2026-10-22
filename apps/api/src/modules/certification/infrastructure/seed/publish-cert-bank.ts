@@ -5,7 +5,7 @@ import type { Database } from '../../../../shared/db/client.js';
 import type { CertBankContent } from '../../application/cert-bank.js';
 import { certArea, certBankVersion, certItem, certOption } from '../schema.js';
 
-export type PublishOutcome = 'published' | 'already-exists' | 'pending-review';
+export type PublishOutcome = 'published' | 'already-exists' | 'review-updated' | 'pending-review';
 
 export function bankConfig(bank: CertBankContent): ExamConfig {
   return { ...DEFAULT_EXAM_CONFIG, ...bank.config };
@@ -49,12 +49,27 @@ export async function publishCertBank(
 
   return db.transaction(async (tx) => {
     const [existing] = await tx
-      .select({ id: certBankVersion.id })
+      .select({
+        id: certBankVersion.id,
+        reviewedBy: certBankVersion.reviewedBy,
+        reviewedOn: certBankVersion.reviewedOn,
+      })
       .from(certBankVersion)
       .where(
         and(eq(certBankVersion.position, bank.position), eq(certBankVersion.label, bank.label)),
       );
-    if (existing) return 'already-exists';
+    if (existing) {
+      // El contenido publicado no se toca; quién lo revisó es un dato aparte que se puede
+      // corregir (p. ej. el nombre del entrenador llegó después).
+      if (existing.reviewedBy === review.by && existing.reviewedOn === review.on) {
+        return 'already-exists';
+      }
+      await tx
+        .update(certBankVersion)
+        .set({ reviewedBy: review.by, reviewedOn: review.on })
+        .where(eq(certBankVersion.id, existing.id));
+      return 'review-updated';
+    }
 
     // Las áreas son por posición y sobreviven a las versiones: se agregan las nuevas.
     await tx

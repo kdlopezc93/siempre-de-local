@@ -39,6 +39,7 @@ try {
     const said = {
       published: 'publicado',
       'already-exists': 'ya existía',
+      'review-updated': 'ya existía; se actualizó quién lo revisó',
       'pending-review': 'borrador sin revisar, no se publica',
     }[outcome];
     const label = !bank.review && values.drafts ? `${bank.label}-borrador` : bank.label;
