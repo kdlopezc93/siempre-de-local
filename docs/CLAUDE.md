@@ -54,6 +54,7 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | `pnpm e2e` | Playwright: invitar → unirse → test → resultado en Chromium, con su propia base `sdl_e2e` y puertos 3100/4273 (`e2e/`). Requiere `pnpm db:up`; la primera vez, `pnpm --filter @sdl/e2e exec playwright install --with-deps chromium` (pide sudo) |
 | `pnpm build` | Compila todos los paquetes |
 | `pnpm format` | Prettier |
+| `pnpm admin:seed-demo -- --team-id <uuid>` | Llena un equipo con 14 jugadores de demostración (tests y valoraciones de un asistente demo); idempotente, nunca en producción |
 | `pnpm db:up` | Levanta Postgres 18 local (`docker compose up -d --wait db`) |
 | `pnpm db:generate` | Genera la migración SQL a partir del esquema Drizzle |
 | `pnpm db:migrate` | Aplica las migraciones pendientes |

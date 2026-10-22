@@ -39,6 +39,43 @@
   fill: var(--sdl-fg);
 }
 
+/* Modo plantilla: con jugadores, ámbar relleno; huecos, aro ámbar punteado. */
+.filled .dot {
+  fill: var(--sdl-primary);
+  stroke: var(--sdl-primary);
+}
+
+.filled .code {
+  fill: var(--sdl-on-primary);
+}
+
+.gap .dot {
+  fill: var(--sdl-surface);
+  stroke: var(--sdl-primary);
+  stroke-width: 1;
+  stroke-dasharray: 2 1.6;
+}
+
+.gap .code,
+.gap .name {
+  fill: var(--sdl-primary);
+}
+
+.code {
+  font-family: var(--sdl-font-display);
+  font-size: 3.4px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.name {
+  fill: var(--sdl-fg);
+  font-family: var(--sdl-font-body);
+  font-size: 3.6px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
 /* La primera: rellena de ámbar, con un halo que respira. */
 .first .dot {
   fill: var(--sdl-primary);

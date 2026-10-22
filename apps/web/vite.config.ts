@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url';
+
 import react from '@vitejs/plugin-react';
 import { defineConfig, type Plugin, type ProxyOptions } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
@@ -52,6 +54,21 @@ function selfDestroyingServiceWorker(): Plugin {
   };
 }
 
+/**
+ * Los paquetes del monorepo (contracts, domain) se importan desde su fuente pero están
+ * fuera de la carpeta de la web: Vite no se entera si cambian por fuera (p. ej. al
+ * cambiar de rama) y sigue sirviendo la versión vieja. Se vigilan explícitamente.
+ */
+function watchWorkspacePackages(): Plugin {
+  return {
+    name: 'sdl-watch-workspace-packages',
+    apply: 'serve',
+    configureServer(server) {
+      server.watcher.add(fileURLToPath(new URL('../../packages', import.meta.url)));
+    },
+  };
+}
+
 function tunnelProxy(publicOrigin: string): Record<string, ProxyOptions> {
   return {
     '/api': {
@@ -73,6 +90,7 @@ export default defineConfig({
   resolve: { conditions: ['@sdl/source'] },
   plugins: [
     react(),
+    watchWorkspacePackages(),
     ...(TUNNEL_ORIGIN ? [selfDestroyingServiceWorker()] : []),
     VitePWA({
       registerType: 'autoUpdate',
