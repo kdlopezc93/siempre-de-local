@@ -1,5 +1,12 @@
-import type { MatchFormat } from '@sdl/contracts';
-import { DEFAULT_FORMATION, type FitMode, type LinePriority } from '@sdl/domain';
+import type { Lineup, LineupInput, MatchFormat } from '@sdl/contracts';
+import {
+  DEFAULT_FORMATION,
+  FIT_VERSION,
+  MODE_WEIGHTS,
+  type FitMode,
+  type LinePriority,
+  type LineupResult,
+} from '@sdl/domain';
 
 /**
  * Lo que el entrenador decide en el planificador. La alineación se recalcula siempre a
@@ -124,5 +131,57 @@ export function sendToBench(state: PlannerState, playerId: string): PlannerState
     benched: new Set([...state.benched, playerId]),
     pins: without(state.pins, [], [playerId]),
     selected: null,
+  };
+}
+
+/**
+ * Abrir una alineación guardada para editarla: tal cual se guardó, con todos fijados (así
+ * nada se mueve solo aunque hayan cambiado tarjetas o exámenes). Quien ya no está en el
+ * equipo queda fuera.
+ */
+export function fromLineup(lineup: Lineup, currentPlayerIds: readonly string[]): PlannerState {
+  const here = new Set(currentPlayerIds);
+  return {
+    format: lineup.format,
+    formationKey: lineup.formation,
+    mode: lineup.mode,
+    priority: lineup.priority,
+    minKnowledgePct: lineup.minKnowledgePct,
+    available: new Set(lineup.available.filter((id) => here.has(id))),
+    benched: new Set(lineup.bench.filter((id) => here.has(id))),
+    pins: lineup.assignments.flatMap((a) =>
+      a.playerId && here.has(a.playerId) ? [{ slotId: a.slotId, playerId: a.playerId }] : [],
+    ),
+    selected: null,
+  };
+}
+
+/** Lo armado, listo para guardar: la foto completa del cálculo y de lo tocado a mano. */
+export function toLineupInput(
+  state: PlannerState,
+  result: LineupResult,
+  details: { name: string; matchDate: string | null },
+): LineupInput {
+  const pinned = new Set(state.pins.map((p) => p.slotId));
+  return {
+    name: details.name.trim(),
+    matchDate: details.matchDate,
+    formation: state.formationKey,
+    mode: state.mode,
+    weights: { ...MODE_WEIGHTS[state.mode] },
+    priority: state.priority,
+    minKnowledgePct: state.minKnowledgePct,
+    fitVersion: FIT_VERSION,
+    available: [...state.available],
+    pins: [...state.pins],
+    assignments: result.assignments.map((a) => ({
+      slotId: a.slotId,
+      playerId: a.playerId,
+      fit: a.fit,
+      breakdown: a.breakdown,
+      pinned: a.pinned,
+      manual: pinned.has(a.slotId),
+    })),
+    bench: result.bench,
   };
 }

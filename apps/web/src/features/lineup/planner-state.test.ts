@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  fromLineup,
   initialState,
   sendToBench,
   setFormat,
@@ -8,6 +9,7 @@ import {
   tapBench,
   tapSlot,
   toggleAvailable,
+  toLineupInput,
   unpin,
 } from './planner-state';
 
@@ -64,5 +66,72 @@ describe('planificador: armar a mano', () => {
     const f11 = setFormat(pinned, 'F11');
     expect(f11).toMatchObject({ format: 'F11', formationKey: '1-4-3-3', pins: [] });
     expect(setFormat(f11, 'F11')).toBe(f11);
+  });
+});
+
+describe('guardar y abrir', () => {
+  const saved = {
+    id: 'l1',
+    name: 'Fecha 3',
+    matchDate: '2026-11-01',
+    format: 'F8' as const,
+    formation: '1-2-4-1',
+    mode: 'performance' as const,
+    weights: { A: 0.05, V: 0.3, C: 0.15, R: 0.5 },
+    priority: 'defensa' as const,
+    minKnowledgePct: 0.7,
+    fitVersion: 'fit-v1',
+    available: ['ana', 'beto', 'ido'],
+    pins: [],
+    assignments: [
+      { slotId: 'POR', playerId: 'ana', fit: 0.8, breakdown: {}, pinned: false, manual: false },
+      { slotId: 'DFC-1', playerId: 'ido', fit: 0.5, breakdown: {}, pinned: false, manual: false },
+      { slotId: 'DFC-2', playerId: null, fit: null, breakdown: null, pinned: false, manual: false },
+    ],
+    bench: ['beto'],
+    createdBy: null,
+    createdAt: '2026-10-22T10:00:00.000Z',
+    updatedAt: '2026-10-22T10:00:00.000Z',
+  };
+
+  it('abrir la deja tal cual, con todos fijados; quien ya no está queda fuera', () => {
+    const state = fromLineup(saved, ['ana', 'beto']);
+    expect(state).toMatchObject({
+      format: 'F8',
+      formationKey: '1-2-4-1',
+      mode: 'performance',
+      priority: 'defensa',
+      minKnowledgePct: 0.7,
+      pins: [{ slotId: 'POR', playerId: 'ana' }],
+    });
+    expect([...state.available]).toEqual(['ana', 'beto']);
+    expect([...state.benched]).toEqual(['beto']);
+  });
+
+  it('guardar arma la foto: lo fijado a mano queda marcado', () => {
+    const state = { ...initialState('F8', ['ana']), pins: [{ slotId: 'POR', playerId: 'ana' }] };
+    const input = toLineupInput(
+      state,
+      {
+        assignments: [
+          { slotId: 'POR', playerId: 'ana', fit: 0.8, breakdown: { V: 1 }, pinned: true },
+          { slotId: 'DC', playerId: null, fit: null, breakdown: null, pinned: false },
+        ],
+        bench: [],
+        warnings: [],
+      },
+      { name: '  Fecha 4 ', matchDate: '2026-11-08' },
+    );
+    expect(input).toMatchObject({
+      name: 'Fecha 4',
+      matchDate: '2026-11-08',
+      formation: '1-3-3-1',
+      fitVersion: 'fit-v1',
+      available: ['ana'],
+      assignments: [
+        { slotId: 'POR', playerId: 'ana', manual: true },
+        { slotId: 'DC', playerId: null, manual: false },
+      ],
+    });
   });
 });

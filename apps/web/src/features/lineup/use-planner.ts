@@ -19,12 +19,14 @@ export function useLineupInputs(teamId: string) {
 }
 
 /** El planificador: decisiones del entrenador → alineación calculada en el celular. */
-export function usePlanner(inputs: LineupInputsResponse) {
-  const [state, setState] = useState(() =>
-    planner.initialState(
-      inputs.format,
-      inputs.players.map((p) => p.playerId),
-    ),
+export function usePlanner(inputs: LineupInputsResponse, initial?: planner.PlannerState) {
+  const [state, setState] = useState(
+    () =>
+      initial ??
+      planner.initialState(
+        inputs.format,
+        inputs.players.map((p) => p.playerId),
+      ),
   );
   const formation = findFormation(state.formationKey)!;
 

@@ -1,4 +1,4 @@
-import type { LineupInputsResponse, MatchFormat } from '@sdl/contracts';
+import type { Lineup, LineupInput, LineupInputsResponse, MatchFormat } from '@sdl/contracts';
 import {
   formationsFor,
   lineRatings,
@@ -7,23 +7,21 @@ import {
   type FitMode,
   type LinePriority,
   type LineupWarning,
-  type Signal,
 } from '@sdl/domain';
-import { Link } from 'react-router';
+import { useId, useState, type FormEvent } from 'react';
+import { Link, useSearchParams } from 'react-router';
 
+import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
 import { useTeam } from '../team-admin/use-invitations';
 import { fitTone, LineupBoard } from './LineupBoard';
 import styles from './PlannerPage.module.css';
+import { fromLineup, toLineupInput } from './planner-state';
+import { SlotBreakdown } from './SlotBreakdown';
+import { useLineup, useSaveLineup } from './use-lineups';
 import { useLineupInputs, usePlanner } from './use-planner';
 
-const SIGNALS: { key: Signal; label: string }[] = [
-  { key: 'V', label: 'Cuerpo técnico' },
-  { key: 'R', label: 'Tarjeta' },
-  { key: 'C', label: 'Conocimiento' },
-  { key: 'A', label: 'Test' },
-];
 const FORMATS: { value: MatchFormat; label: string }[] = [
   { value: 'F11', label: 'Fútbol 11' },
   { value: 'F8', label: 'Fútbol 8' },
@@ -45,12 +43,16 @@ const percent = (x: number) => `${Math.round(x * 100)}%`;
 export function PlannerPage({ teamId }: { teamId: string }) {
   const team = useTeam(teamId);
   const inputs = useLineupInputs(teamId);
+  // ?alineacion=<id>: editar una guardada.
+  const [params] = useSearchParams();
+  const editingId = params.get('alineacion');
+  const saved = useLineup(teamId, editingId);
   const back = (
     <Link to={`/equipos/${teamId}/plantilla`} className={styles.back}>
       Volver a la plantilla
     </Link>
   );
-  if (team.isPending || inputs.isPending) {
+  if (team.isPending || inputs.isPending || (editingId && saved.isPending)) {
     return (
       <Screen>
         <p className="sr-only" role="status">
@@ -81,19 +83,39 @@ export function PlannerPage({ teamId }: { teamId: string }) {
       </Screen>
     );
   }
-  return <Planner teamName={team.data.team.name} inputs={inputs.data} back={back} />;
+  return (
+    <Planner
+      teamId={teamId}
+      teamName={team.data.team.name}
+      inputs={inputs.data}
+      back={back}
+      saved={saved.data ?? null}
+    />
+  );
 }
 
 function Planner({
+  teamId,
   teamName,
   inputs,
   back,
+  saved,
 }: {
+  teamId: string;
   teamName: string;
   inputs: LineupInputsResponse;
   back: React.ReactNode;
+  saved: Lineup | null;
 }) {
-  const p = usePlanner(inputs);
+  const p = usePlanner(
+    inputs,
+    saved
+      ? fromLineup(
+          saved,
+          inputs.players.map((x) => x.playerId),
+        )
+      : undefined,
+  );
   const { state, formation, result } = p;
   const names = new Map(inputs.players.map((x) => [x.playerId, x.displayName]));
   const jerseys = new Map(inputs.players.map((x) => [x.playerId, x.jerseyNumber]));
@@ -274,22 +296,7 @@ function Planner({
                   {percent(detail.fit ?? 0)} de encaje
                 </span>
               </p>
-              <ul className={styles.breakdown}>
-                {SIGNALS.map(({ key, label }) => {
-                  const v = detail.breakdown?.[key];
-                  return (
-                    <li key={key}>
-                      <span>{label}</span>
-                      <span className={styles.bar} aria-hidden="true">
-                        <span style={{ transform: `scaleX(${v ?? 0})` }} />
-                      </span>
-                      <span className={styles.value}>
-                        {v === undefined ? 'sin dato' : percent(v)}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
+              <SlotBreakdown breakdown={detail.breakdown} />
               <div className={styles.detailActions}>
                 {pinnedSlots.has(detailSlot.id) && (
                   <Button variant="secondary" onClick={() => p.unpin(detailSlot.id)}>
@@ -347,6 +354,12 @@ function Planner({
         </section>
       )}
 
+      <SaveSection
+        teamId={teamId}
+        saved={saved}
+        toInput={(details) => toLineupInput(state, result, details)}
+      />
+
       <p className={styles.note}>
         El encaje junta tu valoración, la tarjeta, el examen de conocimiento y el test (este último
         solo de quienes ya valoraste). Es una propuesta: tú decides.
@@ -383,4 +396,112 @@ function warningTexts(
     }
   }
   return [...texts];
+}
+
+const TODAY = () => new Date().toLocaleDateString('en-CA');
+const DAY_NAME = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
+
+/** Guardar lo armado: nombre y fecha del partido; al editar, cambios o una nueva. */
+function SaveSection({
+  teamId,
+  saved,
+  toInput,
+}: {
+  teamId: string;
+  saved: Lineup | null;
+  toInput: (details: { name: string; matchDate: string | null }) => LineupInput;
+}) {
+  const save = useSaveLineup(teamId);
+  const [name, setName] = useState(saved?.name ?? `Partido del ${DAY_NAME.format(new Date())}`);
+  const [date, setDate] = useState(saved?.matchDate ?? TODAY());
+  const [done, setDone] = useState<Lineup | null>(null);
+  // Tras guardar una nueva, los siguientes guardados la actualizan (no duplican).
+  const currentId = done?.id ?? saved?.id ?? null;
+  const nameId = useId();
+  const dateId = useId();
+
+  function persist(asNew: boolean) {
+    if (!name.trim()) return;
+    save.mutate(
+      {
+        input: toInput({ name, matchDate: date || null }),
+        ...(currentId && !asNew ? { lineupId: currentId } : {}),
+      },
+      { onSuccess: setDone },
+    );
+  }
+
+  return (
+    <section aria-labelledby="guardar" className={styles.section}>
+      <h2 id="guardar" className={styles.sectionTitle}>
+        Guardar
+      </h2>
+      {saved && (
+        <p className={styles.muted}>
+          Abriste “{saved.name}” tal cual se guardó: todos quedaron fijados. Suelta los que quieras
+          recalcular.
+        </p>
+      )}
+      <form
+        className={styles.save}
+        onSubmit={(event: FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+          persist(false);
+        }}
+      >
+        <label htmlFor={nameId} className={styles.legend}>
+          Nombre
+        </label>
+        <input
+          id={nameId}
+          name="name"
+          autoComplete="off"
+          maxLength={80}
+          className={styles.input}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <label htmlFor={dateId} className={styles.legend}>
+          Fecha del partido
+        </label>
+        <input
+          id={dateId}
+          name="date"
+          type="date"
+          className={styles.input}
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+        />
+        {save.isError && (
+          <p role="alert" className={styles.error}>
+            {save.error instanceof ApiError && save.error.status < 500
+              ? save.error.message
+              : 'No pudimos guardarla. Si estás sin señal, déjala abierta y guárdala cuando vuelva.'}
+          </p>
+        )}
+        {done && !save.isPending && (
+          <p role="status" className={styles.ok}>
+            Guardada. <Link to={`/equipos/${teamId}/alineaciones/${done.id}`}>Verla</Link>
+          </p>
+        )}
+        <div className={styles.saveActions}>
+          <Button type="submit" busy={save.isPending} disabled={!name.trim()}>
+            {currentId ? 'Guardar cambios' : 'Guardar alineación'}
+          </Button>
+          {currentId && (
+            <Button
+              variant="ghost"
+              disabled={save.isPending || !name.trim()}
+              onClick={() => persist(true)}
+            >
+              Guardar como nueva
+            </Button>
+          )}
+        </div>
+      </form>
+      <Link to={`/equipos/${teamId}/alineaciones`} className={styles.back}>
+        Ver las alineaciones guardadas
+      </Link>
+    </section>
+  );
 }
