@@ -42,6 +42,7 @@ const position = (over: object = {}) => ({
   position: 'DFC',
   bank,
   best: null,
+  review: null,
   nextAttemptAt: null,
   activeExamId: null,
   ...over,
@@ -79,6 +80,9 @@ const finished = {
     { area: AREAS[1], correct: 0, total: 1 },
   ],
   nextAttemptAt: '2026-11-21T10:00:00.000Z',
+  voided: null,
+  superseded: false,
+  fromReview: false,
 };
 
 function renderRoutes(path: string) {

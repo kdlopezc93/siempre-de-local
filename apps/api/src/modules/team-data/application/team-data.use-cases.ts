@@ -76,6 +76,7 @@ export class ExportTeam {
       'Confianza',
       'Valorado_el',
       'Tarjeta_fecha',
+      'Conocimiento',
       ...attributes.map((code) => RATING_ATTRIBUTES[code].short),
       ...positions.map((pos) => `Media_${pos}`),
     ];
@@ -98,6 +99,13 @@ export class ExportTeam {
         a ? String(a.confidence) : '',
         a ? a.createdAt.slice(0, 10) : '',
         card ? card.ratedAt.toISOString().slice(0, 10) : '',
+        // Mejor puntaje por posición; "re-evaluación" si tiene una abierta.
+        p.knowledge
+          .map(
+            (k) =>
+              `${POSITIONS[k.position].name} ${k.pct === null ? '-' : `${Math.round(k.pct * 100)}%`}${k.review ? ' (re-evaluación)' : ''}`,
+          )
+          .join(' | '),
         ...attributes.map((code) => card?.values[code]?.toString() ?? ''),
         ...positions.map((pos) => averages[pos]?.toString() ?? ''),
       ];

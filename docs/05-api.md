@@ -109,11 +109,11 @@ Staff del equipo:
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/teams/:teamId/knowledge` | Mejor puntaje de cada jugador por posición (para compañeros: solo la banda) |
-| POST | `/teams/:teamId/players/:userId/knowledge-reviews` | `{ position, reason, dueInDays? }` (coach, club admin). 409 si ya hay una pendiente |
-| GET | `/teams/:teamId/knowledge-reviews?status=` | Solicitudes del equipo |
-| DELETE | `/teams/:teamId/knowledge-reviews/:id` | Cancelar una pendiente |
-| POST | `/cert-exams/:id/void` | `{ reason, resetInterval? }` Anular un examen (coach, club admin); pasa a contar el mejor de los restantes. `resetInterval` permite repetir sin esperar el mes |
+| GET | `/teams/:teamId/knowledge` | Por ahora va dentro de `/squad` (`knowledge` por jugador) y del perfil (`knowledge`). La vista para compañeros (solo banda, D11) queda para más adelante |
+| POST | `/teams/:teamId/players/:userId/knowledge-reviews` | **Implementado** (coach, admin del club). `{ position, reason (5–500), dueInDays? (1–60, 14 por defecto) }`. 409 `REVIEW_ALREADY_OPEN` si hay una pendiente o vencida; 422 `NO_PUBLISHED_BANK`; 404 `PLAYER_NOT_IN_TEAM`. El jugador la ve en `/certification/positions` (`review`), presenta sin esperar el mes y su resultado reemplaza a los anteriores aunque sea más bajo (los demás quedan `superseded`). Auditado |
+| GET | `/teams/:teamId/knowledge-reviews?status=` | Por ahora no: las abiertas van en el perfil del jugador y en la plantilla |
+| DELETE | `/teams/:teamId/knowledge-reviews/:id` | **Implementado.** Cancela una pendiente o vencida (409 `REVIEW_CLOSED` si ya se cerró). Auditado |
+| POST | `/teams/:teamId/cert-exams/:examId/void` | **Implementado** (coach, admin del club; `team.attempts.void`). `{ reason (5–500), resetInterval? }`. Solo exámenes entregados de jugadores del equipo (si no, 404). 409 `EXAM_ALREADY_VOID`. Pasa a contar el mejor de los restantes; `resetInterval` permite repetir sin esperar el mes. El jugador ve el motivo en `/me/cert-exams` (`voided`). Auditado |
 
 Admin (platform admin, **más adelante**; por ahora los bancos se escriben en el repo, se revisan en un PR y los publica `db:seed`, ver `03` §6): `POST /admin/cert-banks` (borrador, opcionalmente copiando otra versión), `POST/PATCH/DELETE /admin/cert-banks/:id/items[/:itemId]`, `POST /admin/cert-banks/:id/lint` (reglas de calidad), `POST /admin/cert-banks/:id/publish`, `POST /admin/cert-banks/:id/retire` (`{ forQuality: true }` marca sus puntajes "a revisar"), `GET /admin/cert-banks/:id/item-stats` (dificultad y discriminación por ítem).
 

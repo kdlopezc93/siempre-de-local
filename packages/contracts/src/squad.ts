@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { AssessmentSchema } from './assessments.js';
+import { KnowledgeBandSchema, PlayerKnowledgeSchema } from './certification.js';
 import { PositionCodeSchema } from './orientation.js';
 import { ProfileSchema } from './profile.js';
 import { PlayerRatingSchema } from './ratings.js';
@@ -32,6 +33,15 @@ export const SquadResponseSchema = z.object({
       latestAssessment: AssessmentSchema.nullable(),
       /** Si quien pregunta ya lo valoró alguna vez. */
       assessedByMe: z.boolean(),
+      /** Mejor puntaje de conocimiento por posición, y si tiene una re-evaluación abierta. */
+      knowledge: z.array(
+        z.object({
+          position: PositionCodeSchema,
+          pct: z.number().nullable(),
+          band: KnowledgeBandSchema.nullable(),
+          review: z.enum(['pending', 'expired']).nullable(),
+        }),
+      ),
       /** Su tarjeta vigente (la foto más reciente), o null si nadie la puntuó. */
       card: z
         .object({
@@ -75,6 +85,8 @@ export const PlayerProfileResponseSchema = z.object({
   card: PlayerRatingSchema.nullable(),
   /** Cuántas fotos tiene en total (las anteriores se ven en …/ratings). */
   cardCount: z.int(),
+  /** Examen de conocimiento por posición, sus exámenes y re-evaluaciones abiertas. */
+  knowledge: PlayerKnowledgeSchema,
 });
 
 export type PlayerProfileResponse = z.infer<typeof PlayerProfileResponseSchema>;

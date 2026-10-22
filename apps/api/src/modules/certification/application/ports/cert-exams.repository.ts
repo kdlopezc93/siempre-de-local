@@ -34,6 +34,23 @@ export interface StoredExam {
   byArea: { area: string; correct: number; total: number }[] | null;
   underReview: boolean;
   supersededAt: Date | null;
+  reviewRequestId: string | null;
+  voidReason: string | null;
+  voidedAt: Date | null;
+  voidResetsInterval: boolean;
+}
+
+export interface StoredReview {
+  id: string;
+  teamId: string;
+  playerUserId: string;
+  position: PositionCode;
+  reason: string;
+  requestedAt: Date;
+  dueAt: Date;
+  status: 'pending' | 'completed' | 'expired' | 'cancelled';
+  requestedBy: { id: string; name: string } | null;
+  resolvedExamId: string | null;
 }
 
 /** Una pregunta del examen tal como se mostró. `correctOptionId` nunca sale del API. */
@@ -55,6 +72,8 @@ export interface NewExam {
   startedAt: Date;
   deadlineAt: Date;
   nextAttemptAt: Date;
+  /** Si responde una re-evaluación. */
+  reviewRequestId: string | null;
   items: { itemId: string; optionOrder: string[] }[];
 }
 
@@ -84,6 +103,35 @@ export interface CertExamsRepository {
   saveAnswer(examId: string, itemId: string, optionId: string, at: Date): Promise<void>;
   /** Cierra si sigue en curso; false si otra petición ya lo cerró. */
   closeExam(examId: string, closing: ExamClosing): Promise<boolean>;
+  /** Anula un examen entregado; false si no estaba entregado. */
+  voidExam(
+    examId: string,
+    voiding: { reason: string; by: string; at: Date; resetsInterval: boolean },
+  ): Promise<boolean>;
+  /** Marca como sustituidos los exámenes entregados de esa posición anteriores a `before`. */
+  supersedeEarlier(userId: string, position: PositionCode, before: Date, at: Date): Promise<void>;
+  /** Exámenes de varias personas (para la plantilla). */
+  examsOfUsers(userIds: string[]): Promise<StoredExam[]>;
+
+  /** Pasa a vencidas las pendientes con plazo cumplido. */
+  expireDueReviews(now: Date): Promise<void>;
+  /** Abiertas (pendientes o vencidas) de esas personas. */
+  openReviews(userIds: string[]): Promise<StoredReview[]>;
+  findReview(reviewId: string): Promise<StoredReview | null>;
+  /** 'already-open' si ya hay una abierta para esa persona y posición. */
+  createReview(review: {
+    teamId: string;
+    playerUserId: string;
+    position: PositionCode;
+    requestedBy: string;
+    reason: string;
+    requestedAt: Date;
+    dueAt: Date;
+  }): Promise<StoredReview | 'already-open'>;
+  closeReview(
+    reviewId: string,
+    close: { status: 'completed' | 'cancelled'; at: Date; resolvedExamId?: string },
+  ): Promise<void>;
 }
 
 export const CERT_EXAMS_REPOSITORY = Symbol('CERT_EXAMS_REPOSITORY');

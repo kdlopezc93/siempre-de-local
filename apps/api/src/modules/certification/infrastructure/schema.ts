@@ -162,6 +162,14 @@ export const certExam = pgTable(
     underReview: boolean().notNull().default(false),
     /** Lo marca una re-evaluación completada: deja de contar (02 §6.7). */
     supersededAt: timestamp({ withTimezone: true }),
+    /** Si se presentó para responder una re-evaluación. */
+    reviewRequestId: uuid(),
+    /** Anulación por el cuerpo técnico (02 §6.6): motivo obligatorio, visible al jugador. */
+    voidReason: text(),
+    voidedBy: uuid().references(() => user.id, { onDelete: 'set null' }),
+    voidedAt: timestamp({ withTimezone: true }),
+    /** Al anular, permite repetir sin esperar el mes. */
+    voidResetsInterval: boolean().notNull().default(false),
   },
   (t) => [
     index().on(t.userId, t.position, t.startedAt.desc()),
@@ -190,4 +198,44 @@ export const certExamItem = pgTable(
     answeredAt: timestamp({ withTimezone: true }),
   },
   (t) => [primaryKey({ columns: [t.examId, t.itemId] })],
+);
+
+export const certReviewStatus = pgEnum('cert_review_status', [
+  'pending',
+  'completed',
+  'expired',
+  'cancelled',
+]);
+
+/**
+ * Re-evaluación pedida por el cuerpo técnico (02 §6.7). Vencida sigue abierta: el jugador
+ * todavía puede presentarla, y mientras no lo haga ese puntaje cuenta 0 en el planificador.
+ */
+export const certReviewRequest = pgTable(
+  'cert_review_request',
+  {
+    id: id(),
+    teamId: uuid()
+      .notNull()
+      .references(() => team.id),
+    playerUserId: uuid()
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    position: positionCode().notNull(),
+    requestedBy: uuid().references(() => user.id, { onDelete: 'set null' }),
+    /** Obligatorio y visible para el jugador: no es un castigo sin explicación. */
+    reason: text().notNull(),
+    requestedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+    dueAt: timestamp({ withTimezone: true }).notNull(),
+    status: certReviewStatus().notNull().default('pending'),
+    resolvedExamId: uuid().references(() => certExam.id),
+    closedAt: timestamp({ withTimezone: true }),
+  },
+  (t) => [
+    index().on(t.teamId),
+    // Una abierta (pendiente o vencida) por jugador y posición.
+    uniqueIndex('cert_review_request_one_open')
+      .on(t.playerUserId, t.position)
+      .where(sql`${t.status} in ('pending', 'expired')`),
+  ],
 );

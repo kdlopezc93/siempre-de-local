@@ -94,6 +94,7 @@ describe('examen de conocimiento', () => {
           ],
         },
         best: null,
+        review: null,
         nextAttemptAt: null,
         activeExamId: null,
       },

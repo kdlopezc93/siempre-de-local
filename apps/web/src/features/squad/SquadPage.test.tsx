@@ -33,6 +33,7 @@ const SQUAD = {
       test: { status: 'hidden' },
       latestAssessment: null,
       assessedByMe: false,
+      knowledge: [],
       card: null,
     },
     {
@@ -58,6 +59,7 @@ const SQUAD = {
         createdAt: '2026-10-21T10:00:00.000Z',
       },
       assessedByMe: true,
+      knowledge: [],
       card: { ratedAt: '2026-10-21T10:00:00.000Z', positionAverages: { EXT: 74, DC: 67, LAT: 60 } },
     },
   ],

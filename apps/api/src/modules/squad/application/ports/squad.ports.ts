@@ -1,5 +1,5 @@
 import type { PositionCode } from '@sdl/domain';
-import type { Profile } from '@sdl/contracts';
+import type { PlayerKnowledge, Profile, SquadPlayer } from '@sdl/contracts';
 
 /** Jugadores activos del equipo (lo implementa teams). */
 export interface TeamPlayersQuery {
@@ -28,3 +28,10 @@ export interface LatestResultsQuery {
   latestByTeam(teamId: string): Promise<Map<string, LatestResult>>;
 }
 export const LATEST_RESULTS_QUERY = Symbol('LATEST_RESULTS_QUERY');
+
+/** Conocimiento por posición (lo implementa certification). */
+export interface KnowledgeQuery {
+  ofPlayer(userId: string, now?: Date): Promise<PlayerKnowledge>;
+  summaryOf(userIds: string[], now?: Date): Promise<Map<string, SquadPlayer['knowledge']>>;
+}
+export const KNOWLEDGE_QUERY = Symbol('KNOWLEDGE_QUERY');

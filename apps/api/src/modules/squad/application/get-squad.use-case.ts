@@ -17,6 +17,8 @@ import {
   type RatingsRepository,
 } from '../../ratings/application/ports/ratings.repository.js';
 import {
+  KNOWLEDGE_QUERY,
+  type KnowledgeQuery,
   LATEST_RESULTS_QUERY,
   type LatestResultsQuery,
   PROFILES_QUERY,
@@ -35,6 +37,7 @@ export class GetSquad {
     @Inject(LATEST_RESULTS_QUERY) private readonly results: LatestResultsQuery,
     @Inject(ASSESSMENTS_REPOSITORY) private readonly assessments: AssessmentsRepository,
     @Inject(RATINGS_REPOSITORY) private readonly ratings: RatingsRepository,
+    @Inject(KNOWLEDGE_QUERY) private readonly knowledge: KnowledgeQuery,
   ) {}
 
   async execute(actor: Actor, teamId: string): Promise<SquadResponse> {
@@ -45,12 +48,13 @@ export class GetSquad {
     }
 
     const players = await this.players.activePlayers(teamId);
-    const [profiles, results, latest, assessedByMe, cards] = await Promise.all([
+    const [profiles, results, latest, assessedByMe, cards, knowledge] = await Promise.all([
       this.profiles.profilesOf(players.map((p) => ({ id: p.userId, name: p.name }))),
       this.results.latestByTeam(teamId),
       this.assessments.latestByTeam(teamId),
       this.assessments.assessedBy(actor.userId, teamId),
       this.ratings.latestByTeam(teamId),
+      this.knowledge.summaryOf(players.map((p) => p.userId)),
     ]);
     const assesses = assessesIn(actor, teamId);
 
@@ -70,6 +74,7 @@ export class GetSquad {
             test,
             latestAssessment: latest.get(player.userId) ?? null,
             assessedByMe: mine,
+            knowledge: knowledge.get(player.userId) ?? [],
             card: card
               ? {
                   ratedAt: card.ratedAt.toISOString(),
