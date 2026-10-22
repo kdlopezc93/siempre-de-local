@@ -4,6 +4,7 @@ export * from './consent.js';
 export * from './errors.js';
 export * from './health.js';
 export * from './invitations.js';
+export * from './lineups.js';
 export * from './me.js';
 export * from './orientation.js';
 export * from './profile.js';

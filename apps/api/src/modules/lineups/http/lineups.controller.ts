@@ -1,0 +1,86 @@
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put } from '@nestjs/common';
+import { LineupInputSchema, type LineupListResponse, type LineupResponse } from '@sdl/contracts';
+import { z } from 'zod';
+
+import { Can } from '../../../shared/authz/can.decorator.js';
+import { CurrentActor } from '../../../shared/authz/current-actor.decorator.js';
+import type { Actor } from '../../../shared/authz/policy.js';
+import { parseInput } from '../../../shared/http/validation.js';
+import { Lineups } from '../application/lineups.use-cases.js';
+
+const Uuid = z.uuid();
+
+@Controller('teams/:teamId/lineups')
+export class LineupsController {
+  constructor(private readonly lineups: Lineups) {}
+
+  @Post()
+  @Can('team.lineups.write', { teamParam: 'teamId' })
+  async create(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Body() body: unknown,
+  ): Promise<LineupResponse> {
+    return {
+      lineup: await this.lineups.create(actor, teamId, parseInput(LineupInputSchema, body)),
+    };
+  }
+
+  @Get()
+  @Can('team.results.read', { teamParam: 'teamId' })
+  async list(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+  ): Promise<LineupListResponse> {
+    const items = await this.lineups.list(actor, teamId);
+    return {
+      items: items.map(({ id, name, matchDate, formation, createdBy, updatedAt }) => ({
+        id,
+        name,
+        matchDate,
+        formation,
+        createdBy,
+        updatedAt,
+      })),
+    };
+  }
+
+  @Get(':lineupId')
+  @Can('team.results.read', { teamParam: 'teamId' })
+  async get(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('lineupId') lineupId: string,
+  ): Promise<LineupResponse> {
+    return { lineup: await this.lineups.get(actor, teamId, parseInput(Uuid, lineupId)) };
+  }
+
+  @Put(':lineupId')
+  @Can('team.lineups.write', { teamParam: 'teamId' })
+  async update(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('lineupId') lineupId: string,
+    @Body() body: unknown,
+  ): Promise<LineupResponse> {
+    return {
+      lineup: await this.lineups.update(
+        actor,
+        teamId,
+        parseInput(Uuid, lineupId),
+        parseInput(LineupInputSchema, body),
+      ),
+    };
+  }
+
+  @Delete(':lineupId')
+  @Can('team.lineups.write', { teamParam: 'teamId' })
+  @HttpCode(204)
+  async remove(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('lineupId') lineupId: string,
+  ): Promise<void> {
+    await this.lineups.remove(actor, teamId, parseInput(Uuid, lineupId));
+  }
+}

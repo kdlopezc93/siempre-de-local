@@ -282,6 +282,8 @@ Implementado en `apps/api/src/modules/assessments/infrastructure/schema.ts` (mig
 
 Se guarda la foto completa del cálculo: si mañana cambian tarjetas o certificaciones, la alineación guardada sigue explicando por qué se eligió.
 
+**Implementado** (migración `0015_lineup`, módulo `lineups`). Además: `priority` (`none | defensa | ataque`), `available` (los convocados, `uuid[]`), `assignments[].pinned` y `assignments[].manual` (lo tocó el entrenador), `created_at` / `updated_at`; `mode` con los valores de arriba. Índice `(team_id, updated_at desc)`. La alineación se arma en el celular (`02` §9.5); el servidor valida la coherencia de la foto, no la recalcula.
+
 ## 9. Auditoría
 
 **audit_log** — `id, actor_user_id, action, entity, entity_id, team_id, at, meta jsonb`. **Implementado** (migración `0011_audit_log`; puerto `AUDIT_LOG` en `shared/audit`). Hoy registra `team.exported`, `rating.created` y `team.settings_updated`; el resto se suma con cada funcionalidad. Se registra: cambios de rol, invitaciones, consentimientos, exportaciones, anulación de intentos y exámenes, **anulación de exámenes de conocimiento, solicitudes de re-evaluación**, **cambios en tarjetas**, borrados.
