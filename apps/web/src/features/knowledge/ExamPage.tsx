@@ -344,6 +344,21 @@ function ResultView({ result }: { result: ExamResult }) {
         </p>
       </header>
 
+      {result.voided && (
+        <div className={styles.reviewLate} role="status">
+          <p>Tu entrenador anuló este examen: ya no cuenta.</p>
+          <p className={styles.muted}>“{result.voided.reason}”</p>
+        </div>
+      )}
+      {result.fromReview && !result.voided && (
+        <p className={styles.note}>
+          Fue una re-evaluación: este resultado reemplaza a los anteriores de la posición.
+        </p>
+      )}
+      {result.superseded && (
+        <p className={styles.note}>Lo reemplazó una re-evaluación posterior: ya no cuenta.</p>
+      )}
+
       <section aria-labelledby="por-area" className={styles.section}>
         <h2 id="por-area" className={styles.sectionTitle}>
           Por área

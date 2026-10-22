@@ -9,6 +9,7 @@ import { RATED_ON } from '../card/card-view';
 import { PlayerCard } from '../card/PlayerCard';
 import { useTeam } from '../team-admin/use-invitations';
 import styles from './PlayerProfilePage.module.css';
+import { KnowledgeSection } from './KnowledgeSection';
 import { agreement, jerseyHolders } from './profile-view';
 import { usePlayerProfile, useSetJersey, useSquad } from './use-squad';
 
@@ -125,6 +126,13 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
           <p className={styles.muted}>Todavía nadie del cuerpo técnico lo puntuó.</p>
         )}
       </section>
+
+      <KnowledgeSection
+        teamId={teamId}
+        playerId={playerId}
+        knowledge={data.knowledge}
+        manages={managesMembers}
+      />
 
       <section aria-labelledby="valoraciones" className={styles.section}>
         <h2 id="valoraciones" className={styles.sectionTitle}>
