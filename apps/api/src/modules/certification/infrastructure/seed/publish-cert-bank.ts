@@ -19,8 +19,22 @@ export function bankConfig(bank: CertBankContent): ExamConfig {
  */
 export async function publishCertBank(
   db: Database,
-  bank: CertBankContent,
+  draft: CertBankContent,
+  opts: { draftsForDevelopment?: boolean } = {},
 ): Promise<PublishOutcome> {
+  // Solo en desarrollo: un borrador se publica con otra etiqueta (`v1-borrador`), así la
+  // versión revisada la reemplaza después sin chocar.
+  const bank =
+    !draft.review && opts.draftsForDevelopment
+      ? {
+          ...draft,
+          label: `${draft.label}-borrador`,
+          review: {
+            by: 'Sin revisar (solo desarrollo)',
+            on: new Date().toISOString().slice(0, 10),
+          },
+        }
+      : draft;
   const { review } = bank;
   if (!review) return 'pending-review';
   const cfg = bankConfig(bank);

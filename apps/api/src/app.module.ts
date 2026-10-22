@@ -5,6 +5,7 @@ import { ConfigModule } from './config/config.module.js';
 import { AssessmentsModule } from './modules/assessments/assessments.module.js';
 import { RatingsModule } from './modules/ratings/ratings.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
+import { CertificationModule } from './modules/certification/certification.module.js';
 import { TeamDataModule } from './modules/team-data/team-data.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { IdentityModule } from './modules/identity/identity.module.js';
@@ -29,6 +30,7 @@ import { DbModule } from './shared/db/db.module.js';
     AssessmentsModule,
     RatingsModule,
     AuditModule,
+    CertificationModule,
     TeamDataModule,
     SquadModule,
     HealthModule,

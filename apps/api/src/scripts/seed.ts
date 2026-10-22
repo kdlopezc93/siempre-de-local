@@ -1,3 +1,5 @@
+import { parseArgs } from 'node:util';
+
 import { ORIENTATION_V1 } from '../modules/questionnaires/infrastructure/seed/orientation-v1.content.js';
 import { ORIENTATION_V2 } from '../modules/questionnaires/infrastructure/seed/orientation-v2.content.js';
 import { seedOrientationContent } from '../modules/questionnaires/infrastructure/seed/seed-orientation.js';
@@ -11,6 +13,16 @@ import { createDb } from '../shared/db/client.js';
  */
 const VERSIONS = [ORIENTATION_V1, ORIENTATION_V2];
 
+const { values } = parseArgs({
+  args: process.argv.slice(2).filter((arg) => arg !== '--'),
+  options: { drafts: { type: 'boolean', default: false } },
+});
+// --drafts publica los bancos sin revisar para probar en desarrollo; nunca en producción.
+if (values.drafts && process.env['NODE_ENV'] === 'production') {
+  console.error('Los borradores no se publican en producción.');
+  process.exit(1);
+}
+
 const databaseUrl = process.env['DATABASE_URL'];
 if (!databaseUrl) throw new Error('Falta DATABASE_URL');
 
@@ -23,13 +35,14 @@ try {
     );
   }
   for (const bank of CERT_BANKS) {
-    const outcome = await publishCertBank(db, bank);
+    const outcome = await publishCertBank(db, bank, { draftsForDevelopment: values.drafts });
     const said = {
       published: 'publicado',
       'already-exists': 'ya existía',
       'pending-review': 'borrador sin revisar, no se publica',
     }[outcome];
-    console.log(`Banco ${bank.position} ${bank.label}: ${said}`);
+    const label = !bank.review && values.drafts ? `${bank.label}-borrador` : bank.label;
+    console.log(`Banco ${bank.position} ${label}: ${said}`);
   }
 } finally {
   await pool.end();
