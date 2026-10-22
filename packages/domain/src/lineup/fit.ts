@@ -28,13 +28,13 @@ export const MODE_LABELS: Readonly<Record<FitMode, string>> = {
 export interface PlayerSignals {
   playerId: string;
   /** Afinidad 0–1 del último test por posición (ya plegada en F8). Sin test, o test oculto: ausente. */
-  affinity?: Partial<Record<PositionCode, number>>;
+  affinity?: Partial<Record<PositionCode, number>> | undefined;
   /** Última valoración del cuerpo técnico. */
-  assessment?: { primary: PositionCode; secondary: readonly PositionCode[] };
+  assessment?: { primary: PositionCode; secondary: readonly PositionCode[] } | undefined;
   /** Mejor puntaje de conocimiento por posición (0–1) y si tiene una re-evaluación vencida. */
-  knowledge?: Partial<Record<PositionCode, { pct: number; reviewExpired: boolean }>>;
+  knowledge?: Partial<Record<PositionCode, { pct: number; reviewExpired: boolean }>> | undefined;
   /** Media por posición de la tarjeta (0–99). */
-  rating?: Partial<Record<PositionCode, number>>;
+  rating?: Partial<Record<PositionCode, number>> | undefined;
 }
 
 export type Breakdown = Partial<Record<Signal, number>>;

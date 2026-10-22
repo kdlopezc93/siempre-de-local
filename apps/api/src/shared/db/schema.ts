@@ -13,3 +13,4 @@ export * from '../../modules/assessments/infrastructure/schema.js';
 export * from '../../modules/ratings/infrastructure/schema.js';
 export * from '../../modules/audit/infrastructure/schema.js';
 export * from '../../modules/certification/infrastructure/schema.js';
+export * from '../../modules/lineups/infrastructure/schema.js';

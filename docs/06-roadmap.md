@@ -93,7 +93,7 @@ Plan en PRs (2026-10-22; decisiones en `02` §9.5):
 
 | # | PR | Estado |
 |---|---|---|
-| 1 | Dominio: encaje `fit-v1`, húngaro, formaciones F8/F11, fijados, conocimiento mínimo, prioridad por línea, banca y avisos | |
+| 1 | Dominio: encaje `fit-v1`, húngaro, formaciones F8/F11, fijados, conocimiento mínimo, prioridad por línea, banca y avisos | #49 ✔ |
 | 2 | API: señales de cada jugador para el planificador (respetando a ciegas) y guardar alineaciones | |
 | 3 | Planificador en el celular: convocatoria, formación, modos, pizarra, armar a mano, desglose, guardar | |
 | 4 | Informe de validación: test vs. entrenador (solo `blind`) y conocimiento vs. tarjeta | |

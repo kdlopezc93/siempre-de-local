@@ -149,26 +149,11 @@ Pruebas de campo (futuro, no implementar): `GET /field-tests`, `POST /teams/:tea
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| POST | `/teams/:teamId/lineups/solve` | Calcula sin guardar |
-| POST | `/teams/:teamId/lineups` | Guarda (incluye la foto del cálculo) |
-| GET | `/teams/:teamId/lineups` | Listar |
-| GET / PATCH / DELETE | `/teams/:teamId/lineups/:id` | |
+**Implementado** (2026-10-22). La alineación **se arma en el celular** con `solveLineup` de `@sdl/domain` (`02` §9.5), así funciona sin señal en la cancha; el API da las señales y guarda las alineaciones. Ya no hay `POST /lineups/solve`.
 
-`POST /lineups/solve` — cuerpo:
-```json
-{ "format": "F11", "formation": "4-3-3",
-  "availablePlayerIds": ["…"],
-  "mode": "balanced", "minKnowledgePct": null,
-  "weights": { "A": 0.15, "V": 0.30, "C": 0.20, "R": 0.35 },
-  "pins": [{ "slot": "GK", "playerId": "…" }] }
-```
-`weights` es opcional (si falta, los del modo). Respuesta:
-```json
-{ "fitVersion": "fit-v1",
-  "assignments": [{ "slot": "CB1", "position": "DFC", "playerId": "…", "fit": 0.81,
-                    "breakdown": { "A": 0.7, "V": 1.0, "C": 0.85, "R": 0.74 } }],
-  "bench": ["…"],
-  "warnings": [{ "code": "MIN_KNOWLEDGE_INFEASIBLE", "slot": "LB" },
-               { "code": "KNOWLEDGE_UNDER_REVIEW", "playerId": "…", "position": "DFC" },
-               { "code": "PLAYER_WITHOUT_DATA", "playerId": "…" }] }
-```
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/teams/:teamId/lineup-inputs` | Staff y admin del club. `{ format, players: [{ playerId, displayName, jerseyNumber, preferredPositions, affinity?, assessment?, knowledge?, rating? }] }`: las señales de `02` §9.1 tal como las espera el dominio. **Para quien valora y aún no valoró a un jugador, su `affinity` no viaja** (regla a ciegas) |
+| POST | `/teams/:teamId/lineups` | Coach y assistant (`team.lineups.write`). Guarda la foto: `{ name, matchDate, formation, mode, weights, priority, minKnowledgePct, fitVersion, available, pins, assignments: [{ slotId, playerId, fit, breakdown, pinned, manual }], bench }`. El servidor no recalcula pero valida: 422 `FORMATION_INVALID` (no es del formato del equipo), `PLAYER_NOT_IN_TEAM`, `LINEUP_INVALID` (puestos que no son los de la formación, jugadores repetidos o no convocados, fijados fuera de su puesto) |
+| GET | `/teams/:teamId/lineups` | Staff y admin del club. Resumen, de la más reciente a la más antigua |
+| GET / PUT / DELETE | `/teams/:teamId/lineups/:id` | Ver (staff y admin del club); reemplazar o borrar (coach y assistant) |
