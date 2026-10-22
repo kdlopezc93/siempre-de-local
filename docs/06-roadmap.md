@@ -89,7 +89,7 @@ Decisiones de este plan:
 - **Dónde viven los bancos:** archivos en el repo, revisados en un PR y con el lint en la CI. La pantalla de administración queda para cuando haya varios revisores.
 
 ### Fase 5 · Alineaciones y validación
-Plan en PRs (2026-10-22; decisiones en `02` §9.5):
+**Cerrada el 2026-10-22** (#49–#53). Plan en PRs (decisiones en `02` §9.5):
 
 | # | PR | Estado |
 |---|---|---|
@@ -97,11 +97,11 @@ Plan en PRs (2026-10-22; decisiones en `02` §9.5):
 | 2 | API: señales de cada jugador para el planificador (respetando a ciegas) y guardar alineaciones | #50 ✔ |
 | 3 | Planificador en el celular: convocatoria, formato del partido (F11/F8), formación, modos, pizarra, armar a mano (lo movido queda fijado), desglose | #51 ✔ |
 | 4 | Guardar y abrir alineaciones: guardar desde el planificador, lista, ver tal como se guardó, editar (abre con todo fijado), borrar | #52 ✔ |
-| 5 | Informe de validación: test vs. entrenador (solo `blind`) y conocimiento vs. tarjeta (Spearman por posición), en `/equipos/:id/validacion` | |
+| 5 | Informe de validación: test vs. entrenador (solo `blind`) y conocimiento vs. tarjeta (Spearman por posición), en `/equipos/:id/validacion` | #53 ✔ |
 
 - Reconciliar con `planificador-partido.jsx` (D6): **hecho**, ver `02` §9.5.
 - Encaje multi-fuente (A/V/C/R, con C = conocimiento corregido por azar), modos, umbral opcional de conocimiento mínimo, fijar jugadores, desglose explicable.
-- Informe de validación (test vs. entrenador; conocimiento vs. tarjeta).
+- Informe de validación (test vs. entrenador; conocimiento vs. tarjeta): **hecho**. Con datos reales de un equipo es la base para afinar pesos en la Fase 6.
 
 ### Fase 6 · Contenido, psicometría y medición
 - Ampliar el banco de posición del test de orientación a ~40 ítems (hoy 31, 20 por intento).
