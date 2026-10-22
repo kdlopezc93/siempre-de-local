@@ -4,6 +4,7 @@ Cada revisión que llega se guarda aquí tal cual, con su fecha. Lo que se aplic
 
 | Fecha | Banco | Revisión | PR |
 |---|---|---|---|
-| 2026-10-22 | DFC v1, MC v1 | Auditoría psicométrica y táctica (`2026-10-22-auditoria-*.md`) | content/banks-audit-1 |
+| 2026-10-22 | DFC v1, MC v1 | Auditoría psicométrica y táctica (`2026-10-22-auditoria-*.md`) | #44 |
 
 Recordatorio (D10): para publicar hace falta además la revisión de un entrenador, que se anota en `review` del archivo del banco.
+| 2026-10-22 | DFC v1, MC v1 | Entrenador revisor (nombre pendiente): visto bueno para publicar (D10) | content/publish-banks-v1 |

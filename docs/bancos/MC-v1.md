@@ -1,6 +1,6 @@
 # Banco de Mediocentro (v1)
 
-**Borrador sin revisar.** Marca lo que cambiarías al lado de cada pregunta: la respuesta correcta, una opción que también podría valer, una explicación floja o una pregunta que sobra.
+Revisado por Entrenador revisor (nombre pendiente) el 2026-10-22.
 
 60 preguntas. Cada examen toma 20, de todas las áreas y de las tres dificultades.
 

@@ -115,4 +115,20 @@ describe('publicar un banco del examen', () => {
       { label: 'v1-borrador', status: 'retired', reviewedBy: 'Sin revisar (solo desarrollo)' },
     ]);
   });
+
+  it('corregir quién revisó una versión publicada actualiza solo ese dato', async () => {
+    const { db } = connection;
+    const bank = certBankFixture(45, { label: 'v2' });
+    const before = (await db.select({ n: count() }).from(certItem))[0]!.n;
+    await expect(
+      publishCertBank(db, { ...bank, review: { by: 'Profe Ramírez', on: '2026-10-23' } }),
+    ).resolves.toBe('review-updated');
+    const [version] = await db
+      .select({ reviewedBy: certBankVersion.reviewedBy, reviewedOn: certBankVersion.reviewedOn })
+      .from(certBankVersion)
+      .where(eq(certBankVersion.label, 'v2'));
+    expect(version).toEqual({ reviewedBy: 'Profe Ramírez', reviewedOn: '2026-10-23' });
+    // No se agregó ni se cambió ninguna pregunta.
+    expect((await db.select({ n: count() }).from(certItem))[0]!.n).toBe(before);
+  });
 });
