@@ -8,4 +8,5 @@ export * from './orientation.js';
 export * from './profile.js';
 export * from './ratings.js';
 export * from './squad.js';
+export * from './team-data.js';
 export * from './teams.js';

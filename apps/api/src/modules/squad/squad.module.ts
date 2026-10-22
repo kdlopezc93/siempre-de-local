@@ -12,5 +12,6 @@ import { SquadController } from './http/squad.controller.js';
   imports: [QuizModule, AssessmentsModule, RatingsModule],
   controllers: [SquadController],
   providers: [GetSquad, GetPlayerProfile],
+  exports: [GetSquad],
 })
 export class SquadModule {}

@@ -17,6 +17,7 @@ import {
 } from '@sdl/domain';
 import type { z } from 'zod';
 
+import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
 import {
   AUTHORIZATION_READER,
   type AuthorizationReader,
@@ -61,6 +62,7 @@ export class PlayerRatings {
   constructor(
     @Inject(RATINGS_REPOSITORY) private readonly ratings: RatingsRepository,
     @Inject(AUTHORIZATION_READER) private readonly memberships: AuthorizationReader,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
   ) {}
 
   async create(
@@ -89,6 +91,15 @@ export class PlayerRatings {
       ratedBy: actor.userId,
       values,
       notes: request.notes || null,
+    });
+    // Datos evaluativos (04 §3): cada foto nueva queda registrada.
+    await this.audit.record({
+      actorUserId: actor.userId,
+      action: 'rating.created',
+      entity: 'player_rating',
+      entityId: saved.id,
+      teamId,
+      meta: { playerId },
     });
     return toPlayerRating(saved);
   }
