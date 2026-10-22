@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { SquadResponse } from '@sdl/contracts';
+import { positionAverages } from '@sdl/domain';
 
 import {
   AUTHORIZATION_READER,
@@ -11,6 +12,10 @@ import {
   ASSESSMENTS_REPOSITORY,
   type AssessmentsRepository,
 } from '../../assessments/application/ports/assessments.repository.js';
+import {
+  RATINGS_REPOSITORY,
+  type RatingsRepository,
+} from '../../ratings/application/ports/ratings.repository.js';
 import {
   LATEST_RESULTS_QUERY,
   type LatestResultsQuery,
@@ -28,6 +33,7 @@ export class GetSquad {
     @Inject(PROFILES_QUERY) private readonly profiles: ProfilesQuery,
     @Inject(LATEST_RESULTS_QUERY) private readonly results: LatestResultsQuery,
     @Inject(ASSESSMENTS_REPOSITORY) private readonly assessments: AssessmentsRepository,
+    @Inject(RATINGS_REPOSITORY) private readonly ratings: RatingsRepository,
   ) {}
 
   async execute(actor: Actor, teamId: string): Promise<SquadResponse> {
@@ -38,11 +44,12 @@ export class GetSquad {
     }
 
     const players = await this.players.activePlayers(teamId);
-    const [profiles, results, latest, assessedByMe] = await Promise.all([
+    const [profiles, results, latest, assessedByMe, cards] = await Promise.all([
       this.profiles.profilesOf(players.map((p) => ({ id: p.userId, name: p.name }))),
       this.results.latestByTeam(teamId),
       this.assessments.latestByTeam(teamId),
       this.assessments.assessedBy(actor.userId, teamId),
+      this.ratings.latestByTeam(teamId),
     ]);
     // Quien valora (coach o assistant) no ve el test hasta haber valorado al jugador:
     // así su primera valoración es a ciegas (06 · Fase 3). El admin del club no valora.
@@ -55,6 +62,7 @@ export class GetSquad {
           const profile = profiles.get(player.userId)!;
           const result = results.get(player.userId);
           const mine = assessedByMe.has(player.userId);
+          const card = cards.get(player.userId);
           const test: SquadResponse['players'][number]['test'] = !result
             ? { status: 'none' }
             : assesses && !mine
@@ -73,6 +81,12 @@ export class GetSquad {
             test,
             latestAssessment: latest.get(player.userId) ?? null,
             assessedByMe: mine,
+            card: card
+              ? {
+                  ratedAt: card.ratedAt.toISOString(),
+                  positionAverages: positionAverages(card.values),
+                }
+              : null,
           };
         })
         .sort((a, b) => a.displayName.localeCompare(b.displayName, 'es')),

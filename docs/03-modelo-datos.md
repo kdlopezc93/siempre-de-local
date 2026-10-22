@@ -225,6 +225,8 @@ Al anular un examen (`status = 'void'`) la vista toma automáticamente el mejor 
 
 ## 7. Tarjeta del jugador
 
+**Implementado** (migraciones `0009_player_rating` y `0010_rating_attribute_catalog`, que siembra el catálogo desde `RATING_ATTRIBUTES` de `@sdl/domain`). Los cambios en tarjetas no pasan por `audit_log` todavía (llega en el PR 5); las fotos nunca se editan ni se borran, así que el histórico ya es el registro.
+
 **rating_attribute** (catálogo, *seed*)
 | Columna | Tipo | Notas |
 |---|---|---|

@@ -26,6 +26,9 @@ const screens = {
   invite: () => import('../team-admin/InvitePage'),
   squad: () => import('../squad/SquadPage'),
   assess: () => import('../squad/AssessPage'),
+  myCard: () => import('../card/MyCardPage'),
+  staffCard: () => import('../card/StaffCardPage'),
+  rate: () => import('../card/RatePage'),
 };
 
 const JoinPage = lazy(() => screens.join().then((m) => ({ default: m.JoinPage })));
@@ -39,6 +42,9 @@ const ProfilePage = lazy(() => screens.profile().then((m) => ({ default: m.Profi
 const InvitePage = lazy(() => screens.invite().then((m) => ({ default: m.InvitePage })));
 const SquadPage = lazy(() => screens.squad().then((m) => ({ default: m.SquadPage })));
 const AssessPage = lazy(() => screens.assess().then((m) => ({ default: m.AssessPage })));
+const MyCardPage = lazy(() => screens.myCard().then((m) => ({ default: m.MyCardPage })));
+const StaffCardPage = lazy(() => screens.staffCard().then((m) => ({ default: m.StaffCardPage })));
+const RatePage = lazy(() => screens.rate().then((m) => ({ default: m.RatePage })));
 
 /** Precarga las pantallas que se usan desde el inicio cuando el navegador está libre. */
 function usePreloadScreens() {
@@ -177,4 +183,24 @@ export function AssessRoute() {
   return (
     <RequireSession>{() => <AssessPage teamId={teamId} playerId={playerId} />}</RequireSession>
   );
+}
+
+/** "/equipos/:teamId/tarjeta" — la tarjeta del propio jugador. */
+export function MyCardRoute() {
+  const { teamId = '' } = useParams();
+  return <RequireSession>{(me) => <MyCardPage me={me} teamId={teamId} />}</RequireSession>;
+}
+
+/** "/equipos/:teamId/plantilla/:playerId/tarjeta" */
+export function StaffCardRoute() {
+  const { teamId = '', playerId = '' } = useParams();
+  return (
+    <RequireSession>{() => <StaffCardPage teamId={teamId} playerId={playerId} />}</RequireSession>
+  );
+}
+
+/** "/equipos/:teamId/plantilla/:playerId/tarjeta/puntuar" */
+export function RateRoute() {
+  const { teamId = '', playerId = '' } = useParams();
+  return <RequireSession>{() => <RatePage teamId={teamId} playerId={playerId} />}</RequireSession>;
 }

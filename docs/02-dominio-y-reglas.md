@@ -200,7 +200,8 @@ La UI muestra estas anclas al puntuar.
 ### 7.2 Reglas
 - Puntúan **coach** y **assistant**. Cada puntuación es una **foto** con fecha, autor y origen (`manual` o `field_test`). Se conserva el histórico: la tarjeta muestra la última y la evolución.
 - Si hay varios evaluadores, la tarjeta muestra la última foto; el promedio entre evaluadores queda para más adelante.
-- **Visibilidad para el jugador:** ajuste por equipo (decisión abierta D8, por defecto visible).
+- **Visibilidad para el jugador:** ajuste por equipo (D8, decidido: por defecto visible; lo cambian el coach o el admin del club). El jugador ve la última foto con sus medias, nunca las notas ni quién puntuó.
+- **Atributos de portero:** los 6 o ninguno; los agrega el cuerpo técnico cuando el jugador juega o podría jugar de portero.
 
 ### 7.3 Media por posición (MP)
 `MP(p) = Σ peso(p, atributo) · valor(atributo)`. Pesos iniciales, a calibrar con el uso:

@@ -48,6 +48,11 @@ export function HomePage({ me }: { me: Me }) {
                     Hacer mi test de posición
                   </Link>
                 )}
+                {roles.includes('player') && (
+                  <Link to={`/equipos/${team.id}/tarjeta`} className={styles.teamAction}>
+                    Ver mi tarjeta
+                  </Link>
+                )}
                 {(roles.includes('coach') || roles.includes('assistant')) && (
                   <Link to={`/equipos/${team.id}/plantilla`} className={styles.teamAction}>
                     Ver la plantilla

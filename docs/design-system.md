@@ -132,6 +132,10 @@ Con `prefers-reduced-motion: reduce`, las duraciones pasan a 0 y la entrada se m
 | `Pitch` (`shared/ui`) | — | Única fuente de la cancha (`PITCH_LAYOUT` de `@sdl/domain`), solo con las posiciones del formato. Marca una lista ordenada: la 1.ª rellena de ámbar con halo que respira (se detiene con movimiento reducido); las demás, aro ámbar. Lleva `role="img"` con las posiciones en su etiqueta. **Modo plantilla** (`roster`, como el planificador del prototipo): la sigla de la posición en el círculo (ámbar relleno si hay alguien) y debajo quién juega ahí ("Ana +2"); sin nadie es un hueco, aro ámbar punteado y la palabra "hueco" |
 | `ChalkUnderline` (`features/join`) | — | Subrayado a mano en tiza ámbar bajo un nombre que el técnico "marca" (la convocatoria). Se dibuja una vez con `scaleX` sobre el contenedor; es el único movimiento de su pantalla. Usarlo solo para ese gesto, no como decoración de títulos |
 
+## 9.0 Ficha 0–99 (`features/card/PlayerCard`)
+
+Una ficha de pizarra, **no** una carta de videojuego: sin escudo, brillos ni degradados. Lo único fuerte es su mejor media del formato del equipo (Oswald ~72px en ámbar) con el nombre de la posición; debajo, los atributos en dos columnas con un trazo de tiza que marca cuánto de 99, y las medias por posición ordenadas (la mejor en ámbar). Al puntuar, cada atributo es un deslizador nativo (`accent-color` ámbar, 44px de alto, `touch-action: pan-y` para no trabar el scroll) con el ancla de la escala debajo, que cambia mientras se mueve.
+
 ## 9.1 Movimiento con intención (Fase 2)
 
 - **Paso de pregunta en el test:** la pregunta entra de lado (`translateX(16px)` + opacidad, `--sdl-duration-base`).

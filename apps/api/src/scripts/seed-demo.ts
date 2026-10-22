@@ -2,7 +2,12 @@ import { randomUUID } from 'node:crypto';
 import { parseArgs } from 'node:util';
 
 import { POLICY_VERSION, type PositionCode, type SubmitAttemptRequest } from '@sdl/contracts';
-import { ELIGIBLE_POSITIONS, ORIENTATION_SCORING_VERSION, scorePosition } from '@sdl/domain';
+import {
+  ELIGIBLE_POSITIONS,
+  ORIENTATION_SCORING_VERSION,
+  type RatingValues,
+  scorePosition,
+} from '@sdl/domain';
 import { and, eq } from 'drizzle-orm';
 
 import { DrizzleAssessmentsRepository } from '../modules/assessments/infrastructure/drizzle-assessments.repository.js';
@@ -12,6 +17,7 @@ import {
   playerPreferredPosition,
   playerProfile,
 } from '../modules/player-profile/infrastructure/schema.js';
+import { DrizzleRatingsRepository } from '../modules/ratings/infrastructure/drizzle-ratings.repository.js';
 import { DrizzleQuestionnaireReader } from '../modules/questionnaires/infrastructure/drizzle-questionnaire.reader.js';
 import { positionPart } from '../modules/quiz/application/validate-submission.js';
 import { DrizzleAttemptsRepository } from '../modules/quiz/infrastructure/drizzle-attempts.repository.js';
@@ -90,6 +96,31 @@ const PLAYERS: DemoPlayer[] = [
   { name: 'Óscar Lozano', jersey: 15, testLeaning: null, preferred: [], staff: null },
   { name: 'Wilmer Castro', jersey: 12, testLeaning: null, preferred: ['POR'], staff: null },
 ];
+
+/** Perfil típico de cada posición para la tarjeta demo (se le suma un poco de ruido). */
+const CARD_BASE: Record<PositionCode, RatingValues> = {
+  POR: {
+    PAC: 50,
+    SHO: 35,
+    PAS: 55,
+    DRI: 40,
+    DEF: 45,
+    PHY: 66,
+    GK_DIV: 74,
+    GK_HAN: 70,
+    GK_KIC: 62,
+    GK_REF: 78,
+    GK_SPD: 72,
+    GK_POS: 70,
+  },
+  LAT: { PAC: 74, SHO: 45, PAS: 62, DRI: 60, DEF: 66, PHY: 64 },
+  DFC: { PAC: 60, SHO: 40, PAS: 58, DRI: 45, DEF: 78, PHY: 75 },
+  MCD: { PAC: 58, SHO: 50, PAS: 70, DRI: 58, DEF: 72, PHY: 70 },
+  MC: { PAC: 60, SHO: 62, PAS: 76, DRI: 66, DEF: 58, PHY: 62 },
+  MP: { PAC: 66, SHO: 70, PAS: 78, DRI: 76, DEF: 40, PHY: 55 },
+  EXT: { PAC: 82, SHO: 64, PAS: 62, DRI: 78, DEF: 35, PHY: 58 },
+  DC: { PAC: 70, SHO: 78, PAS: 55, DRI: 66, DEF: 30, PHY: 72 },
+};
 
 const ASSISTANT = { name: 'Profe Demo', email: `asistente@${DOMAIN}` };
 
@@ -172,11 +203,14 @@ try {
 
   const attempts = new DrizzleAttemptsRepository(conn);
   const assessments = new DrizzleAssessmentsRepository(conn);
+  const ratings = new DrizzleRatingsRepository(conn);
+  const carded = await ratings.latestByTeam(found.id);
   const assistantId = await ensureUser(conn, ASSISTANT.name, ASSISTANT.email);
   await ensureMembership(conn, found.id, assistantId, 'assistant', null);
   const alreadyAssessed = await assessments.assessedBy(assistantId, found.id);
   const eligible = new Set<PositionCode>(ELIGIBLE_POSITIONS[found.format]);
 
+  let cards = 0;
   let tests = 0;
   let rated = 0;
   for (const [i, demo] of PLAYERS.entries()) {
@@ -254,9 +288,28 @@ try {
       });
       rated++;
     }
+
+    // Y le puntúa la tarjeta según su posición, con ruido para que no sean iguales.
+    if (demo.staff && !carded.has(userId)) {
+      const random = seeded(100 + i);
+      const values = Object.fromEntries(
+        Object.entries(CARD_BASE[demo.staff.primary]).map(([code, base]) => [
+          code,
+          Math.max(0, Math.min(99, base! + Math.round((random() - 0.5) * 14))),
+        ]),
+      ) as RatingValues;
+      await ratings.create({
+        teamId: found.id,
+        playerUserId: userId,
+        ratedBy: assistantId,
+        values,
+        notes: null,
+      });
+      cards++;
+    }
   }
   console.log(
-    `${found.name}: ${PLAYERS.length} jugadores de demostración, ${tests} tests nuevos y ${rated} valoraciones del asistente "${ASSISTANT.name}".`,
+    `${found.name}: ${PLAYERS.length} jugadores de demostración, ${tests} tests nuevos y ${rated} valoraciones y ${cards} tarjetas del asistente "${ASSISTANT.name}".`,
   );
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);

@@ -19,6 +19,7 @@ const TEAM = {
     format: 'F11',
     season: '2026',
     club: { id: uuid(10), name: 'Los del Barrio' },
+    ratingsVisibleToPlayers: true,
   },
   myRoles: ['coach'],
 };
@@ -32,6 +33,7 @@ const SQUAD = {
       test: { status: 'hidden' },
       latestAssessment: null,
       assessedByMe: false,
+      card: null,
     },
     {
       userId: BETO,
@@ -56,6 +58,7 @@ const SQUAD = {
         createdAt: '2026-10-21T10:00:00.000Z',
       },
       assessedByMe: true,
+      card: { ratedAt: '2026-10-21T10:00:00.000Z', positionAverages: { EXT: 74, DC: 67, LAT: 60 } },
     },
   ],
 };
@@ -113,6 +116,35 @@ describe('SquadPage', () => {
     // Según el test, Ana (oculto) no cuenta.
     await userEvent.click(screen.getByRole('radio', { name: 'Test' }));
     expect(screen.getByText('1 jugador sin test a la vista.')).toBeInTheDocument();
+  });
+
+  it('el coach decide si los jugadores ven su tarjeta (D8)', async () => {
+    let patch: unknown;
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
+      [`GET /api/v1/teams/${TEAM_ID}/squad`]: { status: 200, body: SQUAD },
+      [`PATCH /api/v1/teams/${TEAM_ID}`]: (init) => {
+        patch = JSON.parse(init.body as string);
+        return {
+          status: 200,
+          body: { ...TEAM, team: { ...TEAM.team, ratingsVisibleToPlayers: false } },
+        };
+      },
+    });
+    renderAt(`/equipos/${TEAM_ID}/plantilla`);
+
+    const beto = (await screen.findAllByRole('article'))[1]!;
+    expect(beto).toHaveTextContent('74 de media como Extremo');
+    expect(within(beto).getByRole('link', { name: 'Tarjeta de Beto' })).toHaveTextContent(
+      'Ver tarjeta',
+    );
+
+    const toggle = screen.getByRole('switch', { name: /Los jugadores ven su tarjeta/ });
+    expect(toggle).toBeChecked();
+    await userEvent.click(toggle);
+    await vi.waitFor(() => expect(toggle).not.toBeChecked());
+    expect(patch).toEqual({ ratingsVisibleToPlayers: false });
+    expect(screen.getByText('Solo el cuerpo técnico ve las tarjetas.')).toBeInTheDocument();
   });
 
   it('valorar: exige la principal, avisa que es a ciegas y vuelve a la plantilla', async () => {

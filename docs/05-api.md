@@ -36,7 +36,7 @@
 | POST | `/clubs` | platform admin |
 | GET / POST | `/clubs/:clubId/teams` | club admin |
 | GET | `/teams/:teamId` | miembro activo o admin del club. **Implementado:** `{ team: { id, name, format, season, club: { id, name } }, myRoles }` (`TeamResponseSchema`) |
-| PATCH | `/teams/:teamId` | club admin, coach (incluye `ratingsVisibleToPlayers`) |
+| PATCH | `/teams/:teamId` | **Implementado** para `{ ratingsVisibleToPlayers }` (permiso `team.settings.write`: coach y admin del club) |
 | GET | `/teams/:teamId/members` | coach, assistant |
 | PATCH / DELETE | `/teams/:teamId/members/:userId` | según matriz |
 | POST | `/teams/:teamId/invitations` | Jugadores: coach o admin del club; cuerpo técnico: solo admin del club. `{ role='player', expiresInDays=7 (1–30), maxUses=30 (1–100) }` → 201 `{ invitation, code, joinUrl }`. Devuelve el código **una sola vez** |
@@ -122,10 +122,10 @@ Admin (platform admin): `POST /admin/cert-banks` (borrador, opcionalmente copian
 | Método | Ruta | Descripción |
 |---|---|---|
 | GET | `/teams/:teamId/players/:userId/profile` | Agregado para la pantalla de perfil: datos, posiciones preferidas, último resultado del test, puntajes de conocimiento por posición, tarjeta vigente con medias por posición, última valoración (solo staff). Lo que no puede ver el solicitante se omite. |
-| GET | `/teams/:teamId/players/:userId/ratings` | Histórico de fotos de la tarjeta |
-| POST | `/teams/:teamId/players/:userId/ratings` | Nueva foto: `{ values: { PAC: 72, … }, notes? }` (coach, assistant). Valores 0–99; atributos de portero solo si `playsGoalkeeper` |
-| GET | `/me/card?teamId=` | Mi tarjeta (403 si el equipo no la hace visible) |
-| GET | `/rating-attributes` | Catálogo de atributos y anclas de la escala |
+| GET | `/teams/:teamId/players/:userId/ratings` | **Implementado** (staff y admin del club). Histórico de fotos, de la más reciente a la más antigua, cada una con autor, notas, valores y `positionAverages` calculadas con la fórmula vigente (`formulaVersion`) |
+| POST | `/teams/:teamId/players/:userId/ratings` | **Implementado.** Nueva foto: `{ values: { PAC: 72, … }, notes? }` (coach, assistant). Enteros 0–99: los 6 de campo siempre; los 6 de portero **todos o ninguno** (los agrega el cuerpo técnico si juega o podría jugar de portero; no depende de `playsGoalkeeper`, que es lo que declara el jugador). 400 si no cumple; 404 `PLAYER_NOT_IN_TEAM` |
+| GET | `/me/card?teamId=` | **Implementado.** Mi tarjeta vigente `{ card: { ratedAt, values, positionAverages, formulaVersion } \| null }`, sin notas ni autor. 403 `CARD_HIDDEN` si el equipo no la hace visible; 404 si no juego en ese equipo |
+| GET | `/rating-attributes` | **Implementado.** Catálogo de atributos (código, nombre, sigla, grupo), anclas de la escala y versión de la fórmula |
 
 Pruebas de campo (futuro, no implementar): `GET /field-tests`, `POST /teams/:teamId/players/:userId/field-tests`, `GET /teams/:teamId/field-tests?test=`.
 
@@ -133,7 +133,7 @@ Pruebas de campo (futuro, no implementar): `GET /field-tests`, `POST /teams/:tea
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/teams/:teamId/squad` | **Implementado** (staff y admin del club). Por jugador activo: nombre visible, dorsal, preferidas, último test oficial (`test.status`: `none`, `hidden` o `visible` con podio), valoración más reciente y `assessedByMe`. **Para quien valora, el test queda `hidden` hasta que valora al jugador.** Puntajes de conocimiento (Fase 4) y tarjeta (PR 3) se suman después |
+| GET | `/teams/:teamId/squad` | **Implementado** (staff y admin del club). Por jugador activo: nombre visible, dorsal, preferidas, último test oficial (`test.status`: `none`, `hidden` o `visible` con podio), valoración más reciente, `assessedByMe` y `card` (fecha y medias por posición de la foto vigente, o null). **Para quien valora, el test queda `hidden` hasta que valora al jugador.** Los puntajes de conocimiento (Fase 4) se suman después |
 | GET | `/teams/:teamId/squad/summary` | Reparto por posición (test, valoración y conocimiento), huecos, conocimiento medio **por posición** (Fase 4), filtro `?format=` |
 | GET | `/teams/:teamId/export.csv` | Exportación consolidada (auditada) |
 | POST | `/teams/:teamId/legacy-import` | Subir CSV del prototipo (multipart) |

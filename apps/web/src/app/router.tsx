@@ -2,6 +2,9 @@ import { createBrowserRouter, Navigate } from 'react-router';
 
 import {
   AssessRoute,
+  MyCardRoute,
+  RateRoute,
+  StaffCardRoute,
   HistoryRoute,
   HomeRoute,
   InviteRoute,
@@ -21,6 +24,9 @@ export const router = createBrowserRouter([
   { path: '/equipos/:teamId/invitar', element: <InviteRoute /> },
   { path: '/equipos/:teamId/plantilla', element: <SquadRoute /> },
   { path: '/equipos/:teamId/plantilla/:playerId/valorar', element: <AssessRoute /> },
+  { path: '/equipos/:teamId/plantilla/:playerId/tarjeta', element: <StaffCardRoute /> },
+  { path: '/equipos/:teamId/plantilla/:playerId/tarjeta/puntuar', element: <RateRoute /> },
+  { path: '/equipos/:teamId/tarjeta', element: <MyCardRoute /> },
   { path: '/equipos/:teamId/test', element: <QuizRoute /> },
   { path: '/resultados/:attemptId', element: <ResultRoute /> },
   { path: '/historial', element: <HistoryRoute /> },

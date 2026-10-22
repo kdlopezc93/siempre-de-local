@@ -64,6 +64,20 @@
       "when": 1792630887154,
       "tag": "0008_coach_assessment",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1792633489654,
+      "tag": "0009_player_rating",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792633490289,
+      "tag": "0010_rating_attribute_catalog",
+      "breakpoints": true
     }
   ]
 }

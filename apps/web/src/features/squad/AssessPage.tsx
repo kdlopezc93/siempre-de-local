@@ -184,6 +184,7 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
           <textarea
             id={notesId}
             name="notes"
+            autoComplete="off"
             className={styles.textarea}
             rows={3}
             maxLength={500}
