@@ -78,7 +78,7 @@ Plan en PRs (acordado el 2026-10-22):
 | 1 | Dominio: selección del examen, puntaje y bandas, mejor puntaje, cuándo se puede presentar, lint del banco | #39 ✔ |
 | 2 | Tablas de los bancos, formato de archivo, publicación en `db:seed` (solo revisados) y lint en la CI; `pnpm bank:lint` con hoja de revisión | #40 ✔ |
 | 3 | Banco piloto: borradores de Defensa central y Mediocentro (60 cada uno) para revisar; hojas en `docs/bancos/` | #41 ✔ (borrador; falta la revisión, D10) |
-| 4 | API del examen: empezar, responder (una a una), entregar o abandonar, plazo en servidor; `/certification/positions`, `/me/cert-exams`; `db:seed -- --drafts` (solo desarrollo) | |
+| 4 | API del examen: empezar, responder (una a una), entregar o abandonar, plazo en servidor; `/certification/positions`, `/me/cert-exams`; `db:seed -- --drafts` (solo desarrollo) | #42 ✔ |
 | 5 | Pantallas del jugador: elegir posición, examen con reloj, resultado con desglose por área | |
 | 6 | Cuerpo técnico: conocimiento en plantilla, perfil y CSV; anular; re-evaluación | |
 

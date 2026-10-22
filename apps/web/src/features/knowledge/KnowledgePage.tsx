@@ -1,0 +1,183 @@
+import type { CertPositionsResponse, PositionCode } from '@sdl/contracts';
+import { BAND_LABELS, POSITIONS } from '@sdl/domain';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router';
+
+import type { Me } from '../../shared/api/auth';
+import { ApiError } from '../../shared/api/http';
+import { Button } from '../../shared/ui/Button';
+import { Screen } from '../../shared/ui/Screen';
+import styles from './Knowledge.module.css';
+import { useCertPositions, useMyExams, useStartExam } from './use-knowledge';
+
+const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
+const percent = (pct: number) => `${Math.round(pct * 100)}%`;
+
+/** /conocimiento — de qué posiciones me puedo examinar, cómo voy y mis exámenes. */
+export function KnowledgePage({ me }: { me: Me }) {
+  const positions = useCertPositions();
+  const history = useMyExams();
+  // El puntaje es de la persona; el equipo solo dice desde dónde se presentó.
+  const teamId = me.teams.find((t) => t.roles.includes('player'))?.team.id;
+
+  return (
+    <Screen className={styles.screen}>
+      <Link to="/" className={styles.back}>
+        Volver al inicio
+      </Link>
+      <header className={styles.header}>
+        <h1 className={styles.display}>Examen de conocimiento</h1>
+        <p className={styles.lead}>
+          20 situaciones de partido sobre una posición, en 20 minutos. No hay aprobado: cuenta tu
+          mejor puntaje y no vence. Cada posición se puede repetir una vez al mes.
+        </p>
+      </header>
+
+      {positions.isPending ? (
+        <p className="sr-only" role="status">
+          Cargando…
+        </p>
+      ) : positions.isError ? (
+        <p role="alert" className={styles.alert}>
+          No pudimos cargar los exámenes. Revisa tu conexión e intenta de nuevo.
+        </p>
+      ) : positions.data.positions.length === 0 ? (
+        <p className={styles.muted}>Todavía no hay exámenes publicados. Pronto vas a poder.</p>
+      ) : (
+        <Positions data={positions.data} teamId={teamId} />
+      )}
+
+      <p className={styles.note}>
+        Mide lo que respondes en la app sobre la posición: no si lo haces en la cancha, y no es un
+        título. Al terminar ves tu puntaje por área, no las respuestas correctas.
+      </p>
+
+      {history.data && history.data.length > 0 && (
+        <section aria-labelledby="tus-examenes" className={styles.section}>
+          <h2 id="tus-examenes" className={styles.sectionTitle}>
+            Tus exámenes
+          </h2>
+          <ul className={styles.history}>
+            {history.data.map((exam) => (
+              <li key={exam.examId}>
+                <Link to={`/conocimiento/examen/${exam.examId}`} className={styles.historyLink}>
+                  <span>
+                    {POSITIONS[exam.position].name}
+                    <span className={styles.muted}>, {DAY.format(new Date(exam.submittedAt))}</span>
+                  </span>
+                  <span className={styles.historyScore}>
+                    {percent(exam.pct)} {BAND_LABELS[exam.band]}
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </Screen>
+  );
+}
+
+function Positions({ data, teamId }: { data: CertPositionsResponse; teamId: string | undefined }) {
+  const active = data.positions.find((p) => p.activeExamId)?.activeExamId ?? null;
+  return (
+    <>
+      {active && (
+        <div className={styles.resume} role="status">
+          <p>Tienes un examen a medias y el reloj sigue corriendo.</p>
+          <Link to={`/conocimiento/examen/${active}`} className={styles.primaryLink}>
+            Seguir con tu examen
+          </Link>
+        </div>
+      )}
+      <ul className={styles.positions}>
+        {data.positions.map((p) => (
+          <li key={p.position}>
+            <PositionCard info={p} teamId={teamId} blocked={active !== null} />
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+function PositionCard({
+  info,
+  teamId,
+  blocked,
+}: {
+  info: CertPositionsResponse['positions'][number];
+  teamId: string | undefined;
+  blocked: boolean;
+}) {
+  const start = useStartExam();
+  const navigate = useNavigate();
+  const [confirming, setConfirming] = useState(false);
+  const minutes = Math.round(info.bank.timeLimitSeconds / 60);
+  const name = POSITIONS[info.position as PositionCode].name;
+
+  function begin() {
+    start.mutate(
+      { position: info.position, ...(teamId ? { teamId } : {}) },
+      {
+        onSuccess: (exam) => void navigate(`/conocimiento/examen/${exam.examId}`),
+        onError: (error) => {
+          // Si ya había uno abierto (otra pestaña), se retoma ese.
+          const examId = error instanceof ApiError ? activeFrom(error) : null;
+          if (examId) void navigate(`/conocimiento/examen/${examId}`);
+        },
+      },
+    );
+  }
+
+  return (
+    <article className={styles.card} aria-labelledby={`pos-${info.position}`}>
+      <h2 id={`pos-${info.position}`} className={styles.cardTitle}>
+        {name}
+      </h2>
+      <p className={styles.muted}>
+        {info.bank.itemsPerExam} preguntas en {minutes} minutos. Áreas:{' '}
+        {info.bank.areas.map((a) => a.name.toLowerCase()).join(', ')}.
+      </p>
+      {info.best && (
+        <p className={styles.best}>
+          Tu mejor puntaje: <strong>{percent(info.best.pct)}</strong>, {BAND_LABELS[info.best.band]}
+          {info.best.underReview && ' (a revisar)'}
+        </p>
+      )}
+
+      {info.nextAttemptAt ? (
+        <p className={styles.muted}>
+          Puedes volver a presentarlo desde el {DAY.format(new Date(info.nextAttemptAt))}.
+        </p>
+      ) : confirming ? (
+        <div className={styles.confirm}>
+          <p>El reloj de {minutes} minutos arranca apenas empieces. Busca un rato tranquilo.</p>
+          <Button busy={start.isPending} onClick={begin}>
+            {start.isPending ? 'Preparando…' : 'Empezar ahora'}
+          </Button>
+          <Button variant="ghost" disabled={start.isPending} onClick={() => setConfirming(false)}>
+            Mejor después
+          </Button>
+        </div>
+      ) : (
+        <Button variant="secondary" disabled={blocked} onClick={() => setConfirming(true)}>
+          {info.best ? 'Presentarlo de nuevo' : 'Presentar el examen'}
+        </Button>
+      )}
+      {start.isError && !activeFrom(start.error) && (
+        <p role="alert" className={styles.alert}>
+          {start.error instanceof ApiError && start.error.status < 500
+            ? start.error.message
+            : 'No pudimos empezar el examen. Revisa tu conexión e intenta de nuevo.'}
+        </p>
+      )}
+    </article>
+  );
+}
+
+function activeFrom(error: unknown): string | null {
+  if (!(error instanceof ApiError) || error.code !== 'EXAM_IN_PROGRESS') return null;
+  const examId = error.details?.['examId'];
+  return typeof examId === 'string' ? examId : null;
+}

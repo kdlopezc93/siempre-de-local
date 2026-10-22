@@ -27,6 +27,8 @@ const screens = {
   squad: () => import('../squad/SquadPage'),
   assess: () => import('../squad/AssessPage'),
   playerProfile: () => import('../squad/PlayerProfilePage'),
+  knowledge: () => import('../knowledge/KnowledgePage'),
+  exam: () => import('../knowledge/ExamPage'),
   myCard: () => import('../card/MyCardPage'),
   staffCard: () => import('../card/StaffCardPage'),
   rate: () => import('../card/RatePage'),
@@ -46,6 +48,8 @@ const AssessPage = lazy(() => screens.assess().then((m) => ({ default: m.AssessP
 const PlayerProfilePage = lazy(() =>
   screens.playerProfile().then((m) => ({ default: m.PlayerProfilePage })),
 );
+const KnowledgePage = lazy(() => screens.knowledge().then((m) => ({ default: m.KnowledgePage })));
+const ExamPage = lazy(() => screens.exam().then((m) => ({ default: m.ExamPage })));
 const MyCardPage = lazy(() => screens.myCard().then((m) => ({ default: m.MyCardPage })));
 const StaffCardPage = lazy(() => screens.staffCard().then((m) => ({ default: m.StaffCardPage })));
 const RatePage = lazy(() => screens.rate().then((m) => ({ default: m.RatePage })));
@@ -217,4 +221,15 @@ export function PlayerProfileRoute() {
       {() => <PlayerProfilePage teamId={teamId} playerId={playerId} />}
     </RequireSession>
   );
+}
+
+/** "/conocimiento" — el examen de conocimiento por posición. */
+export function KnowledgeRoute() {
+  return <RequireSession>{(me) => <KnowledgePage me={me} />}</RequireSession>;
+}
+
+/** "/conocimiento/examen/:examId" — un examen en curso o su resultado. */
+export function ExamRoute() {
+  const { examId = '' } = useParams();
+  return <RequireSession>{() => <ExamPage examId={examId} />}</RequireSession>;
 }
