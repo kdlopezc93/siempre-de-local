@@ -51,7 +51,7 @@ export function SquadPage({ teamId }: { teamId: string }) {
 
   const format = team.data.team.format;
   const players = squad.data.players;
-  const { counts, gaps, unknown } = distribution(players, source, format);
+  const { roster, gaps, unknown } = distribution(players, source, format);
   const sourceInfo = SOURCES.find((s) => s.value === source)!;
 
   return (
@@ -86,8 +86,8 @@ export function SquadPage({ teamId }: { teamId: string }) {
         <div className={styles.board}>
           <Pitch
             format={format}
-            counts={counts}
-            label={`Reparto según ${sourceInfo.label.toLowerCase()}: ${describeCounts(counts)}`}
+            roster={roster}
+            label={`Reparto según ${sourceInfo.label.toLowerCase()}: ${describeRoster(roster)}`}
           />
         </div>
         <p className={styles.gaps}>
@@ -129,10 +129,13 @@ export function SquadPage({ teamId }: { teamId: string }) {
   );
 }
 
-function describeCounts(counts: Record<string, number>): string {
-  return Object.entries(counts)
-    .map(([pos, n]) => `${POSITIONS[pos as keyof typeof POSITIONS].name} ${n}`)
-    .join(', ');
+function describeRoster(roster: Record<string, string[]>): string {
+  return Object.entries(roster)
+    .map(
+      ([pos, names]) =>
+        `${POSITIONS[pos as keyof typeof POSITIONS].name}: ${names.length ? names.join(', ') : 'hueco'}`,
+    )
+    .join('; ');
 }
 
 function BackLink() {

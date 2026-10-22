@@ -1,7 +1,7 @@
 import type { MatchFormat, PositionCode, SquadPlayer } from '@sdl/contracts';
 import { ELIGIBLE_POSITIONS, F8_FOLD } from '@sdl/domain';
 
-/** De dónde sale la posición de cada jugador al contar el reparto. */
+/** De dónde sale la posición de cada jugador al armar el reparto. */
 export type DistributionSource = 'staff' | 'test' | 'preferred';
 
 /** La posición de un jugador según la fuente, o null si esa fuente no la tiene (o no se ve). */
@@ -12,18 +12,18 @@ export function positionOf(player: SquadPlayer, source: DistributionSource): Pos
 }
 
 /**
- * Cuántos jugadores hay en cada posición del formato. En F8 el pivote cuenta como
+ * Quién juega en cada posición del formato, según la fuente. En F8 el pivote cuenta como
  * mediocentro y la mediapunta como delantero (02 §4). `unknown`: sin dato en esa fuente.
  */
 export function distribution(
   players: readonly SquadPlayer[],
   source: DistributionSource,
   format: MatchFormat,
-): { counts: Record<PositionCode, number>; gaps: PositionCode[]; unknown: number } {
+): { roster: Record<PositionCode, string[]>; gaps: PositionCode[]; unknown: number } {
   const eligible = ELIGIBLE_POSITIONS[format];
-  const counts = Object.fromEntries(eligible.map((pos) => [pos, 0])) as Record<
+  const roster = Object.fromEntries(eligible.map((pos) => [pos, [] as string[]])) as Record<
     PositionCode,
-    number
+    string[]
   >;
   let unknown = 0;
   for (const player of players) {
@@ -33,7 +33,7 @@ export function distribution(
       continue;
     }
     const pos = format === 'F8' ? (F8_FOLD[raw] ?? raw) : raw;
-    counts[pos] = (counts[pos] ?? 0) + 1;
+    roster[pos].push(player.displayName);
   }
-  return { counts, gaps: eligible.filter((pos) => counts[pos] === 0), unknown };
+  return { roster, gaps: eligible.filter((pos) => roster[pos].length === 0), unknown };
 }

@@ -31,20 +31,20 @@ const assessed = (primaryPosition: SquadPlayer['preferredPositions'][number]) =>
 
 describe('distribution', () => {
   it('cuenta por posición y marca los huecos del formato', () => {
-    const { counts, gaps, unknown } = distribution(
+    const { roster, gaps, unknown } = distribution(
       [assessed('DFC'), assessed('DFC'), assessed('POR'), player({})],
       'staff',
       'F11',
     );
-    expect(counts.DFC).toBe(2);
-    expect(counts.POR).toBe(1);
+    expect(roster.DFC).toEqual(['X', 'X']);
+    expect(roster.POR).toEqual(['X']);
     expect(gaps).toEqual(['LAT', 'MCD', 'MC', 'MP', 'EXT', 'DC']);
     expect(unknown).toBe(1);
   });
 
   it('en F8 el pivote cuenta como mediocentro y la mediapunta como delantero', () => {
-    const { counts, gaps } = distribution([assessed('MCD'), assessed('MP')], 'staff', 'F8');
-    expect(counts).toEqual({ POR: 0, LAT: 0, DFC: 0, MC: 1, EXT: 0, DC: 1 });
+    const { roster, gaps } = distribution([assessed('MCD'), assessed('MP')], 'staff', 'F8');
+    expect(roster).toEqual({ POR: [], LAT: [], DFC: [], MC: ['X'], EXT: [], DC: ['X'] });
     expect(gaps).toEqual(['POR', 'LAT', 'DFC', 'EXT']);
   });
 
@@ -58,18 +58,18 @@ describe('distribution', () => {
         podium: ['EXT', 'DC', 'MP'],
       },
     });
-    const { counts, unknown } = distribution([hidden, visible], 'test', 'F11');
-    expect(counts.EXT).toBe(1);
+    const { roster, unknown } = distribution([hidden, visible], 'test', 'F11');
+    expect(roster.EXT).toHaveLength(1);
     expect(unknown).toBe(1);
   });
 
   it('las preferidas usan la primera de cada jugador', () => {
-    const { counts } = distribution(
+    const { roster } = distribution(
       [player({ preferredPositions: ['LAT', 'EXT'] })],
       'preferred',
       'F11',
     );
-    expect(counts.LAT).toBe(1);
-    expect(counts.EXT).toBe(0);
+    expect(roster.LAT).toEqual(['X']);
+    expect(roster.EXT).toEqual([]);
   });
 });

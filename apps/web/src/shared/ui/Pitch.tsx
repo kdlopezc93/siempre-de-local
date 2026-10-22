@@ -8,10 +8,10 @@ interface PitchProps {
   /** Posiciones a marcar, en orden: la primera se destaca; las demás llevan aro. */
   marked?: readonly PositionCode[];
   /**
-   * Modo reparto: cuántos jugadores hay en cada posición (en vez del dorsal). Las que
-   * tienen 0 son huecos y llevan aro ámbar punteado.
+   * Modo plantilla (como el planificador del prototipo): la sigla en el círculo y debajo
+   * quién juega ahí ("Ana +2"). Sin nadie es un hueco, con aro ámbar punteado.
    */
-  counts?: Partial<Record<PositionCode, number>>;
+  roster?: Partial<Record<PositionCode, readonly string[]>>;
   /** Descripción para lectores de pantalla. */
   label: string;
 }
@@ -20,7 +20,7 @@ interface PitchProps {
  * La pizarra: única fuente de la cancha (docs/design-system.md §9), con las coordenadas de
  * @sdl/domain (viewBox 100×150, portería propia abajo).
  */
-export function Pitch({ format, marked = [], counts, label }: PitchProps) {
+export function Pitch({ format, marked = [], roster, label }: PitchProps) {
   const layout = PITCH_LAYOUT[format];
   return (
     <svg viewBox="0 0 100 150" className={styles.pitch} role="img" aria-label={label}>
@@ -37,30 +37,40 @@ export function Pitch({ format, marked = [], counts, label }: PitchProps) {
 
       {ELIGIBLE_POSITIONS[format].map((pos) => {
         const [x, y] = layout[pos]!;
+        if (roster) {
+          const names = roster[pos] ?? [];
+          return (
+            <g key={pos} className={names.length ? styles.filled : styles.gap}>
+              <circle cx={x} cy={y} r="6" className={styles.dot} />
+              <text x={x} y={y + 1.3} className={styles.code}>
+                {pos}
+              </text>
+              <text x={x} y={y + 10} className={styles.name}>
+                {names.length === 0
+                  ? 'hueco'
+                  : `${short(names[0]!)}${names.length > 1 ? ` +${names.length - 1}` : ''}`}
+              </text>
+            </g>
+          );
+        }
         const rank = marked.indexOf(pos);
-        const count = counts?.[pos];
-        const className =
-          count !== undefined
-            ? count === 0
-              ? styles.gap
-              : styles.filled
-            : rank === 0
-              ? styles.first
-              : rank > 0
-                ? styles.podium
-                : styles.marker;
+        const className = rank === 0 ? styles.first : rank > 0 ? styles.podium : styles.marker;
         return (
           <g key={pos} className={className}>
-            {rank === 0 && count === undefined && (
-              <circle cx={x} cy={y} r="8.5" className={styles.halo} />
-            )}
+            {rank === 0 && <circle cx={x} cy={y} r="8.5" className={styles.halo} />}
             <circle cx={x} cy={y} r="5.4" className={styles.dot} />
             <text x={x} y={y + 2.1} className={styles.number}>
-              {count ?? POSITIONS[pos].number}
+              {POSITIONS[pos].number}
             </text>
           </g>
         );
       })}
     </svg>
   );
+}
+
+/** Nombres largos se cortan para no pisar la posición de al lado. */
+function short(name: string): string {
+  const first = name.split(' ')[0] ?? name;
+  return first.length > 9 ? `${first.slice(0, 8)}…` : first;
 }

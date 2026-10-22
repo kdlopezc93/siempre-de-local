@@ -97,7 +97,7 @@ describe('SquadPage', () => {
 
     expect(await screen.findByText('Primer equipo: 2 jugadores')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /Reparto según cuerpo técnico/ })).toHaveAccessibleName(
-      /Extremo 1/,
+      /Extremo: Beto/,
     );
     expect(screen.getByText(/^Huecos: Portero, Lateral/)).toBeInTheDocument();
     expect(screen.getByText('1 jugador sin valorar.')).toBeInTheDocument();
