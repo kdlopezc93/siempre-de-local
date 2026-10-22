@@ -7,12 +7,14 @@ import type { ClubRole, TeamRole } from '../../../shared/authz/policy.js';
 import type { DbConnection } from '../../../shared/db/client.js';
 import { DB_CONNECTION } from '../../../shared/db/db.module.js';
 import type { MembershipsQuery } from '../../identity/application/ports/memberships.query.js';
+import { user } from '../../identity/infrastructure/schema.js';
+import type { TeamPlayersQuery } from '../../squad/application/ports/squad.ports.js';
 import type { TeamRecord, TeamsRepository } from '../application/ports/teams.repository.js';
 import { club, clubMembership, team, teamMembership } from './schema.js';
 
 @Injectable()
 export class DrizzleTeamsRepository
-  implements TeamsRepository, AuthorizationReader, MembershipsQuery
+  implements TeamsRepository, AuthorizationReader, MembershipsQuery, TeamPlayersQuery
 {
   constructor(@Inject(DB_CONNECTION) private readonly connection: DbConnection) {}
 
@@ -91,5 +93,23 @@ export class DrizzleTeamsRepository
       teams.set(row.team.id, entry);
     }
     return { teams: [...teams.values()], clubs: clubRows };
+  }
+
+  activePlayers(teamId: string) {
+    return this.connection.db
+      .select({
+        userId: teamMembership.userId,
+        name: user.name,
+        jerseyNumber: teamMembership.jerseyNumber,
+      })
+      .from(teamMembership)
+      .innerJoin(user, eq(teamMembership.userId, user.id))
+      .where(
+        and(
+          eq(teamMembership.teamId, teamId),
+          eq(teamMembership.role, 'player'),
+          isNull(teamMembership.leftAt),
+        ),
+      );
   }
 }

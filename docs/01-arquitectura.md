@@ -167,7 +167,8 @@ src/
 │   ├── certification/         exámenes de conocimiento y mejor puntaje (StartExam, SubmitExam, VoidExam)
 │   ├── player-profile/        tarjeta 0–99, medias por posición; (futuro) pruebas de campo
 │   ├── teams/                 clubs, equipos, membresías, invitaciones
-│   ├── assessments/           valoraciones del entrenador
+│   ├── assessments/           valoraciones del entrenador (blind impuesto)
+│   ├── squad/                 panel de la plantilla: lee de teams, player-profile, quiz y assessments por puertos
 │   ├── lineups/               planificador (encaje multi-fuente + húngaro)
 │   ├── questionnaires/        versiones de cuestionario y bancos de certificación (admin)
 │   └── identity/              puerto IdentityProvider + adaptador Better Auth/Google, consentimiento de datos

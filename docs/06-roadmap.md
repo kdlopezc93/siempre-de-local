@@ -52,6 +52,20 @@ Decisiones de este plan:
 - **Tarjeta del jugador (entrada manual 0–99)** con anclas e histórico; medias por posición; pantalla de perfil del jugador.
 - Valoración del entrenador (con `blind`). Importación de CSV heredados. Exportación.
 
+Plan en PRs (acordado el 2026-10-22):
+
+| # | PR | Depende de |
+|---|---|---|
+| 1 | API: valoraciones del entrenador (`coach_assessment`) y plantilla (`GET /teams/:id/squad`) con el test oculto hasta valorar | — |
+| 2 | UI: panel de la plantilla (pizarra con reparto y huecos, tabla) y valorar a cada jugador | 1 |
+| 3 | Tarjeta 0–99: catálogo y anclas, `rating-formula-v1` en dominio, fotos e histórico, tarjeta del jugador (D8) | 1 |
+| 4 | Perfil del jugador para el cuerpo técnico | 2, 3 |
+| 5 | Exportar CSV (con `audit_log`) e importar los CSV del prototipo | 2 |
+
+Decisiones de este plan:
+- **Valoración a ciegas impuesta por la app:** quien puntúa (coach o assistant) no ve el resultado del test de un jugador hasta registrar su primera valoración de ese jugador; esa primera queda `blind = true` y es la que sirve para validar el test (`02` §11). Las siguientes, ya con el test a la vista, quedan `blind = false`. El admin del club no valora y ve los resultados.
+- El assistant puntúa la tarjeta y valora igual que el coach (`04` §2.2).
+
 ### Fase 4 · Examen de conocimiento (certificación)
 - **Contenido primero:** escribir y revisar el banco de al menos 2 posiciones piloto (≥ 40 ítems cada una para publicar, objetivo 60, por áreas y dificultad). Sin banco no hay módulo; es la tarea que más tiempo va a llevar y no es de código.
 - Lint del banco, publicación, examen con plazo en servidor, selección que prioriza ítems no vistos, un intento por posición cada 30 días, mejor puntaje sin caducidad, anulación, retirada por calidad ("a revisar"), **re-evaluación solicitada por el entrenador** con plazo.
@@ -101,13 +115,13 @@ Decisiones de este plan:
 | # | Pregunta | Propuesta por defecto |
 |---|---|---|
 | D1 | ¿El jugador ve su preparación? | **Ya no aplica:** la preparación se retiró del test (v2, 2026-10-21) |
-| D2 | ¿El jugador ve las valoraciones del entrenador sobre él? | No |
+| D2 | ¿El jugador ve las valoraciones del entrenador sobre él? | **Decidido: no** (2026-10-22) |
 | D3 | ¿Multi-club desde el día 1? | Modelo multi-club, UI de un club |
 | D4 | ¿Cuántos intentos del test cuentan? | Todos se guardan; panel usa el último oficial; el entrenador puede anular |
 | D5 | Dominio y hosting | Elegir al cerrar la Fase 2, antes del primer equipo. Comparativa de oct-2026: Cloudflare (dominio, DNS, Pages) + Fly.io (API en `iad`) + Neon (`us-east-1`), ≈ US$0–4/mes en staging; dominio candidato `siempredelocal.app`. Revisar precios al momento |
 | D6 | Adjuntar `planificador-partido.jsx` | Necesario antes de Fase 5 |
 | D7 | Revisión legal de la política de datos | Antes de usar con equipos reales. Borrador en `docs/legal/politica-tratamiento-datos.md`: completar los `[…]` (responsable, contacto, plazos) y revisar la transferencia internacional (art. 26) |
-| D8 | ¿El jugador ve su tarjeta 0–99? | Sí, configurable por equipo |
+| D8 | ¿El jugador ve su tarjeta 0–99? | **Decidido: sí, configurable por equipo** (`team.ratings_visible_to_players`, interruptor del entrenador) (2026-10-22) |
 | D9 | Vigencia del puntaje de conocimiento | **Decidido: no caduca.** Un intento por posición cada 30 días. Reabrir solo si se ve que puntajes viejos no reflejan la realidad |
 | D10 | ¿Quién escribe los bancos de conocimiento? | Kevin + un entrenador revisor por posición; nunca un entrenador cuyos jugadores vayan a examinarse sin rotar revisores |
 | D11 | ¿Los compañeros ven el conocimiento de otros? | Solo la banda, sin puntaje |

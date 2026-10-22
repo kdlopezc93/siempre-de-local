@@ -12,6 +12,10 @@ export interface ProfileRepository {
   find(
     userId: string,
   ): Promise<{ preferences: StoredPreferences | null; positions: PositionCode[] }>;
+  /** Lo mismo que find para varios usuarios. */
+  findMany(
+    userIds: string[],
+  ): Promise<Map<string, { preferences: StoredPreferences | null; positions: PositionCode[] }>>;
   savePreferences(userId: string, preferences: StoredPreferences): Promise<void>;
   /** Reemplaza la lista completa, en orden (rank 1..n). */
   replacePositions(userId: string, positions: PositionCode[]): Promise<void>;

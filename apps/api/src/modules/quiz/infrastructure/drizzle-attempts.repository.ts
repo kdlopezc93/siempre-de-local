@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { RankingEntry } from '@sdl/domain';
-import { and, desc, eq } from 'drizzle-orm';
+import type { PositionCode, RankingEntry } from '@sdl/domain';
+import { and, desc, eq, ne } from 'drizzle-orm';
 import { DatabaseError } from 'pg';
 
 import type { DbConnection } from '../../../shared/db/client.js';
 import { DB_CONNECTION } from '../../../shared/db/db.module.js';
+import type { LatestResultsQuery } from '../../squad/application/ports/squad.ports.js';
 import type {
   AttemptsRepository,
   NewAttempt,
@@ -47,7 +48,7 @@ function toStored(row: Row): StoredAttempt {
 }
 
 @Injectable()
-export class DrizzleAttemptsRepository implements AttemptsRepository {
+export class DrizzleAttemptsRepository implements AttemptsRepository, LatestResultsQuery {
   constructor(@Inject(DB_CONNECTION) private readonly connection: DbConnection) {}
 
   /** Solo el resultado oficial: si algún día se re-puntúa, convive con el anterior. */
@@ -78,6 +79,23 @@ export class DrizzleAttemptsRepository implements AttemptsRepository {
       .where(eq(quizAttempt.userId, userId))
       .orderBy(desc(quizAttempt.submittedAt));
     return rows.map(toStored);
+  }
+
+  /** Último intento oficial de cada jugador en el equipo (los anulados no cuentan). */
+  async latestByTeam(teamId: string) {
+    const rows = await this.official()
+      .where(and(eq(quizAttempt.teamId, teamId), ne(quizAttempt.status, 'void')))
+      .orderBy(desc(quizAttempt.submittedAt));
+    const latest = new Map<
+      string,
+      { attemptId: string; submittedAt: Date; podium: PositionCode[] }
+    >();
+    for (const row of rows) {
+      if (latest.has(row.userId)) continue;
+      const podium = (row.ranking as RankingEntry[]).slice(0, 3).map((entry) => entry.pos);
+      latest.set(row.userId, { attemptId: row.id, submittedAt: row.submittedAt, podium });
+    }
+    return latest;
   }
 
   async save({ userId, request, scoringVersion, result, receivedAt }: NewAttempt) {
