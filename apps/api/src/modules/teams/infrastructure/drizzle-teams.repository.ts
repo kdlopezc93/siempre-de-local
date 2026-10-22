@@ -26,11 +26,16 @@ export class DrizzleTeamsRepository
         format: team.format,
         season: team.season,
         club: { id: club.id, name: club.name },
+        ratingsVisibleToPlayers: team.ratingsVisibleToPlayers,
       })
       .from(team)
       .innerJoin(club, eq(team.clubId, club.id))
       .where(eq(team.id, teamId));
     return row ?? null;
+  }
+
+  async updateSettings(teamId: string, settings: { ratingsVisibleToPlayers: boolean }) {
+    await this.connection.db.update(team).set(settings).where(eq(team.id, teamId));
   }
 
   async findTeamClubId(teamId: string): Promise<string | null> {

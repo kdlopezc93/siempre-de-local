@@ -30,6 +30,13 @@ export const SquadResponseSchema = z.object({
       latestAssessment: AssessmentSchema.nullable(),
       /** Si quien pregunta ya lo valoró alguna vez. */
       assessedByMe: z.boolean(),
+      /** Su tarjeta vigente (la foto más reciente), o null si nadie la puntuó. */
+      card: z
+        .object({
+          ratedAt: z.iso.datetime(),
+          positionAverages: z.partialRecord(PositionCodeSchema, z.int()),
+        })
+        .nullable(),
     }),
   ),
 });

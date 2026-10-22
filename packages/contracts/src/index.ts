@@ -6,5 +6,6 @@ export * from './invitations.js';
 export * from './me.js';
 export * from './orientation.js';
 export * from './profile.js';
+export * from './ratings.js';
 export * from './squad.js';
 export * from './teams.js';

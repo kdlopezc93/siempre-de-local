@@ -4,7 +4,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AUTHORIZATION_READER } from '../../shared/authz/actor.port.js';
 import { MEMBERSHIPS_QUERY } from '../identity/application/ports/memberships.query.js';
 import { TEAM_PLAYERS_QUERY } from '../squad/application/ports/squad.ports.js';
-import { GetTeam } from './application/get-team.use-case.js';
+import { GetTeam, UpdateTeam } from './application/get-team.use-case.js';
 import { InvitationRedemption, TeamInvitations } from './application/invitations.use-cases.js';
 import { INVITATIONS_REPOSITORY } from './application/ports/invitations.repository.js';
 import { TEAMS_REPOSITORY } from './application/ports/teams.repository.js';
@@ -33,6 +33,7 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
     { provide: TEAM_PLAYERS_QUERY, useExisting: DrizzleTeamsRepository },
     { provide: INVITATIONS_REPOSITORY, useClass: DrizzleInvitationsRepository },
     GetTeam,
+    UpdateTeam,
     TeamInvitations,
     InvitationRedemption,
   ],

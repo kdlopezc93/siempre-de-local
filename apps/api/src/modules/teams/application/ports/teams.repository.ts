@@ -6,10 +6,12 @@ export interface TeamRecord {
   format: MatchFormat;
   season: string;
   club: { id: string; name: string };
+  ratingsVisibleToPlayers: boolean;
 }
 
 export interface TeamsRepository {
   findById(teamId: string): Promise<TeamRecord | null>;
+  updateSettings(teamId: string, settings: { ratingsVisibleToPlayers: boolean }): Promise<void>;
 }
 
 export const TEAMS_REPOSITORY = Symbol('TEAMS_REPOSITORY');

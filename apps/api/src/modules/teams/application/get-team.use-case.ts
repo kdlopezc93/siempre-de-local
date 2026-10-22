@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { TeamResponse } from '@sdl/contracts';
+import type { TeamResponse, UpdateTeamRequest } from '@sdl/contracts';
 
 import { ForbiddenError, NotFoundError } from '../../../shared/errors/application-errors.js';
 import { can, type Actor } from '../../../shared/authz/policy.js';
@@ -17,5 +17,20 @@ export class GetTeam {
       throw new ForbiddenError('No tienes permiso para esto');
     }
     return { team, myRoles: [...(actor.teams.get(team.id) ?? [])] };
+  }
+}
+
+@Injectable()
+export class UpdateTeam {
+  constructor(@Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository) {}
+
+  async execute(actor: Actor, teamId: string, patch: UpdateTeamRequest): Promise<TeamResponse> {
+    const team = await this.teams.findById(teamId);
+    if (!team) throw new NotFoundError('Equipo no encontrado');
+    if (!can(actor, 'team.settings.write', { teamId: team.id, clubId: team.club.id })) {
+      throw new ForbiddenError('No tienes permiso para esto');
+    }
+    await this.teams.updateSettings(team.id, patch);
+    return { team: { ...team, ...patch }, myRoles: [...(actor.teams.get(team.id) ?? [])] };
   }
 }

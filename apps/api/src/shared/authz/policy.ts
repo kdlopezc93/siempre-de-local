@@ -44,6 +44,8 @@ const TEAM_PERMISSIONS = {
   /** El coach solo gestiona jugadores; esa restricción fina va en el caso de uso. */
   'team.members.manage': { roles: ['coach'], clubAdmin: true },
   'team.data.transfer': { roles: ['coach'], clubAdmin: true },
+  /** Ajustes del equipo, p. ej. si el jugador ve su tarjeta (D8). */
+  'team.settings.write': { roles: ['coach'], clubAdmin: true },
 } as const satisfies Record<string, { roles: readonly TeamRole[]; clubAdmin: boolean }>;
 
 export type TeamPermission = keyof typeof TEAM_PERMISSIONS;
