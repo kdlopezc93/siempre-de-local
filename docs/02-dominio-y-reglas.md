@@ -291,13 +291,27 @@ Restricción opcional **"conocimiento mínimo"** (apagada por defecto): el entre
 ### 9.4 Nota crítica sobre mezclar escalas
 El húngaro compara costes **entre jugadores**. R, C y V sí son comparables entre jugadores; A no lo es (es ipsativa, §10). Por eso A tiene poco peso salvo en modo Desarrollo. Si con datos reales A distorsiona las alineaciones, se baja su peso.
 
-### 9.5 Pendiente
-El prototipo `planificador-partido.jsx` tenía "puntuación en tres niveles y modos de prioridad". **Este modelo es la propuesta v2**; hay que reconciliarlo con el código original cuando se adjunte (D6), sin inventar sus reglas.
+### 9.5 Reconciliación con el prototipo (D6, 2026-10-22)
+El prototipo `planificador-partido.jsx` (solo F8) puntuaba en tres niveles (posición exacta → podio del test → estimación por perfil físico y posiciones afines) y tenía los modos Equilibrado / Priorizar defensa / Priorizar ataque / Manual. Se conserva su **mecánica** y se cambia su **puntaje** por el encaje v2:
+- **Se conserva:** el húngaro (portado tal cual y verificado contra fuerza bruta), las 4 formaciones de F8 con sus coordenadas, la **prioridad por línea** (esa línea se resuelve primero con toda la plantilla), la convocatoria, el armado a mano (ubicar e intercambiar) y la banca.
+- **Se reemplaza:** los tres niveles por el encaje A/V/C/R. La estimación física desaparece (no guardamos altura ni peso); las posiciones afines quedan cubiertas por la valoración secundaria, la afinidad del test en todas las posiciones y las medias de la tarjeta.
+- **Modos:** dos controles independientes: los pesos (Equilibrado / Rendimiento / Desarrollo) y la línea que se arma primero (ninguna / defensa / ataque). Manual es siempre posible tocando la pizarra.
+- **F11:** 1-4-3-3 (por defecto), 1-4-4-2, 1-4-2-3-1 y 1-3-5-2. **F8:** 1-3-3-1 (por defecto), 1-2-4-1, 1-3-4 y 1-2-3-2 (D12).
+- **A ciegas:** para quien todavía no valoró a un jugador, su test (A) no se usa: se excluye y se renormaliza.
+- **Dónde se calcula:** en el celular (el dominio es compartido), así funciona sin señal en la cancha; el servidor guarda las alineaciones.
+
+Implementado en `@sdl/domain/lineup` (`fit-v1`):
 
 ```ts
-fitMatrix(players: PlayerSignals[], slots: Slot[], mode: Mode, opts): CostMatrix
-solveLineup(matrix: CostMatrix, pins: Pin[]): Assignment[]
+FORMATIONS, DEFAULT_FORMATION, formationsFor(format), LINE_OF
+MODE_WEIGHTS, knowledgeSignal(pct), signalsFor(player, position), fit(player, position, weights)
+assign(cost)                 // húngaro para matrices de cualquier forma
+solveLineup({ formation, players, weights, pins?, minKnowledgePct?, priority? })
+  // → { assignments: [{ slotId, playerId, fit, breakdown, pinned }], bench, warnings }
+lineRatings(formation, assignments)   // encaje medio por línea, 0–100
 ```
+
+Avisos: `NOT_ENOUGH_PLAYERS`, `PLAYER_WITHOUT_DATA` (va al final), `MIN_KNOWLEDGE_INFEASIBLE` (se arma igual con el mejor) y `KNOWLEDGE_REVIEW_EXPIRED`.
 
 ---
 
