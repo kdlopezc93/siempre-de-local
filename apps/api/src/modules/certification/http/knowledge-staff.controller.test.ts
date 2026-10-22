@@ -290,4 +290,27 @@ describe('conocimiento: anular y re-evaluar (cuerpo técnico)', () => {
       ]),
     );
   });
+
+  it('anular el examen de una re-evaluación: lo reemplazado vuelve a contar y la re-evaluación se reabre', async () => {
+    // Estado tras la re-evaluación: cuenta el 50% y el 90% quedó reemplazado.
+    const before = await profile();
+    const review = before.exams.find((e) => e.fromReview && !e.voided)!;
+    expect(before.positions[0]!.best?.pct).toBe(0.5);
+
+    const res = await call('POST', `/teams/${teamId}/cert-exams/${review.examId}/void`, coach, {
+      reason: 'Lo hizo otra persona',
+      resetInterval: true,
+    });
+    expect(res.statusCode).toBe(204);
+
+    const after = await profile();
+    expect(after.positions[0]!.best?.pct).toBe(0.9);
+    expect(after.exams.find((e) => e.pct === 0.9)?.superseded).toBe(false);
+    expect(after.positions[0]!.review).toMatchObject({ status: 'pending', resolvedExamId: null });
+    // El jugador puede presentarla ya.
+    const { positions } = CertPositionsResponseSchema.parse(
+      (await call('GET', '/certification/positions', ana)).json(),
+    );
+    expect(positions[0]).toMatchObject({ nextAttemptAt: null, review: { status: 'pending' } });
+  });
 });

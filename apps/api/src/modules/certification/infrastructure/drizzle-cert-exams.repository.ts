@@ -262,6 +262,38 @@ export class DrizzleCertExamsRepository implements CertExamsRepository {
       );
   }
 
+  async restoreSuperseded(userId: string, position: PositionCode, at: Date) {
+    await this.connection.db
+      .update(certExam)
+      .set({ supersededAt: null })
+      .where(
+        and(
+          eq(certExam.userId, userId),
+          eq(certExam.position, position),
+          eq(certExam.supersededAt, at),
+        ),
+      );
+  }
+
+  async reopenReview(reviewId: string, now: Date) {
+    try {
+      const updated = await this.connection.db
+        .update(certReviewRequest)
+        .set({
+          status: sql`case when ${certReviewRequest.dueAt} < ${now} then 'expired' else 'pending' end::cert_review_status`,
+          resolvedExamId: null,
+          closedAt: null,
+        })
+        .where(and(eq(certReviewRequest.id, reviewId), eq(certReviewRequest.status, 'completed')))
+        .returning({ id: certReviewRequest.id });
+      return updated.length > 0;
+    } catch (error) {
+      // Ya pidieron otra re-evaluación de esa posición: queda esa.
+      if (isUniqueViolation(error)) return false;
+      throw error;
+    }
+  }
+
   async examsOfUsers(userIds: string[]) {
     if (userIds.length === 0) return [];
     return this.connection.db

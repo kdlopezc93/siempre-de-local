@@ -69,13 +69,25 @@ export class KnowledgeStaff implements KnowledgeQuery {
       at: now,
       resetsInterval: request.resetInterval,
     });
+    // Anular el examen de una re-evaluación es como si no se hubiera presentado: lo que
+    // había reemplazado vuelve a contar y la re-evaluación queda abierta otra vez.
+    let reopened = false;
+    if (exam.reviewRequestId && exam.submittedAt) {
+      await this.exams.restoreSuperseded(exam.userId, exam.position, exam.submittedAt);
+      reopened = await this.exams.reopenReview(exam.reviewRequestId, now);
+    }
     await this.audit.record({
       actorUserId: actor.userId,
       action: 'cert_exam.voided',
       entity: 'cert_exam',
       entityId: examId,
       teamId,
-      meta: { playerId: exam.userId, reason: request.reason, resetInterval: request.resetInterval },
+      meta: {
+        playerId: exam.userId,
+        reason: request.reason,
+        resetInterval: request.resetInterval,
+        reviewReopened: reopened,
+      },
     });
   }
 

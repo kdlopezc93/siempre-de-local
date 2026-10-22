@@ -224,7 +224,7 @@ export type StartCheck =
  * - Un examen activo a la vez (de cualquier posición).
  * - Un intento por posición cada N días, desde el **inicio** del último, cuente como cuente.
  * - Sin espera si el último está "a revisar", si se anuló con reinicio o si hay una
- *   re-evaluación pendiente de esa posición.
+ *   re-evaluación pendiente de esa posición. Los reemplazados no cuentan.
  */
 export function canStartExam(
   exams: readonly ExamSummary[],
@@ -235,8 +235,13 @@ export function canStartExam(
   const active = exams.find((e) => e.status === 'in_progress');
   if (active) return { ok: false, reason: 'EXAM_IN_PROGRESS', examId: active.id };
   if (opts.pendingReview) return { ok: true };
+  // Un reemplazado no marca la espera: la re-evaluación que lo reemplazó ya la saltó, y
+  // si esa también se anula con reinicio, no queda nada que esperar.
   const last = exams
-    .filter((e) => e.position === position && !(e.status === 'void' && e.voidResetsInterval))
+    .filter(
+      (e) =>
+        e.position === position && !e.superseded && !(e.status === 'void' && e.voidResetsInterval),
+    )
     .sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime())[0];
   if (!last || last.underReview || now >= last.nextAttemptAt) return { ok: true };
   return { ok: false, reason: 'ATTEMPT_INTERVAL', nextAttemptAt: last.nextAttemptAt };

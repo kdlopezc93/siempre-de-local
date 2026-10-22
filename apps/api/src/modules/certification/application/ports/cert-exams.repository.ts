@@ -110,6 +110,10 @@ export interface CertExamsRepository {
   ): Promise<boolean>;
   /** Marca como sustituidos los exámenes entregados de esa posición anteriores a `before`. */
   supersedeEarlier(userId: string, position: PositionCode, before: Date, at: Date): Promise<void>;
+  /** Deshace un reemplazo: los que reemplazó la re-evaluación cerrada en `at` vuelven a contar. */
+  restoreSuperseded(userId: string, position: PositionCode, at: Date): Promise<void>;
+  /** Reabre una re-evaluación completada (pendiente o vencida según su plazo); false si ya hay otra abierta. */
+  reopenReview(reviewId: string, now: Date): Promise<boolean>;
   /** Exámenes de varias personas (para la plantilla). */
   examsOfUsers(userIds: string[]): Promise<StoredExam[]>;
 
