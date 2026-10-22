@@ -75,6 +75,11 @@ export function HomePage({ me }: { me: Me }) {
           <Link to="/historial" className={styles.teamAction}>
             Tus tests
           </Link>
+          {me.teams.some((t) => t.roles.includes('player')) && (
+            <Link to="/conocimiento" className={styles.teamAction}>
+              Examen de conocimiento
+            </Link>
+          )}
           <Link to="/bases" className={styles.teamAction}>
             En qué se basa el test
           </Link>

@@ -2,6 +2,8 @@ import { createBrowserRouter, Navigate } from 'react-router';
 
 import {
   AssessRoute,
+  ExamRoute,
+  KnowledgeRoute,
   MyCardRoute,
   PlayerProfileRoute,
   RateRoute,
@@ -29,6 +31,8 @@ export const router = createBrowserRouter([
   { path: '/equipos/:teamId/plantilla/:playerId/tarjeta', element: <StaffCardRoute /> },
   { path: '/equipos/:teamId/plantilla/:playerId/tarjeta/puntuar', element: <RateRoute /> },
   { path: '/equipos/:teamId/tarjeta', element: <MyCardRoute /> },
+  { path: '/conocimiento', element: <KnowledgeRoute /> },
+  { path: '/conocimiento/examen/:examId', element: <ExamRoute /> },
   { path: '/equipos/:teamId/test', element: <QuizRoute /> },
   { path: '/resultados/:attemptId', element: <ResultRoute /> },
   { path: '/historial', element: <HistoryRoute /> },

@@ -8,6 +8,8 @@ export class ApiError extends Error {
     readonly status: number,
     readonly code: string,
     message: string,
+    /** Datos para actuar, p. ej. `{ examId }` en EXAM_IN_PROGRESS. */
+    readonly details?: Record<string, unknown>,
   ) {
     super(message);
     this.name = 'ApiError';
@@ -40,6 +42,11 @@ export async function apiFetch(path: string, init: RequestInit = {}): Promise<Re
 async function toApiError(res: Response): Promise<ApiError> {
   const body = ErrorBodySchema.safeParse(await res.json().catch(() => null));
   return body.success
-    ? new ApiError(res.status, body.data.error.code, body.data.error.message)
+    ? new ApiError(
+        res.status,
+        body.data.error.code,
+        body.data.error.message,
+        body.data.error.details,
+      )
     : new ApiError(res.status, 'HTTP_ERROR', res.statusText);
 }

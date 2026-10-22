@@ -136,6 +136,10 @@ Con `prefers-reduced-motion: reduce`, las duraciones pasan a 0 y la entrada se m
 
 Una ficha de pizarra, **no** una carta de videojuego: sin escudo, brillos ni degradados. Lo único fuerte es su mejor media del formato del equipo (Oswald ~72px en ámbar) con el nombre de la posición; debajo, los atributos en dos columnas con un trazo de tiza que marca cuánto de 99, y las medias por posición ordenadas (la mejor en ámbar). Al puntuar, cada atributo es un deslizador nativo (`accent-color` ámbar, 44px de alto, `touch-action: pan-y` para no trabar el scroll) con el ancla de la escala debajo, que cambia mientras se mueve.
 
+## 9.0.1 Examen de conocimiento (`features/knowledge`)
+
+Mismo lenguaje que el test (una pregunta por pantalla, opciones de tiza que se rellenan de ámbar). Lo propio: **el reloj** grande arriba a la derecha (Oswald tabular, ámbar en los últimos 2 minutos y rojo en el último; para lectores de pantalla solo avisa a los 5, 2 y 1 minuto) y **una tira de 20 marcas** de tiza que se rellenan al responder. La revisión final es una grilla de 5 × 4 números (≥ 44 px) para volver a cualquier pregunta. El resultado repite la ficha: el porcentaje en grande en ámbar, la banda y las áreas con barras verdes; nunca las respuestas correctas.
+
 ## 9.1 Movimiento con intención (Fase 2)
 
 - **Paso de pregunta en el test:** la pregunta entra de lado (`translateX(16px)` + opacidad, `--sdl-duration-base`).
