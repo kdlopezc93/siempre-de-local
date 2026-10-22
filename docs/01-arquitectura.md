@@ -215,7 +215,7 @@ Organizado **por funcionalidad**, no por tipo de archivo. La lógica de negocio 
 - Playwright para el flujo crítico: invitar → registrarse → hacer test → entrenador ve resultado.
 - CI en GitHub Actions: lint, typecheck, tests, migraciones en seco.
 
-## 5. Despliegue (propuesta, revisar costes al momento)
+## 5. Despliegue (D5: Cloudflare + Fly.io + Neon; pasos en `docs/deploy.md`)
 
 | Pieza | Dónde |
 |---|---|

@@ -1,0 +1,12 @@
+# Cloudflare Pages (docs/deploy.md). La CSP se agrega al tener el dominio del API.
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# El service worker y el manifiesto siempre se revalidan: si no, una versión nueva tarda en llegar.
+/sw.js
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache

@@ -1,0 +1,22 @@
+name: Desplegar staging
+
+# Manual hasta que staging exista (docs/deploy.md, paso 8). Luego: `push: branches: [main]`.
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: staging
+  cancel-in-progress: false
+
+jobs:
+  api:
+    name: API en Fly.io
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: superfly/flyctl-actions/setup-flyctl@v1
+      # La imagen se construye en Fly; release_command migra y siembra antes del cambio.
+      - run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

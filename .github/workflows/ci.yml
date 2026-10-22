@@ -100,3 +100,14 @@ jobs:
 
       - name: Volver a sembrar (debe ser idempotente)
         run: pnpm --filter @sdl/api db:seed
+
+  docker:
+    name: Imagen del API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      # Solo construye: que el Dockerfile no se rompa sin que nadie lo note (docs/deploy.md).
+      - name: Construir apps/api/Dockerfile
+        run: docker build -f apps/api/Dockerfile -t sdl-api:ci .
