@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { fetchQuestionnaire, submitAttempt } from '../../shared/api/quiz';
 import { enqueue, requestPersistentStorage, type OutboxSender } from '../../shared/offline/outbox';
 import { useOutbox, useOutboxSync } from '../../shared/offline/use-outbox';
+import { randomId } from '../../shared/random-id';
 import { answer, isDone, startQuiz, toSubmission, type QuizState } from './quiz-engine';
 
 const KIND = 'orientation-attempt';
@@ -52,7 +53,7 @@ export function useQuiz(userId: string, team: { id: string; format: MatchFormat 
     if (!questionnaire.data) return;
     setState(
       startQuiz(questionnaire.data, team, cryptoRandom, {
-        clientAttemptId: crypto.randomUUID(),
+        clientAttemptId: randomId(),
         now: new Date(),
       }),
     );

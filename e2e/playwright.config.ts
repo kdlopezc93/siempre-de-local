@@ -8,7 +8,8 @@ export default defineConfig({
   globalSetup: './global-setup.ts',
   fullyParallel: false,
   forbidOnly: !!process.env['CI'],
-  retries: process.env['CI'] ? 1 : 0,
+  // Sin reintentos: el flujo cambia la base (el jugador ya quedaría unido al reintentar).
+  retries: 0,
   reporter: process.env['CI'] ? [['github'], ['html', { open: 'never' }]] : 'list',
   use: {
     ...devices['Pixel 7'],
