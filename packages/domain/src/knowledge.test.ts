@@ -187,6 +187,22 @@ describe('cuándo se puede presentar', () => {
     expect(canStartExam([exam({})], 'DFC', day(2), { pendingReview: true })).toEqual({ ok: true });
   });
 
+  it('un reemplazado no marca la espera: anular con reinicio la re-evaluación deja presentar', () => {
+    const replaced = exam({ id: 'viejo', superseded: true });
+    const voidedReview = exam({
+      id: 'reeval',
+      status: 'void',
+      voidResetsInterval: true,
+      startedAt: day(3),
+      nextAttemptAt: nextAttemptFrom(day(3), cfg),
+    });
+    expect(canStartExam([replaced, voidedReview], 'DFC', day(4), none)).toEqual({ ok: true });
+    // Sin reinicio, la re-evaluación anulada sí marca su espera.
+    expect(
+      canStartExam([replaced, { ...voidedReview, voidResetsInterval: false }], 'DFC', day(4), none),
+    ).toMatchObject({ ok: false, nextAttemptAt: nextAttemptFrom(day(3), cfg) });
+  });
+
   it('un examen activo a la vez, de cualquier posición', () => {
     expect(
       canStartExam([exam({ id: 'activo', status: 'in_progress', position: 'MC' })], 'DFC', day(2), {

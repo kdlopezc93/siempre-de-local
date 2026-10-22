@@ -145,7 +145,8 @@ Las bandas no bloquean nada; son la etiqueta que ven el jugador y el entrenador.
 - **Válido:** cuenta para calcular el mejor puntaje.
 - **Anulado:** el entrenador lo anula con motivo obligatorio (p. ej. lo hizo otra persona). Deja de contar y pasa a valer el mejor de los restantes. Anular **no** reinicia la espera de 30 días, salvo que el entrenador lo indique.
 - **A revisar:** ver §6.5.
-- **Sustituido:** intentos anteriores a una re-evaluación completada (§6.7). Quedan en el historial, pero ya no cuentan para el mejor puntaje.
+- **Sustituido:** intentos anteriores a una re-evaluación completada (§6.7). Quedan en el historial, pero ya no cuentan para el mejor puntaje. Tampoco marcan la espera del mes: la marca la re-evaluación que los sustituyó.
+- **Anular el examen de una re-evaluación** es como si no se hubiera presentado: los intentos que había sustituido vuelven a contar y la re-evaluación se reabre (pendiente, o vencida si ya pasó su plazo), salvo que ya se haya pedido otra de esa posición.
 
 Cada intento guarda la versión del banco con la que se hizo.
 
