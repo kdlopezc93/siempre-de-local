@@ -45,7 +45,7 @@
 | GET | `/invitations/:code` | Público: `{ team: { id, name, format }, club: { name }, role }`. El código se acepta en minúsculas o con guiones |
 | POST | `/invitations/:code/accept` | Con sesión: une al equipo → 201 `{ teamId, role, alreadyMember }`; si ya era miembro activo no gasta un uso. Exige el consentimiento vigente: si falta, 403 `CONSENT_REQUIRED` |
 
-Errores de invitación: 404 `INVITATION_NOT_FOUND` · 422 `INVITATION_EXPIRED`, `INVITATION_USED_UP`, `INVITATION_REVOKED`. Esquemas en `packages/contracts/src/invitations.ts`.
+Errores de invitación: 404 `INVITATION_NOT_FOUND` · 422 `INVITATION_EXPIRED`, `INVITATION_USED_UP`, `INVITATION_REVOKED` · 429 `RATE_LIMITED` (más de 20 peticiones por minuto y por IP entre ver y aceptar). Esquemas en `packages/contracts/src/invitations.ts`.
 
 ## Test de orientación
 

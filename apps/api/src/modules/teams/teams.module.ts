@@ -1,4 +1,5 @@
 import { Global, Module } from '@nestjs/common';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AUTHORIZATION_READER } from '../../shared/authz/actor.port.js';
 import { MEMBERSHIPS_QUERY } from '../identity/application/ports/memberships.query.js';
@@ -14,6 +15,14 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
 /** Global porque PermissionGuard (global) e identity (`/me`) leen membresías. */
 @Global()
 @Module({
+  imports: [
+    // Endpoints públicos de invitación: ver y aceptar un código. Corta la fuerza bruta
+    // sobre los códigos (04 §1.2). En memoria: alcanza con una sola instancia del API.
+    ThrottlerModule.forRoot({
+      throttlers: [{ ttl: 60_000, limit: 20 }],
+      errorMessage: 'Demasiados intentos seguidos. Espera un minuto y vuelve a intentar.',
+    }),
+  ],
   controllers: [TeamsController, TeamInvitationsController, InvitationsController],
   providers: [
     DrizzleTeamsRepository,
