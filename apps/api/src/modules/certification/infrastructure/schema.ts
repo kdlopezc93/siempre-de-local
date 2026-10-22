@@ -6,6 +6,8 @@ import {
   index,
   integer,
   jsonb,
+  numeric,
+  primaryKey,
   pgEnum,
   pgTable,
   smallint,
@@ -17,6 +19,8 @@ import {
 } from 'drizzle-orm/pg-core';
 
 import { positionCode } from '../../../shared/db/enums.js';
+import { user } from '../../identity/infrastructure/schema.js';
+import { team } from '../../teams/infrastructure/schema.js';
 
 /** Bancos del examen de conocimiento (docs/03-modelo-datos.md §6). */
 const id = () =>
@@ -116,4 +120,74 @@ export const certOption = pgTable(
       .on(t.itemId)
       .where(sql`${t.isCorrect}`),
   ],
+);
+
+export const certExamStatus = pgEnum('cert_exam_status', ['in_progress', 'submitted', 'void']);
+/** Cómo terminó: lo entregó, lo abandonó o se le acabó el tiempo (02 §6.3). */
+export const certExamEnd = pgEnum('cert_exam_end', ['submit', 'abandon', 'timeout']);
+export const knowledgeBand = pgEnum('knowledge_band', [
+  'mastery',
+  'solid',
+  'developing',
+  'insufficient',
+]);
+
+/** Un intento de examen (03 §6). El plazo lo fija el servidor al empezar. */
+export const certExam = pgTable(
+  'cert_exam',
+  {
+    id: id(),
+    userId: uuid()
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    /** Equipo desde el que se presentó (el puntaje es de la persona, no del equipo). */
+    teamId: uuid().references(() => team.id),
+    bankVersionId: uuid()
+      .notNull()
+      .references(() => certBankVersion.id),
+    position: positionCode().notNull(),
+    status: certExamStatus().notNull().default('in_progress'),
+    startedAt: timestamp({ withTimezone: true }).notNull(),
+    deadlineAt: timestamp({ withTimezone: true }).notNull(),
+    /** `startedAt + attemptIntervalDays`: un intento por posición cada N días. */
+    nextAttemptAt: timestamp({ withTimezone: true }).notNull(),
+    submittedAt: timestamp({ withTimezone: true }),
+    endedBy: certExamEnd(),
+    score: smallint(),
+    total: smallint(),
+    pct: numeric({ precision: 4, scale: 3, mode: 'number' }),
+    band: knowledgeBand(),
+    byArea: jsonb().$type<{ area: string; correct: number; total: number }[]>(),
+    /** Puntaje "a revisar" (banco retirado por calidad, 02 §6.5). */
+    underReview: boolean().notNull().default(false),
+    /** Lo marca una re-evaluación completada: deja de contar (02 §6.7). */
+    supersededAt: timestamp({ withTimezone: true }),
+  },
+  (t) => [
+    index().on(t.userId, t.position, t.startedAt.desc()),
+    index().on(t.teamId),
+    // Un examen activo por persona.
+    uniqueIndex('cert_exam_one_in_progress')
+      .on(t.userId)
+      .where(sql`${t.status} = 'in_progress'`),
+  ],
+);
+
+/** Las preguntas de un examen, en el orden en que se mostraron, con su respuesta. */
+export const certExamItem = pgTable(
+  'cert_exam_item',
+  {
+    examId: uuid()
+      .notNull()
+      .references(() => certExam.id, { onDelete: 'cascade' }),
+    itemId: uuid()
+      .notNull()
+      .references(() => certItem.id),
+    shownOrder: smallint().notNull(),
+    /** Orden barajado de las opciones, tal como se mostraron. */
+    optionOrder: uuid().array().notNull(),
+    answerOptionId: uuid().references(() => certOption.id),
+    answeredAt: timestamp({ withTimezone: true }),
+  },
+  (t) => [primaryKey({ columns: [t.examId, t.itemId] })],
 );

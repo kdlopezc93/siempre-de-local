@@ -83,17 +83,17 @@ Respuesta (`AttemptResultSchema`):
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/certification/positions` | Por posición: banco disponible, parámetros (ítems, tiempo), mi mejor puntaje (`pct`, `band`, `underReview`) y `nextAttemptAt` |
+| GET | `/certification/positions` | **Implementado.** Por posición: banco disponible, parámetros (ítems, tiempo), mi mejor puntaje (`pct`, `band`, `underReview`) y `nextAttemptAt` |
 | POST | `/cert-exams` | `{ position, teamId? }` → inicia examen. Si hay una re-evaluación pendiente para esa posición, se liga sola y no aplica la espera. Devuelve ítems **sin correctas**, `deadlineAt`. 409 `EXAM_IN_PROGRESS`, 422 `ATTEMPT_INTERVAL` (un intento por posición cada 30 días, con `nextAttemptAt`), 422 `NO_PUBLISHED_BANK` |
-| GET | `/cert-exams/:id` | Recuperar un examen en curso (p. ej. tras recargar): ítems y respuestas ya dadas |
-| PUT | `/cert-exams/:id/answers/:itemId` | `{ optionId }`. Guarda respuesta (permite cambiarla antes del plazo). 422 `EXAM_DEADLINE_PASSED` |
-| POST | `/cert-exams/:id/submit` | Cierra y puntúa. Respuesta abajo |
-| POST | `/cert-exams/:id/abandon` | Abandona; se puntúa lo respondido (lo demás cuenta como fallo) y consume el intento del mes |
+| **Implementado.** GET | `/cert-exams/:id` | Recuperar un examen en curso (p. ej. tras recargar): ítems y respuestas ya dadas |
+| **Implementado.** PUT | `/cert-exams/:id/answers/:itemId` | **Implementado** (204; 422 `ANSWER_INVALID` si la opción no es de esa pregunta). `{ optionId }`. Guarda respuesta (permite cambiarla antes del plazo). 422 `EXAM_DEADLINE_PASSED` |
+| POST | `/cert-exams/:id/submit` | **Implementado** (idempotente). Cierra y puntúa. Respuesta abajo |
+| POST | `/cert-exams/:id/abandon` | **Implementado.** Abandona; se puntúa lo respondido (lo demás cuenta como fallo) y consume el intento del mes |
 | GET | `/me/knowledge` | Mi mejor puntaje por posición, intentos, `nextAttemptAt` y re-evaluaciones pendientes |
 | GET | `/me/knowledge-reviews` | Solicitudes de re-evaluación que me han hecho (motivo, plazo, estado) |
-| GET | `/me/cert-exams` | Mis exámenes (puntaje y desglose por área) |
+| GET | `/me/cert-exams` | **Implementado.** Mis exámenes (puntaje y desglose por área) |
 
-Las respuestas se guardan una a una en el servidor: si se cae la conexión no se pierde el examen, y el plazo lo controla el servidor.
+Las respuestas se guardan una a una en el servidor: si se cae la conexión no se pierde el examen, y el plazo lo controla el servidor (con 10 s de margen por la latencia). Un examen vencido se cierra solo al consultarlo, con lo respondido (`endedBy: "timeout"`). Los errores con datos para actuar los llevan en `error.details`: `EXAM_IN_PROGRESS` → `{ examId }`, `ATTEMPT_INTERVAL` → `{ nextAttemptAt }`. Las preguntas nunca llevan la correcta ni la explicación, y el resultado da el desglose por área, no las respuestas.
 
 Respuesta de `submit`:
 ```json

@@ -4,12 +4,19 @@
  */
 export abstract class ApplicationError extends Error {
   abstract readonly status: number;
+  /** Datos para que el cliente actúe, p. ej. `{ nextAttemptAt }`. Van en `error.details`. */
+  details?: Record<string, unknown>;
 
   constructor(
     message: string,
     readonly code: string,
   ) {
     super(message);
+  }
+
+  with(details: Record<string, unknown>): this {
+    this.details = details;
+    return this;
   }
 }
 
@@ -35,4 +42,10 @@ export class ForbiddenError extends ApplicationError {
 export class BusinessRuleError extends ApplicationError {
   override readonly name = 'BusinessRuleError';
   readonly status = 422;
+}
+
+/** Choca con el estado actual (409), p. ej. EXAM_IN_PROGRESS. */
+export class ConflictError extends ApplicationError {
+  override readonly name = 'ConflictError';
+  readonly status = 409;
 }

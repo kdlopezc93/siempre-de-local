@@ -1,4 +1,5 @@
 export * from './assessments.js';
+export * from './certification.js';
 export * from './consent.js';
 export * from './errors.js';
 export * from './health.js';

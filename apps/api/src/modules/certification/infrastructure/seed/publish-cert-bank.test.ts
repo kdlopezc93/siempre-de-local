@@ -93,4 +93,26 @@ describe('publicar un banco del examen', () => {
       .where(and(eq(certOption.itemId, item!.id), eq(certOption.isCorrect, true)));
     expect(stillOne!.n).toBe(1);
   });
+
+  it('en desarrollo, un borrador se publica como "v1-borrador" y la versión revisada lo reemplaza', async () => {
+    const { db } = connection;
+    const draft = certBankFixture(40, { position: 'MC', review: null });
+    await expect(publishCertBank(db, draft, { draftsForDevelopment: true })).resolves.toBe(
+      'published',
+    );
+    await publishCertBank(db, { ...draft, review: { by: 'Profe', on: '2026-11-01' } });
+    const versions = await db
+      .select({
+        label: certBankVersion.label,
+        status: certBankVersion.status,
+        reviewedBy: certBankVersion.reviewedBy,
+      })
+      .from(certBankVersion)
+      .where(eq(certBankVersion.position, 'MC'))
+      .orderBy(certBankVersion.label);
+    expect(versions).toEqual([
+      { label: 'v1', status: 'published', reviewedBy: 'Profe' },
+      { label: 'v1-borrador', status: 'retired', reviewedBy: 'Sin revisar (solo desarrollo)' },
+    ]);
+  });
 });
