@@ -147,6 +147,46 @@ describe('SquadPage', () => {
     expect(screen.getByText('Solo el cuerpo técnico ve las tarjetas.')).toBeInTheDocument();
   });
 
+  it('descarga la plantilla en CSV con el nombre que propone el API', async () => {
+    const { fetchMock } = fakeApi({});
+    fetchMock.mockImplementation((input: URL | string) => {
+      const path = new URL(input).pathname;
+      if (path.endsWith('/export.csv')) {
+        return Promise.resolve(
+          new Response('"Nombre"\r\n', {
+            headers: {
+              'content-type': 'text/csv',
+              'content-disposition': 'attachment; filename="plantilla-primer-equipo.csv"',
+            },
+          }),
+        );
+      }
+      return Promise.resolve(
+        new Response(JSON.stringify(path.endsWith('/squad') ? SQUAD : TEAM), {
+          headers: { 'content-type': 'application/json' },
+        }),
+      );
+    });
+    const original = { create: URL.createObjectURL, revoke: URL.revokeObjectURL };
+    URL.createObjectURL = () => 'blob:x';
+    URL.revokeObjectURL = () => {};
+    const saved: string[] = [];
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      saved.push(this.download);
+    });
+    renderAt(`/equipos/${TEAM_ID}/plantilla`);
+
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Descargar la plantilla (CSV)' }),
+    );
+    await vi.waitFor(() => expect(saved).toEqual(['plantilla-primer-equipo.csv']));
+    URL.createObjectURL = original.create;
+    URL.revokeObjectURL = original.revoke;
+    vi.restoreAllMocks();
+  });
+
   it('valorar: exige la principal, avisa que es a ciegas y vuelve a la plantilla', async () => {
     let body: unknown;
     fakeApi({

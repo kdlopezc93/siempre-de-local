@@ -11,3 +11,4 @@ export * from '../../modules/quiz/infrastructure/schema.js';
 export * from '../../modules/player-profile/infrastructure/schema.js';
 export * from '../../modules/assessments/infrastructure/schema.js';
 export * from '../../modules/ratings/infrastructure/schema.js';
+export * from '../../modules/audit/infrastructure/schema.js';

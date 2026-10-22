@@ -78,6 +78,13 @@
       "when": 1792633490289,
       "tag": "0010_rating_attribute_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792637767406,
+      "tag": "0011_audit_log",
+      "breakpoints": true
     }
   ]
 }

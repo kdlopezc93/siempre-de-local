@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 
 import { ApiError } from '../../shared/api/http';
+import { Button } from '../../shared/ui/Button';
 import { Pitch } from '../../shared/ui/Pitch';
 import { Screen } from '../../shared/ui/Screen';
 import { rankedAverages } from '../card/card-view';
@@ -11,7 +12,7 @@ import { useUpdateTeam } from '../card/use-card';
 import { useTeam } from '../team-admin/use-invitations';
 import { distribution, type DistributionSource } from './distribution';
 import styles from './SquadPage.module.css';
-import { useSquad } from './use-squad';
+import { useExportTeam, useSquad } from './use-squad';
 
 const SOURCES: { value: DistributionSource; label: string; empty: string }[] = [
   { value: 'staff', label: 'Cuerpo técnico', empty: 'sin valorar' },
@@ -260,6 +261,28 @@ function CardVisibility({ teamId, visible }: { teamId: string; visible: boolean 
           No pudimos cambiar el ajuste. Revisa tu conexión e intenta de nuevo.
         </p>
       )}
+      <ExportButton teamId={teamId} />
     </section>
+  );
+}
+
+/** La plantilla en CSV: lo mismo que se ve aquí, sin notas y respetando la regla a ciegas. */
+function ExportButton({ teamId }: { teamId: string }) {
+  const exporter = useExportTeam(teamId);
+  return (
+    <>
+      <Button variant="secondary" busy={exporter.isPending} onClick={() => exporter.mutate()}>
+        {exporter.isPending ? 'Preparando…' : 'Descargar la plantilla (CSV)'}
+      </Button>
+      <p className={styles.muted}>
+        Para abrir en Excel o Google Sheets. No lleva notas, y los tests que todavía no ves tampoco
+        salen.
+      </p>
+      {exporter.isError && (
+        <p role="alert" className={styles.error}>
+          No pudimos descargar el archivo. Revisa tu conexión e intenta de nuevo.
+        </p>
+      )}
+    </>
   );
 }

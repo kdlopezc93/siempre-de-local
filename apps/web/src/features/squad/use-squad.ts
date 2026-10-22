@@ -2,6 +2,8 @@ import type { CreateAssessmentRequest } from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { createAssessment, fetchPlayerProfile, fetchSquad } from '../../shared/api/squad';
+import { downloadTeamExport } from '../../shared/api/team-data';
+import { saveFile } from '../../shared/save-file';
 
 const squadKey = (teamId: string) => ['team', teamId, 'squad'] as const;
 
@@ -23,5 +25,13 @@ export function useCreateAssessment(teamId: string) {
   return useMutation({
     mutationFn: (request: CreateAssessmentRequest) => createAssessment(teamId, request),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team', teamId] }),
+  });
+}
+
+/** Descarga la plantilla en CSV (coach y admin del club). */
+export function useExportTeam(teamId: string) {
+  return useMutation({
+    mutationFn: () => downloadTeamExport(teamId),
+    onSuccess: ({ blob, filename }) => saveFile(blob, filename),
   });
 }
