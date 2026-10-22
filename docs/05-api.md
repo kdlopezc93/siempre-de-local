@@ -115,7 +115,7 @@ Staff del equipo:
 | DELETE | `/teams/:teamId/knowledge-reviews/:id` | Cancelar una pendiente |
 | POST | `/cert-exams/:id/void` | `{ reason, resetInterval? }` Anular un examen (coach, club admin); pasa a contar el mejor de los restantes. `resetInterval` permite repetir sin esperar el mes |
 
-Admin (platform admin): `POST /admin/cert-banks` (borrador, opcionalmente copiando otra versión), `POST/PATCH/DELETE /admin/cert-banks/:id/items[/:itemId]`, `POST /admin/cert-banks/:id/lint` (reglas de calidad), `POST /admin/cert-banks/:id/publish`, `POST /admin/cert-banks/:id/retire` (`{ forQuality: true }` marca sus puntajes "a revisar"), `GET /admin/cert-banks/:id/item-stats` (dificultad y discriminación por ítem).
+Admin (platform admin, **más adelante**; por ahora los bancos se escriben en el repo, se revisan en un PR y los publica `db:seed`, ver `03` §6): `POST /admin/cert-banks` (borrador, opcionalmente copiando otra versión), `POST/PATCH/DELETE /admin/cert-banks/:id/items[/:itemId]`, `POST /admin/cert-banks/:id/lint` (reglas de calidad), `POST /admin/cert-banks/:id/publish`, `POST /admin/cert-banks/:id/retire` (`{ forQuality: true }` marca sus puntajes "a revisar"), `GET /admin/cert-banks/:id/item-stats` (dificultad y discriminación por ítem).
 
 ## Perfil y tarjeta del jugador
 

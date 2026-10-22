@@ -71,6 +71,22 @@ Decisiones de este plan:
 - Lint del banco, publicación, examen con plazo en servidor, selección que prioriza ítems no vistos, un intento por posición cada 30 días, mejor puntaje sin caducidad, anulación, retirada por calidad ("a revisar"), **re-evaluación solicitada por el entrenador** con plazo.
 - Ampliar al resto de posiciones.
 
+Plan en PRs (acordado el 2026-10-22):
+
+| # | PR | Estado |
+|---|---|---|
+| 1 | Dominio: selección del examen, puntaje y bandas, mejor puntaje, cuándo se puede presentar, lint del banco | #39 |
+| 2 | Tablas de los bancos, formato de archivo, publicación en `db:seed` (solo revisados) y lint en la CI; `pnpm bank:lint` con hoja de revisión | |
+| 3 | Banco piloto: borradores de Defensa central y Mediocentro (~60 cada uno) para revisar | |
+| 4 | API del examen: empezar, responder (una a una), entregar o abandonar, plazo en servidor; `/certification/positions`, `/me/knowledge` | |
+| 5 | Pantallas del jugador: elegir posición, examen con reloj, resultado con desglose por área | |
+| 6 | Cuerpo técnico: conocimiento en plantilla, perfil y CSV; anular; re-evaluación | |
+
+Decisiones de este plan:
+- **Posiciones piloto:** Defensa central y Mediocentro (distintas entre sí, existen en F8 y F11).
+- **Redacción (D10):** Claude redacta un borrador; Kevin y un entrenador revisor lo corrigen. Nada se publica sin `review` en el archivo del banco.
+- **Dónde viven los bancos:** archivos en el repo, revisados en un PR y con el lint en la CI. La pantalla de administración queda para cuando haya varios revisores.
+
 ### Fase 5 · Alineaciones y validación
 - Reconciliar con `planificador-partido.jsx` (D6).
 - Encaje multi-fuente (A/V/C/R, con C = conocimiento corregido por azar), modos, umbral opcional de conocimiento mínimo, fijar jugadores, desglose explicable.

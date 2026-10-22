@@ -133,6 +133,8 @@ Implementado en `apps/api/src/modules/quiz/infrastructure/schema.ts` (migración
 
 ## 6. Certificación
 
+**Bancos implementados** (migración `0012_cert_banks`, módulo `certification`): `cert_area`, `cert_bank_version`, `cert_item`, `cert_option`. Diferencias con lo de abajo: `cert_bank_version` lleva `reviewed_by text` y `reviewed_on date` (quién revisó el contenido, D10) y es única por `(position, label)`; `cert_item` lleva `code` (estable dentro del banco, p. ej. `DFC-AER-03`) y `sort`; `cert_option` tiene un índice único parcial que impide dos correctas por ítem. Los bancos se escriben en el repo (`certification/infrastructure/seed/banks/`) y los publica `db:seed` solo si están revisados y sin errores de lint. Las tablas del examen (`cert_exam`, `cert_exam_item`, `cert_review_request`) llegan con el API del examen.
+
 **cert_bank_version** — un banco por posición y versión
 | Columna | Tipo | Notas |
 |---|---|---|

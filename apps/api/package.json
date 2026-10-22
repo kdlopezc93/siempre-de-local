@@ -13,6 +13,7 @@
     "dev": "tsc -p tsconfig.build.json && (TSC_WATCHFILE=DynamicPriorityPolling TSC_WATCHDIRECTORY=DynamicPriorityPolling tsc -p tsconfig.build.json --watch --preserveWatchOutput & node --watch --env-file-if-exists=.env dist/main.js)",
     "start": "node dist/main.js",
     "db:seed": "node --env-file-if-exists=.env dist/scripts/seed.js",
+    "bank:lint": "tsc -p tsconfig.build.json && node dist/scripts/lint-banks.js",
     "admin:bootstrap-team": "node --env-file-if-exists=.env dist/scripts/bootstrap-team.js",
     "admin:seed-demo": "node --env-file-if-exists=.env dist/scripts/seed-demo.js",
     "db:migrate:prod": "node dist/scripts/migrate.js"

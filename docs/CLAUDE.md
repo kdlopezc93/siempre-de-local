@@ -55,6 +55,7 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | `pnpm build` | Compila todos los paquetes |
 | `pnpm format` | Prettier |
 | `pnpm admin:seed-demo -- --team-id <uuid>` | Llena un equipo con 14 jugadores de demostración (tests y valoraciones de un asistente demo); idempotente, nunca en producción |
+| `pnpm bank:lint [-- --md <carpeta>]` | Control de calidad de los bancos del examen de conocimiento; con `--md` escribe la hoja de revisión de cada banco para el entrenador revisor |
 | `pnpm db:up` | Levanta Postgres 18 local (`docker compose up -d --wait db`) |
 | `pnpm db:generate` | Genera la migración SQL a partir del esquema Drizzle |
 | `pnpm db:migrate` | Aplica las migraciones pendientes |

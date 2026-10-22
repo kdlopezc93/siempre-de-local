@@ -1,6 +1,8 @@
 import { ORIENTATION_V1 } from '../modules/questionnaires/infrastructure/seed/orientation-v1.content.js';
 import { ORIENTATION_V2 } from '../modules/questionnaires/infrastructure/seed/orientation-v2.content.js';
 import { seedOrientationContent } from '../modules/questionnaires/infrastructure/seed/seed-orientation.js';
+import { CERT_BANKS } from '../modules/certification/infrastructure/seed/banks/index.js';
+import { publishCertBank } from '../modules/certification/infrastructure/seed/publish-cert-bank.js';
 import { createDb } from '../shared/db/client.js';
 
 /**
@@ -19,6 +21,15 @@ try {
     console.log(
       `Cuestionario ${content.label}: ${outcome === 'created' ? 'publicado' : 'ya existía'}`,
     );
+  }
+  for (const bank of CERT_BANKS) {
+    const outcome = await publishCertBank(db, bank);
+    const said = {
+      published: 'publicado',
+      'already-exists': 'ya existía',
+      'pending-review': 'borrador sin revisar, no se publica',
+    }[outcome];
+    console.log(`Banco ${bank.position} ${bank.label}: ${said}`);
   }
 } finally {
   await pool.end();
