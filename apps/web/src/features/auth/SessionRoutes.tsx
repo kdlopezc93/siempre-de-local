@@ -26,6 +26,7 @@ const screens = {
   invite: () => import('../team-admin/InvitePage'),
   squad: () => import('../squad/SquadPage'),
   assess: () => import('../squad/AssessPage'),
+  playerProfile: () => import('../squad/PlayerProfilePage'),
   myCard: () => import('../card/MyCardPage'),
   staffCard: () => import('../card/StaffCardPage'),
   rate: () => import('../card/RatePage'),
@@ -42,6 +43,9 @@ const ProfilePage = lazy(() => screens.profile().then((m) => ({ default: m.Profi
 const InvitePage = lazy(() => screens.invite().then((m) => ({ default: m.InvitePage })));
 const SquadPage = lazy(() => screens.squad().then((m) => ({ default: m.SquadPage })));
 const AssessPage = lazy(() => screens.assess().then((m) => ({ default: m.AssessPage })));
+const PlayerProfilePage = lazy(() =>
+  screens.playerProfile().then((m) => ({ default: m.PlayerProfilePage })),
+);
 const MyCardPage = lazy(() => screens.myCard().then((m) => ({ default: m.MyCardPage })));
 const StaffCardPage = lazy(() => screens.staffCard().then((m) => ({ default: m.StaffCardPage })));
 const RatePage = lazy(() => screens.rate().then((m) => ({ default: m.RatePage })));
@@ -203,4 +207,14 @@ export function StaffCardRoute() {
 export function RateRoute() {
   const { teamId = '', playerId = '' } = useParams();
   return <RequireSession>{() => <RatePage teamId={teamId} playerId={playerId} />}</RequireSession>;
+}
+
+/** "/equipos/:teamId/plantilla/:playerId" — el perfil del jugador para el cuerpo técnico. */
+export function PlayerProfileRoute() {
+  const { teamId = '', playerId = '' } = useParams();
+  return (
+    <RequireSession>
+      {() => <PlayerProfilePage teamId={teamId} playerId={playerId} />}
+    </RequireSession>
+  );
 }

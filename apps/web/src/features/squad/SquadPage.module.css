@@ -125,6 +125,18 @@
   overflow-wrap: anywhere;
 }
 
+/* El nombre lleva al perfil: subrayado tenue para que se note que es un enlace. */
+.playerLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--sdl-touch-min);
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--sdl-border-control);
+  text-underline-offset: 5px;
+  touch-action: manipulation;
+}
+
 .jersey {
   color: var(--sdl-primary);
   font-variant-numeric: tabular-nums;

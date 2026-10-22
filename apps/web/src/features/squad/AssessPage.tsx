@@ -7,6 +7,7 @@ import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
 import { useTeam } from '../team-admin/use-invitations';
+import { useBackTo } from './back';
 import styles from './AssessPage.module.css';
 import { useCreateAssessment, useSquad } from './use-squad';
 
@@ -24,6 +25,7 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
   const squad = useSquad(teamId);
   const create = useCreateAssessment(teamId);
   const navigate = useNavigate();
+  const back = useBackTo(`/equipos/${teamId}/plantilla`);
   const [primary, setPrimary] = useState<PositionCode | null>(null);
   const [secondary, setSecondary] = useState<PositionCode[]>([]);
   const [confidence, setConfidence] = useState(3);
@@ -45,7 +47,7 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
   if (!player || !team.data) {
     return (
       <Screen className={styles.screen}>
-        <BackLink teamId={teamId} />
+        <BackLink to={back} />
         <p role="alert">Ese jugador no está en la plantilla.</p>
       </Screen>
     );
@@ -81,7 +83,7 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
         confidence,
         notes: notes.trim() || undefined,
       },
-      { onSuccess: () => void navigate(`/equipos/${teamId}/plantilla`) },
+      { onSuccess: () => void navigate(back) },
     );
   }
 
@@ -94,7 +96,7 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
 
   return (
     <Screen className={styles.screen}>
-      <BackLink teamId={teamId} />
+      <BackLink to={back} />
       <header>
         <h1 className={styles.title}>Valorar a {player.displayName}</h1>
         <p className={styles.lead}>
@@ -208,10 +210,10 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
   );
 }
 
-function BackLink({ teamId }: { teamId: string }) {
+function BackLink({ to }: { to: string }) {
   return (
-    <Link to={`/equipos/${teamId}/plantilla`} className={styles.back}>
-      Volver a la plantilla
+    <Link to={to} className={styles.back}>
+      {to.endsWith('/plantilla') ? 'Volver a la plantilla' : 'Volver al perfil'}
     </Link>
   );
 }

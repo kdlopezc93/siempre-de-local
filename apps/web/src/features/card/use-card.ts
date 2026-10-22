@@ -19,16 +19,12 @@ export function useRatingHistory(teamId: string, playerId: string) {
   });
 }
 
-/** Al puntuar se refrescan el histórico y la plantilla (que muestra la tarjeta vigente). */
+/** Al puntuar se refresca todo lo del equipo: histórico, plantilla y perfil la muestran. */
 export function useCreateRating(teamId: string, playerId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (request: CreateRatingRequest) => createRating(teamId, playerId, request),
-    onSuccess: () =>
-      Promise.all([
-        queryClient.invalidateQueries({ queryKey: historyKey(teamId, playerId) }),
-        queryClient.invalidateQueries({ queryKey: ['team', teamId, 'squad'] }),
-      ]),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team', teamId] }),
   });
 }
 

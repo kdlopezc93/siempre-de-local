@@ -175,7 +175,9 @@ function PlayerRow({
           {player.jerseyNumber !== null && (
             <span className={styles.jersey}>{player.jerseyNumber}</span>
           )}
-          {player.displayName}
+          <Link to={`/equipos/${teamId}/plantilla/${player.userId}`} className={styles.playerLink}>
+            {player.displayName}
+          </Link>
         </h3>
         <Link
           to={`/equipos/${teamId}/plantilla/${player.userId}/valorar`}

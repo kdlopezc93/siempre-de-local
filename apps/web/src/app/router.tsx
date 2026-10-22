@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router';
 import {
   AssessRoute,
   MyCardRoute,
+  PlayerProfileRoute,
   RateRoute,
   StaffCardRoute,
   HistoryRoute,
@@ -23,6 +24,7 @@ export const router = createBrowserRouter([
   { path: '/unirse/:code', element: <JoinRoute /> },
   { path: '/equipos/:teamId/invitar', element: <InviteRoute /> },
   { path: '/equipos/:teamId/plantilla', element: <SquadRoute /> },
+  { path: '/equipos/:teamId/plantilla/:playerId', element: <PlayerProfileRoute /> },
   { path: '/equipos/:teamId/plantilla/:playerId/valorar', element: <AssessRoute /> },
   { path: '/equipos/:teamId/plantilla/:playerId/tarjeta', element: <StaffCardRoute /> },
   { path: '/equipos/:teamId/plantilla/:playerId/tarjeta/puntuar', element: <RateRoute /> },
