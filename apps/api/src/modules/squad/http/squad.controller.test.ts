@@ -8,6 +8,7 @@ import {
   POLICY_VERSION,
   QuestionnaireResponseSchema,
   SquadResponseSchema,
+  ValidationResponseSchema,
 } from '@sdl/contracts';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -262,6 +263,40 @@ describe('plantilla y valoraciones (a ciegas impuesto)', () => {
       // El coach no es jugador del equipo: no tiene dorsal que cambiar.
       expect((await setJersey(owner, coach.userId, 7)).statusCode).toBe(404);
       expect((await setJersey(coach, tested.userId, 100)).statusCode).toBe(400);
+    });
+  });
+
+  describe('validación interna (02 §11)', () => {
+    const validation = async (who: SeededUser) =>
+      ValidationResponseSchema.parse(
+        (await call('GET', `/teams/${teamId}/validation`, who)).json(),
+      );
+
+    it('compara el test con las valoraciones a ciegas; quien valora solo ve a los que valoró', async () => {
+      const profile = PlayerProfileResponseSchema.parse(
+        (await call('GET', `/teams/${teamId}/players/${tested.userId}/profile`, owner)).json(),
+      );
+      const podium = profile.test.status === 'visible' ? profile.test.podium : [];
+      // El coach valoró a Ana a ciegas como DFC (después, ya sin ciegas, como MCD).
+      const coachView = await validation(coach);
+      expect(coachView.testVsStaff).toMatchObject({
+        n: 1,
+        exact: podium[0] === 'DFC' ? 1 : 0,
+        inPodium: podium.includes('DFC') ? 1 : 0,
+      });
+      expect(coachView.testVsStaff.confusion).toEqual([
+        { staff: 'DFC', test: podium[0], count: 1 },
+      ]);
+      // El asistente todavía no valoró a Ana: no la ve aquí.
+      expect((await validation(assistant)).testVsStaff.n).toBe(0);
+      // El admin del club no valora: ve todo.
+      expect((await validation(owner)).testVsStaff.n).toBe(1);
+      // Sin exámenes de conocimiento, no hay nada que comparar con la tarjeta.
+      expect(coachView.knowledgeVsCard).toEqual([]);
+    });
+
+    it('los jugadores no ven el informe', async () => {
+      expect((await call('GET', `/teams/${teamId}/validation`, tested)).statusCode).toBe(403);
     });
   });
 });

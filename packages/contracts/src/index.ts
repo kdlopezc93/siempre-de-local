@@ -11,3 +11,4 @@ export * from './profile.js';
 export * from './ratings.js';
 export * from './squad.js';
 export * from './teams.js';
+export * from './validation.js';

@@ -5,3 +5,4 @@ export * from './rating.js';
 export * from './bank-lint.js';
 export * from './knowledge.js';
 export * from './lineup/index.js';
+export * from './validation.js';

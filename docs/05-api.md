@@ -143,7 +143,7 @@ Pruebas de campo (futuro, no implementar): `GET /field-tests`, `POST /teams/:tea
 |---|---|
 | POST | `/teams/:teamId/assessments` — **Implementado** (coach, assistant): `{ playerId, primaryPosition, secondaryPositions (≤2, sin repetir ni la principal), confidence 1–5, notes? }` → 201 `{ assessment }`. `blind` lo decide el servidor. 404 `PLAYER_NOT_IN_TEAM` |
 | GET | `/teams/:teamId/assessments?playerId=` — **Implementado** (staff y admin del club): del más reciente al más antiguo |
-| GET | `/teams/:teamId/validation` → test vs. entrenador (solo `blind`) y conocimiento vs. tarjeta |
+| GET | `/teams/:teamId/validation` → test vs. entrenador (solo `blind`) y conocimiento vs. tarjeta (Spearman por posición, `rho` null con < 5 jugadores). `team.results.read`; quien valora solo cuenta a los jugadores que ya valoró |
 
 ## Alineaciones
 
