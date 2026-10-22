@@ -70,11 +70,6 @@ export function HomePage({ me }: { me: Me }) {
           </Link>
         </nav>
 
-        {/* TEMPORAL · spike PWA (docs/spikes/pwa.md) */}
-        <Link to="/prueba-pwa" className={styles.spikeLink}>
-          Probar la app sin conexión
-        </Link>
-
         <div className={styles.actions}>
           {failed && (
             <p role="alert" className={styles.alert}>

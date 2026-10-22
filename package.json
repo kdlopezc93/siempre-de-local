@@ -22,7 +22,7 @@
     "admin:bootstrap-team": "pnpm --filter \"@sdl/api...\" build && pnpm --filter @sdl/api admin:bootstrap-team",
     "proxy:up": "docker compose up -d proxy",
     "dev:tunnel": "bash scripts/dev-tunnel.sh",
-    "spike:pwa": "bash scripts/spike-pwa.sh",
+    "preview:tunnel": "bash scripts/preview-tunnel.sh",
     "proxy:cert": "mkdir -p .certs && docker compose cp proxy:/data/caddy/pki/authorities/local/root.crt .certs/caddy-local-root.crt"
   },
   "devDependencies": {

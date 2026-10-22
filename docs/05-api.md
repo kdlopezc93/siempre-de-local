@@ -18,15 +18,6 @@
 |---|---|---|
 | GET | `/health` | Público. `{ status: 'ok' \| 'degraded', checks: { database: 'up' \| 'down' } }`; 503 si una dependencia está caída |
 
-## Temporal · spike PWA (Fase 0)
-
-Solo para probar caché y cola offline en celulares (`docs/spikes/pwa.md`). Se borran en Fase 3. Esquemas en `packages/contracts/src/spike-pwa.ts`.
-
-| Método | Ruta | Descripción |
-|---|---|---|
-| GET | `/spike/questionnaire` | Cuestionario de juguete con `ETag` (`If-None-Match` → 304) y `Cache-Control: private, no-cache` |
-| POST | `/spike/attempts` | `{ clientAttemptId, questionnaireVersion, submittedAt, answers }` → 201; reenvío del mismo `clientAttemptId` → 200 con la misma respuesta. En memoria |
-
 ## Yo
 
 | Método | Ruta | Descripción |

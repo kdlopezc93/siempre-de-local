@@ -11,7 +11,7 @@ export function useSession() {
     queryKey: SESSION_KEY,
     queryFn: fetchMe,
     staleTime: 5 * 60_000,
-    // Sin red, el service worker responde con la última sesión conocida (docs/spikes/pwa.md).
+    // Sin red, el service worker responde con la última sesión conocida (ADR-06).
     networkMode: 'offlineFirst',
   });
 }

@@ -5,7 +5,7 @@
 #   pnpm dev:tunnel https://<id>-4173.<region>.devtunnels.ms
 #
 # Reemplaza a `pnpm dev` mientras corre (usa el puerto 3000 del API). Sin service worker:
-# para probar instalación y modo sin conexión, `pnpm spike:pwa` (build real).
+# para probar instalación y modo sin conexión, `pnpm preview:tunnel` (build real).
 set -euo pipefail
 
 TUNNEL_URL="${1:-}"
