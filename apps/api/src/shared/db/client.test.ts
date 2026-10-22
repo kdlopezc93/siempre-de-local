@@ -25,4 +25,13 @@ describe('createDb', () => {
     );
     expect(result.rows[0]?.server_version).toMatch(/^18\./);
   });
+
+  it('una conexión ociosa cortada por Postgres no tumba el proceso', () => {
+    expect(() =>
+      connection.pool.emit(
+        'error',
+        new Error('terminating connection due to administrator command'),
+      ),
+    ).not.toThrow();
+  });
 });
