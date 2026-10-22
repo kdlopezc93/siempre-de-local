@@ -136,8 +136,6 @@ Pruebas de campo (futuro, no implementar): `GET /field-tests`, `POST /teams/:tea
 | GET | `/teams/:teamId/squad` | **Implementado** (staff y admin del club). Por jugador activo: nombre visible, dorsal, preferidas, último test oficial (`test.status`: `none`, `hidden` o `visible` con podio), valoración más reciente, `assessedByMe` y `card` (fecha y medias por posición de la foto vigente, o null). **Para quien valora, el test queda `hidden` hasta que valora al jugador.** Los puntajes de conocimiento (Fase 4) se suman después |
 | GET | `/teams/:teamId/squad/summary` | Reparto por posición (test, valoración y conocimiento), huecos, conocimiento medio **por posición** (Fase 4), filtro `?format=` |
 | GET | `/teams/:teamId/export.csv` | **Implementado** (coach y admin del club, `team.data.transfer`). Una fila por jugador activo: nombre, dorsal, preferidas, test (fecha y podio; `Oculto hasta que lo valores` si quien exporta aún no lo valoró), última valoración, fecha y atributos de la tarjeta y medias por posición del formato. Sin notas. UTF-8 con BOM, todo entre comillas; las celdas que empiezan con `= + - @` se prefijan con `'` (inyección de fórmulas). Queda en `audit_log` (`team.exported`) |
-| POST | `/teams/:teamId/legacy-import` | **Implementado** (coach y admin del club). `{ csv }` como texto (≤ 512 000 caracteres; el celular lee los archivos o el entrenador lo pega; varios CSV seguidos valen), en lugar de multipart. Responde `{ imported, duplicates, linked, rejected: [{ line, reason }] }`. Auditado (`team.legacy_imported`) |
-| GET | `/teams/:teamId/legacy-results` | **Implementado** (coach y admin del club). Lo importado, por nombre, con el jugador ligado si lo hay |
 
 ## Valoraciones del entrenador
 

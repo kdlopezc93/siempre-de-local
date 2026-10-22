@@ -307,7 +307,7 @@ solveLineup(matrix: CostMatrix, pins: Pin[]): Assignment[]
 | Escala | ¿Comparable entre jugadores? |
 |---|---|
 | Afinidad del test | No |
-| Preparación x/8 (solo intentos v1 e importados) | Con cautela (preguntas débiles) |
+| Preparación x/8 (solo intentos v1) | Con cautela (preguntas débiles) |
 | Puntaje de conocimiento | Sí, dentro de la misma posición y versión del banco |
 | Tarjeta 0–99 y MP | Sí, dentro del mismo equipo y evaluador |
 
@@ -317,8 +317,6 @@ solveLineup(matrix: CostMatrix, pins: Pin[]): Assignment[]
 - Métricas: % de coincidencia exacta, % dentro del podio, matriz de confusión por posición.
 - Nuevo: relación entre **puntaje de conocimiento** y **MP** de la posición (¿quien más sabe de una posición tiene mejor tarjeta ahí?).
 
-## 12. Importación de CSV heredados
+## 12. Importación de CSV heredados — descartada
 
-El entrenador puede importar CSV del prototipo (`Nombre, Fecha, Formato, Posicion, Afinidad_%, Podio, Preparacion, Preparacion_%`; lectura tolerante a mayúsculas, tildes, `_` y `%`). Se guardan como **resultados heredados**, sin respuestas crudas, fuera de la validación y sin efecto en el planificador salvo que el entrenador lo active.
-
-Implementado: el lector vive en `@sdl/domain` (`parseLegacyCsv`) y además acepta `;` como separador (Excel en español), varios CSV pegados seguidos (salta los encabezados repetidos) y posiciones por nombre o sigla, con o sin sufijo entre paréntesis ("Mediocentro (CM)"). Cada fila rechazada vuelve con su línea y el motivo. Hoy los heredados se ven solo en la pantalla de datos del equipo (coach y admin del club); mostrarlos en el perfil del jugador queda para después, respetando la regla a ciegas.
+**Decidido el 2026-10-22: no se importan los resultados del prototipo.** El test cambió (v2: 20 preguntas, podio y sin preparación), así que esos resultados no son comparables con los nuevos; los jugadores vuelven a hacer el test en la app. Se implementó y se retiró antes de fusionar (PR #37); si algún día hiciera falta, está en el historial de esa rama.

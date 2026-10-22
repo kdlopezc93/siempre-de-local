@@ -1,10 +1,8 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { LegacyImportResponse, LegacyResult } from '@sdl/contracts';
 import {
   ELIGIBLE_POSITIONS,
   GOALKEEPER_ATTRIBUTES,
   OUTFIELD_ATTRIBUTES,
-  parseLegacyCsv,
   POSITIONS,
   positionAverages,
   RATING_ATTRIBUTES,
@@ -12,10 +10,6 @@ import {
 } from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
-import {
-  AUTHORIZATION_READER,
-  type AuthorizationReader,
-} from '../../../shared/authz/actor.port.js';
 import { can, type Actor } from '../../../shared/authz/policy.js';
 import { ForbiddenError, NotFoundError } from '../../../shared/errors/application-errors.js';
 import {
@@ -24,20 +18,10 @@ import {
 } from '../../ratings/application/ports/ratings.repository.js';
 import { GetSquad } from '../../squad/application/get-squad.use-case.js';
 import {
-  PROFILES_QUERY,
-  type ProfilesQuery,
-  TEAM_PLAYERS_QUERY,
-  type TeamPlayersQuery,
-} from '../../squad/application/ports/squad.ports.js';
-import {
   TEAMS_REPOSITORY,
   type TeamRecord,
   type TeamsRepository,
 } from '../../teams/application/ports/teams.repository.js';
-import {
-  LEGACY_RESULTS_REPOSITORY,
-  type LegacyResultsRepository,
-} from './ports/legacy-results.repository.js';
 
 const fold = (s: string) =>
   s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
@@ -50,9 +34,11 @@ async function authorizedTeam(
 ): Promise<TeamRecord> {
   const team = await teams.findById(teamId);
   if (!team) throw new NotFoundError('Equipo no encontrado');
-  // Importar y exportar: coach y admin del club (04 §2.2), no el asistente.
+  // Exportar: coach y admin del club (04 §2.2), no el asistente.
   if (!can(actor, 'team.data.transfer', { teamId: team.id, clubId: team.club.id })) {
-    throw new ForbiddenError('Solo el entrenador o el admin del club mueven los datos del equipo.');
+    throw new ForbiddenError(
+      'Solo el entrenador o el admin del club descargan los datos del equipo.',
+    );
   }
   return team;
 }
@@ -136,85 +122,4 @@ function slug(name: string) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '') || 'equipo'
   );
-}
-
-/** Resultados del prototipo (02 §12). */
-@Injectable()
-export class LegacyResults {
-  constructor(
-    @Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository,
-    @Inject(AUTHORIZATION_READER) private readonly memberships: AuthorizationReader,
-    @Inject(TEAM_PLAYERS_QUERY) private readonly players: TeamPlayersQuery,
-    @Inject(PROFILES_QUERY) private readonly profiles: ProfilesQuery,
-    @Inject(LEGACY_RESULTS_REPOSITORY) private readonly results: LegacyResultsRepository,
-    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
-  ) {}
-
-  async import(actor: Actor, teamId: string, csv: string): Promise<LegacyImportResponse> {
-    const team = await authorizedTeam(this.teams, actor, teamId);
-    const { rows, rejected } = parseLegacyCsv(csv);
-    const byName = await this.playersByName(teamId);
-    const linkedRows = rows.map((row) => ({
-      ...row,
-      // Sin formato en el CSV: el del equipo.
-      format: row.format ?? team.format,
-      playerUserId: byName.get(fold(row.playerName)) ?? null,
-    }));
-    const imported = await this.results.insertMany(teamId, actor.userId, linkedRows);
-    const summary = {
-      imported,
-      duplicates: rows.length - imported,
-      // Cuenta sobre las leídas: las repetidas ya estaban ligadas igual.
-      linked: linkedRows.filter((r) => r.playerUserId).length,
-      rejected,
-    };
-    await this.audit.record({
-      actorUserId: actor.userId,
-      action: 'team.legacy_imported',
-      entity: 'team',
-      entityId: team.id,
-      teamId: team.id,
-      meta: { ...summary, rejected: rejected.length },
-    });
-    return summary;
-  }
-
-  async list(actor: Actor, teamId: string): Promise<LegacyResult[]> {
-    await authorizedTeam(this.teams, actor, teamId);
-    const [stored, players] = await Promise.all([
-      this.results.listByTeam(teamId),
-      this.players.activePlayers(teamId),
-    ]);
-    const profiles = await this.profiles.profilesOf(
-      players.map((p) => ({ id: p.userId, name: p.name })),
-    );
-    return stored.map(({ playerUserId, importedAt, ...rest }) => {
-      const profile = playerUserId ? profiles.get(playerUserId) : undefined;
-      return {
-        ...rest,
-        // Ligado a alguien que ya no está en el equipo: se muestra sin ligar.
-        player: profile ? { userId: playerUserId!, displayName: profile.displayName } : null,
-        importedAt: importedAt.toISOString(),
-      };
-    });
-  }
-
-  /** Nombre (nombre visible o de Google, sin tildes ni mayúsculas) → jugador, si es único. */
-  private async playersByName(teamId: string): Promise<Map<string, string>> {
-    const players = await this.players.activePlayers(teamId);
-    const profiles = await this.profiles.profilesOf(
-      players.map((p) => ({ id: p.userId, name: p.name })),
-    );
-    const owners = new Map<string, Set<string>>();
-    for (const p of players) {
-      for (const n of [p.name, profiles.get(p.userId)?.displayName ?? '']) {
-        if (!n.trim()) continue;
-        const key = fold(n);
-        owners.set(key, (owners.get(key) ?? new Set()).add(p.userId));
-      }
-    }
-    return new Map(
-      [...owners].filter(([, ids]) => ids.size === 1).map(([key, ids]) => [key, [...ids][0]!]),
-    );
-  }
 }

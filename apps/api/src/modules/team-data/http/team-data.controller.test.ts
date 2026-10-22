@@ -1,11 +1,6 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
-import {
-  LegacyImportResponseSchema,
-  LegacyResultListResponseSchema,
-  POLICY_VERSION,
-  QuestionnaireResponseSchema,
-} from '@sdl/contracts';
+import { POLICY_VERSION, QuestionnaireResponseSchema } from '@sdl/contracts';
 import { eq } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -22,13 +17,8 @@ import { bootstrapTeam } from '../../teams/infrastructure/bootstrap-team.js';
 import { teamMembership } from '../../teams/infrastructure/schema.js';
 
 const BOM = String.fromCharCode(0xfeff);
-/** Como lo descarga el detector del prototipo. */
-const PROTOTYPE_CSV = `${BOM}"Nombre","Fecha","Formato","Posicion","Afinidad_%","Podio","Preparacion","Preparacion_%"
-"ana probada","2026-05-10 14:32","Fútbol F11","Mediocentro","88","Mediocentro (88%) | Pivote (75%) | Mediapunta (70%)","7/8","88"
-"Carlos Viejo","2026-05-11 09:00","Fútbol F11","Lateral","70","Lateral (70%) | Extremo (60%) | Defensa central (55%)","5/8","63"
-"Sin Posición","2026-05-11 09:00","Fútbol F11","Volante","70","","",""`;
 
-describe('datos del equipo: exportar e importar', () => {
+describe('exportar la plantilla', () => {
   let container: StartedPostgreSqlContainer;
   let connection: DbConnection;
   let app: NestFastifyApplication;
@@ -165,69 +155,22 @@ describe('datos del equipo: exportar e importar', () => {
     expect(rows.map((r) => r[0])).toContain(`'=HYPERLINK(""http://x"")`);
   });
 
-  it('el asistente y los jugadores no exportan ni importan', async () => {
+  it('el asistente y los jugadores no exportan', async () => {
     for (const who of [assistant, ana]) {
       expect((await call('GET', `/teams/${teamId}/export.csv`, who)).statusCode).toBe(403);
-      expect(
-        (await call('POST', `/teams/${teamId}/legacy-import`, who, { csv: PROTOTYPE_CSV }))
-          .statusCode,
-      ).toBe(403);
     }
   });
 
-  it('importa los CSV del prototipo, liga por nombre y no repite', async () => {
-    const first = LegacyImportResponseSchema.parse(
-      (await call('POST', `/teams/${teamId}/legacy-import`, coach, { csv: PROTOTYPE_CSV })).json(),
-    );
-    expect(first).toEqual({
-      imported: 2,
-      duplicates: 0,
-      linked: 1,
-      rejected: [{ line: 4, reason: 'Posición desconocida: "Volante"' }],
-    });
-
-    const again = LegacyImportResponseSchema.parse(
-      (await call('POST', `/teams/${teamId}/legacy-import`, owner, { csv: PROTOTYPE_CSV })).json(),
-    );
-    expect(again).toMatchObject({ imported: 0, duplicates: 2 });
-
-    const { items } = LegacyResultListResponseSchema.parse(
-      (await call('GET', `/teams/${teamId}/legacy-results`, coach)).json(),
-    );
-    expect(items.map((r) => [r.playerName, r.player?.userId ?? null, r.winner, r.takenAt])).toEqual(
-      [
-        ['ana probada', ana.userId, 'MC', '2026-05-10T14:32'],
-        ['Carlos Viejo', null, 'LAT', '2026-05-11T09:00'],
-      ],
-    );
-    expect(items[0]).toMatchObject({ podium: ['MC', 'MCD', 'MP'], prepScore: 7, prepTotal: 8 });
-  });
-
-  it('exportar, importar, puntuar y cambiar ajustes quedan en audit_log', async () => {
+  it('exportar, puntuar y cambiar ajustes quedan en audit_log', async () => {
     await call('PATCH', `/teams/${teamId}`, coach, { ratingsVisibleToPlayers: false });
     const rows = await connection.db.select().from(auditLog).where(eq(auditLog.teamId, teamId));
     const actions = rows.map((r) => r.action);
     expect(actions).toEqual(
-      expect.arrayContaining([
-        'rating.created',
-        'team.exported',
-        'team.legacy_imported',
-        'team.settings_updated',
-      ]),
+      expect.arrayContaining(['rating.created', 'team.exported', 'team.settings_updated']),
     );
     const exportRow = rows.find(
       (r) => r.action === 'team.exported' && r.actorUserId === coach.userId,
     );
     expect(exportRow?.meta).toEqual({ format: 'csv', players: 2 });
-  });
-
-  it('un CSV vacío o enorme se rechaza antes de leerlo', async () => {
-    expect(
-      (await call('POST', `/teams/${teamId}/legacy-import`, coach, { csv: '' })).statusCode,
-    ).toBe(400);
-    expect(
-      (await call('POST', `/teams/${teamId}/legacy-import`, coach, { csv: 'x'.repeat(512_001) }))
-        .statusCode,
-    ).toBe(400);
   });
 });

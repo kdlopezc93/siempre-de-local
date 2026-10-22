@@ -170,7 +170,7 @@ src/
 │   ├── teams/                 clubs, equipos, membresías, invitaciones
 │   ├── assessments/           valoraciones del entrenador (blind impuesto)
 │   ├── squad/                 plantilla y perfil del jugador: lee de teams, player-profile, quiz, assessments y ratings por puertos
-│   ├── team-data/             exportar la plantilla a CSV e importar los CSV del prototipo (legacy_result)
+│   ├── team-data/             exportar la plantilla a CSV (auditado)
 │   ├── audit/                 audit_log (implementa el puerto AUDIT_LOG de shared/audit)
 │   ├── lineups/               planificador (encaje multi-fuente + húngaro)
 │   ├── questionnaires/        versiones de cuestionario y bancos de certificación (admin)

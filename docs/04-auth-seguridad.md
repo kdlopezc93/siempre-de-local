@@ -69,7 +69,7 @@ Los admins de club se crean por script al inicio; ellos crean equipos e invitan 
 | Invitar jugadores | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Invitar entrenadores | ✘ | ✘ | ✘ | ✔ | ✘ |
 | Quitar miembros / cambiar roles | ✘ | ✘ | jugadores | ✔ | ✘ |
-| Importar CSV heredados / exportar datos del equipo | ✘ | ✘ | ✔ | ✔ | ✘ |
+| Exportar datos del equipo (CSV) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Gestionar cuestionarios y bancos de certificación | ✘ | ✘ | ✘ | ✘ | ✔ |
 | Revisar contenido de un banco (sin publicar) | ✘ | ✘ | ✔ si se le asigna como revisor | ✘ | ✔ |
 

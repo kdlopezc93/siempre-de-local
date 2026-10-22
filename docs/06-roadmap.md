@@ -50,7 +50,7 @@ Decisiones de este plan:
 ### Fase 3 · Entrenador
 - Panel: plantilla en pizarra, reparto, huecos, tabla, filtro por formato. *("Preparación media por posición" y "preparación baja en rojo" pasan a la Fase 4 como conocimiento por posición.)*
 - **Tarjeta del jugador (entrada manual 0–99)** con anclas e histórico; medias por posición; pantalla de perfil del jugador.
-- Valoración del entrenador (con `blind`). Importación de CSV heredados. Exportación.
+- Valoración del entrenador (con `blind`). Exportación. *(Importar los CSV del prototipo se descartó: el test cambió y los jugadores lo vuelven a hacer, `02` §12.)*
 
 Plan en PRs (acordado el 2026-10-22):
 
@@ -60,7 +60,7 @@ Plan en PRs (acordado el 2026-10-22):
 | 2 | UI: panel de la plantilla (pizarra con reparto y huecos, tabla) y valorar a cada jugador | 1 |
 | 3 | Tarjeta 0–99: catálogo y anclas, `rating-formula-v1` en dominio, fotos e histórico, tarjeta del jugador (D8) | 1 |
 | 4 | Perfil del jugador para el cuerpo técnico | 2, 3 |
-| 5 | Exportar CSV (con `audit_log`) e importar los CSV del prototipo | 2 |
+| 5 | Exportar CSV (con `audit_log`). ~~Importar los CSV del prototipo~~: descartado | 2 |
 
 Decisiones de este plan:
 - **Valoración a ciegas impuesta por la app:** quien puntúa (coach o assistant) no ve el resultado del test de un jugador hasta registrar su primera valoración de ese jugador; esa primera queda `blind = true` y es la que sirve para validar el test (`02` §11). Las siguientes, ya con el test a la vista, quedan `blind = false`. El admin del club no valora y ve los resultados.
