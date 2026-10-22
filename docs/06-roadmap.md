@@ -80,7 +80,8 @@ Plan en PRs (acordado el 2026-10-22):
 | 3 | Banco piloto: borradores de Defensa central y Mediocentro (60 cada uno) para revisar; hojas en `docs/bancos/` | #41 ✔; auditoría #44 ✔; revisado por un entrenador y publicado (falta anotar su nombre) |
 | 4 | API del examen: empezar, responder (una a una), entregar o abandonar, plazo en servidor; `/certification/positions`, `/me/cert-exams`; `db:seed -- --drafts` (solo desarrollo) | #42 ✔ |
 | 5 | Pantallas del jugador: elegir posición, examen con reloj, resultado con desglose por área | #43 ✔ |
-| 6 | Cuerpo técnico: conocimiento en plantilla, perfil y CSV; anular; re-evaluación | |
+| 6 | API del cuerpo técnico: conocimiento en plantilla, perfil y CSV; anular; re-evaluación | #46 |
+| 7 | Pantallas: lo del PR 6 para el cuerpo técnico, y la re-evaluación y los anulados para el jugador | |
 
 Decisiones de este plan:
 - **Posiciones piloto:** Defensa central y Mediocentro (distintas entre sí, existen en F8 y F11).

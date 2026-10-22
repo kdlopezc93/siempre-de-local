@@ -63,6 +63,7 @@ const PROFILE = {
   assessedByMe: true,
   card: null,
   cardCount: 0,
+  knowledge: { positions: [], exams: [] },
 };
 
 function renderAt(path: string) {
@@ -153,6 +154,7 @@ describe('PlayerProfilePage', () => {
               test: { status: 'none' },
               latestAssessment: null,
               assessedByMe: true,
+              knowledge: [],
               card: null,
             },
           ],
@@ -218,6 +220,7 @@ describe('PlayerProfilePage', () => {
       test: { status: 'none' },
       latestAssessment: null,
       assessedByMe: false,
+      knowledge: [],
       card: null,
     });
     fakeApi({

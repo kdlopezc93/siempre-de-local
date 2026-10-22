@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type {
   CertPositionsResponse,
   ExamInProgress,
+  KnowledgeReview,
   ExamResponse,
   ExamResult,
   StartExamRequest,
@@ -32,6 +33,7 @@ import {
   type Area,
   type CertExamsRepository,
   type StoredExam,
+  type StoredReview,
 } from './ports/cert-exams.repository.js';
 
 /** Margen para la latencia: una respuesta enviada justo al límite todavía cuenta. */
@@ -50,7 +52,7 @@ function shuffle<T>(items: readonly T[], rng: ExamRandom): T[] {
   return out;
 }
 
-const summary = (e: StoredExam): ExamSummary => ({
+export const summary = (e: StoredExam): ExamSummary => ({
   id: e.id,
   position: e.position,
   status: e.status,
@@ -60,11 +62,26 @@ const summary = (e: StoredExam): ExamSummary => ({
   nextAttemptAt: e.nextAttemptAt,
   underReview: e.underReview,
   superseded: e.supersededAt !== null,
-  // La anulación con reinicio llega con el panel del cuerpo técnico (PR 6).
-  voidResetsInterval: false,
+  voidResetsInterval: e.voidResetsInterval,
 });
 
-function toResult(exam: StoredExam, areas: readonly Area[]): ExamResult {
+/** Una re-evaluación tal como la ven el jugador y el cuerpo técnico. */
+export function toReview(review: StoredReview, now: Date): KnowledgeReview {
+  // Por si el vencimiento todavía no se guardó: vencida sigue abierta (02 §6.7).
+  const status = review.status === 'pending' && review.dueAt < now ? 'expired' : review.status;
+  return {
+    id: review.id,
+    position: review.position,
+    reason: review.reason,
+    requestedAt: review.requestedAt.toISOString(),
+    dueAt: review.dueAt.toISOString(),
+    status,
+    requestedBy: review.requestedBy,
+    resolvedExamId: review.resolvedExamId,
+  };
+}
+
+export function toResult(exam: StoredExam, areas: readonly Area[]): ExamResult {
   const name = new Map(areas.map((a) => [a.code, a.name]));
   return {
     state: 'finished',
@@ -83,6 +100,12 @@ function toResult(exam: StoredExam, areas: readonly Area[]): ExamResult {
       total,
     })),
     nextAttemptAt: exam.nextAttemptAt.toISOString(),
+    voided:
+      exam.status === 'void'
+        ? { reason: exam.voidReason ?? '', at: (exam.voidedAt ?? exam.submittedAt!).toISOString() }
+        : null,
+    superseded: exam.supersededAt !== null,
+    fromReview: exam.reviewRequestId !== null,
   };
 }
 
@@ -97,15 +120,18 @@ export class CertExams {
   ) {}
 
   async positions(userId: string, now = new Date()): Promise<CertPositionsResponse> {
-    const [banks, exams] = await Promise.all([
+    await this.exams.expireDueReviews(now);
+    const [banks, exams, reviews] = await Promise.all([
       this.exams.publishedBanks(),
       this.settled(userId, now),
+      this.exams.openReviews([userId]),
     ]);
     const summaries = exams.map(summary);
     const active = exams.find((e) => e.status === 'in_progress');
     return {
       positions: banks.map((bank) => {
-        const check = canStartExam(summaries, bank.position, now, { pendingReview: false });
+        const review = reviews.find((r) => r.position === bank.position);
+        const check = canStartExam(summaries, bank.position, now, { pendingReview: !!review });
         return {
           position: bank.position,
           bank: {
@@ -116,6 +142,7 @@ export class CertExams {
             areas: bank.areas,
           },
           best: bestKnowledge(summaries, bank.position),
+          review: review ? toReview(review, now) : null,
           nextAttemptAt:
             !check.ok && check.reason === 'ATTEMPT_INTERVAL'
               ? check.nextAttemptAt.toISOString()
@@ -146,7 +173,14 @@ export class CertExams {
     }
 
     const exams = await this.settled(userId, now);
-    const check = canStartExam(exams.map(summary), request.position, now, { pendingReview: false });
+    await this.exams.expireDueReviews(now);
+    // Una re-evaluación abierta salta la espera del mes y se liga al examen (02 §6.7).
+    const review = (await this.exams.openReviews([userId])).find(
+      (r) => r.position === request.position,
+    );
+    const check = canStartExam(exams.map(summary), request.position, now, {
+      pendingReview: !!review,
+    });
     if (!check.ok) {
       throw check.reason === 'EXAM_IN_PROGRESS'
         ? new ConflictError('Ya tienes un examen en curso.', 'EXAM_IN_PROGRESS').with({
@@ -168,6 +202,7 @@ export class CertExams {
       startedAt: now,
       deadlineAt: new Date(now.getTime() + bank.config.timeLimitSeconds * 1000),
       nextAttemptAt: nextAttemptFrom(now, bank.config),
+      reviewRequestId: review?.id ?? null,
       // Las opciones se barajan una vez y se guardan tal como se muestran.
       items: chosen.map((item) => ({
         itemId: item.id,
@@ -219,7 +254,8 @@ export class CertExams {
   }
 
   async myExams(userId: string, now = new Date()): Promise<ExamResult[]> {
-    const closed = (await this.settled(userId, now)).filter((e) => e.status === 'submitted');
+    // Entregados y anulados (el jugador ve por qué se anuló).
+    const closed = (await this.settled(userId, now)).filter((e) => e.status !== 'in_progress');
     const areas = new Map<PositionCode, Area[]>();
     for (const position of new Set(closed.map((e) => e.position))) {
       areas.set(position, await this.exams.areasOf(position));
@@ -269,7 +305,7 @@ export class CertExams {
       new Map(items.map((i) => [i.itemId, i.answerOptionId])),
     );
     const submittedAt = at < exam.deadlineAt ? at : exam.deadlineAt;
-    await this.exams.closeExam(exam.id, {
+    const closed = await this.exams.closeExam(exam.id, {
       endedBy,
       submittedAt,
       score: result.score,
@@ -278,6 +314,16 @@ export class CertExams {
       band: result.band,
       byArea: result.byArea,
     });
+    // Respondió una re-evaluación: la completa y su resultado reemplaza a los anteriores
+    // de la posición, aunque sea más bajo (02 §6.7).
+    if (closed && exam.reviewRequestId) {
+      await this.exams.closeReview(exam.reviewRequestId, {
+        status: 'completed',
+        at: submittedAt,
+        resolvedExamId: exam.id,
+      });
+      await this.exams.supersedeEarlier(exam.userId, exam.position, exam.startedAt, submittedAt);
+    }
     // Si otra petición lo cerró antes, vale lo que quedó guardado.
     return (await this.exams.findExam(exam.id))!;
   }

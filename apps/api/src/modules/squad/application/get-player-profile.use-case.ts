@@ -17,6 +17,8 @@ import {
 } from '../../ratings/application/ports/ratings.repository.js';
 import { toPlayerRating } from '../../ratings/application/ratings.use-cases.js';
 import {
+  KNOWLEDGE_QUERY,
+  type KnowledgeQuery,
   LATEST_RESULTS_QUERY,
   type LatestResultsQuery,
   PROFILES_QUERY,
@@ -36,6 +38,7 @@ export class GetPlayerProfile {
     @Inject(LATEST_RESULTS_QUERY) private readonly results: LatestResultsQuery,
     @Inject(ASSESSMENTS_REPOSITORY) private readonly assessments: AssessmentsRepository,
     @Inject(RATINGS_REPOSITORY) private readonly ratings: RatingsRepository,
+    @Inject(KNOWLEDGE_QUERY) private readonly knowledge: KnowledgeQuery,
   ) {}
 
   async execute(actor: Actor, teamId: string, playerId: string): Promise<PlayerProfileResponse> {
@@ -47,12 +50,13 @@ export class GetPlayerProfile {
     const player = (await this.players.activePlayers(teamId)).find((p) => p.userId === playerId);
     if (!player) throw new NotFoundError('Ese jugador no está en el equipo', 'PLAYER_NOT_IN_TEAM');
 
-    const [profiles, results, assessments, assessedByMe, ratings] = await Promise.all([
+    const [profiles, results, assessments, assessedByMe, ratings, knowledge] = await Promise.all([
       this.profiles.profilesOf([{ id: player.userId, name: player.name }]),
       this.results.latestByTeam(teamId),
       this.assessments.listByTeam(teamId, playerId),
       this.assessments.assessedBy(actor.userId, teamId),
       this.ratings.listByPlayer(teamId, playerId),
+      this.knowledge.ofPlayer(playerId),
     ]);
     const result = results.get(playerId);
     const mine = assessedByMe.has(playerId);
@@ -65,6 +69,7 @@ export class GetPlayerProfile {
       assessedByMe: mine,
       card: ratings[0] ? toPlayerRating(ratings[0]) : null,
       cardCount: ratings.length,
+      knowledge,
     };
   }
 }
