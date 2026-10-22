@@ -1,5 +1,5 @@
 import type { MatchFormat, SquadPlayer } from '@sdl/contracts';
-import { POSITIONS } from '@sdl/domain';
+import { BAND_LABELS, POSITIONS } from '@sdl/domain';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
@@ -212,6 +212,10 @@ function PlayerRow({
           <dd>{best ? `${best.value} de media como ${name(best.pos)}` : 'Sin puntuar'}</dd>
         </div>
         <div>
+          <dt>Conocimiento</dt>
+          <dd>{knowledgeLine(player.knowledge)}</dd>
+        </div>
+        <div>
           <dt>Prefiere</dt>
           <dd>
             {player.preferredPositions.length
@@ -285,4 +289,18 @@ function ExportButton({ teamId }: { teamId: string }) {
       )}
     </>
   );
+}
+
+/** "Defensa central 80% (Sólido)"; marca la re-evaluación abierta. */
+function knowledgeLine(knowledge: SquadPlayer['knowledge']): string {
+  if (knowledge.length === 0) return 'Sin examen';
+  return knowledge
+    .map((k) => {
+      const score =
+        k.pct === null ? 'sin puntaje' : `${Math.round(k.pct * 100)}% (${BAND_LABELS[k.band!]})`;
+      const review =
+        k.review === 'expired' ? ', re-evaluación vencida' : k.review ? ', en re-evaluación' : '';
+      return `${name(k.position)} ${score}${review}`;
+    })
+    .join('; ');
 }

@@ -168,6 +168,49 @@ describe('examen de conocimiento', () => {
     ).toBeInTheDocument();
   });
 
+  it('el jugador ve la re-evaluación con su motivo y sus exámenes anulados', async () => {
+    fakeApi({
+      'GET /api/v1/certification/positions': {
+        status: 200,
+        body: {
+          positions: [
+            position({
+              best: { examId: uuid(51), pct: 0.9, band: 'mastery', underReview: false },
+              review: {
+                id: uuid(80),
+                position: 'DFC',
+                reason: 'En la cancha no aplica lo que sabe',
+                requestedAt: '2026-10-20T10:00:00.000Z',
+                dueAt: '2026-11-03T10:00:00.000Z',
+                status: 'pending',
+                requestedBy: null,
+                resolvedExamId: null,
+              },
+            }),
+          ],
+        },
+      },
+      'GET /api/v1/me/cert-exams': {
+        status: 200,
+        body: {
+          items: [
+            { ...finished, voided: { reason: 'Lo hizo otra persona', at: finished.submittedAt } },
+          ],
+        },
+      },
+    });
+    renderRoutes('/conocimiento');
+
+    const card = await screen.findByRole('article', { name: 'Defensa central' });
+    expect(card).toHaveTextContent('Tu entrenador te pidió volver a presentarlo antes del 3 nov');
+    expect(card).toHaveTextContent('“En la cancha no aplica lo que sabe”');
+    expect(card).toHaveTextContent('reemplaza al anterior, aunque sea más bajo');
+    expect(within(card).getByRole('button', { name: 'Presentar la re-evaluación' })).toBeEnabled();
+    expect(
+      await screen.findByRole('link', { name: /Defensa central.*Anulado/ }),
+    ).toBeInTheDocument();
+  });
+
   it('responder guarda cada respuesta y avanza; la revisión deja entregar y muestra el resultado', async () => {
     const answers: unknown[] = [];
     fakeApi({

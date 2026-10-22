@@ -65,8 +65,12 @@ export function KnowledgePage({ me }: { me: Me }) {
                     {POSITIONS[exam.position].name}
                     <span className={styles.muted}>, {DAY.format(new Date(exam.submittedAt))}</span>
                   </span>
-                  <span className={styles.historyScore}>
-                    {percent(exam.pct)} {BAND_LABELS[exam.band]}
+                  <span
+                    className={exam.voided || exam.superseded ? styles.struck : styles.historyScore}
+                  >
+                    {exam.voided
+                      ? 'Anulado'
+                      : `${percent(exam.pct)} ${BAND_LABELS[exam.band]}${exam.superseded ? ', reemplazado' : ''}`}
                   </span>
                 </Link>
               </li>
@@ -146,6 +150,18 @@ function PositionCard({
         </p>
       )}
 
+      {info.review && (
+        <div className={info.review.status === 'expired' ? styles.reviewLate : styles.review}>
+          <p>
+            {info.review.status === 'expired'
+              ? `Tu entrenador te pidió volver a presentarlo y el plazo venció el ${DAY.format(new Date(info.review.dueAt))}. Todavía puedes hacerlo.`
+              : `Tu entrenador te pidió volver a presentarlo antes del ${DAY.format(new Date(info.review.dueAt))}. No hace falta esperar el mes.`}
+          </p>
+          <p className={styles.muted}>“{info.review.reason}”</p>
+          <p className={styles.muted}>Este resultado reemplaza al anterior, aunque sea más bajo.</p>
+        </div>
+      )}
+
       {info.nextAttemptAt ? (
         <p className={styles.muted}>
           Puedes volver a presentarlo desde el {DAY.format(new Date(info.nextAttemptAt))}.
@@ -162,7 +178,11 @@ function PositionCard({
         </div>
       ) : (
         <Button variant="secondary" disabled={blocked} onClick={() => setConfirming(true)}>
-          {info.best ? 'Presentarlo de nuevo' : 'Presentar el examen'}
+          {info.review
+            ? 'Presentar la re-evaluación'
+            : info.best
+              ? 'Presentarlo de nuevo'
+              : 'Presentar el examen'}
         </Button>
       )}
       {start.isError && !activeFrom(start.error) && (

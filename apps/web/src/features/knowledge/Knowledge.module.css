@@ -172,6 +172,29 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Re-evaluación pedida (ámbar) o vencida / anulado (rojo). */
+.review,
+.reviewLate {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-1);
+  padding: var(--sdl-space-3);
+  border: var(--sdl-stroke) solid var(--sdl-primary);
+  border-radius: var(--sdl-radius-md);
+  font-size: var(--sdl-text-sm);
+}
+
+.reviewLate {
+  border-color: var(--sdl-danger);
+}
+
+.struck {
+  flex: none;
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-display);
+  font-variant-numeric: tabular-nums;
+}
+
 /* --- Examen --- */
 
 /* Lo que distingue al examen: el reloj grande arriba. */

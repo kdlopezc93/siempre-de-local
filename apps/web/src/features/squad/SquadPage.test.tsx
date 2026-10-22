@@ -59,7 +59,7 @@ const SQUAD = {
         createdAt: '2026-10-21T10:00:00.000Z',
       },
       assessedByMe: true,
-      knowledge: [],
+      knowledge: [{ position: 'DFC', pct: 0.8, band: 'solid', review: 'expired' }],
       card: { ratedAt: '2026-10-21T10:00:00.000Z', positionAverages: { EXT: 74, DC: 67, LAT: 60 } },
     },
   ],
@@ -137,6 +137,9 @@ describe('SquadPage', () => {
 
     const beto = (await screen.findAllByRole('article'))[1]!;
     expect(beto).toHaveTextContent('74 de media como Extremo');
+    expect(beto).toHaveTextContent(
+      'ConocimientoDefensa central 80% (Sólido), re-evaluación vencida',
+    );
     expect(within(beto).getByRole('link', { name: 'Tarjeta de Beto' })).toHaveTextContent(
       'Ver tarjeta',
     );
