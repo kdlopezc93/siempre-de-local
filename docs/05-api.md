@@ -133,7 +133,7 @@ Pruebas de campo (futuro, no implementar): `GET /field-tests`, `POST /teams/:tea
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/teams/:teamId/squad` | Por jugador: último resultado oficial, puntajes de conocimiento, tarjeta vigente (medias), valoración más reciente |
+| GET | `/teams/:teamId/squad` | **Implementado** (staff y admin del club). Por jugador activo: nombre visible, dorsal, preferidas, último test oficial (`test.status`: `none`, `hidden` o `visible` con podio), valoración más reciente y `assessedByMe`. **Para quien valora, el test queda `hidden` hasta que valora al jugador.** Puntajes de conocimiento (Fase 4) y tarjeta (PR 3) se suman después |
 | GET | `/teams/:teamId/squad/summary` | Reparto por posición (test, valoración y conocimiento), huecos, conocimiento medio **por posición** (Fase 4), filtro `?format=` |
 | GET | `/teams/:teamId/export.csv` | Exportación consolidada (auditada) |
 | POST | `/teams/:teamId/legacy-import` | Subir CSV del prototipo (multipart) |
@@ -142,8 +142,8 @@ Pruebas de campo (futuro, no implementar): `GET /field-tests`, `POST /teams/:tea
 
 | Método | Ruta |
 |---|---|
-| POST | `/teams/:teamId/assessments` |
-| GET | `/teams/:teamId/assessments?playerId=` |
+| POST | `/teams/:teamId/assessments` — **Implementado** (coach, assistant): `{ playerId, primaryPosition, secondaryPositions (≤2, sin repetir ni la principal), confidence 1–5, notes? }` → 201 `{ assessment }`. `blind` lo decide el servidor. 404 `PLAYER_NOT_IN_TEAM` |
+| GET | `/teams/:teamId/assessments?playerId=` — **Implementado** (staff y admin del club): del más reciente al más antiguo |
 | GET | `/teams/:teamId/validation` → test vs. entrenador (solo `blind`) y conocimiento vs. tarjeta |
 
 ## Alineaciones

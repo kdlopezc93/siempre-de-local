@@ -255,7 +255,9 @@ Las medias por posición **no se guardan**: se calculan en el dominio con `ratin
 
 ## 8. Cuerpo técnico
 
-**coach_assessment** — `id, team_id, player_user_id, coach_user_id, primary_position, secondary_positions position_code[], confidence 1–5, blind boolean, notes, created_at`
+**coach_assessment** — `id, team_id, player_user_id, coach_user_id null, primary_position, secondary_positions position_code[] (≤2), confidence 1–5, blind boolean, notes, created_at`
+
+Implementado en `apps/api/src/modules/assessments/infrastructure/schema.ts` (migración `0008_coach_assessment`), con índice `(team_id, player_user_id, created_at desc)`; `coach_user_id` queda en null si se borra la cuenta de quien valoró. **`blind` lo calcula el servidor:** es `true` en la primera valoración de esa persona a ese jugador, porque la app no le muestra el test hasta que la registra (`GET /teams/:id/squad`).
 
 **lineup**
 | Columna | Tipo | Notas |

@@ -312,7 +312,7 @@ solveLineup(matrix: CostMatrix, pins: Pin[]): Assignment[]
 
 ## 11. Validación interna
 
-- Por jugador: posición del test vs. valoración del entrenador (solo valoraciones `blind`).
+- Por jugador: posición del test vs. valoración del entrenador (solo valoraciones `blind`). **A ciegas lo impone la app:** quien valora (coach o assistant) no ve el test de un jugador hasta registrar su primera valoración de él; esa queda `blind = true`. El admin del club no valora y ve los resultados.
 - Métricas: % de coincidencia exacta, % dentro del podio, matriz de confusión por posición.
 - Nuevo: relación entre **puntaje de conocimiento** y **MP** de la posición (¿quien más sabe de una posición tiene mejor tarjeta ahí?).
 
