@@ -53,8 +53,11 @@ export class DrizzleLineupsRepository implements LineupsRepository {
     return (await this.find(row!.id))!;
   }
 
-  async update(lineupId: string, data: LineupData) {
-    await this.connection.db.update(lineup).set(data).where(eq(lineup.id, lineupId));
+  async update(lineupId: string, format: MatchFormat, data: LineupData) {
+    await this.connection.db
+      .update(lineup)
+      .set({ ...data, format })
+      .where(eq(lineup.id, lineupId));
     return (await this.find(lineupId))!;
   }
 

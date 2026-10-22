@@ -205,7 +205,7 @@ describe('planificador: señales y alineaciones guardadas', () => {
       ErrorBodySchema.parse((await call('POST', `/teams/${teamId}/lineups`, coach, payload)).json())
         .error.code;
 
-    expect(await code({ ...body, formation: '1-3-3-1' })).toBe('FORMATION_INVALID');
+    expect(await code({ ...body, formation: '9-9-9' })).toBe('FORMATION_INVALID');
     expect(await code({ ...body, available: [...body.available, outsider.userId] })).toBe(
       'PLAYER_NOT_IN_TEAM',
     );
@@ -224,5 +224,26 @@ describe('planificador: señales y alineaciones guardadas', () => {
     expect((await call('POST', `/teams/${teamId}/lineups`, owner, body)).statusCode).toBe(403);
     expect((await call('GET', `/teams/${teamId}/lineup-inputs`, players[0]!)).statusCode).toBe(403);
     expect((await call('GET', `/teams/${teamId}/lineups`, outsider)).statusCode).toBe(403);
+  });
+
+  it('un equipo de F11 puede guardar una alineación de F8 (juega los dos formatos)', async () => {
+    const data = await inputs(coach);
+    const formation = findFormation('1-3-3-1')!;
+    const result = solveLineup({
+      formation,
+      players: data.players,
+      weights: MODE_WEIGHTS.balanced,
+    });
+    const res = await call('POST', `/teams/${teamId}/lineups`, coach, {
+      ...(await build('Torneo de F8')),
+      formation: formation.key,
+      assignments: result.assignments.map((a) => ({ ...a, manual: false })),
+      bench: result.bench,
+    });
+    expect(res.statusCode).toBe(201);
+    expect(LineupResponseSchema.parse(res.json()).lineup).toMatchObject({
+      format: 'F8',
+      formation: '1-3-3-1',
+    });
   });
 });

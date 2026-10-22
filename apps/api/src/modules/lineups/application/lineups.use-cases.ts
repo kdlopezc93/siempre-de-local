@@ -38,15 +38,16 @@ export class Lineups {
 
   async create(actor: Actor, teamId: string, input: LineupInput): Promise<Lineup> {
     const team = await this.authorize(actor, teamId, 'team.lineups.write');
-    await this.validate(team, input);
-    return strip(await this.lineups.create(teamId, actor.userId, team.format, input));
+    const formation = await this.validate(team, input);
+    // El formato es el de la formación: un equipo puede jugar F11 en la liga y F8 en un torneo.
+    return strip(await this.lineups.create(teamId, actor.userId, formation.format, input));
   }
 
   async update(actor: Actor, teamId: string, lineupId: string, input: LineupInput) {
     const team = await this.authorize(actor, teamId, 'team.lineups.write');
     await this.own(teamId, lineupId);
-    await this.validate(team, input);
-    return strip(await this.lineups.update(lineupId, input));
+    const formation = await this.validate(team, input);
+    return strip(await this.lineups.update(lineupId, formation.format, input));
   }
 
   async remove(actor: Actor, teamId: string, lineupId: string) {
@@ -73,11 +74,8 @@ export class Lineups {
 
   private async validate(team: TeamRecord, input: LineupInput) {
     const formation = findFormation(input.formation);
-    if (!formation || formation.format !== team.format) {
-      throw new BusinessRuleError(
-        'Esa formación no es del formato del equipo.',
-        'FORMATION_INVALID',
-      );
+    if (!formation) {
+      throw new BusinessRuleError('Esa formación no existe.', 'FORMATION_INVALID');
     }
     const roster = new Set((await this.players.activePlayers(team.id)).map((p) => p.userId));
     const available = new Set(input.available);
@@ -105,6 +103,7 @@ export class Lineups {
       if (!at || at.playerId !== pin.playerId)
         throw invalid('Un jugador fijado no está en su puesto.');
     }
+    return formation;
   }
 
   private async authorize(actor: Actor, teamId: string, permission: TeamPermission) {
