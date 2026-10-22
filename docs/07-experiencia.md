@@ -34,6 +34,15 @@ Fecha: 2026-10-22. Parte de las capturas y comentarios de Kevin (entrenador, jug
 4. **Un jugador = una ficha.** Tarjeta, posición, conocimiento y valoración en un solo lugar, para ti y para el cuerpo técnico.
 5. **Una línea, no un párrafo.** Las explicaciones van detrás de un "¿Por qué?" o "?" que se abre en una hoja inferior; en pantalla quedan la cifra y el verbo.
 6. **Pizarra en todo, no solo en la cancha.** Cambio visual fuerte, conservando lo que gusta (tarjeta, cancha, ámbar), con sistema de diseño v2.
+7. **Contraste verificado.** Cada pareja de colores del sistema v2 se mide con WCAG 2.2: AA como mínimo (4,5:1 en texto, 3:1 en texto grande, iconos y bordes de controles). Lo que no pase no entra, tampoco en estados (deshabilitado, foco, error) ni en la tarjeta.
+8. **Solo lo que se puede respaldar.** Ninguna frase promete lo que la app no mide o no puede sostener. Cada afirmación (de exactitud, de "basado en ciencia", de tiempos o de resultados) se cita con su fuente en `02` o en "En qué se basa", o se suaviza o se quita.
+9. **Tus datos a la vista.** Siempre hay un camino claro para pedir que borren tus datos.
+
+### 3.1 Se conserva
+
+- **El icono de la app** (`apps/web/public/favicon.svg` y los de la PWA): no se toca.
+- **Las animaciones al iniciar sesión** (entrada y subrayado de tiza): se mantienen tal cual y sirven de referencia de tono para el movimiento del resto.
+- La tarjeta 0–99, la cancha del planificador y el ámbar como acento.
 
 ## 4. Nueva estructura
 
@@ -85,19 +94,39 @@ Las pantallas de tarea (test, examen, puntuar, valorar) ocupan la pantalla compl
 - De la plantilla: los botones "Armar la alineación" e "Informe de validación" (tienen su lugar en la barra o en Equipo).
 - Los "Volver a…" donde la barra ya lleva.
 
+### 4.5 Eliminación de datos
+
+- **Enlace "Eliminar mis datos"** en Equipo → Tu cuenta, en la pantalla de entrar y en la política de tratamiento.
+- Lleva a una **página pública** (`/tus-datos`, sin sesión) que explica qué se borra, qué se conserva de forma anónima y en cuánto tiempo, y cómo pedirlo. Google la exige para publicar el inicio de sesión con Google.
+- Con sesión, **"Eliminar mi cuenta"** desde la app, con confirmación. Borra o anonimiza según `04-auth-seguridad.md` §5 y la política, y cierra todas las sesiones.
+- Al lado, **"Descargar mis datos"** (`GET /me/export`, ya previsto en `04` §5).
+- Los plazos y el correo de contacto vienen de la política, que sigue pendiente de revisión legal (D7): sin esos datos no se publica con equipos reales.
+
+### 4.6 Terceros
+
+Hoy la web no carga nada de terceros: las fuentes van empaquetadas (Fontsource), no hay analítica ni scripts externos, y el único servicio de afuera es Google para entrar. La auditoría lo deja por escrito y lo vigila:
+
+- inventario de dependencias de web y API (qué hace cada una, si sale a la red, qué datos toca y su licencia) en `04-auth-seguridad.md`;
+- `pnpm audit` sin vulnerabilidades altas ni críticas;
+- revisar los permisos y datos que se piden a Google (solo nombre y correo);
+- una **política de seguridad de contenido (CSP)** que impida cargar scripts, fuentes o imágenes de otros orígenes sin decidirlo;
+- regla para lo que venga (analítica, errores): no entra sin pasar por este inventario y por la política de datos.
+
 ## 5. Plan en PRs
+
 
 | # | PR | Cubre |
 |---|---|---|
 | 1 | Este documento y el roadmap | — |
-| 2 | **Sistema de diseño v2** (skill `ui-ux-pro-max` + `frontend-design`): tokens, tipografía, superficies, lista, chips, hoja inferior, encabezado, barra; `docs/design-system.md` | H12 |
+| 2 | **Sistema de diseño v2** (skill `ui-ux-pro-max` + `frontend-design`): tokens, tipografía, superficies, lista, chips, hoja inferior, encabezado y barra, con **contraste verificado** de cada pareja (principio 7). Conserva el icono y las animaciones de entrar (§3.1). En `docs/design-system.md` | H12 |
 | 3 | **Armazón:** encabezado de equipo con selector, barra inferior por rol, pantallas de tarea a pantalla completa, rutas nuevas (`/equipos/:id/…` como base) | H1, H2 |
 | 4 | **Inicio "lo que toca"** (endpoint de pendientes por rol) | H3, H4 |
 | 5 | **Plantilla:** lista compacta, búsqueda, filtros y vista Pizarra | H5, H6 |
 | 6 | **Ficha del jugador** para el cuerpo técnico: une perfil, tarjeta, valorar y conocimiento | H7 |
 | 7 | **Mi juego:** tarjeta, posición, conocimiento, historial y editar perfil en una pestaña; el test deja de ser un enlace suelto | H4, H9, H10 |
 | 8 | **Equipo:** datos, integrantes, invitar, informe y cuenta | H2, H8 |
-| 9 | **Dieta de texto** en las pantallas que no se rehicieron (test, examen, resultados, planificador): explicaciones en hojas "¿Por qué?" | H11 |
-| 10 | **Auditoría final** (`web-design-guidelines` y `vercel-react-best-practices`) y prueba completa por rol en el celular | — |
+| 9 | **Tus datos:** página pública `/tus-datos`, enlaces "Eliminar mis datos", eliminar mi cuenta y descargar mis datos (§4.5) | Principio 9 |
+| 10 | **Dieta de texto y afirmaciones** en toda la app y en "En qué se basa": explicaciones en hojas "¿Por qué?", y cada afirmación respaldada, suavizada o quitada (principio 8) | H11 |
+| 11 | **Auditoría final:** `web-design-guidelines` y `vercel-react-best-practices`; **terceros** (§4.6: inventario, `pnpm audit`, CSP); contraste de nuevo sobre las pantallas reales; prueba completa por rol en el celular | — |
 
 Cada PR se prueba en el celular como siempre. Los PR 2 y 3 cambian todo el aspecto a la vez; desde el 4, una pestaña por PR.
