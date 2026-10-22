@@ -3,13 +3,20 @@ import { parseArgs } from 'node:util';
 
 import { POLICY_VERSION, type PositionCode, type SubmitAttemptRequest } from '@sdl/contracts';
 import {
+  bandFor,
   ELIGIBLE_POSITIONS,
   ORIENTATION_SCORING_VERSION,
+  positionAverages,
   type RatingValues,
   scorePosition,
 } from '@sdl/domain';
 import { and, eq } from 'drizzle-orm';
 
+import {
+  certArea,
+  certBankVersion,
+  certExam,
+} from '../modules/certification/infrastructure/schema.js';
 import { DrizzleAssessmentsRepository } from '../modules/assessments/infrastructure/drizzle-assessments.repository.js';
 import { dataConsent } from '../modules/identity/infrastructure/consent.schema.js';
 import { user } from '../modules/identity/infrastructure/schema.js';
@@ -29,8 +36,12 @@ import { createDb, type DbConnection } from '../shared/db/client.js';
  * pnpm admin:seed-demo -- --team-id <uuid>
  *
  * Llena un equipo con jugadores de demostración para ver el panel del cuerpo técnico:
- * perfiles con preferidas, tests hechos con el algoritmo real y un asistente que ya valoró
- * a algunos. Idempotente. Nunca en producción. Los correos terminan en @demo.siempredelocal.
+ * perfiles con preferidas, tests hechos con el algoritmo real, un asistente que ya valoró
+ * a algunos y les puntuó la tarjeta a todos, y exámenes de conocimiento de las posiciones
+ * publicadas (con puntajes que acompañan a la tarjeta, para el informe de validación).
+ * Con `--coach-email` ese miembro del cuerpo técnico también valora a ciegas a los demo, para
+ * verlos contados desde su cuenta. Idempotente. Nunca en producción. Los correos terminan en
+ * @demo.siempredelocal.
  */
 const DOMAIN = 'demo.siempredelocal';
 
@@ -59,7 +70,13 @@ const PLAYERS: DemoPlayer[] = [
     preferred: ['DFC', 'MCD'],
     staff: { primary: 'DFC', secondary: ['MCD'], confidence: 4 },
   },
-  { name: 'Andrés Pineda', jersey: 2, testLeaning: 'LAT', preferred: ['LAT', 'EXT'], staff: null },
+  {
+    name: 'Andrés Pineda',
+    jersey: 2,
+    testLeaning: 'LAT',
+    preferred: ['LAT', 'EXT'],
+    staff: { primary: 'LAT', secondary: ['EXT'], confidence: 4 },
+  },
   {
     name: 'Samuel Ortiz',
     jersey: 3,
@@ -67,7 +84,13 @@ const PLAYERS: DemoPlayer[] = [
     preferred: ['LAT'],
     staff: { primary: 'LAT', secondary: ['DFC'], confidence: 3 },
   },
-  { name: 'Ronnie Vargas', jersey: 5, testLeaning: 'MCD', preferred: ['MC', 'MCD'], staff: null },
+  {
+    name: 'Ronnie Vargas',
+    jersey: 5,
+    testLeaning: 'MCD',
+    preferred: ['MC', 'MCD'],
+    staff: { primary: 'DFC', secondary: ['MCD'], confidence: 3 },
+  },
   {
     name: 'Julián Jiménez',
     jersey: 8,
@@ -75,7 +98,13 @@ const PLAYERS: DemoPlayer[] = [
     preferred: ['MC'],
     staff: { primary: 'MC', secondary: ['MP'], confidence: 4 },
   },
-  { name: 'Mateo Rincón', jersey: 10, testLeaning: 'MP', preferred: ['MP', 'MC'], staff: null },
+  {
+    name: 'Mateo Rincón',
+    jersey: 10,
+    testLeaning: 'MP',
+    preferred: ['MP', 'MC'],
+    staff: { primary: 'MC', secondary: ['MP'], confidence: 4 },
+  },
   {
     name: 'Gabriel Bobadilla',
     jersey: 7,
@@ -83,7 +112,13 @@ const PLAYERS: DemoPlayer[] = [
     preferred: ['EXT', 'DC'],
     staff: { primary: 'EXT', secondary: ['LAT'], confidence: 2 },
   },
-  { name: 'Daniel Quintero', jersey: 9, testLeaning: 'DC', preferred: ['DC'], staff: null },
+  {
+    name: 'Daniel Quintero',
+    jersey: 9,
+    testLeaning: 'DC',
+    preferred: ['DC'],
+    staff: { primary: 'DC', secondary: [], confidence: 5 },
+  },
   {
     name: 'Cristian Meza',
     jersey: 11,
@@ -172,13 +207,95 @@ async function ensureMembership(
     .onConflictDoNothing();
 }
 
+/** El miembro del cuerpo técnico (coach o assistant) del equipo con ese correo. */
+async function staffMember(conn: DbConnection, teamId: string, email: string): Promise<string> {
+  const rows = await conn.db
+    .select({ id: user.id, role: teamMembership.role })
+    .from(user)
+    .innerJoin(teamMembership, eq(teamMembership.userId, user.id))
+    .where(and(eq(user.email, email), eq(teamMembership.teamId, teamId)));
+  const staff = rows.find((r) => r.role === 'coach' || r.role === 'assistant');
+  if (!staff) throw new Error(`${email} no es del cuerpo técnico de este equipo`);
+  return staff.id;
+}
+
+/**
+ * Exámenes de conocimiento de las posiciones publicadas: el puntaje sigue a la media de la
+ * tarjeta en esa posición, con más ruido en unas que en otras (así el informe muestra
+ * relaciones distintas). No a todos: unos no se presentan.
+ */
+async function seedKnowledge(
+  conn: DbConnection,
+  teamId: string,
+  playerIds: readonly string[],
+  cards: ReadonlyMap<string, RatingValues>,
+): Promise<number> {
+  const banks = await conn.db
+    .select()
+    .from(certBankVersion)
+    .where(eq(certBankVersion.status, 'published'));
+  let created = 0;
+  for (const [b, bank] of banks.entries()) {
+    const areas = await conn.db
+      .select({ code: certArea.code })
+      .from(certArea)
+      .where(eq(certArea.position, bank.position));
+    const noise = b % 2 === 0 ? 0.08 : 0.3;
+    for (const [i, userId] of playerIds.entries()) {
+      if ((i + b) % 4 === 3) continue;
+      const average = positionAverages(cards.get(userId) ?? {})[bank.position];
+      if (average === undefined) continue;
+      const [taken] = await conn.db
+        .select({ id: certExam.id })
+        .from(certExam)
+        .where(and(eq(certExam.userId, userId), eq(certExam.position, bank.position)));
+      if (taken) continue;
+      const random = seeded(1000 + 31 * b + i);
+      const total = bank.itemsPerExam;
+      const pct = Math.max(0.1, Math.min(1, (average - 35) / 50 + (random() - 0.5) * 2 * noise));
+      const score = Math.round(pct * total);
+      const byArea = areas.map((a, k) => {
+        const areaTotal = Math.floor(total / areas.length) + (k < total % areas.length ? 1 : 0);
+        return { area: a.code, total: areaTotal, correct: 0 };
+      });
+      for (let left = score, k = 0; left > 0; k = (k + 1) % byArea.length) {
+        if (byArea[k]!.correct < byArea[k]!.total) {
+          byArea[k]!.correct++;
+          left--;
+        }
+      }
+      const startedAt = new Date(Date.now() - (10 + i + b * 3) * 24 * 60 * 60 * 1000);
+      const submittedAt = new Date(startedAt.getTime() + 14 * 60 * 1000);
+      await conn.db.insert(certExam).values({
+        userId,
+        teamId,
+        bankVersionId: bank.id,
+        position: bank.position,
+        status: 'submitted',
+        startedAt,
+        deadlineAt: new Date(startedAt.getTime() + bank.timeLimitS * 1000),
+        nextAttemptAt: new Date(startedAt.getTime() + bank.attemptIntervalDays * 86_400_000),
+        submittedAt,
+        endedBy: 'submit',
+        score,
+        total,
+        pct: score / total,
+        band: bandFor(score / total),
+        byArea,
+      });
+      created++;
+    }
+  }
+  return created;
+}
+
 const { values } = parseArgs({
   args: process.argv.slice(2).filter((arg) => arg !== '--'),
-  options: { 'team-id': { type: 'string' } },
+  options: { 'team-id': { type: 'string' }, 'coach-email': { type: 'string' } },
 });
 const teamId = values['team-id'];
 if (!teamId) {
-  console.error('Uso: pnpm admin:seed-demo -- --team-id <uuid>');
+  console.error('Uso: pnpm admin:seed-demo -- --team-id <uuid> [--coach-email <correo>]');
   process.exit(1);
 }
 if (process.env['NODE_ENV'] === 'production') {
@@ -209,10 +326,19 @@ try {
   await ensureMembership(conn, found.id, assistantId, 'assistant', null);
   const alreadyAssessed = await assessments.assessedBy(assistantId, found.id);
   const eligible = new Set<PositionCode>(ELIGIBLE_POSITIONS[found.format]);
+  const coach = values['coach-email']
+    ? await staffMember(conn, found.id, values['coach-email'])
+    : null;
+  const coachAssessed = coach ? await assessments.assessedBy(coach, found.id) : new Set<string>();
+  const cardOf = new Map<string, RatingValues>(
+    [...carded].map(([playerId, card]) => [playerId, card.values]),
+  );
 
   let cards = 0;
   let tests = 0;
   let rated = 0;
+  let coachRated = 0;
+  const playerIds: string[] = [];
   for (const [i, demo] of PLAYERS.entries()) {
     const userId = await ensureUser(conn, demo.name, `${slug(demo.name)}@${DOMAIN}`);
     await ensureMembership(conn, found.id, userId, 'player', demo.jersey);
@@ -288,12 +414,28 @@ try {
       });
       rated++;
     }
+    // El mismo criterio de primera vista, a nombre del entrenador que lo pidió.
+    if (coach && demo.staff && !coachAssessed.has(userId) && eligible.has(demo.staff.primary)) {
+      await assessments.create({
+        teamId: found.id,
+        playerUserId: userId,
+        coachUserId: coach,
+        primaryPosition: demo.staff.primary,
+        secondaryPositions: demo.staff.secondary.filter((pos) => eligible.has(pos)),
+        confidence: demo.staff.confidence,
+        blind: true,
+        notes: null,
+      });
+      coachRated++;
+    }
 
-    // Y le puntúa la tarjeta según su posición, con ruido para que no sean iguales.
-    if (demo.staff && !carded.has(userId)) {
+    // Y a todos les puntúa la tarjeta según su posición, con ruido para que no sean iguales.
+    if (!carded.has(userId)) {
       const random = seeded(100 + i);
+      const base =
+        demo.staff?.primary ?? demo.testLeaning ?? demo.preferred[0] ?? ('MC' as PositionCode);
       const values = Object.fromEntries(
-        Object.entries(CARD_BASE[demo.staff.primary]).map(([code, base]) => [
+        Object.entries(CARD_BASE[base]).map(([code, base]) => [
           code,
           Math.max(0, Math.min(99, base! + Math.round((random() - 0.5) * 14))),
         ]),
@@ -305,11 +447,16 @@ try {
         values,
         notes: null,
       });
+      cardOf.set(userId, values);
       cards++;
     }
+    playerIds.push(userId);
   }
+
+  const exams = await seedKnowledge(conn, found.id, playerIds, cardOf);
   console.log(
-    `${found.name}: ${PLAYERS.length} jugadores de demostración, ${tests} tests nuevos y ${rated} valoraciones y ${cards} tarjetas del asistente "${ASSISTANT.name}".`,
+    `${found.name}: ${PLAYERS.length} jugadores de demostración, ${tests} tests nuevos, ${rated} valoraciones y ${cards} tarjetas del asistente "${ASSISTANT.name}", ${exams} exámenes de conocimiento` +
+      (coach ? ` y ${coachRated} valoraciones a ciegas de ${values['coach-email']}.` : '.'),
   );
 } catch (error) {
   console.error(error instanceof Error ? error.message : error);

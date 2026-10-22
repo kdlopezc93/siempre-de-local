@@ -339,6 +339,11 @@ Avisos: `NOT_ENOUGH_PLAYERS`, `PLAYER_WITHOUT_DATA` (va al final), `MIN_KNOWLEDG
 - Por jugador: posición del test vs. valoración del entrenador (solo valoraciones `blind`). **A ciegas lo impone la app:** quien valora (coach o assistant) no ve el test de un jugador hasta registrar su primera valoración de él; esa queda `blind = true`. El admin del club no valora y ve los resultados.
 - Métricas: % de coincidencia exacta, % dentro del podio, matriz de confusión por posición.
 - Nuevo: relación entre **puntaje de conocimiento** y **MP** de la posición (¿quien más sabe de una posición tiene mejor tarjeta ahí?).
+- Implementación (`packages/domain/src/validation.ts`, Fase 5):
+  - Test vs. cuerpo técnico: por cada valoración `blind` de un jugador activo con test, la principal del cuerpo técnico frente al podio vigente. Exacta = primera del podio; dentro del podio = cualquiera de las tres. La matriz se muestra como lista de pares (cuerpo técnico → test) de más a menos frecuente.
+  - Conocimiento vs. tarjeta: por posición, mejor puntaje vigente de cada jugador frente a su media de la tarjeta en esa posición. Correlación de **Spearman** (rangos, empates promediados), solo con **≥ 5 jugadores**; en palabras: |ρ| ≥ 0,6 fuerte, ≥ 0,4 moderada, ≥ 0,2 débil, si no, sin relación clara.
+  - Para quien valora (coach o assistant), el informe solo cuenta a los jugadores que ya valoró, así no destapa tests por el costado. El admin del club ve todo.
+  - La pantalla avisa que con menos de 10 valoraciones a ciegas es temprano para concluir.
 
 ## 12. Importación de CSV heredados — descartada
 

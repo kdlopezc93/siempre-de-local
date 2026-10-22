@@ -1,5 +1,10 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import type { LineupInputsResponse, PlayerProfileResponse, SquadResponse } from '@sdl/contracts';
+import type {
+  LineupInputsResponse,
+  PlayerProfileResponse,
+  SquadResponse,
+  ValidationResponse,
+} from '@sdl/contracts';
 import { z } from 'zod';
 
 import { Can } from '../../../shared/authz/can.decorator.js';
@@ -9,6 +14,7 @@ import { parseInput } from '../../../shared/http/validation.js';
 import { GetLineupInputs } from '../application/get-lineup-inputs.use-case.js';
 import { GetPlayerProfile } from '../application/get-player-profile.use-case.js';
 import { GetSquad } from '../application/get-squad.use-case.js';
+import { GetValidation } from '../application/get-validation.use-case.js';
 
 @Controller('teams/:teamId')
 export class SquadController {
@@ -16,6 +22,7 @@ export class SquadController {
     private readonly getSquad: GetSquad,
     private readonly getProfile: GetPlayerProfile,
     private readonly getInputs: GetLineupInputs,
+    private readonly getValidation: GetValidation,
   ) {}
 
   @Get('squad')
@@ -42,5 +49,15 @@ export class SquadController {
     @Param('teamId') teamId: string,
   ): Promise<LineupInputsResponse> {
     return this.getInputs.execute(actor, teamId);
+  }
+
+  /** Validación interna (02 §11). */
+  @Get('validation')
+  @Can('team.results.read', { teamParam: 'teamId' })
+  validation(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+  ): Promise<ValidationResponse> {
+    return this.getValidation.execute(actor, teamId);
   }
 }

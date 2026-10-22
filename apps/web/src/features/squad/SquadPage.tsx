@@ -75,6 +75,9 @@ export function SquadPage({ teamId }: { teamId: string }) {
           Armar la alineación
         </Link>
       )}
+      <Link to={`/equipos/${teamId}/validacion`} className={styles.cardLink}>
+        Informe de validación
+      </Link>
 
       <section aria-labelledby="reparto" className={styles.section}>
         <h2 id="reparto" className={styles.sectionTitle}>

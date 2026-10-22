@@ -30,6 +30,7 @@ const screens = {
   knowledge: () => import('../knowledge/KnowledgePage'),
   exam: () => import('../knowledge/ExamPage'),
   planner: () => import('../lineup/PlannerPage'),
+  validation: () => import('../validation/ValidationPage'),
   lineups: () => import('../lineup/SavedLineupsPage'),
   myCard: () => import('../card/MyCardPage'),
   staffCard: () => import('../card/StaffCardPage'),
@@ -57,6 +58,9 @@ const SavedLineupsPage = lazy(() =>
   screens.lineups().then((m) => ({ default: m.SavedLineupsPage })),
 );
 const LineupViewPage = lazy(() => screens.lineups().then((m) => ({ default: m.LineupViewPage })));
+const ValidationPage = lazy(() =>
+  screens.validation().then((m) => ({ default: m.ValidationPage })),
+);
 const MyCardPage = lazy(() => screens.myCard().then((m) => ({ default: m.MyCardPage })));
 const StaffCardPage = lazy(() => screens.staffCard().then((m) => ({ default: m.StaffCardPage })));
 const RatePage = lazy(() => screens.rate().then((m) => ({ default: m.RatePage })));
@@ -259,4 +263,10 @@ export function LineupViewRoute() {
   return (
     <RequireSession>{() => <LineupViewPage teamId={teamId} lineupId={lineupId} />}</RequireSession>
   );
+}
+
+/** "/equipos/:teamId/validacion" — informe de validación (cuerpo técnico y admin del club). */
+export function ValidationRoute() {
+  const { teamId = '' } = useParams();
+  return <RequireSession>{() => <ValidationPage teamId={teamId} />}</RequireSession>;
 }
