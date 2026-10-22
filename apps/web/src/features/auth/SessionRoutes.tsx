@@ -1,23 +1,59 @@
-import type { ReactNode } from 'react';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { Navigate, useParams } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
-
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
 import { HomePage } from '../home/HomePage';
-import { JoinPage } from '../join/JoinPage';
 import { useInvitationPreview } from '../join/use-join';
-import { ConsentPage } from '../onboarding/ConsentPage';
-import { NoTeamPage } from '../onboarding/NoTeamPage';
-import { HistoryPage } from '../history/HistoryPage';
-import { ProfilePage } from '../player-profile/ProfilePage';
-import { QuizPage } from '../quiz/QuizPage';
-import { ResultPage } from '../result/ResultPage';
-import { SciencePage } from '../science/SciencePage';
-import { InvitePage } from '../team-admin/InvitePage';
 import { LoginPage } from './LoginPage';
 import { useSession } from './use-session';
+
+/*
+ * Al abrir la app solo bajan el inicio, el login y la puerta de sesión. Cada otra pantalla
+ * es su propio archivo y baja al usarla (o antes, en ratos libres: preloadScreens). En la
+ * PWA instalada el service worker ya los tiene todos, también sin señal.
+ */
+const screens = {
+  join: () => import('../join/JoinPage'),
+  consent: () => import('../onboarding/ConsentPage'),
+  noTeam: () => import('../onboarding/NoTeamPage'),
+  quiz: () => import('../quiz/QuizPage'),
+  result: () => import('../result/ResultPage'),
+  history: () => import('../history/HistoryPage'),
+  science: () => import('../science/SciencePage'),
+  profile: () => import('../player-profile/ProfilePage'),
+  invite: () => import('../team-admin/InvitePage'),
+};
+
+const JoinPage = lazy(() => screens.join().then((m) => ({ default: m.JoinPage })));
+const ConsentPage = lazy(() => screens.consent().then((m) => ({ default: m.ConsentPage })));
+const NoTeamPage = lazy(() => screens.noTeam().then((m) => ({ default: m.NoTeamPage })));
+const QuizPage = lazy(() => screens.quiz().then((m) => ({ default: m.QuizPage })));
+const ResultPage = lazy(() => screens.result().then((m) => ({ default: m.ResultPage })));
+const HistoryPage = lazy(() => screens.history().then((m) => ({ default: m.HistoryPage })));
+const SciencePage = lazy(() => screens.science().then((m) => ({ default: m.SciencePage })));
+const ProfilePage = lazy(() => screens.profile().then((m) => ({ default: m.ProfilePage })));
+const InvitePage = lazy(() => screens.invite().then((m) => ({ default: m.InvitePage })));
+
+/** Precarga las pantallas que se usan desde el inicio cuando el navegador está libre. */
+function usePreloadScreens() {
+  useEffect(() => {
+    const preload = () => {
+      void screens.quiz();
+      void screens.result();
+      void screens.history();
+      void screens.profile();
+    };
+    // Safari no tiene requestIdleCallback: ahí basta con esperar un poco.
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(preload, { timeout: 4000 });
+      return () => window.cancelIdleCallback(id);
+    }
+    const id = globalThis.setTimeout(preload, 2000);
+    return () => globalThis.clearTimeout(id);
+  }, []);
+}
 
 function SessionPending() {
   return (
@@ -50,13 +86,22 @@ function RequireSession({ children }: { children: (me: Me) => ReactNode }) {
   if (session.isError) return <SessionError retry={() => void session.refetch()} />;
   const me = session.data;
   if (!me) return <Navigate to="/entrar" replace />;
-  if (!me.consent) return <ConsentPage />;
-  if (me.teams.length === 0 && me.clubs.length === 0) return <NoTeamPage email={me.user.email} />;
-  return children(me);
+  return (
+    <Suspense fallback={<SessionPending />}>
+      {!me.consent ? (
+        <ConsentPage />
+      ) : me.teams.length === 0 && me.clubs.length === 0 ? (
+        <NoTeamPage email={me.user.email} />
+      ) : (
+        children(me)
+      )}
+    </Suspense>
+  );
 }
 
 /** "/" */
 export function HomeRoute() {
+  usePreloadScreens();
   return <RequireSession>{(me) => <HomePage me={me} />}</RequireSession>;
 }
 
@@ -76,7 +121,11 @@ export function JoinRoute() {
   const session = useSession();
   if (session.isPending) return <SessionPending />;
   if (session.isError) return <SessionError retry={() => void session.refetch()} />;
-  return <JoinPage code={code} me={session.data} />;
+  return (
+    <Suspense fallback={<SessionPending />}>
+      <JoinPage code={code} me={session.data} />
+    </Suspense>
+  );
 }
 
 /** "/equipos/:teamId/invitar" — el API decide si puede (coach o admin del club). */
