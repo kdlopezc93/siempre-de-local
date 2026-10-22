@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { ELIGIBLE_POSITIONS, type PositionCode } from '../positions.js';
 import { seededRandom } from '../test-support/random.js';
+import { adaptSignals } from './adapt-format.js';
 import { fit, knowledgeSignal, MODE_WEIGHTS, signalsFor, type PlayerSignals } from './fit.js';
 import { DEFAULT_FORMATION, findFormation, FORMATIONS, formationsFor } from './formations.js';
 import { assign } from './hungarian.js';
@@ -232,5 +233,27 @@ describe('armado (02 §9.3)', () => {
         weights: MODE_WEIGHTS.development,
       });
     expect(run()).toEqual(run());
+  });
+});
+
+describe('adaptar las señales a F8 (un equipo de F11 que juega un torneo de F8)', () => {
+  it('pivote y mediapunta cuentan como mediocentro y delantero; vale el mejor', () => {
+    const p: PlayerSignals = {
+      playerId: 'a',
+      affinity: { MCD: 0.9, MC: 0.6, MP: 0.5, DC: 0.7, DFC: 0.3 },
+      assessment: { primary: 'MCD', secondary: ['MC', 'MP'] },
+      knowledge: {
+        MCD: { pct: 0.8, reviewExpired: false },
+        MC: { pct: 0.5, reviewExpired: false },
+      },
+      rating: { MCD: 70, MC: 65, MP: 60, DC: 55 },
+    };
+    const f8 = adaptSignals(p, 'F8');
+    expect(f8.affinity).toEqual({ MC: 0.9, DC: 0.7, DFC: 0.3 });
+    expect(f8.assessment).toEqual({ primary: 'MC', secondary: ['DC'] });
+    expect(f8.knowledge).toEqual({ MC: { pct: 0.8, reviewExpired: false } });
+    expect(f8.rating).toEqual({ MC: 65, DC: 55 });
+    // En F11 no cambia nada.
+    expect(adaptSignals(p, 'F11')).toBe(p);
   });
 });

@@ -1,0 +1,79 @@
+.board {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  margin-inline: auto;
+}
+
+.slot {
+  cursor: pointer;
+  outline: none;
+}
+
+.hit {
+  fill: transparent;
+}
+
+.dot {
+  fill: var(--sdl-surface-selected);
+  stroke-width: 1.2;
+}
+
+.good .dot {
+  stroke: var(--sdl-success);
+}
+
+.fair .dot {
+  stroke: var(--sdl-primary);
+}
+
+.weak .dot {
+  stroke: var(--sdl-danger);
+}
+
+.empty .dot {
+  fill: var(--sdl-surface);
+  stroke: var(--sdl-primary);
+  stroke-dasharray: 2 1.6;
+}
+
+.code {
+  fill: var(--sdl-fg);
+  font-family: var(--sdl-font-display);
+  font-size: 4.2px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.name {
+  fill: var(--sdl-fg);
+  font-family: var(--sdl-font-body);
+  font-size: 3.6px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+.empty .name,
+.empty .code {
+  fill: var(--sdl-primary);
+}
+
+.pin {
+  fill: var(--sdl-primary);
+}
+
+/* Elegido para cambiar: aro ámbar alrededor. */
+.selected .dot {
+  stroke: var(--sdl-primary);
+  stroke-width: 2.2;
+}
+
+.slot:focus-visible .hit {
+  stroke: var(--sdl-focus-ring);
+  stroke-width: 1;
+}
+
+/* Con un suplente esperando, los puestos invitan a tocar. */
+.armed .dot {
+  stroke-dasharray: 1.4 1;
+}

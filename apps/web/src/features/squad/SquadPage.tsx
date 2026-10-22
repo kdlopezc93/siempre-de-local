@@ -70,6 +70,12 @@ export function SquadPage({ teamId }: { teamId: string }) {
         </p>
       </header>
 
+      {myRoles.some((r) => r === 'coach' || r === 'assistant') && (
+        <Link to={`/equipos/${teamId}/planificador`} className={styles.cardLink}>
+          Armar la alineación
+        </Link>
+      )}
+
       <section aria-labelledby="reparto" className={styles.section}>
         <h2 id="reparto" className={styles.sectionTitle}>
           Reparto

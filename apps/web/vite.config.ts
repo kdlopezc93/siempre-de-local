@@ -135,7 +135,9 @@ export default defineConfig({
               (['/api/v1/me', '/api/v1/me/attempts', '/api/v1/questionnaires/current'].includes(
                 url.pathname,
               ) ||
-                url.pathname.startsWith('/api/v1/attempts/')),
+                url.pathname.startsWith('/api/v1/attempts/') ||
+                // El planificador se usa en la cancha, a veces sin señal.
+                /^\/api\/v1\/teams\/[^/]+(\/lineup-inputs)?$/.test(url.pathname)),
             // Con red manda el servidor (revalida con ETag); sin red, la última copia.
             handler: 'NetworkFirst',
             options: {
