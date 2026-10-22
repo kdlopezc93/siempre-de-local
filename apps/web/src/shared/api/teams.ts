@@ -12,6 +12,7 @@ import {
   type InvitationListResponse,
   type InvitationPreviewResponse,
   type TeamResponse,
+  type UpdateMemberRequest,
 } from '@sdl/contracts';
 
 import { apiFetch, apiRequest } from './http';
@@ -58,4 +59,16 @@ export function fetchInvitations(teamId: string): Promise<InvitationListResponse
 
 export async function revokeInvitation(teamId: string, invitationId: string): Promise<void> {
   await apiFetch(`/api/v1/teams/${teamId}/invitations/${invitationId}`, { method: 'DELETE' });
+}
+
+/** El dorsal de un jugador (coach y admin del club); null lo quita. */
+export async function updateMember(
+  teamId: string,
+  userId: string,
+  patch: UpdateMemberRequest,
+): Promise<void> {
+  await apiFetch(`/api/v1/teams/${teamId}/members/${userId}`, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  });
 }

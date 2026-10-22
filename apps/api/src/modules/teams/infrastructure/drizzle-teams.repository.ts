@@ -38,6 +38,22 @@ export class DrizzleTeamsRepository
     await this.connection.db.update(team).set(settings).where(eq(team.id, teamId));
   }
 
+  async setJerseyNumber(teamId: string, userId: string, jerseyNumber: number | null) {
+    const updated = await this.connection.db
+      .update(teamMembership)
+      .set({ jerseyNumber })
+      .where(
+        and(
+          eq(teamMembership.teamId, teamId),
+          eq(teamMembership.userId, userId),
+          eq(teamMembership.role, 'player'),
+          isNull(teamMembership.leftAt),
+        ),
+      )
+      .returning({ userId: teamMembership.userId });
+    return updated.length > 0;
+  }
+
   async findTeamClubId(teamId: string): Promise<string | null> {
     const [row] = await this.connection.db
       .select({ clubId: team.clubId })

@@ -22,3 +22,13 @@ export const TeamResponseSchema = z.object({
 });
 
 export type TeamResponse = z.infer<typeof TeamResponseSchema>;
+
+/**
+ * PATCH /api/v1/teams/:teamId/members/:userId — el dorsal de un jugador lo pone el
+ * cuerpo técnico. Se puede repetir (dos jugadores pueden tener la misma camiseta).
+ */
+export const UpdateMemberRequestSchema = z.object({
+  jerseyNumber: z.int().min(0).max(99).nullable(),
+});
+
+export type UpdateMemberRequest = z.infer<typeof UpdateMemberRequestSchema>;

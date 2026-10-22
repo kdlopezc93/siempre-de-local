@@ -1,5 +1,6 @@
 import type { MatchFormat, PlayerProfileResponse } from '@sdl/contracts';
 import { ELIGIBLE_POSITIONS, POSITIONS, type PositionCode } from '@sdl/domain';
+import { useId, useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 
 import { ApiError } from '../../shared/api/http';
@@ -8,8 +9,8 @@ import { RATED_ON } from '../card/card-view';
 import { PlayerCard } from '../card/PlayerCard';
 import { useTeam } from '../team-admin/use-invitations';
 import styles from './PlayerProfilePage.module.css';
-import { agreement } from './profile-view';
-import { usePlayerProfile } from './use-squad';
+import { agreement, jerseyHolders } from './profile-view';
+import { usePlayerProfile, useSetJersey, useSquad } from './use-squad';
 
 const FOOT = { left: 'Zurdo', right: 'Diestro', both: 'Ambidiestro' } as const;
 const name = (pos: PositionCode) => POSITIONS[pos].name;
@@ -52,6 +53,8 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
   const { player } = data;
   const format = team.data.team.format;
   const rates = team.data.myRoles.some((role) => role === 'coach' || role === 'assistant');
+  // El dorsal: el coach o el admin del club (que entra sin roles en el equipo).
+  const managesMembers = team.data.myRoles.includes('coach') || team.data.myRoles.length === 0;
   const here = `/equipos/${teamId}/plantilla/${playerId}`;
 
   return (
@@ -76,6 +79,9 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
           </p>
         </div>
       </header>
+      {managesMembers && (
+        <JerseyEditor teamId={teamId} playerId={playerId} current={player.jerseyNumber} />
+      )}
 
       <WhereTheySee data={data} />
 
@@ -233,4 +239,120 @@ function TestSection({
       </ol>
     </section>
   );
+}
+
+/** Lo pone el cuerpo técnico; puede repetirse (dos jugadores con la misma camiseta). */
+function JerseyEditor({
+  teamId,
+  playerId,
+  current,
+}: {
+  teamId: string;
+  playerId: string;
+  current: number | null;
+}) {
+  const setJersey = useSetJersey(teamId, playerId);
+  // La plantilla casi siempre ya está en caché (se llega al perfil desde ella).
+  const squad = useSquad(teamId);
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(current?.toString() ?? '');
+  const [invalid, setInvalid] = useState(false);
+  const inputId = useId();
+  const hintId = useId();
+
+  function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const n = Number(value);
+    if (value.trim() === '' || !Number.isInteger(n) || n < 0 || n > 99) {
+      setInvalid(true);
+      return;
+    }
+    setInvalid(false);
+    setJersey.mutate(n, { onSuccess: () => setEditing(false) });
+  }
+
+  const typed = value.trim() === '' ? null : Number(value);
+  const holders =
+    typed !== null && typed !== current && squad.data
+      ? jerseyHolders(squad.data.players, typed, playerId)
+      : [];
+
+  if (!editing) {
+    return (
+      <button
+        type="button"
+        className={styles.linkButton}
+        onClick={() => {
+          setValue(current?.toString() ?? '');
+          setEditing(true);
+        }}
+      >
+        {current === null ? 'Ponerle dorsal' : 'Cambiar dorsal'}
+      </button>
+    );
+  }
+  return (
+    <form className={styles.jerseyForm} onSubmit={save} noValidate>
+      <label htmlFor={inputId} className={styles.label}>
+        Dorsal
+      </label>
+      <div className={styles.jerseyRow}>
+        <input
+          id={inputId}
+          name="jersey"
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={2}
+          autoComplete="off"
+          className={styles.jerseyInput}
+          value={value}
+          aria-invalid={invalid}
+          aria-describedby={hintId}
+          onChange={(event) => setValue(event.target.value.replace(/\D/g, ''))}
+        />
+        <button type="submit" className={styles.primaryLink} disabled={setJersey.isPending}>
+          {setJersey.isPending ? 'Guardando…' : holders.length ? 'Guardar igual' : 'Guardar'}
+        </button>
+        <button
+          type="button"
+          className={styles.secondaryLink}
+          onClick={() => setEditing(false)}
+          disabled={setJersey.isPending}
+        >
+          Cancelar
+        </button>
+      </div>
+      <p
+        id={hintId}
+        aria-live="polite"
+        className={invalid ? styles.error : holders.length ? styles.warning : styles.muted}
+      >
+        {invalid
+          ? 'Escribe un número de 0 a 99.'
+          : holders.length
+            ? `El ${typed} ya lo usa ${listNames(holders)}. Si comparten camiseta, guárdalo igual.`
+            : 'De 0 a 99. Puede repetirse si dos comparten camiseta.'}
+      </p>
+      {current !== null && (
+        <button
+          type="button"
+          className={styles.linkButton}
+          disabled={setJersey.isPending}
+          onClick={() => setJersey.mutate(null, { onSuccess: () => setEditing(false) })}
+        >
+          Quitarle el dorsal
+        </button>
+      )}
+      {setJersey.isError && (
+        <p role="alert" className={styles.error}>
+          No pudimos guardar el dorsal. Revisa tu conexión e intenta de nuevo.
+        </p>
+      )}
+    </form>
+  );
+}
+
+function listNames(names: string[]): string {
+  return names.length === 1 ? names[0]! : `${names.slice(0, -1).join(', ')} y ${names.at(-1)}`;
 }

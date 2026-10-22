@@ -173,4 +173,85 @@ describe('PlayerProfilePage', () => {
       expect(router.state.location.pathname).toBe(`/equipos/${TEAM_ID}/plantilla/${ANA}`),
     );
   });
+
+  it('el coach pone el dorsal: valida 0–99 y guarda', async () => {
+    let patch: unknown;
+    fakeApi({
+      ...routes({ ...PROFILE, player: { ...PROFILE.player, jerseyNumber: null } }),
+      [`PATCH /api/v1/teams/${TEAM_ID}/members/${ANA}`]: (init) => {
+        patch = JSON.parse(init.body as string);
+        return { status: 204 };
+      },
+    });
+    renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Ponerle dorsal' }));
+    const input = screen.getByRole('textbox', { name: 'Dorsal' });
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByText('Escribe un número de 0 a 99.')).toBeInTheDocument();
+
+    await userEvent.type(input, '1a0');
+    expect(input).toHaveValue('10');
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    await vi.waitFor(() => expect(patch).toEqual({ jerseyNumber: 10 }));
+    expect(await screen.findByRole('button', { name: 'Ponerle dorsal' })).toBeInTheDocument();
+  });
+
+  it('el asistente no ve el editor del dorsal', async () => {
+    fakeApi({
+      ...routes(PROFILE),
+      [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: { ...TEAM, myRoles: ['assistant'] } },
+    });
+    renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
+    expect(await screen.findByRole('heading', { name: 'Ana' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /dorsal/ })).not.toBeInTheDocument();
+  });
+
+  it('avisa si el dorsal ya lo usa otro jugador, y deja guardarlo igual', async () => {
+    let patch: unknown;
+    const squadPlayer = (userId: string, displayName: string, jerseyNumber: number | null) => ({
+      userId,
+      displayName,
+      jerseyNumber,
+      preferredPositions: [],
+      test: { status: 'none' },
+      latestAssessment: null,
+      assessedByMe: false,
+      card: null,
+    });
+    fakeApi({
+      ...routes(PROFILE),
+      [`GET /api/v1/teams/${TEAM_ID}/squad`]: {
+        status: 200,
+        body: {
+          players: [
+            squadPlayer(ANA, 'Ana', 4),
+            squadPlayer(uuid(22), 'Beto', 10),
+            squadPlayer(uuid(23), 'Caro', 10),
+          ],
+        },
+      },
+      [`PATCH /api/v1/teams/${TEAM_ID}/members/${ANA}`]: (init) => {
+        patch = JSON.parse(init.body as string);
+        return { status: 204 };
+      },
+    });
+    renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Cambiar dorsal' }));
+    const input = screen.getByRole('textbox', { name: 'Dorsal' });
+    // Su propio número no avisa.
+    expect(screen.getByText(/Puede repetirse/)).toBeInTheDocument();
+
+    await userEvent.clear(input);
+    await userEvent.type(input, '10');
+    expect(
+      await screen.findByText(
+        'El 10 ya lo usa Beto y Caro. Si comparten camiseta, guárdalo igual.',
+      ),
+    ).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar igual' }));
+    await vi.waitFor(() => expect(patch).toEqual({ jerseyNumber: 10 }));
+  });
 });

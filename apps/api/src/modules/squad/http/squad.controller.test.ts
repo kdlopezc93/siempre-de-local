@@ -31,7 +31,12 @@ describe('plantilla y valoraciones (a ciegas impuesto)', () => {
   let tested: SeededUser, untested: SeededUser, outsider: SeededUser;
   let teamId: string;
 
-  const call = (method: 'GET' | 'POST', path: string, who: SeededUser, payload?: object) =>
+  const call = (
+    method: 'GET' | 'POST' | 'PATCH',
+    path: string,
+    who: SeededUser,
+    payload?: object,
+  ) =>
     app.inject({
       method,
       url: `/api/v1${path}`,
@@ -231,6 +236,32 @@ describe('plantilla y valoraciones (a ciegas impuesto)', () => {
       expect(ErrorBodySchema.parse(res.json()).error.code).toBe('PLAYER_NOT_IN_TEAM');
       expect((await profile(tested, tested.userId)).statusCode).toBe(403);
       expect((await profile(outsider, tested.userId)).statusCode).toBe(403);
+    });
+  });
+
+  describe('dorsal', () => {
+    const setJersey = (who: SeededUser, playerId: string, jerseyNumber: number | null) =>
+      call('PATCH', `/teams/${teamId}/members/${playerId}`, who, { jerseyNumber });
+
+    it('lo pone el coach o el admin del club, y se puede repetir', async () => {
+      expect((await setJersey(coach, tested.userId, 10)).statusCode).toBe(204);
+      expect((await setJersey(owner, untested.userId, 10)).statusCode).toBe(204);
+      const players = await squad(coach);
+      expect(players.map((p) => p.jerseyNumber)).toEqual([10, 10]);
+
+      expect((await setJersey(coach, untested.userId, null)).statusCode).toBe(204);
+      expect((await squad(coach)).map((p) => p.jerseyNumber)).toEqual([10, null]);
+    });
+
+    it('ni el asistente ni el jugador lo cambian; fuera del equipo, 404; fuera de 0–99, 400', async () => {
+      expect((await setJersey(assistant, tested.userId, 7)).statusCode).toBe(403);
+      expect((await setJersey(tested, tested.userId, 7)).statusCode).toBe(403);
+      const res = await setJersey(coach, outsider.userId, 7);
+      expect(res.statusCode).toBe(404);
+      expect(ErrorBodySchema.parse(res.json()).error.code).toBe('PLAYER_NOT_IN_TEAM');
+      // El coach no es jugador del equipo: no tiene dorsal que cambiar.
+      expect((await setJersey(owner, coach.userId, 7)).statusCode).toBe(404);
+      expect((await setJersey(coach, tested.userId, 100)).statusCode).toBe(400);
     });
   });
 });
