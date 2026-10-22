@@ -171,7 +171,59 @@
   color: var(--sdl-primary);
 }
 
+/* Ver o puntuar la tarjeta: ocupa el ancho de la ficha. */
+.cardLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--sdl-touch-min);
+  border: var(--sdl-stroke) solid var(--sdl-border-control);
+  border-radius: var(--sdl-radius-md);
+  color: var(--sdl-fg);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+.setting {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sdl-space-3);
+  min-height: var(--sdl-touch-min);
+  padding: var(--sdl-space-3) var(--sdl-space-4);
+  border: var(--sdl-stroke) solid var(--sdl-border);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.setting input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  accent-color: var(--sdl-primary);
+}
+
+.settingHint {
+  display: block;
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.error {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}
+
 @media (hover: hover) {
+  .cardLink:hover,
+  .setting:hover {
+    background: var(--sdl-surface-hover);
+  }
+
   .source:hover,
   .assess:hover {
     background: var(--sdl-surface-hover);

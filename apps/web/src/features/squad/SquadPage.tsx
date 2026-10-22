@@ -1,4 +1,4 @@
-import type { SquadPlayer } from '@sdl/contracts';
+import type { MatchFormat, SquadPlayer } from '@sdl/contracts';
 import { POSITIONS } from '@sdl/domain';
 import { useState } from 'react';
 import { Link } from 'react-router';
@@ -6,6 +6,8 @@ import { Link } from 'react-router';
 import { ApiError } from '../../shared/api/http';
 import { Pitch } from '../../shared/ui/Pitch';
 import { Screen } from '../../shared/ui/Screen';
+import { rankedAverages } from '../card/card-view';
+import { useUpdateTeam } from '../card/use-card';
 import { useTeam } from '../team-admin/use-invitations';
 import { distribution, type DistributionSource } from './distribution';
 import styles from './SquadPage.module.css';
@@ -51,6 +53,9 @@ export function SquadPage({ teamId }: { teamId: string }) {
 
   const format = team.data.team.format;
   const players = squad.data.players;
+  // El coach o el admin del club (que entra sin roles en el equipo); el asistente no.
+  const myRoles = team.data.myRoles;
+  const canChangeSettings = myRoles.includes('coach') || myRoles.length === 0;
   const { roster, gaps, unknown } = distribution(players, source, format);
   const sourceInfo = SOURCES.find((s) => s.value === source)!;
 
@@ -115,7 +120,7 @@ export function SquadPage({ teamId }: { teamId: string }) {
           <ul className={styles.players}>
             {players.map((player) => (
               <li key={player.userId}>
-                <PlayerRow teamId={teamId} player={player} />
+                <PlayerRow teamId={teamId} player={player} format={format} />
               </li>
             ))}
           </ul>
@@ -125,6 +130,10 @@ export function SquadPage({ teamId }: { teamId: string }) {
           sirve para saber si el test acierta.
         </p>
       </section>
+
+      {canChangeSettings && (
+        <CardVisibility teamId={teamId} visible={team.data.team.ratingsVisibleToPlayers} />
+      )}
     </Screen>
   );
 }
@@ -148,8 +157,17 @@ function BackLink() {
 
 const name = (pos: keyof typeof POSITIONS) => POSITIONS[pos].name;
 
-function PlayerRow({ teamId, player }: { teamId: string; player: SquadPlayer }) {
-  const { test, latestAssessment } = player;
+function PlayerRow({
+  teamId,
+  player,
+  format,
+}: {
+  teamId: string;
+  player: SquadPlayer;
+  format: MatchFormat;
+}) {
+  const { test, latestAssessment, card } = player;
+  const best = card ? rankedAverages(card.positionAverages, format)[0] : undefined;
   return (
     <article className={styles.player}>
       <header className={styles.playerHead}>
@@ -187,6 +205,10 @@ function PlayerRow({ teamId, player }: { teamId: string; player: SquadPlayer }) 
           </dd>
         </div>
         <div>
+          <dt>Tarjeta</dt>
+          <dd>{best ? `${best.value} de media como ${name(best.pos)}` : 'Sin puntuar'}</dd>
+        </div>
+        <div>
           <dt>Prefiere</dt>
           <dd>
             {player.preferredPositions.length
@@ -195,6 +217,47 @@ function PlayerRow({ teamId, player }: { teamId: string; player: SquadPlayer }) 
           </dd>
         </div>
       </dl>
+      <Link
+        to={`/equipos/${teamId}/plantilla/${player.userId}/tarjeta`}
+        className={styles.cardLink}
+        aria-label={`Tarjeta de ${player.displayName}`}
+      >
+        {card ? 'Ver tarjeta' : 'Puntuar tarjeta'}
+      </Link>
     </article>
+  );
+}
+
+/** D8: si los jugadores ven su tarjeta en este equipo. */
+function CardVisibility({ teamId, visible }: { teamId: string; visible: boolean }) {
+  const update = useUpdateTeam(teamId);
+  return (
+    <section aria-labelledby="ajustes" className={styles.section}>
+      <h2 id="ajustes" className={styles.sectionTitle}>
+        Ajustes
+      </h2>
+      <label className={styles.setting}>
+        <input
+          type="checkbox"
+          role="switch"
+          checked={update.isPending ? !visible : visible}
+          disabled={update.isPending}
+          onChange={(event) => update.mutate({ ratingsVisibleToPlayers: event.target.checked })}
+        />
+        <span>
+          Los jugadores ven su tarjeta
+          <span className={styles.settingHint}>
+            {visible
+              ? 'Cada uno ve la suya, sin tus notas.'
+              : 'Solo el cuerpo técnico ve las tarjetas.'}
+          </span>
+        </span>
+      </label>
+      {update.isError && (
+        <p role="alert" className={styles.error}>
+          No pudimos cambiar el ajuste. Revisa tu conexión e intenta de nuevo.
+        </p>
+      )}
+    </section>
   );
 }
