@@ -6,7 +6,12 @@ import styles from './Pitch.module.css';
 interface PitchProps {
   format: MatchFormat;
   /** Posiciones a marcar, en orden: la primera se destaca; las demás llevan aro. */
-  marked: readonly PositionCode[];
+  marked?: readonly PositionCode[];
+  /**
+   * Modo reparto: cuántos jugadores hay en cada posición (en vez del dorsal). Las que
+   * tienen 0 son huecos y llevan aro ámbar punteado.
+   */
+  counts?: Partial<Record<PositionCode, number>>;
   /** Descripción para lectores de pantalla. */
   label: string;
 }
@@ -15,7 +20,7 @@ interface PitchProps {
  * La pizarra: única fuente de la cancha (docs/design-system.md §9), con las coordenadas de
  * @sdl/domain (viewBox 100×150, portería propia abajo).
  */
-export function Pitch({ format, marked, label }: PitchProps) {
+export function Pitch({ format, marked = [], counts, label }: PitchProps) {
   const layout = PITCH_LAYOUT[format];
   return (
     <svg viewBox="0 0 100 150" className={styles.pitch} role="img" aria-label={label}>
@@ -33,13 +38,25 @@ export function Pitch({ format, marked, label }: PitchProps) {
       {ELIGIBLE_POSITIONS[format].map((pos) => {
         const [x, y] = layout[pos]!;
         const rank = marked.indexOf(pos);
-        const className = rank === 0 ? styles.first : rank > 0 ? styles.podium : styles.marker;
+        const count = counts?.[pos];
+        const className =
+          count !== undefined
+            ? count === 0
+              ? styles.gap
+              : styles.filled
+            : rank === 0
+              ? styles.first
+              : rank > 0
+                ? styles.podium
+                : styles.marker;
         return (
           <g key={pos} className={className}>
-            {rank === 0 && <circle cx={x} cy={y} r="8.5" className={styles.halo} />}
+            {rank === 0 && count === undefined && (
+              <circle cx={x} cy={y} r="8.5" className={styles.halo} />
+            )}
             <circle cx={x} cy={y} r="5.4" className={styles.dot} />
             <text x={x} y={y + 2.1} className={styles.number}>
-              {POSITIONS[pos].number}
+              {count ?? POSITIONS[pos].number}
             </text>
           </g>
         );

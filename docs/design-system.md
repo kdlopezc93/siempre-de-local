@@ -129,7 +129,7 @@ Con `prefers-reduced-motion: reduce`, las duraciones pasan a 0 y la entrada se m
 | `Button` | `primary` (ámbar), `secondary` (borde `border-control`), `ghost` | Oswald en mayúsculas, ancho completo en móvil, `min-height: 48px` |
 | `Card` / panel | — | Superficie + línea + `radius-lg` |
 | `Eyebrow` | — | Oswald 12px, ámbar, tracking 0.22em |
-| `Pitch` (`shared/ui`) | — | Única fuente de la cancha (`PITCH_LAYOUT` de `@sdl/domain`), solo con las posiciones del formato. Marca una lista ordenada: la 1.ª rellena de ámbar con halo que respira (se detiene con movimiento reducido); las demás, aro ámbar. Lleva `role="img"` con las posiciones en su etiqueta |
+| `Pitch` (`shared/ui`) | — | Única fuente de la cancha (`PITCH_LAYOUT` de `@sdl/domain`), solo con las posiciones del formato. Marca una lista ordenada: la 1.ª rellena de ámbar con halo que respira (se detiene con movimiento reducido); las demás, aro ámbar. Lleva `role="img"` con las posiciones en su etiqueta. **Modo reparto** (`counts`): cada posición muestra cuántos jugadores tiene; las de 0 son huecos con aro ámbar punteado |
 | `ChalkUnderline` (`features/join`) | — | Subrayado a mano en tiza ámbar bajo un nombre que el técnico "marca" (la convocatoria). Se dibuja una vez con `scaleX` sobre el contenedor; es el único movimiento de su pantalla. Usarlo solo para ese gesto, no como decoración de títulos |
 
 ## 9.1 Movimiento con intención (Fase 2)

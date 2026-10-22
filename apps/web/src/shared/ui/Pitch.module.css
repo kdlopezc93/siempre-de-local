@@ -39,6 +39,27 @@
   fill: var(--sdl-fg);
 }
 
+/* Modo reparto: con jugadores, aro de tiza; huecos, aro ámbar punteado. */
+.filled .dot {
+  stroke: var(--sdl-fg-muted);
+  stroke-width: 1.2;
+}
+
+.filled .number {
+  fill: var(--sdl-fg);
+}
+
+.gap .dot {
+  fill: none;
+  stroke: var(--sdl-primary);
+  stroke-width: 1.2;
+  stroke-dasharray: 2 1.6;
+}
+
+.gap .number {
+  fill: var(--sdl-primary);
+}
+
 /* La primera: rellena de ámbar, con un halo que respira. */
 .first .dot {
   fill: var(--sdl-primary);
