@@ -30,6 +30,7 @@ const screens = {
   knowledge: () => import('../knowledge/KnowledgePage'),
   exam: () => import('../knowledge/ExamPage'),
   planner: () => import('../lineup/PlannerPage'),
+  lineups: () => import('../lineup/SavedLineupsPage'),
   myCard: () => import('../card/MyCardPage'),
   staffCard: () => import('../card/StaffCardPage'),
   rate: () => import('../card/RatePage'),
@@ -52,6 +53,10 @@ const PlayerProfilePage = lazy(() =>
 const KnowledgePage = lazy(() => screens.knowledge().then((m) => ({ default: m.KnowledgePage })));
 const ExamPage = lazy(() => screens.exam().then((m) => ({ default: m.ExamPage })));
 const PlannerPage = lazy(() => screens.planner().then((m) => ({ default: m.PlannerPage })));
+const SavedLineupsPage = lazy(() =>
+  screens.lineups().then((m) => ({ default: m.SavedLineupsPage })),
+);
+const LineupViewPage = lazy(() => screens.lineups().then((m) => ({ default: m.LineupViewPage })));
 const MyCardPage = lazy(() => screens.myCard().then((m) => ({ default: m.MyCardPage })));
 const StaffCardPage = lazy(() => screens.staffCard().then((m) => ({ default: m.StaffCardPage })));
 const RatePage = lazy(() => screens.rate().then((m) => ({ default: m.RatePage })));
@@ -240,4 +245,18 @@ export function ExamRoute() {
 export function PlannerRoute() {
   const { teamId = '' } = useParams();
   return <RequireSession>{() => <PlannerPage teamId={teamId} />}</RequireSession>;
+}
+
+/** "/equipos/:teamId/alineaciones" */
+export function SavedLineupsRoute() {
+  const { teamId = '' } = useParams();
+  return <RequireSession>{() => <SavedLineupsPage teamId={teamId} />}</RequireSession>;
+}
+
+/** "/equipos/:teamId/alineaciones/:lineupId" */
+export function LineupViewRoute() {
+  const { teamId = '', lineupId = '' } = useParams();
+  return (
+    <RequireSession>{() => <LineupViewPage teamId={teamId} lineupId={lineupId} />}</RequireSession>
+  );
 }

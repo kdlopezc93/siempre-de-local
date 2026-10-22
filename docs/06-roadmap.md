@@ -94,9 +94,9 @@ Plan en PRs (2026-10-22; decisiones en `02` §9.5):
 | # | PR | Estado |
 |---|---|---|
 | 1 | Dominio: encaje `fit-v1`, húngaro, formaciones F8/F11, fijados, conocimiento mínimo, prioridad por línea, banca y avisos | #49 ✔ |
-| 2 | API: señales de cada jugador para el planificador (respetando a ciegas) y guardar alineaciones | #50 |
-| 3 | Planificador en el celular: convocatoria, formación, modos, pizarra, armar a mano (lo movido queda fijado), desglose | |
-| 4 | Guardar y abrir alineaciones | |
+| 2 | API: señales de cada jugador para el planificador (respetando a ciegas) y guardar alineaciones | #50 ✔ |
+| 3 | Planificador en el celular: convocatoria, formato del partido (F11/F8), formación, modos, pizarra, armar a mano (lo movido queda fijado), desglose | #51 ✔ |
+| 4 | Guardar y abrir alineaciones: guardar desde el planificador, lista, ver tal como se guardó, editar (abre con todo fijado), borrar | |
 | 5 | Informe de validación: test vs. entrenador (solo `blind`) y conocimiento vs. tarjeta | |
 
 - Reconciliar con `planificador-partido.jsx` (D6): **hecho**, ver `02` §9.5.
