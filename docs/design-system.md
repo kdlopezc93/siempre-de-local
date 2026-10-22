@@ -142,6 +142,10 @@ Mismo lenguaje que el test (una pregunta por pantalla, opciones de tiza que se r
 
 Del lado del cuerpo técnico (perfil del jugador, sección "Conocimiento"): el mejor puntaje por posición en ámbar; una re-evaluación pedida va en un recuadro con borde ámbar y una vencida con borde rojo; los exámenes anulados o reemplazados van tachados en gris con etiquetas ("Reemplazado", "Re-evaluación", "Abandonado"). Anular y pedir re-evaluación abren un formulario en el lugar (el formulario es la confirmación); cancelar una re-evaluación pide "Sí, cancelarla".
 
+## 9.0.2 Planificador (`features/lineup`)
+
+La pizarra del planificador usa las mismas líneas (`PitchLines`) con los puestos de la formación: dorsal (o iniciales) en el círculo y el nombre debajo; **el aro dice qué tan bien encaja** (verde ≥ 65%, ámbar ≥ 40%, rojo debajo) y un punto ámbar marca lo **fijado**. Cada puesto es un botón (rol, teclado, foco visible) con área táctil de ~60 px. Se toca un puesto y después otro (o un suplente y después un puesto); lo movido queda fijado y el resto se reacomoda. Debajo, el encaje medio por línea; al elegir un puesto, su desglose (cuerpo técnico, tarjeta, conocimiento, test) con barras de tiza y "sin dato" cuando falta.
+
 ## 9.1 Movimiento con intención (Fase 2)
 
 - **Paso de pregunta en el test:** la pregunta entra de lado (`translateX(16px)` + opacidad, `--sdl-duration-base`).

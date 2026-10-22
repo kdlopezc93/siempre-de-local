@@ -29,6 +29,7 @@ const screens = {
   playerProfile: () => import('../squad/PlayerProfilePage'),
   knowledge: () => import('../knowledge/KnowledgePage'),
   exam: () => import('../knowledge/ExamPage'),
+  planner: () => import('../lineup/PlannerPage'),
   myCard: () => import('../card/MyCardPage'),
   staffCard: () => import('../card/StaffCardPage'),
   rate: () => import('../card/RatePage'),
@@ -50,6 +51,7 @@ const PlayerProfilePage = lazy(() =>
 );
 const KnowledgePage = lazy(() => screens.knowledge().then((m) => ({ default: m.KnowledgePage })));
 const ExamPage = lazy(() => screens.exam().then((m) => ({ default: m.ExamPage })));
+const PlannerPage = lazy(() => screens.planner().then((m) => ({ default: m.PlannerPage })));
 const MyCardPage = lazy(() => screens.myCard().then((m) => ({ default: m.MyCardPage })));
 const StaffCardPage = lazy(() => screens.staffCard().then((m) => ({ default: m.StaffCardPage })));
 const RatePage = lazy(() => screens.rate().then((m) => ({ default: m.RatePage })));
@@ -232,4 +234,10 @@ export function KnowledgeRoute() {
 export function ExamRoute() {
   const { examId = '' } = useParams();
   return <RequireSession>{() => <ExamPage examId={examId} />}</RequireSession>;
+}
+
+/** "/equipos/:teamId/planificador" — armar la alineación (cuerpo técnico). */
+export function PlannerRoute() {
+  const { teamId = '' } = useParams();
+  return <RequireSession>{() => <PlannerPage teamId={teamId} />}</RequireSession>;
 }

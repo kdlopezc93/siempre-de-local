@@ -58,6 +58,11 @@ export function HomePage({ me }: { me: Me }) {
                     Ver la plantilla
                   </Link>
                 )}
+                {(roles.includes('coach') || roles.includes('assistant')) && (
+                  <Link to={`/equipos/${team.id}/planificador`} className={styles.teamAction}>
+                    Armar la alineación
+                  </Link>
+                )}
                 {roles.includes('coach') && (
                   <Link to={`/equipos/${team.id}/invitar`} className={styles.teamAction}>
                     Invitar jugadores
