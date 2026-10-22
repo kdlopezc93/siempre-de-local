@@ -260,6 +260,9 @@ function CardVisibility({ teamId, visible }: { teamId: string; visible: boolean 
           No pudimos cambiar el ajuste. Revisa tu conexión e intenta de nuevo.
         </p>
       )}
+      <Link to={`/equipos/${teamId}/datos`} className={styles.cardLink}>
+        Descargar o importar datos
+      </Link>
     </section>
   );
 }

@@ -165,14 +165,18 @@ src/
 │   │   ├── infrastructure/    repositorios Drizzle, mapeadores
 │   │   └── http/              controllers, DTO (Zod), guards
 │   ├── certification/         exámenes de conocimiento y mejor puntaje (StartExam, SubmitExam, VoidExam)
-│   ├── player-profile/        tarjeta 0–99, medias por posición; (futuro) pruebas de campo
+│   ├── player-profile/        perfil propio del jugador (nombre visible, pie, preferidas)
+│   ├── ratings/               tarjeta 0–99: fotos, histórico, /me/card; medias con rating-formula-v1 del dominio
 │   ├── teams/                 clubs, equipos, membresías, invitaciones
 │   ├── assessments/           valoraciones del entrenador (blind impuesto)
-│   ├── squad/                 panel de la plantilla: lee de teams, player-profile, quiz y assessments por puertos
+│   ├── squad/                 plantilla y perfil del jugador: lee de teams, player-profile, quiz, assessments y ratings por puertos
+│   ├── team-data/             exportar la plantilla a CSV e importar los CSV del prototipo (legacy_result)
+│   ├── audit/                 audit_log (implementa el puerto AUDIT_LOG de shared/audit)
 │   ├── lineups/               planificador (encaje multi-fuente + húngaro)
 │   ├── questionnaires/        versiones de cuestionario y bancos de certificación (admin)
 │   └── identity/              puerto IdentityProvider + adaptador Better Auth/Google, consentimiento de datos
 ├── shared/
+│   ├── audit/                 puerto AUDIT_LOG
 │   ├── authz/                 políticas y guard de autorización
 │   ├── db/                    cliente Drizzle, transacciones
 │   └── errors/                errores de dominio → HTTP

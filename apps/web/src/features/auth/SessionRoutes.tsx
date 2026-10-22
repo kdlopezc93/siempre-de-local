@@ -27,6 +27,7 @@ const screens = {
   squad: () => import('../squad/SquadPage'),
   assess: () => import('../squad/AssessPage'),
   playerProfile: () => import('../squad/PlayerProfilePage'),
+  teamData: () => import('../team-data/TeamDataPage'),
   myCard: () => import('../card/MyCardPage'),
   staffCard: () => import('../card/StaffCardPage'),
   rate: () => import('../card/RatePage'),
@@ -46,6 +47,7 @@ const AssessPage = lazy(() => screens.assess().then((m) => ({ default: m.AssessP
 const PlayerProfilePage = lazy(() =>
   screens.playerProfile().then((m) => ({ default: m.PlayerProfilePage })),
 );
+const TeamDataPage = lazy(() => screens.teamData().then((m) => ({ default: m.TeamDataPage })));
 const MyCardPage = lazy(() => screens.myCard().then((m) => ({ default: m.MyCardPage })));
 const StaffCardPage = lazy(() => screens.staffCard().then((m) => ({ default: m.StaffCardPage })));
 const RatePage = lazy(() => screens.rate().then((m) => ({ default: m.RatePage })));
@@ -217,4 +219,10 @@ export function PlayerProfileRoute() {
       {() => <PlayerProfilePage teamId={teamId} playerId={playerId} />}
     </RequireSession>
   );
+}
+
+/** "/equipos/:teamId/datos" — exportar la plantilla e importar los CSV del prototipo. */
+export function TeamDataRoute() {
+  const { teamId = '' } = useParams();
+  return <RequireSession>{() => <TeamDataPage teamId={teamId} />}</RequireSession>;
 }

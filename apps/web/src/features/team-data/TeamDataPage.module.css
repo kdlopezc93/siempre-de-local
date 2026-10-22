@@ -1,0 +1,176 @@
+.screen {
+  gap: var(--sdl-space-6);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: var(--sdl-touch-min);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  text-underline-offset: 4px;
+  touch-action: manipulation;
+}
+
+.title {
+  font-size: var(--sdl-text-display);
+  line-height: var(--sdl-leading-display);
+  letter-spacing: var(--sdl-tracking-display);
+  text-transform: uppercase;
+}
+
+.muted {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.error {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.sectionTitle {
+  font-size: var(--sdl-text-lg);
+  letter-spacing: var(--sdl-tracking-button);
+  text-transform: uppercase;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+/* Zona punteada como la del prototipo: toda la caja es el selector de archivos. */
+.drop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sdl-space-1);
+  padding: var(--sdl-space-6) var(--sdl-space-4);
+  border: var(--sdl-stroke) dashed var(--sdl-border-control);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  text-align: center;
+  cursor: pointer;
+}
+
+.drop:has(input:focus-visible) {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+}
+
+.dropTitle {
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-lg);
+  letter-spacing: var(--sdl-tracking-button);
+  text-transform: uppercase;
+}
+
+.fileInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.linkButton {
+  align-self: flex-start;
+  min-height: var(--sdl-touch-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sdl-fg-muted);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.textarea {
+  padding: var(--sdl-space-3) var(--sdl-space-4);
+  border: var(--sdl-stroke) solid var(--sdl-border-control);
+  border-radius: var(--sdl-radius-sm);
+  background: var(--sdl-surface);
+  color: var(--sdl-fg);
+  font: inherit;
+  font-size: var(--sdl-text-base);
+  resize: vertical;
+}
+
+.textarea::placeholder {
+  color: var(--sdl-fg-muted);
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  padding: var(--sdl-space-3) var(--sdl-space-4);
+  border: var(--sdl-stroke) solid var(--sdl-border);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface);
+}
+
+.rejected {
+  margin: 0;
+  padding-left: var(--sdl-space-5);
+  font-size: var(--sdl-text-sm);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-1);
+  padding-block: var(--sdl-space-3);
+  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+}
+
+.listHead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sdl-space-3);
+}
+
+.listName {
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.listPos {
+  flex: none;
+  color: var(--sdl-primary);
+  font-size: var(--sdl-text-sm);
+}
+
+@media (hover: hover) {
+  .back:hover,
+  .linkButton:hover {
+    color: var(--sdl-fg);
+  }
+
+  .drop:hover {
+    background: var(--sdl-surface-hover);
+  }
+}

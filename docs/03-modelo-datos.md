@@ -129,7 +129,7 @@ Implementado en `apps/api/src/modules/quiz/infrastructure/schema.ts` (migración
 - `attempt_result.prep_score/prep_total` admiten null desde la migración `0006_orientation_v2`: solo los intentos v1 tienen preparación.
 - Índices: `(user_id, submitted_at desc)` y `(team_id, status)`. Los hijos se borran en cascada con el intento; el intento, con el usuario.
 
-**legacy_result** — `id, team_id, imported_by, player_name, player_user_id null, taken_at, format, winner, affinity_pct, podium, prep_score, prep_total, raw jsonb`
+**legacy_result** — `id, team_id, imported_by, imported_at, player_name, player_user_id null, taken_at, format, winner, affinity_pct, podium, prep_score, prep_total, raw jsonb`. **Implementado** (migración `0011_audit_log_legacy_result`). `taken_at` es `timestamp` **sin zona**: es la hora local del celular tal como venía en el CSV. Único `(team_id, player_name, taken_at, winner)` con `NULLS NOT DISTINCT` (como el prototipo: nombre + fecha + posición). `player_user_id` se liga al importar si el nombre (sin tildes ni mayúsculas) coincide con el nombre visible o el de Google de **un solo** jugador activo.
 
 ## 6. Certificación
 
@@ -225,7 +225,7 @@ Al anular un examen (`status = 'void'`) la vista toma automáticamente el mejor 
 
 ## 7. Tarjeta del jugador
 
-**Implementado** (migraciones `0009_player_rating` y `0010_rating_attribute_catalog`, que siembra el catálogo desde `RATING_ATTRIBUTES` de `@sdl/domain`). Los cambios en tarjetas no pasan por `audit_log` todavía (llega en el PR 5); las fotos nunca se editan ni se borran, así que el histórico ya es el registro.
+**Implementado** (migraciones `0009_player_rating` y `0010_rating_attribute_catalog`, que siembra el catálogo desde `RATING_ATTRIBUTES` de `@sdl/domain`). Cada foto nueva queda en `audit_log` (`rating.created`); las fotos nunca se editan ni se borran.
 
 **rating_attribute** (catálogo, *seed*)
 | Columna | Tipo | Notas |
@@ -282,7 +282,7 @@ Se guarda la foto completa del cálculo: si mañana cambian tarjetas o certifica
 
 ## 9. Auditoría
 
-**audit_log** — `id, actor_user_id, action, entity, entity_id, team_id, at, meta jsonb`. Se registra: cambios de rol, invitaciones, consentimientos, exportaciones, anulación de intentos y exámenes, **anulación de exámenes de conocimiento, solicitudes de re-evaluación**, **cambios en tarjetas**, borrados.
+**audit_log** — `id, actor_user_id, action, entity, entity_id, team_id, at, meta jsonb`. **Implementado** (migración `0011`; puerto `AUDIT_LOG` en `shared/audit`). Hoy registra `team.exported`, `team.legacy_imported`, `rating.created` y `team.settings_updated`; el resto se suma con cada funcionalidad. Se registra: cambios de rol, invitaciones, consentimientos, exportaciones, anulación de intentos y exámenes, **anulación de exámenes de conocimiento, solicitudes de re-evaluación**, **cambios en tarjetas**, borrados.
 
 ## 10. Índices clave
 
