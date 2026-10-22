@@ -67,4 +67,5 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 Los tests de integración del API levantan su propio Postgres con Testcontainers (requieren Docker).
 **CI** (`.github/workflows/ci.yml`, en cada PR y en `main`): formato, lint, typecheck, tests y build; y migraciones en seco (`db:check`, esquema ↔ migraciones sincronizados, `db:migrate` dos veces sobre una BD vacía y `db:seed` dos veces). Si cambias el esquema, sube la migración generada o la CI falla.
 Cada app tiene su `.env.example`; cópialo a `.env` en la misma carpeta.
+**Staging** (Fly.io + Cloudflare Pages + Neon): `docs/deploy.md`. La imagen del API se construye con `docker build -f apps/api/Dockerfile .` (la CI lo comprueba en cada PR); las migraciones en producción las corre `node dist/scripts/migrate.js` (sin drizzle-kit).
 En WSL con el repo bajo `/mnt/c`, Vite y `tsc --watch` sondean archivos (no hay eventos inotify); mover el repo al disco de Linux (`~/`) acelera todo.
