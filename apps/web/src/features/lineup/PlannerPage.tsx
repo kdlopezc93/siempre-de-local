@@ -1,6 +1,5 @@
-import type { LineupInputsResponse } from '@sdl/contracts';
+import type { LineupInputsResponse, MatchFormat } from '@sdl/contracts';
 import {
-  DEFAULT_FORMATION,
   formationsFor,
   lineRatings,
   MODE_LABELS,
@@ -24,6 +23,10 @@ const SIGNALS: { key: Signal; label: string }[] = [
   { key: 'R', label: 'Tarjeta' },
   { key: 'C', label: 'Conocimiento' },
   { key: 'A', label: 'Test' },
+];
+const FORMATS: { value: MatchFormat; label: string }[] = [
+  { value: 'F11', label: 'Fútbol 11' },
+  { value: 'F8', label: 'Fútbol 8' },
 ];
 const PRIORITIES: { value: LinePriority; label: string }[] = [
   { value: 'none', label: 'Ninguna' },
@@ -90,7 +93,7 @@ function Planner({
   inputs: LineupInputsResponse;
   back: React.ReactNode;
 }) {
-  const p = usePlanner(inputs, DEFAULT_FORMATION[inputs.format]);
+  const p = usePlanner(inputs);
   const { state, formation, result } = p;
   const names = new Map(inputs.players.map((x) => [x.playerId, x.displayName]));
   const jerseys = new Map(inputs.players.map((x) => [x.playerId, x.jerseyNumber]));
@@ -140,9 +143,26 @@ function Planner({
       </details>
 
       <fieldset className={styles.choices}>
+        <legend className={styles.legend}>Formato del partido</legend>
+        <div className={styles.chips}>
+          {FORMATS.map((f) => (
+            <label key={f.value} className={styles.chip}>
+              <input
+                type="radio"
+                name="format"
+                checked={state.format === f.value}
+                onChange={() => p.setFormat(f.value)}
+              />
+              <span>{f.label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <fieldset className={styles.choices}>
         <legend className={styles.legend}>Formación</legend>
         <div className={styles.chips}>
-          {formationsFor(inputs.format).map((f) => (
+          {formationsFor(state.format).map((f) => (
             <label key={f.key} className={styles.chip}>
               <input
                 type="radio"

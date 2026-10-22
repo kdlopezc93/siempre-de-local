@@ -1,5 +1,5 @@
-import type { LinePriority } from '@sdl/domain';
-import type { FitMode } from '@sdl/domain';
+import type { MatchFormat } from '@sdl/contracts';
+import { DEFAULT_FORMATION, type FitMode, type LinePriority } from '@sdl/domain';
 
 /**
  * Lo que el entrenador decide en el planificador. La alineación se recalcula siempre a
@@ -7,6 +7,8 @@ import type { FitMode } from '@sdl/domain';
  * cambio y el resto se reacomoda alrededor.
  */
 export interface PlannerState {
+  /** El del partido: un equipo de F11 puede jugar un torneo de F8. */
+  format: MatchFormat;
   formationKey: string;
   mode: FitMode;
   priority: LinePriority;
@@ -20,9 +22,10 @@ export interface PlannerState {
   selected: { kind: 'slot'; slotId: string } | { kind: 'bench'; playerId: string } | null;
 }
 
-export function initialState(formationKey: string, playerIds: readonly string[]): PlannerState {
+export function initialState(format: MatchFormat, playerIds: readonly string[]): PlannerState {
   return {
-    formationKey,
+    format,
+    formationKey: DEFAULT_FORMATION[format],
     mode: 'balanced',
     priority: 'none',
     minKnowledgePct: null,
@@ -35,6 +38,12 @@ export function initialState(formationKey: string, playerIds: readonly string[])
 
 const without = (pins: PlannerState['pins'], slotIds: string[], playerIds: string[]) =>
   pins.filter((p) => !slotIds.includes(p.slotId) && !playerIds.includes(p.playerId));
+
+/** Cambiar el formato del partido: su formación por defecto y nada fijado. */
+export function setFormat(state: PlannerState, format: MatchFormat): PlannerState {
+  if (format === state.format) return state;
+  return { ...state, format, formationKey: DEFAULT_FORMATION[format], pins: [], selected: null };
+}
 
 /** Cambiar de formación: los puestos son otros, así que se sueltan los fijados. */
 export function setFormation(state: PlannerState, formationKey: string): PlannerState {

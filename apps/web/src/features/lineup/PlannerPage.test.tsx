@@ -41,13 +41,13 @@ const PLAYERS = [
   player(14, 'Brayan', 'MC', { rating: { MC: 50 } }),
 ];
 
-function renderPlanner(players = PLAYERS) {
+function renderPlanner(players = PLAYERS, format: 'F8' | 'F11' = 'F8') {
   fakeApi({
-    [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
-    [`GET /api/v1/teams/${TEAM_ID}/lineup-inputs`]: {
+    [`GET /api/v1/teams/${TEAM_ID}`]: {
       status: 200,
-      body: { format: 'F8', players },
+      body: { ...TEAM, team: { ...TEAM.team, format } },
     },
+    [`GET /api/v1/teams/${TEAM_ID}/lineup-inputs`]: { status: 200, body: { format, players } },
   });
   const router = createMemoryRouter([{ path: '/p', element: <PlannerPage teamId={TEAM_ID} /> }], {
     initialEntries: ['/p'],
@@ -116,5 +116,20 @@ describe('planificador', () => {
     await userEvent.click(screen.getByRole('checkbox', { name: /Julio/ }));
     expect(screen.getByText('Convocatoria: 5 de 6')).toBeInTheDocument();
     expect(slot(/^Portero: (?!Julio)/)).toBeInTheDocument();
+  });
+
+  it('un equipo de F11 arma un partido de F8: el pivote juega de mediocentro', async () => {
+    const players = [
+      ...PLAYERS.filter((p) => p.displayName !== 'Julián' && p.displayName !== 'Brayan'),
+      player(6, 'Felipe', 'MCD', { rating: { MCD: 85, MC: 78 } }),
+    ];
+    renderPlanner(players, 'F11');
+    expect(await screen.findByRole('group', { name: 'Alineación 1-4-3-3' })).toBeInTheDocument();
+    expect(slot(/^Pivote: Felipe/)).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Fútbol 8' }));
+    expect(screen.getByRole('group', { name: 'Alineación 1-3-3-1' })).toBeInTheDocument();
+    expect(slot(/^Mediocentro: Felipe/)).toBeInTheDocument();
+    expect(screen.getByRole('radio', { name: '1-2-4-1' })).toBeInTheDocument();
   });
 });

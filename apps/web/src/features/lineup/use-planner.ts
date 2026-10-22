@@ -1,5 +1,5 @@
 import type { LineupInputsResponse } from '@sdl/contracts';
-import { findFormation, MODE_WEIGHTS, solveLineup } from '@sdl/domain';
+import { adaptSignals, findFormation, MODE_WEIGHTS, solveLineup } from '@sdl/domain';
 import { useQuery } from '@tanstack/react-query';
 import { useMemo, useState } from 'react';
 
@@ -19,10 +19,10 @@ export function useLineupInputs(teamId: string) {
 }
 
 /** El planificador: decisiones del entrenador → alineación calculada en el celular. */
-export function usePlanner(inputs: LineupInputsResponse, defaultFormation: string) {
+export function usePlanner(inputs: LineupInputsResponse) {
   const [state, setState] = useState(() =>
     planner.initialState(
-      defaultFormation,
+      inputs.format,
       inputs.players.map((p) => p.playerId),
     ),
   );
@@ -32,9 +32,10 @@ export function usePlanner(inputs: LineupInputsResponse, defaultFormation: strin
     () =>
       solveLineup({
         formation,
-        players: inputs.players.filter(
-          (p) => state.available.has(p.playerId) && !state.benched.has(p.playerId),
-        ),
+        // Los datos se adaptan al formato del partido (pivote y mediapunta en F8).
+        players: inputs.players
+          .filter((p) => state.available.has(p.playerId) && !state.benched.has(p.playerId))
+          .map((p) => adaptSignals(p, state.format)),
         weights: MODE_WEIGHTS[state.mode],
         pins: state.pins,
         minKnowledgePct: state.minKnowledgePct,
@@ -51,6 +52,7 @@ export function usePlanner(inputs: LineupInputsResponse, defaultFormation: strin
     state,
     formation,
     result: { ...result, bench },
+    setFormat: (format: typeof state.format) => setState((s) => planner.setFormat(s, format)),
     setFormation: (key: string) => setState((s) => planner.setFormation(s, key)),
     setMode: (mode: typeof state.mode) => setState((s) => ({ ...s, mode })),
     setPriority: (priority: typeof state.priority) => setState((s) => ({ ...s, priority })),

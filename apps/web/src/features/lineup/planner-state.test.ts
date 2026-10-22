@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   initialState,
   sendToBench,
+  setFormat,
   setFormation,
   tapBench,
   tapSlot,
@@ -14,7 +15,7 @@ const at: Record<string, string | null> = { POR: 'ana', DFC: 'beto', DC: null };
 const occupant = (slotId: string) => at[slotId] ?? null;
 
 describe('planificador: armar a mano', () => {
-  const base = initialState('1-3-3-1', ['ana', 'beto', 'caro']);
+  const base = initialState('F8', ['ana', 'beto', 'caro']);
 
   it('tocar dos puestos los intercambia y deja a los dos fijados', () => {
     const one = tapSlot(base, 'POR', occupant);
@@ -55,5 +56,13 @@ describe('planificador: armar a mano', () => {
   it('tocar el mismo puesto o el mismo suplente dos veces deselecciona', () => {
     expect(tapSlot(tapSlot(base, 'POR', occupant), 'POR', occupant).selected).toBeNull();
     expect(tapBench(tapBench(base, 'caro'), 'caro').selected).toBeNull();
+  });
+
+  it('cambiar a F11 pone su formación por defecto y suelta los fijados', () => {
+    expect(base.formationKey).toBe('1-3-3-1');
+    const pinned = tapSlot(tapSlot(base, 'POR', occupant), 'DFC', occupant);
+    const f11 = setFormat(pinned, 'F11');
+    expect(f11).toMatchObject({ format: 'F11', formationKey: '1-4-3-3', pins: [] });
+    expect(setFormat(f11, 'F11')).toBe(f11);
   });
 });

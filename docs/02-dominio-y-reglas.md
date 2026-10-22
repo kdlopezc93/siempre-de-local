@@ -299,6 +299,7 @@ El prototipo `planificador-partido.jsx` (solo F8) puntuaba en tres niveles (posi
 - **F11:** 1-4-3-3 (por defecto), 1-4-4-2, 1-4-2-3-1 y 1-3-5-2. **F8:** 1-3-3-1 (por defecto), 1-2-4-1, 1-3-4 y 1-2-3-2 (D12).
 - **A ciegas:** para quien todavía no valoró a un jugador, su test (A) no se usa: se excluye y se renormaliza.
 - **Dónde se calcula:** en el celular (el dominio es compartido), así funciona sin señal en la cancha; el servidor guarda las alineaciones.
+- **Formato por partido** (2026-10-22): un equipo puede jugar la liga en F11 y un torneo en F8. El planificador deja elegir el formato del partido (por defecto, el del equipo) y la alineación guardada es del formato de su formación. Para F8, `adaptSignals` pliega las señales: pivote → mediocentro y mediapunta → delantero en test, valoración y conocimiento (vale el mejor de los dos; con solo el % por posición no se puede rehacer el plegado exacto del test), y la tarjeta usa sus medias de mediocentro y delantero tal cual (§7.3).
 
 Implementado en `@sdl/domain/lineup` (`fit-v1`):
 
