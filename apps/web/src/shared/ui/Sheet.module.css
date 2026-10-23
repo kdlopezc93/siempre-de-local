@@ -1,0 +1,117 @@
+.sheet {
+  --drag: 0px;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sdl-fg);
+}
+
+.sheet::backdrop {
+  background: var(--sdl-scrim);
+  opacity: 1;
+  transition: opacity var(--sdl-duration-sheet) var(--sdl-ease-out);
+}
+
+.sheet[open] {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: var(--sdl-content-max);
+  max-height: 85dvh;
+  border-radius: var(--sdl-radius-lg) var(--sdl-radius-lg) 0 0;
+  background: var(--sdl-surface);
+  padding-bottom: env(safe-area-inset-bottom);
+  transform: translateY(var(--drag));
+  transition: transform var(--sdl-duration-sheet) var(--sdl-ease-sheet);
+}
+
+@starting-style {
+  .sheet[open] .panel {
+    transform: translateY(100%);
+  }
+
+  .sheet[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.sheet[data-dragging] .panel {
+  transition: none;
+}
+
+/* Al cerrar: más rápido que al abrir. */
+.sheet[data-closing] .panel {
+  transform: translateY(100%);
+  transition-duration: var(--sdl-duration-exit);
+  transition-timing-function: var(--sdl-ease-in);
+}
+
+.sheet[data-closing]::backdrop {
+  opacity: 0;
+  transition-duration: var(--sdl-duration-exit);
+}
+
+.handle {
+  display: grid;
+  place-items: center;
+  height: 24px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.handle span {
+  width: 40px;
+  height: 4px;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-border-control);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sdl-space-3);
+  padding: 0 var(--sdl-space-2) 0 var(--sdl-gutter);
+}
+
+.title {
+  font-size: var(--sdl-text-xl);
+  line-height: 1.1;
+}
+
+.close {
+  display: grid;
+  place-items: center;
+  width: var(--sdl-touch-min);
+  height: var(--sdl-touch-min);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sdl-fg-muted);
+  cursor: pointer;
+}
+
+.body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--sdl-space-3) var(--sdl-gutter) var(--sdl-space-6);
+}
+
+@media (hover: hover) {
+  .close:hover {
+    color: var(--sdl-fg);
+  }
+}

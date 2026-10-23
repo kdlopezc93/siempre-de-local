@@ -1,0 +1,327 @@
+.shell {
+  min-height: 100dvh;
+}
+
+/* El contenido deja libre la barra de abajo. */
+.content {
+  width: 100%;
+  max-width: var(--sdl-content-max);
+  margin-inline: auto;
+  padding-inline: max(var(--sdl-gutter), env(safe-area-inset-left))
+    max(var(--sdl-gutter), env(safe-area-inset-right));
+  padding-bottom: calc(var(--sdl-nav-height) + env(safe-area-inset-bottom) + var(--sdl-space-8));
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-5);
+  padding-top: var(--sdl-space-5);
+}
+
+.hello,
+.title {
+  font-size: var(--sdl-text-display);
+  line-height: var(--sdl-leading-display);
+  letter-spacing: var(--sdl-tracking-display);
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sdl-space-3);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.groupTitle {
+  margin-bottom: var(--sdl-space-1);
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-body);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.count,
+.muted {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.empty {
+  padding: var(--sdl-space-6) 0;
+  color: var(--sdl-fg-muted);
+  text-align: center;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  min-height: var(--sdl-touch-min);
+  padding-inline: var(--sdl-space-4);
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-surface);
+  color: var(--sdl-fg-muted);
+}
+
+.search:focus-within {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+}
+
+.search input {
+  flex: 1;
+  min-width: 0;
+  height: var(--sdl-touch-min);
+  border: 0;
+  background: transparent;
+  color: var(--sdl-fg);
+  font: inherit;
+  font-size: var(--sdl-text-base);
+  outline: none;
+}
+
+.search input::placeholder {
+  color: var(--sdl-fg-muted);
+}
+
+.segmented {
+  display: flex;
+  padding: 3px;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-surface);
+}
+
+.segmented button {
+  min-height: 40px;
+  padding-inline: var(--sdl-space-4);
+  border: 0;
+  border-radius: var(--sdl-radius-pill);
+  background: transparent;
+  color: var(--sdl-fg-muted);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--sdl-surface-raised);
+  color: var(--sdl-fg);
+}
+
+.media {
+  min-width: 2ch;
+  font-family: var(--sdl-font-display);
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--sdl-primary);
+  font-size: var(--sdl-text-xs);
+  font-weight: 600;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: var(--sdl-touch-min);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  border-bottom: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+  transform: rotate(45deg);
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-4);
+}
+
+.heroText {
+  min-width: 0;
+}
+
+.heroName {
+  font-size: var(--sdl-text-display);
+  line-height: var(--sdl-leading-display);
+  overflow-wrap: anywhere;
+}
+
+.heroPos {
+  color: var(--sdl-fg-muted);
+  font-weight: 500;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sdl-space-2);
+  margin: 0;
+}
+
+.stats div {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+  padding: var(--sdl-space-3);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface);
+}
+
+.stats dt {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-xs);
+  font-weight: 600;
+}
+
+.stats dd {
+  margin: 0;
+  font-family: var(--sdl-font-display);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats .statWord {
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+.tabs {
+  display: flex;
+  gap: var(--sdl-space-4);
+  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+}
+
+.tabs button {
+  position: relative;
+  min-height: var(--sdl-touch-min);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sdl-fg-muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tabs button[aria-pressed='true'] {
+  color: var(--sdl-fg);
+}
+
+.tabs button[aria-pressed='true']::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -1.5px;
+  height: 3px;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-primary);
+}
+
+.facts {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.facts li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sdl-space-3);
+  padding-block: var(--sdl-space-3);
+  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+}
+
+.facts li span:first-child {
+  color: var(--sdl-fg-muted);
+}
+
+.facts li span:last-child {
+  font-weight: 600;
+  text-align: end;
+}
+
+.actions,
+.sheetActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.podium {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.podium li {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+  font-weight: 600;
+}
+
+.podium li span:nth-child(2) {
+  flex: 1;
+}
+
+.quiet {
+  align-self: flex-start;
+  min-height: var(--sdl-touch-min);
+  padding-block: var(--sdl-space-3);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  text-underline-offset: 4px;
+}
+
+.rowIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--sdl-surface);
+  color: var(--sdl-primary);
+}
+
+@media (hover: hover) {
+  .back:hover,
+  .quiet:hover {
+    color: var(--sdl-fg);
+  }
+}

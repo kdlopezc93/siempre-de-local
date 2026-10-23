@@ -1,0 +1,64 @@
+.token {
+  --ring: var(--sdl-border-control);
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: var(--size);
+  height: var(--size);
+  border: var(--ring-width) solid var(--ring);
+  border-radius: 50%;
+  background: var(--sdl-surface-raised);
+  color: var(--sdl-fg);
+  font-family: var(--sdl-font-display);
+  font-size: var(--font);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  user-select: none;
+}
+
+.token[data-line='portero'] {
+  --ring: var(--sdl-line-portero);
+}
+
+.token[data-line='defensa'] {
+  --ring: var(--sdl-line-defensa);
+}
+
+.token[data-line='medio'] {
+  --ring: var(--sdl-line-medio);
+}
+
+.token[data-line='ataque'] {
+  --ring: var(--sdl-line-ataque);
+}
+
+.amber {
+  --ring: var(--sdl-primary);
+  background: var(--sdl-primary);
+  color: var(--sdl-on-primary);
+}
+
+.sm {
+  --size: 32px;
+  --font: 15px;
+  --ring-width: 2px;
+}
+
+.md {
+  --size: 44px;
+  --font: 20px;
+  --ring-width: 3px;
+}
+
+.lg {
+  --size: 64px;
+  --font: 28px;
+  --ring-width: 3px;
+}
+
+.xl {
+  --size: 96px;
+  --font: 44px;
+  --ring-width: 4px;
+}

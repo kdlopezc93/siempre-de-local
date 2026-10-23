@@ -1,0 +1,92 @@
+.nav {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 10;
+  padding-bottom: env(safe-area-inset-bottom);
+  border-top: var(--sdl-stroke) solid var(--sdl-border);
+  background: var(--sdl-bg);
+}
+
+.list {
+  display: flex;
+  max-width: var(--sdl-content-max);
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.list li {
+  flex: 1;
+  min-width: 0;
+}
+
+.item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: var(--sdl-nav-height);
+  color: var(--sdl-fg-muted);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.item[aria-current='page'] {
+  color: var(--sdl-fg);
+}
+
+/* El punto ámbar del icono de la app marca dónde estás. */
+.item[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sdl-primary);
+}
+
+.icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin-top: 8px;
+  transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
+}
+
+.item:active .icon {
+  transform: scale(0.9);
+}
+
+.label {
+  max-width: 100%;
+  overflow: hidden;
+  font-size: var(--sdl-text-xs);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -10px;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 4px;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-primary);
+  color: var(--sdl-on-primary);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
+
+@media (hover: hover) {
+  .item:hover {
+    color: var(--sdl-fg);
+  }
+}
