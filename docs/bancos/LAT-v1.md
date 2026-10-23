@@ -10,7 +10,7 @@
 
 El extremo te encara y tu equipo defiende mandando al rival hacia la banda. ¿Cómo te paras?
 
-- [ ] De frente y con los pies juntos, para tapar los dos lados del cuerpo
+- [ ] De frente y con los pies paralelos, para tapar los dos lados del cuerpo
 - [ ] Perfilado al revés, dejándole libre el camino hacia el centro
 - [x] **Perfilado, cerrándole el camino hacia adentro**
 - [ ] Bien pegado, metiendo la pierna apenas toque el balón
@@ -34,10 +34,10 @@ El extremo te supera con un amague. ¿Qué haces?
 
 - [x] **Giro y corro por dentro, entre él y el arco**
 - [ ] Lo dejo seguir: ahora es trabajo del central
-- [ ] Me quedo quieto levantando la mano por un fuera de juego
+- [ ] Me barro por detrás para intentar puntear el balón
 - [ ] Lo agarro de la camiseta para frenarlo
 
-> Superado, lo primero es volver por dentro para tapar el camino al arco y molestar el centro. Quedarte deja al equipo con uno menos; agarrarlo es falta y tarjeta.
+> Superado, lo primero es volver por dentro para tapar el camino al arco y molestar el centro. Dejarlo deja al equipo con uno menos; barrerte por detrás o agarrarlo es falta y tarjeta.
 
 ### LAT-UNO-04 · media
 
@@ -100,7 +100,7 @@ El extremo recibe de espaldas a tu arco, pegado a la raya. ¿Qué buscas?
 
 - [ ] Le dejo espacio para que gire y ahí lo encaro de frente
 - [ ] Me lanzo al balón por detrás antes de que controle
-- [x] **Que no gire: me pego sin tirarme**
+- [x] **Lo acoso de cerca sin tirarme, para que no gire**
 - [ ] Lo empujo contra la raya para que el balón salga
 
 > De espaldas no es peligroso. Pegado le impides girar y lo obligas a jugar atrás; dejarlo girar le da el uno contra uno de frente, y entrar por detrás o empujar es falta.
@@ -263,7 +263,7 @@ Tu extremo tiene el balón y lo encaran. ¿Cuándo pasas por fuera?
 - [ ] Apenas mi equipo recupera, aunque el extremo esté de espaldas
 - [x] **Cuando él fija al rival y tiene el balón controlado**
 - [ ] Cuando el balón está en la otra banda
-- [ ] Cuando mi central me lo pide con un grito
+- [ ] En cuanto el lateral rival retrocede a su área
 
 > El desdoble sirve si tu extremo puede darte el pase: con el balón controlado y el rival fijado, tu carrera le abre la opción. Subir antes solo deja tu espalda vacía.
 
@@ -340,7 +340,7 @@ Subiste, se pierde el balón y estás lejos de tu posición. ¿Qué es lo primer
 - [x] **Volver corriendo por el camino más corto**
 - [ ] Quedarme arriba por si la recuperan rápido
 - [ ] Presionar al rival que esté más cerca, tenga o no el balón
-- [ ] Volver caminando para no gastar energía
+- [ ] Trotar hacia el centro esperando que el rival cambie de banda
 
 > La pérdida con el lateral arriba es el momento más peligroso: tu banda está vacía. Vuelves por el camino más corto y, si un compañero te cubrió, después se reacomodan.
 
@@ -432,7 +432,7 @@ Llegas en carrera y el lateral rival te tapa el centro con tu pierna buena. ¿Qu
 - [ ] Centro igual, contra su pierna
 - [ ] Freno y la tiro atrás al central para volver a empezar
 - [x] **Recorto hacia adentro y cambio de perfil**
-- [ ] La tiro afuera para ganar un lateral
+- [ ] Intento el centro con el exterior, forzado
 
 > Si te tapan un perfil, cambias de perfil: el recorte te abre otro ángulo y lo descoloca. Centrar contra la pierna del defensor es regalarla.
 
@@ -453,7 +453,7 @@ Recibes libre en la banda a unos 30 metros del arco. ¿Qué miras primero?
 
 - [x] **Si alguien pica a la espalda de la defensa**
 - [ ] Si tengo ángulo para patear al arco de primera
-- [ ] Dónde está el árbitro
+- [ ] Si el lateral contrario está subiendo
 - [ ] Si mi extremo está marcado
 
 > El pase a la espalda es el más peligroso para el rival: deja a tu compañero de frente al arco. Si no está, buscas otras opciones.
@@ -624,7 +624,7 @@ Pierden el balón cuando tú estás arriba. ¿Qué haces?
 
 - [ ] Me quedo arriba por si la recuperan
 - [ ] Presiono al rival que esté cerca, tenga o no el balón
-- [ ] Vuelvo caminando para guardar energía
+- [ ] Troto hacia el centro del campo esperando que el rival cambie de banda
 - [x] **Vuelvo corriendo a mi posición por el camino más corto**
 
 > Tu banda quedó vacía y es el camino del contragolpe. Volver rápido por el camino más corto cierra ese espacio.
