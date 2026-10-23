@@ -1,7 +1,13 @@
 import type { LineupInput } from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { deleteLineup, fetchLineup, fetchLineups, saveLineup } from '../../shared/api/lineups';
+import {
+  deleteLineup,
+  fetchLineup,
+  fetchLineups,
+  publishLineup,
+  saveLineup,
+} from '../../shared/api/lineups';
 
 const listKey = (teamId: string) => ['team', teamId, 'lineups'] as const;
 
@@ -31,5 +37,14 @@ export function useDeleteLineup(teamId: string) {
   return useMutation({
     mutationFn: (lineupId: string) => deleteLineup(teamId, lineupId),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: listKey(teamId) }),
+  });
+}
+
+/** Publicar: el partido y las alineaciones del equipo se vuelven a pedir. */
+export function usePublishLineup(teamId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (lineupId: string) => publishLineup(teamId, lineupId),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team', teamId] }),
   });
 }

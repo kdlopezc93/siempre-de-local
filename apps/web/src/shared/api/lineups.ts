@@ -44,3 +44,8 @@ export async function saveLineup(
 export async function deleteLineup(teamId: string, lineupId: string) {
   await apiFetch(`/api/v1/teams/${teamId}/lineups/${lineupId}`, { method: 'DELETE' });
 }
+
+/** Publica (o republica) la alineación de su partido para todo el equipo (D17). */
+export async function publishLineup(teamId: string, lineupId: string) {
+  await apiFetch(`/api/v1/teams/${teamId}/lineups/${lineupId}/publish`, { method: 'POST' });
+}

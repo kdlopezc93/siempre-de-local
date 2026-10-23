@@ -28,6 +28,7 @@ export class DrizzleLineupsRepository implements LineupsRepository {
       teamId: row.teamId,
       name: row.name,
       matchDate: row.matchDate,
+      matchId: row.matchId,
       format: row.format,
       formation: row.formation,
       mode: row.mode,

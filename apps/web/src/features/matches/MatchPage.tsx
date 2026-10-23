@@ -10,6 +10,7 @@ import { Sheet } from '../../shared/ui/Sheet';
 import { initialsOf } from '../../shared/ui/TeamHeader';
 import { Token } from '../../shared/ui/Token';
 import { FORMAT_LABEL } from '../shell/shell-nav';
+import { usePublishLineup, useLineups } from '../lineup/use-lineups';
 import { matchWhen } from './match-view';
 import styles from './Matches.module.css';
 import { useMatch, useReplyMatch, useUpdateMatch } from './use-matches';
@@ -82,6 +83,7 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         </div>
       </dl>
 
+      {staff && <MatchLineups teamId={teamId} match={match} />}
       {roster && <Roster roster={roster} />}
       {staff && match.open && <StaffActions teamId={teamId} match={match} />}
     </Screen>
@@ -194,5 +196,66 @@ function StaffActions({ teamId, match }: { teamId: string; match: Match }) {
         </div>
       </Sheet>
     </div>
+  );
+}
+
+/**
+ * La alineación del partido (Fase 7): armarla con los que van, sus guardadas y publicar una
+ * para el equipo (D17: se republica hasta la hora del partido).
+ */
+function MatchLineups({ teamId, match }: { teamId: string; match: Match }) {
+  const lineups = useLineups(teamId);
+  const publish = usePublishLineup(teamId);
+  const mine = (lineups.data?.items ?? []).filter((l) => l.matchId === match.id);
+  const publishedId = match.published?.lineupId ?? null;
+  return (
+    <section aria-labelledby="alineacion" className={styles.section}>
+      <h2 id="alineacion" className={styles.sectionTitle}>
+        Alineación
+      </h2>
+      {publishedId && match.published && (
+        <p className={styles.published}>
+          Publicada el {matchWhen(match.published.at)}: el equipo ya la ve.
+        </p>
+      )}
+      {match.open && (
+        <Link
+          to={`/equipos/${teamId}/planificador?partido=${match.id}`}
+          className={styles.primaryLink}
+        >
+          {mine.length ? 'Armar otra' : 'Armar la alineación'}
+        </Link>
+      )}
+      {mine.length > 0 && (
+        <ul className={styles.lineups}>
+          {mine.map((l) => (
+            <li key={l.id}>
+              <Link to={`/equipos/${teamId}/alineaciones/${l.id}`} className={styles.lineupName}>
+                {l.name}
+              </Link>
+              {l.id === publishedId ? (
+                <span className={styles.publishedTag}>Publicada</span>
+              ) : (
+                match.open && (
+                  <button
+                    type="button"
+                    className={styles.publishButton}
+                    disabled={publish.isPending}
+                    onClick={() => publish.mutate(l.id)}
+                  >
+                    {publishedId ? 'Publicar esta' : 'Publicar'}
+                  </button>
+                )
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {publish.isError && (
+        <p role="alert" className={styles.error}>
+          No pudimos publicarla. Revisa tu conexión e intenta de nuevo.
+        </p>
+      )}
+    </section>
   );
 }

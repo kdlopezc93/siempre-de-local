@@ -143,4 +143,85 @@ describe('planificador', () => {
     expect(slot(/^Mediocentro: Felipe/)).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: '1-2-4-1' })).toBeInTheDocument();
   });
+
+  it('desde un partido: los que van convocados, su respuesta a la vista, guardar ligada y publicar', async () => {
+    const MATCH_ID = uuid(70);
+    const match = {
+      id: MATCH_ID,
+      format: 'F8',
+      startsAt: new Date(Date.now() + 3 * 86_400_000).toISOString(),
+      place: 'La 14',
+      opponent: 'Los Pibes',
+      status: 'scheduled',
+      open: true,
+      createdBy: null,
+      replies: { yes: 8, no: 1, pending: 0 },
+      myReply: null,
+      published: null,
+    };
+    const roster = PLAYERS.map((p, i) => ({
+      playerId: p.playerId,
+      displayName: p.displayName,
+      jerseyNumber: p.jerseyNumber,
+      reply: i === PLAYERS.length - 1 ? 'no' : 'yes',
+    }));
+    let saved: { matchId: string; name: string } | undefined;
+    let published = false;
+    const LINEUP_ID = uuid(71);
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
+      [`GET /api/v1/teams/${TEAM_ID}/lineup-inputs`]: {
+        status: 200,
+        body: { format: 'F8', players: PLAYERS },
+      },
+      [`GET /api/v1/teams/${TEAM_ID}/matches/${MATCH_ID}`]: {
+        status: 200,
+        body: { match, roster },
+      },
+      [`POST /api/v1/teams/${TEAM_ID}/lineups`]: (init) => {
+        saved = JSON.parse(init.body as string);
+        return {
+          status: 201,
+          body: {
+            lineup: {
+              ...saved,
+              id: LINEUP_ID,
+              format: 'F8',
+              createdBy: null,
+              createdAt: '2026-10-23T10:00:00.000Z',
+              updatedAt: '2026-10-23T10:00:00.000Z',
+            },
+          },
+        };
+      },
+      [`POST /api/v1/teams/${TEAM_ID}/lineups/${LINEUP_ID}/publish`]: () => {
+        published = true;
+        return { status: 204 };
+      },
+    });
+    const router = createMemoryRouter([{ path: '/p', element: <PlannerPage teamId={TEAM_ID} /> }], {
+      initialEntries: [`/p?partido=${MATCH_ID}`],
+    });
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <RouterProvider router={router} />
+      </QueryClientProvider>,
+    );
+
+    // Brayan dijo que no: fuera de la convocatoria, con su respuesta a la vista.
+    expect(await screen.findByText('Convocatoria: 8 de 9')).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: /Brayan/ })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /Brayan/ }).closest('label')).toHaveTextContent(
+      'No va',
+    );
+    expect(screen.getByRole('link', { name: 'El partido' })).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Nombre' })).toHaveValue('vs Los Pibes');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar alineación' }));
+    await vi.waitFor(() => expect(saved?.matchId).toBe(MATCH_ID));
+    await userEvent.click(await screen.findByRole('button', { name: 'Publicar para el equipo' }));
+    await vi.waitFor(() => expect(published).toBe(true));
+  });
 });

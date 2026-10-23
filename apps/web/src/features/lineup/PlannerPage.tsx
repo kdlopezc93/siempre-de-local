@@ -1,4 +1,10 @@
-import type { Lineup, LineupInput, LineupInputsResponse, MatchFormat } from '@sdl/contracts';
+import type {
+  Lineup,
+  LineupInput,
+  LineupInputsResponse,
+  MatchFormat,
+  MatchResponse,
+} from '@sdl/contracts';
 import {
   formationsFor,
   lineRatings,
@@ -12,14 +18,16 @@ import { useId, useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
 import { ApiError } from '../../shared/api/http';
+import { toLocalInputs } from '../matches/match-view';
+import { useMatch } from '../matches/use-matches';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
 import { useTeam } from '../team-admin/use-invitations';
 import { fitTone, LineupBoard } from './LineupBoard';
 import styles from './PlannerPage.module.css';
-import { fromLineup, toLineupInput } from './planner-state';
+import { fromLineup, fromMatch, toLineupInput } from './planner-state';
 import { SlotBreakdown } from './SlotBreakdown';
-import { useLineup, useSaveLineup } from './use-lineups';
+import { useLineup, usePublishLineup, useSaveLineup } from './use-lineups';
 import { useLineupInputs, usePlanner } from './use-planner';
 
 const FORMATS: { value: MatchFormat; label: string }[] = [
@@ -38,6 +46,7 @@ const MIN_KNOWLEDGE: { value: number | null; label: string }[] = [
   { value: 0.85, label: '85%' },
 ];
 const percent = (x: number) => `${Math.round(x * 100)}%`;
+const REPLY_LABEL = { yes: 'Va', no: 'No va', pending: 'Sin responder' } as const;
 
 /** /equipos/:teamId/planificador — armar la alineación del partido (02 §9). */
 export function PlannerPage({ teamId }: { teamId: string }) {
@@ -47,12 +56,24 @@ export function PlannerPage({ teamId }: { teamId: string }) {
   const [params] = useSearchParams();
   const editingId = params.get('alineacion');
   const saved = useLineup(teamId, editingId);
-  const back = (
+  // ?partido=<id>: armar la de un partido (Fase 7); una guardada de un partido trae el suyo.
+  const matchId = params.get('partido') ?? saved.data?.matchId ?? null;
+  const match = useMatch(teamId, matchId);
+  const back = matchId ? (
+    <Link to={`/equipos/${teamId}/partidos/${matchId}`} className={styles.back}>
+      El partido
+    </Link>
+  ) : (
     <Link to={`/equipos/${teamId}/alineaciones`} className={styles.back}>
       Alineaciones
     </Link>
   );
-  if (team.isPending || inputs.isPending || (editingId && saved.isPending)) {
+  if (
+    team.isPending ||
+    inputs.isPending ||
+    (editingId && saved.isPending) ||
+    (matchId && match.isPending)
+  ) {
     return (
       <Screen>
         <p className="sr-only" role="status">
@@ -91,6 +112,7 @@ export function PlannerPage({ teamId }: { teamId: string }) {
       inputs={inputs.data}
       back={back}
       saved={saved.data ?? null}
+      match={match.data ?? null}
     />
   );
 }
@@ -102,6 +124,7 @@ function Planner({
   inputs,
   back,
   saved,
+  match,
 }: {
   teamId: string;
   teamName: string;
@@ -109,17 +132,15 @@ function Planner({
   inputs: LineupInputsResponse;
   back: React.ReactNode;
   saved: Lineup | null;
+  match: MatchResponse | null;
 }) {
   const matchFormats = FORMATS.filter((f) => formats.includes(f.value));
+  const ids = inputs.players.map((x) => x.playerId);
   const p = usePlanner(
     inputs,
-    saved
-      ? fromLineup(
-          saved,
-          inputs.players.map((x) => x.playerId),
-        )
-      : undefined,
+    saved ? fromLineup(saved, ids) : match ? fromMatch(match.match, match.roster, ids) : undefined,
   );
+  const replies = new Map(match?.roster?.map((r) => [r.playerId, r.reply]));
   const { state, formation, result } = p;
   const names = new Map(inputs.players.map((x) => [x.playerId, x.displayName]));
   const jerseys = new Map(inputs.players.map((x) => [x.playerId, x.jerseyNumber]));
@@ -161,6 +182,11 @@ function Planner({
                     )}
                     {x.displayName}
                   </span>
+                  {match?.roster && (
+                    <span className={styles.replyTag}>
+                      {REPLY_LABEL[replies.get(x.playerId) ?? 'pending']}
+                    </span>
+                  )}
                 </label>
               </li>
             ))}
@@ -364,6 +390,7 @@ function Planner({
       <SaveSection
         teamId={teamId}
         saved={saved}
+        match={match}
         toInput={(details) => toLineupInput(state, result, details)}
       />
 
@@ -411,15 +438,27 @@ const DAY_NAME = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'sho
 function SaveSection({
   teamId,
   saved,
+  match,
   toInput,
 }: {
   teamId: string;
   saved: Lineup | null;
-  toInput: (details: { name: string; matchDate: string | null }) => LineupInput;
+  match: MatchResponse | null;
+  toInput: (details: {
+    name: string;
+    matchDate: string | null;
+    matchId: string | null;
+  }) => LineupInput;
 }) {
   const save = useSaveLineup(teamId);
-  const [name, setName] = useState(saved?.name ?? `Partido del ${DAY_NAME.format(new Date())}`);
-  const [date, setDate] = useState(saved?.matchDate ?? TODAY());
+  const publish = usePublishLineup(teamId);
+  const [name, setName] = useState(
+    saved?.name ??
+      (match ? `vs ${match.match.opponent}` : `Partido del ${DAY_NAME.format(new Date())}`),
+  );
+  const [date, setDate] = useState(
+    saved?.matchDate ?? (match ? toLocalInputs(match.match.startsAt).date : TODAY()),
+  );
   const [done, setDone] = useState<Lineup | null>(null);
   // Tras guardar una nueva, los siguientes guardados la actualizan (no duplican).
   const currentId = done?.id ?? saved?.id ?? null;
@@ -430,7 +469,11 @@ function SaveSection({
     if (!name.trim()) return;
     save.mutate(
       {
-        input: toInput({ name, matchDate: date || null }),
+        input: toInput({
+          name,
+          matchDate: date || null,
+          matchId: match?.match.id ?? saved?.matchId ?? null,
+        }),
         ...(currentId && !asNew ? { lineupId: currentId } : {}),
       },
       { onSuccess: setDone },
@@ -490,6 +533,14 @@ function SaveSection({
             Guardada. <Link to={`/equipos/${teamId}/alineaciones/${done.id}`}>Verla</Link>
           </p>
         )}
+        {match?.match.open && currentId && (
+          <PublishButton
+            published={match.match.published?.lineupId === currentId || publish.isSuccess}
+            busy={publish.isPending}
+            failed={publish.isError}
+            onPublish={() => publish.mutate(currentId)}
+          />
+        )}
         <div className={styles.saveActions}>
           <Button type="submit" busy={save.isPending} disabled={!name.trim()}>
             {currentId ? 'Guardar cambios' : 'Guardar alineación'}
@@ -509,5 +560,33 @@ function SaveSection({
         Ver las alineaciones guardadas
       </Link>
     </section>
+  );
+}
+
+/** Publicar para el equipo (D17): se puede republicar hasta la hora del partido. */
+function PublishButton({
+  published,
+  busy,
+  failed,
+  onPublish,
+}: {
+  published: boolean;
+  busy: boolean;
+  failed: boolean;
+  onPublish: () => void;
+}) {
+  return (
+    <div className={styles.publish}>
+      <Button variant="secondary" busy={busy} onClick={onPublish}>
+        {published ? 'Republicar con estos cambios' : 'Publicar para el equipo'}
+      </Button>
+      <p className={failed ? styles.error : styles.muted} role={failed ? 'alert' : 'status'}>
+        {failed
+          ? 'No pudimos publicarla. Revisa tu conexión e intenta de nuevo.'
+          : published
+            ? 'Publicada: el equipo ya la ve. Guarda los cambios antes de republicar.'
+            : 'El equipo la verá sin poder cambiarla. Puedes republicar hasta la hora del partido.'}
+      </p>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-import type { Lineup, LineupInput, MatchFormat } from '@sdl/contracts';
+import type { Lineup, LineupInput, Match, MatchFormat, MatchReply } from '@sdl/contracts';
 import {
   DEFAULT_FORMATION,
   FIT_VERSION,
@@ -160,12 +160,13 @@ export function fromLineup(lineup: Lineup, currentPlayerIds: readonly string[]):
 export function toLineupInput(
   state: PlannerState,
   result: LineupResult,
-  details: { name: string; matchDate: string | null },
+  details: { name: string; matchDate: string | null; matchId?: string | null },
 ): LineupInput {
   const pinned = new Set(state.pins.map((p) => p.slotId));
   return {
     name: details.name.trim(),
     matchDate: details.matchDate,
+    matchId: details.matchId ?? null,
     formation: state.formationKey,
     mode: state.mode,
     weights: { ...MODE_WEIGHTS[state.mode] },
@@ -184,4 +185,22 @@ export function toLineupInput(
     })),
     bench: result.bench,
   };
+}
+
+/**
+ * Abrir el planificador desde un partido (Fase 7): su formato y, convocados, los que dijeron
+ * voy. Los que no respondieron quedan fuera, a la vista para sumarlos a mano.
+ */
+export function fromMatch(
+  match: Pick<Match, 'format'>,
+  roster: readonly { playerId: string; reply: MatchReply | null }[] | null,
+  currentPlayerIds: readonly string[],
+): PlannerState {
+  const yes = roster
+    ? new Set(roster.filter((p) => p.reply === 'yes').map((p) => p.playerId))
+    : null;
+  return initialState(
+    match.format,
+    currentPlayerIds.filter((id) => !yes || yes.has(id)),
+  );
 }

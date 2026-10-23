@@ -37,6 +37,8 @@ const BreakdownSchema = z.partialRecord(SignalKeySchema, z.number());
 export const LineupInputSchema = z.object({
   name: z.string().trim().min(1).max(80),
   matchDate: z.iso.date().nullable(),
+  /** El partido al que pertenece (Fase 7), o null si es una alineación suelta. */
+  matchId: z.uuid().nullable().default(null),
   formation: z.string(),
   mode: z.enum(['balanced', 'performance', 'development']),
   weights: z.record(SignalKeySchema, z.number().min(0).max(1)),
@@ -77,6 +79,7 @@ export const LineupListResponseSchema = z.object({
       id: true,
       name: true,
       matchDate: true,
+      matchId: true,
       formation: true,
       createdBy: true,
       updatedAt: true,

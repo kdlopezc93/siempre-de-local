@@ -189,4 +189,57 @@ describe('partidos en la app (Fase 7)', () => {
     const sent = new Date(body!.startsAt);
     expect([sent.getHours(), sent.getMinutes()]).toEqual([15, 30]);
   });
+
+  it('el cuerpo técnico arma la alineación desde el partido y publica una de las guardadas', async () => {
+    const L1 = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fc1';
+    let published: string | undefined;
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: { match: match(), roster: ROSTER },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/lineups`]: {
+        status: 200,
+        body: {
+          items: [
+            {
+              id: L1,
+              name: 'vs Los Pibes',
+              matchDate: null,
+              matchId: M1,
+              formation: '1-4-3-3',
+              createdBy: null,
+              updatedAt: '2026-10-23T10:00:00.000Z',
+            },
+            {
+              id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fc2',
+              name: 'Otra',
+              matchDate: null,
+              matchId: null,
+              formation: '1-4-3-3',
+              createdBy: null,
+              updatedAt: '2026-10-23T10:00:00.000Z',
+            },
+          ],
+        },
+      },
+      [`POST /api/v1/teams/${TEAM_A}/lineups/${L1}/publish`]: () => {
+        published = L1;
+        return { status: 204 };
+      },
+    });
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+    const section = await screen.findByRole('region', { name: 'Alineación' });
+    // Solo las de este partido.
+    expect(await within(section).findByRole('link', { name: 'vs Los Pibes' })).toBeInTheDocument();
+    expect(within(section).queryByRole('link', { name: 'Otra' })).toBeNull();
+    expect(within(section).getByRole('link', { name: 'Armar otra' })).toHaveAttribute(
+      'href',
+      `/equipos/${TEAM_A}/planificador?partido=${M1}`,
+    );
+    await userEvent.click(within(section).getByRole('button', { name: 'Publicar' }));
+    await vi.waitFor(() => expect(published).toBe(L1));
+  });
 });

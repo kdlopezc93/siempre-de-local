@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   fromLineup,
+  fromMatch,
   initialState,
   sendToBench,
   setFormat,
@@ -74,6 +75,7 @@ describe('guardar y abrir', () => {
     id: 'l1',
     name: 'Fecha 3',
     matchDate: '2026-11-01',
+    matchId: null,
     format: 'F8' as const,
     formation: '1-2-4-1',
     mode: 'performance' as const,
@@ -125,6 +127,7 @@ describe('guardar y abrir', () => {
     expect(input).toMatchObject({
       name: 'Fecha 4',
       matchDate: '2026-11-08',
+      matchId: null,
       formation: '1-3-3-1',
       fitVersion: 'fit-v1',
       available: ['ana'],
@@ -133,5 +136,21 @@ describe('guardar y abrir', () => {
         { slotId: 'DC', playerId: null, manual: false },
       ],
     });
+  });
+});
+
+describe('desde un partido (Fase 7)', () => {
+  it('su formato y, convocados, los que dijeron voy', () => {
+    const state = fromMatch(
+      { format: 'F11' },
+      [
+        { playerId: 'ana', reply: 'yes' },
+        { playerId: 'beto', reply: 'no' },
+        { playerId: 'ciro', reply: null },
+      ],
+      ['ana', 'beto', 'ciro', 'dani'],
+    );
+    expect(state).toMatchObject({ format: 'F11', formationKey: '1-4-3-3' });
+    expect([...state.available]).toEqual(['ana']);
   });
 });
