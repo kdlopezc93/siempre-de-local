@@ -123,6 +123,7 @@ Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no
 | 12 | Auditoría final: diseño, rendimiento, terceros (inventario, `pnpm audit`, CSP) y contraste | #68 ✔ |
 
 ### Fase 7 · Partidos: convocatoria, alineación publicada y después del partido
+**Cerrada el 2026-10-23** (#69–#77). Lo que queda por hacer con las evaluaciones de los partidos (que alimenten las valoraciones y la validación) pasa a la Fase 8, con datos reales.
 Pedida por Kevin el 2026-10-22: "cada vez que sale una fecha me gustaría enviar la convocatoria". Se arma sobre el planificador (Fase 5).
 
 1. **Convocatoria:** el cuerpo técnico crea un partido con fecha, hora, lugar y rival (solo texto) y formato (entre los del equipo, D14). Se la envía a los jugadores.
@@ -142,7 +143,7 @@ Plan en PRs (2026-10-22, con D16 y D17 decididos):
 | 5 | Notificaciones push (Web Push, D16), con su fila en el inventario de terceros (`04` §6) | #74 ✔ |
 | 6 | Después del partido en el API: resultado, figura, evaluaciones de 1 a 5 y quién las ve (D18); política `borrador-3` | #75 ✔ |
 | 7 | Cargar el resultado y evaluar en la app (cuerpo técnico): el partido jugado, "lo que toca", el ajuste en Equipo y la evaluación partido a partido en la ficha | #76 ✔ |
-| 8 | El jugador ve el resultado y la figura en el partido, y su evaluación (si el equipo la muestra) en el partido y en Mi juego; push de felicitación a la figura; política `borrador-4` | #77 |
+| 8 | El jugador ve el resultado y la figura en el partido, y su evaluación (si el equipo la muestra) en el partido y en Mi juego; push de felicitación a la figura; política `borrador-4` | #77 ✔ |
 
 El punto 5 (después del partido) se sumó el 2026-10-23 como PR 6–8.
 
@@ -151,6 +152,7 @@ El punto 5 (después del partido) se sumó el 2026-10-23 como PR 6–8.
 - Análisis de ítems de los bancos de conocimiento (dificultad, discriminación) → nuevas versiones del banco.
 - Afinar pesos del test, de las medias por posición y del encaje con datos reales.
 - Ítems tipo pizarra en los bancos de conocimiento.
+- Usar las evaluaciones de los partidos (D18) en las valoraciones, el planificador y la validación, cuando haya temporada suficiente.
 - **Pruebas de campo** (sprint, conos, tiro, pase, resistencia): protocolo, marcas de referencia, conversión a 0–99.
 
 ## Pendientes heredados del prototipo → dónde quedan
