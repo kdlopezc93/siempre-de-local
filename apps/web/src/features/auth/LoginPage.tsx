@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
@@ -40,6 +40,9 @@ export function LoginPage() {
             {signIn.isPending || signIn.isSuccess ? 'Abriendo Google…' : 'Continuar con Google'}
           </Button>
           <p className={styles.note}>Solo usamos tu nombre y tu correo de Google.</p>
+          <Link to="/tus-datos" className={styles.dataLink}>
+            Tus datos y cómo eliminarlos
+          </Link>
         </div>
       </div>
     </Screen>

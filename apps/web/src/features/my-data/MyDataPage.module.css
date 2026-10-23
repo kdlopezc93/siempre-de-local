@@ -1,0 +1,62 @@
+.screen {
+  gap: var(--sdl-space-6);
+}
+
+.title {
+  font-size: var(--sdl-text-display);
+  line-height: var(--sdl-leading-display);
+  letter-spacing: var(--sdl-tracking-display);
+}
+
+.lead {
+  margin-top: var(--sdl-space-2);
+  color: var(--sdl-fg-muted);
+}
+
+.done {
+  padding: var(--sdl-space-4);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  color: var(--sdl-success);
+  font-weight: 600;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.sectionTitle {
+  font-size: var(--sdl-text-xl);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding-left: var(--sdl-space-5);
+}
+
+.muted {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.policy summary {
+  min-height: var(--sdl-touch-min);
+  padding-block: var(--sdl-space-3);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: var(--sdl-touch-min);
+  color: var(--sdl-primary);
+  font-weight: 600;
+  text-underline-offset: 4px;
+}
