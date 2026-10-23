@@ -1,4 +1,4 @@
-import { Body, Controller, Patch, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Patch, Put } from '@nestjs/common';
 import {
   PreferredPositionsRequestSchema,
   type ProfileResponse,
@@ -7,6 +7,7 @@ import {
 
 import { CurrentSession } from '../../../shared/authz/current-session.decorator.js';
 import { parseInput } from '../../../shared/http/validation.js';
+import { photoBody } from '../../../shared/photos/photo-body.js';
 import type { AuthSession } from '../../identity/application/ports/identity-provider.port.js';
 import { PlayerProfiles } from '../application/profile.use-cases.js';
 
@@ -30,5 +31,19 @@ export class ProfileController {
   ): Promise<ProfileResponse> {
     const request = parseInput(PreferredPositionsRequestSchema, body);
     return { profile: await this.profiles.setPreferredPositions(session.user, request) };
+  }
+
+  /** La foto llega como bytes (`Content-Type: image/webp` o `image/jpeg`), ya recortada. */
+  @Put('photo')
+  async photo(
+    @CurrentSession() session: AuthSession,
+    @Body() body: unknown,
+  ): Promise<ProfileResponse> {
+    return { profile: await this.profiles.setPhoto(session.user, photoBody(body)) };
+  }
+
+  @Delete('photo')
+  async removePhoto(@CurrentSession() session: AuthSession): Promise<ProfileResponse> {
+    return { profile: await this.profiles.removePhoto(session.user) };
   }
 }

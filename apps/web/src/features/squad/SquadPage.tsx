@@ -255,6 +255,7 @@ function PlayerRow({
               : initialsOf(player.displayName)
           }
           line={lineOf(player)}
+          photo={player.photoUrl}
         />
       }
       title={player.displayName}

@@ -81,6 +81,7 @@ describe('GET /api/v1/teams/:teamId', () => {
         formats: ['F11'],
         season: '2026',
         club: { id: expect.any(String), name: 'Los del Barrio' },
+        photoUrl: null,
         ratingsVisibleToPlayers: true,
       },
       myRoles: ['coach'],

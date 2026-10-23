@@ -74,6 +74,7 @@ describe('lo que toca al cuerpo técnico', () => {
     displayName: 'Ana',
     jerseyNumber: 4,
     preferredPositions: [],
+    photoUrl: null,
     test: { status: 'none' as const },
     latestAssessment: null,
     assessedByMe: true,

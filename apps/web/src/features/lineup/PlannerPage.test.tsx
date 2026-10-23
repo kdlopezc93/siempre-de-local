@@ -17,6 +17,7 @@ const TEAM = {
     formats: ['F8'],
     season: '2026',
     club: { id: uuid(10), name: 'Los del Barrio' },
+    photoUrl: null,
     ratingsVisibleToPlayers: true,
   },
   myRoles: ['coach'],

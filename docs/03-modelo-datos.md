@@ -59,6 +59,8 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 
 **team**
 
+> `photo_key text null`: escudo o foto del equipo en el almacenamiento de fotos (ADR-09; migración `0017_photos`, que también agrega `player_profile.photo_key`, la foto opcional del jugador).
+>
 > `format` es el **formato principal** (D14): el del test, la valoración y la tarjeta. `formats match_format[]` son los formatos en que juega; el planificador elige entre ellos por partido. Restricción `team_format_in_formats`: el principal siempre está entre los formatos. Migración `0016_team_formats` (los equipos existentes quedan con `formats = {format}`).
 | Columna | Tipo | Notas |
 |---|---|---|

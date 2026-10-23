@@ -32,7 +32,10 @@ export async function apiRequest<T>(
 /** Igual que apiRequest pero sin cuerpo de respuesta que validar. */
 export async function apiFetch(path: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers);
-  if (init.body !== undefined) headers.set('content-type', 'application/json');
+  // JSON por defecto; una foto manda su propio tipo (image/webp o image/jpeg).
+  if (init.body !== undefined && !headers.has('content-type')) {
+    headers.set('content-type', 'application/json');
+  }
 
   const res = await fetch(new URL(path, API_URL), { ...init, headers, credentials: 'include' });
   if (!res.ok) throw await toApiError(res);

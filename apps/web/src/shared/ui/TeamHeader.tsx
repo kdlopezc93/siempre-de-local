@@ -14,6 +14,7 @@ export interface HeaderTeam {
   /** Lo que se lee debajo del nombre en el selector: "Entrenador y jugador". */
   roles: string;
   format: string;
+  photoUrl?: string | null;
 }
 
 const LINKING_WORDS = new Set(['de', 'del', 'la', 'las', 'el', 'los', 'y']);
@@ -40,13 +41,13 @@ export function TeamHeader({
   teams: readonly HeaderTeam[];
   onSwitch: (teamId: string) => void;
   /** Tu ficha a la derecha: lleva a tu cuenta (perfil, roles, cerrar sesión). */
-  account?: { name: string; to: string };
+  account?: { name: string; to: string; photoUrl?: string | null };
 }) {
   const [open, setOpen] = useState(false);
   const switchable = teams.length > 1;
   const content = (
     <>
-      <Token text={initialsOf(team.name)} tone="amber" size="sm" />
+      <Token text={initialsOf(team.name)} tone="amber" size="sm" photo={team.photoUrl} />
       <span className={styles.text}>
         <span className={styles.name}>{team.name}</span>
         <span className={styles.meta}>
@@ -79,7 +80,7 @@ export function TeamHeader({
             className={styles.account}
             aria-label={`Tu cuenta, ${account.name}`}
           >
-            <Token text={initialsOf(account.name)} size="sm" />
+            <Token text={initialsOf(account.name)} size="sm" photo={account.photoUrl} />
           </Link>
         )}
       </div>
@@ -97,7 +98,11 @@ export function TeamHeader({
                     if (t.id !== team.id) onSwitch(t.id);
                   }}
                 >
-                  <Token text={initialsOf(t.name)} tone={t.id === team.id ? 'amber' : 'board'} />
+                  <Token
+                    text={initialsOf(t.name)}
+                    tone={t.id === team.id ? 'amber' : 'board'}
+                    photo={t.photoUrl}
+                  />
                   <span className={styles.text}>
                     <span className={styles.name}>{t.name}</span>
                     <span className={styles.meta}>

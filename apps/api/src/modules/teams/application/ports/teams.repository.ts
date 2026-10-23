@@ -7,6 +7,7 @@ export interface TeamRecord {
   formats: MatchFormat[];
   season: string;
   club: { id: string; name: string };
+  photoUrl: string | null;
   ratingsVisibleToPlayers: boolean;
 }
 
@@ -17,6 +18,8 @@ export interface TeamsRepository {
     teamId: string,
     settings: Partial<Pick<TeamRecord, 'ratingsVisibleToPlayers' | 'name' | 'format' | 'formats'>>,
   ): Promise<'ok' | 'name-taken'>;
+  photoKey(teamId: string): Promise<string | null>;
+  setPhotoKey(teamId: string, photoKey: string | null): Promise<void>;
   /** Cambia el dorsal del jugador activo; false si no es jugador activo del equipo. */
   setJerseyNumber(teamId: string, userId: string, jerseyNumber: number | null): Promise<boolean>;
 }

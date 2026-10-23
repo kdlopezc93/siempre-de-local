@@ -24,6 +24,8 @@
 |---|---|---|
 | GET | `/me` | `{ user, profile, consent: { policyVersion, acceptedAt } \| null, teams: [{ team, club, roles }], clubs: [{ id, name, role }] }` (`MeResponseSchema`). `consent` es null si no aceptó la versión vigente; `profile` trae valores por defecto si nunca se editó |
 | POST | `/me/consent` | Aceptar la política vigente: `{ policyVersion, ageConfirmed: true }` → 201 `{ consent }`, idempotente. 400 sin `ageConfirmed`; 422 `POLICY_VERSION_OUTDATED` si la versión no es la vigente (`POLICY_VERSION` en `packages/contracts/src/consent.ts`) |
+| PUT / DELETE | `/me/photo` | **Implementado.** Sube (bytes `image/webp` o `image/jpeg`, hasta 512 KB, ya recortada) o quita tu foto → `{ profile }` con `photoUrl`. El API quita los metadatos (ADR-09). 422 `PHOTO_INVALID`. Exige la política aceptada |
+| GET | `/players/:userId/photo` | **Implementado.** La foto de un jugador: para él, quien comparte un equipo activo con él o quien administra su club; si no, 404. `Cache-Control: private, immutable` (la URL lleva `?v=`) |
 | PATCH | `/me/profile` | **Implementado.** Solo los campos que cambian: `{ displayName? (2–40), dominantFoot? ('left'\|'right'\|'both'\|null), playsGoalkeeper? }` → `{ profile }`. Exige la política aceptada (`CONSENT_REQUIRED`) |
 | PUT | `/me/preferred-positions` | **Implementado.** Reemplaza la lista: `{ positions: PositionCode[] }`, hasta 3, sin repetir y en orden de preferencia → `{ profile }` |
 | GET | `/me/export` | Exportación de mis datos (JSON) |
@@ -38,6 +40,7 @@
 | GET | `/teams/:teamId` | miembro activo o admin del club. **Implementado:** `{ team: { id, name, format, season, club: { id, name } }, myRoles }` (`TeamResponseSchema`) |
 | PATCH | `/teams/:teamId` | **Implementado.** Solo lo que cambia: `{ ratingsVisibleToPlayers?, name? (2–60), format? (el principal), formats? (sin repetir) }` (permiso `team.settings.write`: coach y admin del club). 422 `TEAM_FORMAT_NOT_PLAYED` si el principal no está entre los formatos; 409 `TEAM_NAME_TAKEN` si el club ya tiene ese nombre en la temporada. Auditado (`team.settings_updated`). `GET /teams/:teamId` y `/me` devuelven también `formats` |
 | GET | `/teams/:teamId/members` | coach, assistant |
+| PUT / DELETE / GET | `/teams/:teamId/photo` | **Implementado.** Escudo o foto del equipo: subir o quitar con `team.settings.write` (coach y admin del club), ver con `team.read`. Mismas reglas de formato y caché que la del jugador. Auditado (`team.photo_updated`, `team.photo_removed`) |
 | PATCH / DELETE | `/teams/:teamId/members/:userId` | según matriz. **PATCH implementado** para `{ jerseyNumber: 0–99 \| null }` (permiso `team.members.manage`: coach y admin del club; solo jugadores activos, si no 404 `PLAYER_NOT_IN_TEAM`). El dorsal **puede repetirse** dentro del equipo. 204; queda en `audit_log` (`team.member_updated`) |
 | POST | `/teams/:teamId/invitations` | Jugadores: coach o admin del club; cuerpo técnico: solo admin del club. `{ role='player', expiresInDays=7 (1–30), maxUses=30 (1–100) }` → 201 `{ invitation, code, joinUrl }`. Devuelve el código **una sola vez** |
 | GET | `/teams/:teamId/invitations` | Lista sin códigos (`{ items }`), con `status`: `active`, `expired`, `used_up`, `revoked`. El coach no ve las de cuerpo técnico |

@@ -20,6 +20,7 @@ const TEAM = {
     formats: ['F11'],
     season: '2026',
     club: { id: uuid(10), name: 'Los del Barrio' },
+    photoUrl: null,
     ratingsVisibleToPlayers: true,
   },
   myRoles: ['coach'],
@@ -31,6 +32,7 @@ const SQUAD = {
       displayName: 'Ana',
       jerseyNumber: 4,
       preferredPositions: ['DFC'],
+      photoUrl: null,
       test: { status: 'hidden' },
       latestAssessment: null,
       assessedByMe: false,
@@ -42,6 +44,7 @@ const SQUAD = {
       displayName: 'Beto',
       jerseyNumber: null,
       preferredPositions: [],
+      photoUrl: null,
       test: {
         status: 'visible',
         attemptId: uuid(30),

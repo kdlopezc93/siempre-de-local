@@ -157,7 +157,8 @@ Con `prefers-reduced-motion: reduce`, las duraciones pasan a 0 y la entrada se m
 
 | Componente | Qué es | Notas |
 |---|---|---|
-| `Token` | **La ficha magnética**: dorsal o iniciales en un disco con el aro de su línea (portero tiza, defensa azul, medio verde, ataque coral); `tone="amber"` para el equipo o lo elegido | Tamaños 32/44/64/96. Decorativa salvo que lleve `label`. `lineOfPosition(pos)` da la línea |
+| `Token` | **La ficha magnética** (con `photo`, la foto llena el disco y el aro de la línea queda alrededor; si no carga, vuelve al texto): dorsal o iniciales en un disco con el aro de su línea (portero tiza, defensa azul, medio verde, ataque coral); `tone="amber"` para el equipo o lo elegido | Tamaños 32/44/64/96. Decorativa salvo que lleve `label`. `lineOfPosition(pos)` da la línea |
+| `PhotoPicker` | Elegir una foto: se recorta al centro y se reduce en el celular (`shared/photos/prepare-photo`), se ve cómo queda y recién ahí se sube; también quitarla | El selector de archivo es un `<label>` con forma de botón (foco visible); la vista previa tiene texto alternativo |
 | `TeamHeader` | Encabezado fijo: escudo (iniciales en ficha ámbar), nombre del equipo, club y formato; a la derecha, **tu ficha** (tus iniciales), que lleva a Tu cuenta | Con más de un equipo, el escudo y el nombre son un botón que abre la hoja "Tus equipos" |
 | `BottomNav` | Barra inferior, máximo 5 pestañas con icono y nombre | La activa: icono relleno, texto en tiza y el punto ámbar del icono de la app encima. Globo ámbar de pendientes (9+) |
 | `Sheet` | Hoja inferior modal (`<dialog>`) | Atrapa y devuelve el foco; se cierra con X, velo, Escape o arrastrando la manija |

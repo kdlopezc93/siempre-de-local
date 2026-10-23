@@ -13,6 +13,8 @@ const EnvSchema = z.object({
   COOKIE_DOMAIN: z.string().min(1),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
+  /** Carpeta de las fotos en desarrollo (ADR-09); en staging van a R2. */
+  PHOTOS_DIR: z.string().min(1).default('.photos'),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

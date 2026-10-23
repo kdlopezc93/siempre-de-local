@@ -1,10 +1,10 @@
 # Política de tratamiento de datos personales — Siempre de Local
 
-> **BORRADOR `2026-10-borrador` — pendiente de revisión legal (D7).** No usar con equipos reales hasta que lo revise alguien que conozca la Ley 1581 de 2012 y el Decreto 1377 de 2013. Al publicar la versión revisada cambia `POLICY_VERSION` en `packages/contracts/src/consent.ts` y todos vuelven a aceptarla.
+> **BORRADOR `2026-10-borrador-2` — pendiente de revisión legal (D7).** No usar con equipos reales hasta que lo revise alguien que conozca la Ley 1581 de 2012 y el Decreto 1377 de 2013. Al publicar la versión revisada cambia `POLICY_VERSION` en `packages/contracts/src/consent.ts` y todos vuelven a aceptarla.
 >
 > Los textos entre corchetes `[…]` hay que completarlos antes de publicar.
 
-**Versión:** 2026-10-borrador · **Vigente desde:** [fecha de publicación]
+**Versión:** 2026-10-borrador-2 · **Vigente desde:** [fecha de publicación]
 
 ## 1. Quién es responsable de tus datos
 
@@ -14,7 +14,8 @@
 
 Solo los necesarios para que la app funcione:
 
-- **De tu cuenta de Google:** tu nombre y tu correo. No guardamos tu foto ni tus contraseñas, y no tenemos acceso a tu Gmail, tus contactos ni tus archivos.
+- **De tu cuenta de Google:** tu nombre y tu correo. No guardamos tu foto de Google ni tus contraseñas, y no tenemos acceso a tu Gmail, tus contactos ni tus archivos.
+- **Tu foto, solo si decides subirla:** es opcional. La guardamos recortada y **sin la ubicación ni los datos de la cámara**. La ven solo tu equipo y los administradores de tu club, y la puedes quitar cuando quieras. Si el entrenador sube una foto o escudo del equipo, la ve el equipo.
 - **De tu perfil:** el nombre que quieras mostrar, tu pie dominante, las posiciones donde te gusta jugar y si juegas de portero.
 - **De lo que haces en la app:** tus respuestas al test de posición y a los exámenes de conocimiento, con sus resultados.
 - **Lo que registra tu cuerpo técnico sobre ti:** la tarjeta de atributos (0–99), su valoración de tu posición y las notas que escriba.

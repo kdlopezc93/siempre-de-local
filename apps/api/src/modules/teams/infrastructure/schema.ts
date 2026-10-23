@@ -61,6 +61,8 @@ export const team = pgTable(
     /** Los formatos en que juega (el principal entre ellos); el planificador elige por partido. */
     formats: matchFormat().array().notNull(),
     season: text().notNull(),
+    /** Escudo o foto del equipo en el almacenamiento de fotos (ADR-09), o null. */
+    photoKey: text(),
     /** ¿El jugador ve su tarjeta 0–99? (D8) */
     ratingsVisibleToPlayers: boolean().notNull().default(true),
     archivedAt: timestamp({ withTimezone: true }),

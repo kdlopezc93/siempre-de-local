@@ -36,7 +36,7 @@ export function AccountPage({ me }: { me: Me }) {
   return (
     <Screen className={styles.screen}>
       <header className={styles.hero}>
-        <Token text={initialsOf(name)} size="lg" />
+        <Token text={initialsOf(name)} size="lg" photo={me.profile.photoUrl} />
         <div className={styles.heroText}>
           <h1 className={styles.title}>{name}</h1>
           <p className={styles.muted} translate="no">
@@ -67,7 +67,7 @@ export function AccountPage({ me }: { me: Me }) {
         <ul className={styles.teams}>
           {me.teams.map(({ team, club, roles }) => (
             <li key={team.id} className={styles.team}>
-              <Token text={initialsOf(team.name)} tone="amber" size="sm" />
+              <Token text={initialsOf(team.name)} tone="amber" size="sm" photo={team.photoUrl} />
               <div className={styles.teamText}>
                 <p className={styles.teamName}>
                   {team.name} <span className={styles.muted}>({club.name})</span>

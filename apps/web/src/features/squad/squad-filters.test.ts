@@ -9,6 +9,7 @@ const player = (over: Partial<SquadPlayer>): SquadPlayer => ({
   displayName: 'X',
   jerseyNumber: null,
   preferredPositions: [],
+  photoUrl: null,
   test: { status: 'none' },
   latestAssessment: null,
   assessedByMe: true,

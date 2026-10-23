@@ -92,6 +92,7 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
           }
           line={position ? lineOfPosition(position) : null}
           size="xl"
+          photo={player.photoUrl}
           {...(player.jerseyNumber !== null ? { label: `Dorsal ${player.jerseyNumber}` } : {})}
         />
         <div className={styles.heroText}>

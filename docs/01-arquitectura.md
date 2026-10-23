@@ -137,6 +137,25 @@ Un repo, tres paquetes que importan, uno de contratos. Despliegues independiente
 
 **Cuándo reconsiderar:** si aparece un segundo cliente con necesidades distintas (app nativa, integración de terceros, un portal de federación) o si los endpoints agregadores empiezan a multiplicarse sin control.
 
+### ADR-09 · Fotos: almacenamiento de objetos detrás de un puerto, nunca en la base
+
+**Contexto:** el equipo pidió foto del jugador y escudo o foto del equipo (Fase 6, `07` §4.7). Es la primera vez que la app guarda archivos.
+
+**Decisión:**
+- Las fotos van a un **almacenamiento de objetos** detrás del puerto `PhotoStorage` (`apps/api/src/shared/photos`). En local y en los tests, el **disco** (`PHOTOS_DIR`); en staging y producción, **Cloudflare R2** (D15), que se conecta junto con el hosting (D5). La base guarda solo la **clave** (`player_profile.photo_key`, `team.photo_key`).
+- Se sirven **por el API, con sesión y autorización**, no desde una URL pública:
+  - la foto de un jugador la ven él, quien comparte un equipo activo con él y quien administra el club de alguno de sus equipos;
+  - la del equipo, sus integrantes y el admin del club.
+
+  La URL lleva una versión (la clave cambia con cada foto), así que se cachea como `private, immutable`.
+- **Privacidad en dos capas:**
+  1. el celular recorta, reduce a ~512 px y vuelve a codificar, lo que quita los metadatos;
+  2. el API acepta solo WebP o JPEG de hasta 512 KB y **quita los bloques de metadatos** (EXIF con GPS, XMP, IPTC, comentarios) sin decodificar la imagen.
+
+**Por qué no en la base (`bytea`):** infla las copias de seguridad y la memoria del API, y R2 sirve archivos más barato. **Por qué no pública:** son caras de personas; solo las ve su equipo (`04` §5).
+
+**Pendiente:** el adaptador R2 (con la cuenta de staging); borrar las fotos al eliminar la cuenta (Fase 6, PR 10).
+
 ## 3. Capas
 
 ### 3.1 Monorepo

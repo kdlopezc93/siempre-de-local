@@ -6,7 +6,10 @@ import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Pitch } from '../../shared/ui/Pitch';
+import { PhotoPicker } from '../../shared/ui/PhotoPicker';
 import { Screen } from '../../shared/ui/Screen';
+import { initialsOf } from '../../shared/ui/TeamHeader';
+import { useMyPhoto } from '../photos/use-photos';
 import styles from './ProfilePage.module.css';
 import { togglePreference, useSaveProfile } from './use-profile';
 
@@ -50,6 +53,7 @@ export function ProfilePage({ me }: { me: Me }) {
   return (
     <Screen className={styles.screen}>
       <h1 className={styles.title}>Tu perfil</h1>
+      <MyPhoto me={me} />
       <p className={styles.lead}>
         Esto es lo que tú dices de ti. Tu entrenador lo ve junto con tu test y su propia mirada.
       </p>
@@ -159,5 +163,29 @@ export function ProfilePage({ me }: { me: Me }) {
         </Button>
       </form>
     </Screen>
+  );
+}
+
+/** Tu foto: opcional, la ve solo tu equipo (07 §4.7). */
+function MyPhoto({ me }: { me: Me }) {
+  const photo = useMyPhoto();
+  return (
+    <section aria-labelledby="tu-foto" className={styles.section}>
+      <h2 id="tu-foto" className={styles.sectionTitle}>
+        Tu foto
+      </h2>
+      <PhotoPicker
+        label="Elegir tu foto"
+        current={me.profile.photoUrl}
+        fallback={initialsOf(me.profile.displayName)}
+        busy={photo.upload.isPending || photo.remove.isPending}
+        error={photo.error}
+        onUpload={(blob, done) => photo.upload.mutate(blob, { onSuccess: done })}
+        onRemove={() => photo.remove.mutate()}
+      />
+      <p className={styles.hint}>
+        Opcional. La ve solo tu equipo y la puedes quitar cuando quieras.
+      </p>
+    </section>
   );
 }

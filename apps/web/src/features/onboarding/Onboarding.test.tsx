@@ -22,6 +22,7 @@ const TEAM = {
     format: 'F11',
     formats: ['F11'],
     season: '2026',
+    photoUrl: null,
   },
   club: { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f72', name: 'Los del Barrio' },
   roles: ['player'],

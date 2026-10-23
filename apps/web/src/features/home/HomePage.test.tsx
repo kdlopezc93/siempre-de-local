@@ -12,6 +12,7 @@ const player = (over: object) => ({
   displayName: 'Ana',
   jerseyNumber: 4,
   preferredPositions: [],
+  photoUrl: null,
   test: { status: 'hidden' },
   latestAssessment: null,
   assessedByMe: true,

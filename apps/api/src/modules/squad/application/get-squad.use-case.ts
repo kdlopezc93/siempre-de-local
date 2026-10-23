@@ -71,6 +71,7 @@ export class GetSquad {
             displayName: profile.displayName,
             jerseyNumber: player.jerseyNumber,
             preferredPositions: profile.preferredPositions,
+            photoUrl: profile.photoUrl,
             test,
             latestAssessment: latest.get(player.userId) ?? null,
             assessedByMe: mine,

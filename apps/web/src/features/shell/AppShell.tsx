@@ -34,6 +34,7 @@ const toHeader = ({ team, club, roles }: Me['teams'][number]): HeaderTeam => ({
   club: club.name,
   format: formatsLabel(team.formats, team.format),
   roles: rolesLabel(roles),
+  photoUrl: team.photoUrl,
 });
 
 /**
@@ -58,7 +59,7 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
       </a>
       <TeamHeader
         team={toHeader(active)}
-        account={{ name: me.profile.displayName, to: '/cuenta' }}
+        account={{ name: me.profile.displayName, to: '/cuenta', photoUrl: me.profile.photoUrl }}
         teams={me.teams.map(toHeader)}
         onSwitch={(teamId) => {
           choose(teamId);

@@ -18,11 +18,13 @@ import { TeamsModule } from './modules/teams/teams.module.js';
 import { PermissionGuard } from './shared/authz/permission.guard.js';
 import { SessionGuard } from './shared/authz/session.guard.js';
 import { DbModule } from './shared/db/db.module.js';
+import { PhotosModule } from './shared/photos/photos.module.js';
 
 @Module({
   imports: [
     ConfigModule,
     DbModule,
+    PhotosModule,
     IdentityModule,
     TeamsModule,
     PlayerProfileModule,
