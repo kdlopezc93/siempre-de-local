@@ -75,14 +75,16 @@ test('un jugador nuevo se une, acepta la política y hace su test', async ({ pag
   await expect(page.getByRole('img', { name: /Cancha con tus posiciones marcadas/ })).toBeVisible();
   await expect(page.getByRole('list').first().getByRole('listitem')).toHaveCount(3);
 
-  // Y queda en su historial: Mi juego → Mi posición.
+  // Y queda en Mi juego: su podio, que lleva al resultado.
   await page.getByRole('link', { name: 'Volver al inicio' }).click();
   await page
     .getByRole('navigation', { name: 'Principal' })
     .getByRole('link', { name: 'Mi juego' })
     .click();
-  await page.getByRole('link', { name: /Mi posición/ }).click();
-  await expect(page.getByRole('main').getByRole('list').getByRole('link')).toHaveCount(1);
+  await expect(
+    page.getByRole('list', { name: 'Tus 3 posiciones' }).getByRole('listitem'),
+  ).toHaveCount(3);
+  await expect(page.getByRole('link', { name: 'Repetir el test' })).toBeVisible();
 });
 
 async function answerAll(page: Page) {
