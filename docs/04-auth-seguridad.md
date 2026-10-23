@@ -141,6 +141,7 @@ Auditoría del 2026-10-22 (Fase 6, PR 12; `07` §4.8).
   - Los únicos enlaces a otros sitios son los que el usuario abre: las referencias de "En qué se basa el test" y compartir la invitación por WhatsApp (`wa.me`).
 - **El API habla con dos servicios:**
   - **Postgres**;
+  - **Los servicios de push** de cada navegador (Google FCM, Apple, Mozilla), solo si alguien activó los avisos (Fase 7, D16). Llevan el rival y la hora del partido, cifrados (Web Push, VAPID).
   - **Google**, solo al entrar. Scopes por defecto (`openid email profile`), y se comprobó en la base que:
     - la foto de Google **no se guarda** (`user.image` en null por hook; 0 usuarios con imagen);
     - los tokens de Google **no se guardan** (`access`, `refresh` e `id` en null; 0 cuentas con tokens).
@@ -159,6 +160,7 @@ Auditoría del 2026-10-22 (Fase 6, PR 12; `07` §4.8).
 | @nestjs/throttler | Límite de peticiones | No | IP en memoria | MIT |
 | better-auth | Sesiones y login con Google | Google (OAuth) | Nombre, correo, sesiones | MIT |
 | drizzle-orm, pg | Acceso a Postgres | Postgres | Toda la base | Apache-2.0, MIT |
+| web-push | Avisos (Web Push con VAPID) | Servicios de push de los navegadores | Suscripciones de los celulares; el aviso: rival, hora y ruta | MPL-2.0 (copyleft solo de sus archivos; se usa sin modificar) |
 
 **Licencias de todo lo instalado** (731 paquetes, desarrollo incluido):
 - casi todo es MIT, Apache-2.0, ISC o BSD;

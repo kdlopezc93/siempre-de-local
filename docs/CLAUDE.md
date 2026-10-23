@@ -64,7 +64,7 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | `pnpm admin:bootstrap-team -- --club-name … --club-slug … --team-name … --format F11 --season 2026 --owner-email … --coach-email …` | Alta de club con su dueño y un equipo con su entrenador (deben haber entrado una vez con Google); idempotente |
 | `pnpm proxy:up` | Levanta Caddy (HTTPS local en `app.`/`api.sdl.localtest.me`) |
 | `pnpm dev:tunnel <url-túnel>` | Desarrollo desde el celular: app (con recarga en vivo) y API (en vigilancia) por el túnel de VS Code al puerto 4173. Reemplaza a `pnpm dev` mientras corre. **No tiene service worker:** lo que es sin conexión (abrir sin señal, cola, podio provisional) se prueba con `preview:tunnel`. Al cambiar de un modo al otro, cierra todas las pestañas de la app y la app instalada en el celular (el service worker anterior manda hasta que no quede ninguna abierta) |
-| `pnpm preview:tunnel <url-túnel>` | Build real (con service worker) + API por el mismo túnel: instalación y todo lo que es sin conexión en el celular |
+| `pnpm preview:tunnel <url-túnel>` | Build real (con service worker) + API por el mismo túnel: instalación, todo lo que es sin conexión y los **avisos (Web Push)** en el celular. Los avisos necesitan `VAPID_*` en `apps/api/.env` (ver su `.env.example`) |
 | `pnpm proxy:cert` | Exporta el certificado raíz de Caddy a `.certs/` para importarlo en Windows |
 
 Los tests de integración del API levantan su propio Postgres con Testcontainers (requieren Docker).

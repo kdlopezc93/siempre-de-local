@@ -126,3 +126,18 @@
   font: inherit;
   font-size: var(--sdl-text-base);
 }
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+  min-height: var(--sdl-touch-min);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.switchRow input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--sdl-primary);
+}

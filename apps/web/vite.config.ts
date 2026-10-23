@@ -178,6 +178,8 @@ export default defineConfig(({ mode }) => {
           navigateFallback: '/index.html',
           // Si el API comparte origen (túnel), su callback de OAuth no es la SPA.
           navigateFallbackDenylist: [/^\/api\//],
+          // Avisos (Web Push): su manejo vive en public/push-sw.js.
+          importScripts: ['push-sw.js'],
           runtimeCaching: [
             {
               // Respuestas del API que deben verse sin conexión (ADR-06).

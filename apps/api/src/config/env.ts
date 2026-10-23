@@ -13,6 +13,14 @@ const EnvSchema = z.object({
   COOKIE_DOMAIN: z.string().min(1),
   GOOGLE_CLIENT_ID: z.string().min(1),
   GOOGLE_CLIENT_SECRET: z.string().min(1),
+  /** Avisos (Web Push, D16): sin las tres, los avisos quedan apagados. `npx web-push generate-vapid-keys`. */
+  VAPID_PUBLIC_KEY: z.string().min(1).optional(),
+  VAPID_PRIVATE_KEY: z.string().min(1).optional(),
+  /** Contacto para los servicios de push: mailto:… o https://… */
+  VAPID_SUBJECT: z
+    .string()
+    .regex(/^(mailto:|https:\/\/)/)
+    .optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

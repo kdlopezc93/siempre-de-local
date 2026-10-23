@@ -269,6 +269,8 @@ Implementado en `apps/api/src/modules/assessments/infrastructure/schema.ts` (mig
 
 **match_reply** — `match_id (cascade), user_id (cascade), reply match_reply_value ('yes','no'), replied_at` · PK (match_id, user_id). Una por jugador; se reemplaza al cambiar.
 
+**push_subscription** — `id, user_id (cascade), endpoint unique, p256dh, auth, created_at`. Una por navegador: si el celular cambia de cuenta, pasa a la nueva; se borra al apagar los avisos, si el servicio responde 404/410, o con la cuenta (migración `0019_push_subscriptions`).
+
 > **Implementado** (migración `0017_matches`, módulo `matches`, Fase 7). Reglas en `02` §13. La alineación de un partido: `lineup.match_id` (set null; migración `0018_lineup_match`); la publicada es `team_match.lineup_id` + `published_at`.
 
 **lineup**
