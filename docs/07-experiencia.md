@@ -146,7 +146,7 @@ Hoy la web no carga nada de terceros: las fuentes van empaquetadas (Fontsource),
 | 1 | Este documento y el roadmap | — |
 | 2 | **Sistema de diseño v2** (skill `ui-ux-pro-max` + `frontend-design`): tokens, tipografía, superficies, lista, chips, hoja inferior, encabezado y barra, con **contraste verificado** de cada pareja (principio 7). Conserva el icono y las animaciones de entrar (§3.1). En `docs/design-system.md` | H12 |
 | 3 | **Armazón:** encabezado de equipo con selector, barra inferior por rol, pantallas de tarea a pantalla completa, rutas nuevas (`/equipos/:id/…` como base) | H1, H2 |
-| 4 | **Inicio "lo que toca"** (endpoint de pendientes por rol) | H3, H4 |
+| 4 | **Inicio "lo que toca"**, armado en el celular con lo que ya traen la plantilla, el examen, el historial y las alineaciones: sin endpoint nuevo, así no se duplican la autorización ni la regla de a ciegas, y funciona sin señal con lo último que se vio | H3, H4 |
 | 5 | **Plantilla:** lista compacta, búsqueda, filtros y vista Pizarra | H5, H6 |
 | 6 | **Ficha del jugador** para el cuerpo técnico: une perfil, tarjeta, valorar y conocimiento | H7 |
 | 7 | **Mi juego:** tarjeta, posición, conocimiento, historial y editar perfil en una pestaña; el test deja de ser un enlace suelto | H4, H9, H10 |

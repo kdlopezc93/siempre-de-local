@@ -1,61 +1,104 @@
+import type { Icon } from '@phosphor-icons/react';
+import { Brain } from '@phosphor-icons/react/dist/csr/Brain';
+import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
+import { ClipboardText } from '@phosphor-icons/react/dist/csr/ClipboardText';
 import { IdentificationCard } from '@phosphor-icons/react/dist/csr/IdentificationCard';
+import { SoccerBall } from '@phosphor-icons/react/dist/csr/SoccerBall';
 import { Strategy } from '@phosphor-icons/react/dist/csr/Strategy';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 
 import type { Me } from '../../shared/api/auth';
 import { Screen } from '../../shared/ui/Screen';
 import { LeadTask, TaskRow } from '../../shared/ui/TaskCard';
-import { useHistory } from '../history/use-history';
 import { useActiveTeam } from '../shell/use-active-team';
 import styles from './HomePage.module.css';
+import type { Todo, TodoIcon } from './todo';
+import { arrange } from './todo';
+import { useHomeTodos } from './use-home';
+
+const ICONS: Record<TodoIcon, Icon> = {
+  exam: Brain,
+  test: SoccerBall,
+  assess: ClipboardText,
+  card: IdentificationCard,
+  review: Warning,
+  lineup: Strategy,
+};
 
 /**
- * "/" — por ahora, el saludo y los atajos del equipo activo. El PR 4 de la Fase 6 lo
- * convierte en "lo que toca" (07 §4.3).
+ * "/" — lo que toca en el equipo activo (07 §4.3): lo más urgente como bloque ámbar y lo
+ * demás en filas cortas; si tienes los dos roles, separadas por rol.
  */
 export function HomePage({ me }: { me: Me }) {
   const { active } = useActiveTeam(me);
-  const history = useHistory(me.user.id);
+  const roles = active?.roles ?? [];
+  const home = useHomeTodos(me, active?.team.id, roles);
   // Como le dicen en la cancha (perfil); por defecto, su nombre de Google.
   const displayName = me.profile.displayName;
   const firstName = displayName.split(' ')[0] || displayName;
-  const roles = active?.roles ?? [];
-  const player = roles.includes('player');
-  const staff = roles.includes('coach') || roles.includes('assistant');
-  const teamId = active?.team.id;
+  const { lead, rest } = arrange(home.todos);
+  const both = home.staff && home.player;
+  const staffRows = rest.filter((t) => t.who === 'staff');
+  if (home.shortcut) staffRows.push(home.shortcut);
+  const playerRows = rest.filter((t) => t.who === 'player');
 
   return (
     <Screen className={styles.screen}>
       <h1 className={styles.title}>Hola, {firstName}</h1>
-      {teamId && player && !history.isPending && history.entries.length === 0 && (
-        <LeadTask
-          to={`/equipos/${teamId}/test`}
-          title="Haz tu test de posición"
-          detail="20 preguntas sobre situaciones de juego"
-        />
-      )}
-      {teamId && (staff || player) && (
-        <div className={styles.tasks}>
-          {staff && (
-            <TaskRow
-              to={`/equipos/${teamId}/planificador`}
-              icon={Strategy}
-              title="Armar la alineación"
-            />
-          )}
-          {player && (
-            <TaskRow
-              to={`/equipos/${teamId}/tarjeta`}
-              icon={IdentificationCard}
-              title="Mi tarjeta"
-            />
-          )}
-        </div>
-      )}
-      {!teamId && (
+      {!active ? (
         <p className={styles.muted}>
           Todavía no tienes un rol en ningún equipo. Cuando te inviten, aparece aquí.
         </p>
+      ) : home.isPending ? (
+        <p className="sr-only" role="status">
+          Cargando lo que te toca…
+        </p>
+      ) : (
+        <>
+          {lead ? (
+            <LeadTask
+              to={lead.to}
+              title={lead.title}
+              {...(lead.detail ? { detail: lead.detail } : {})}
+            />
+          ) : (
+            <p className={styles.done}>
+              <CheckCircle size={24} weight="fill" aria-hidden="true" />
+              Estás al día.
+            </p>
+          )}
+          <Group title={both ? 'Del cuerpo técnico' : null} todos={staffRows} />
+          <Group title={both ? 'Como jugador' : null} todos={playerRows} />
+          {home.isError && (
+            <p role="alert" className={styles.muted}>
+              No pudimos cargar todo lo que te toca. Revisa tu conexión.
+            </p>
+          )}
+        </>
       )}
     </Screen>
+  );
+}
+
+function Group({ title, todos }: { title: string | null; todos: Todo[] }) {
+  if (todos.length === 0) return null;
+  const rows = todos.map((t) => (
+    <TaskRow
+      key={t.id}
+      to={t.to}
+      icon={ICONS[t.icon]}
+      title={t.short ?? t.title}
+      {...(t.count !== undefined ? { count: t.count } : {})}
+    />
+  ));
+  if (!title) return <div className={styles.group}>{rows}</div>;
+  const id = `grupo-${title.replace(/\s+/g, '-').toLowerCase()}`;
+  return (
+    <section aria-labelledby={id} className={styles.group}>
+      <h2 id={id} className={styles.groupTitle}>
+        {title}
+      </h2>
+      {rows}
+    </section>
   );
 }

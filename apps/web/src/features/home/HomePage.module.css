@@ -8,10 +8,29 @@
   letter-spacing: var(--sdl-tracking-display);
 }
 
-.tasks {
+.group {
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-2);
+}
+
+.groupTitle {
+  margin-bottom: var(--sdl-space-1);
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-body);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}
+
+.done {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  padding: var(--sdl-space-4);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  color: var(--sdl-success);
+  font-weight: 600;
 }
 
 .muted {
