@@ -23,6 +23,7 @@ const me = (roles: ('player' | 'coach')[]): Me => ({
       team: { id: TEAM_ID, name: 'Primer equipo', format: 'F11', formats: ['F11'], season: '2026' },
       club: { id: uuid(10), name: 'Los del Barrio' },
       roles,
+      jerseyNumber: null,
     },
   ],
   profile: DEFAULT_PROFILE,

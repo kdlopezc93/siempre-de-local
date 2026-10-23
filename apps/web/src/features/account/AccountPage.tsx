@@ -68,14 +68,17 @@ export function AccountPage({ me }: { me: Me }) {
           Tus equipos y lo que puedes hacer
         </h2>
         <ul className={styles.teams}>
-          {me.teams.map(({ team, club, roles }) => (
+          {me.teams.map(({ team, club, roles, jerseyNumber }) => (
             <li key={team.id} className={styles.team}>
               <Token text={initialsOf(team.name)} tone="amber" size="sm" />
               <div className={styles.teamText}>
                 <p className={styles.teamName}>
                   {team.name} <span className={styles.muted}>({club.name})</span>
                 </p>
-                <p>{rolesLabel(roles)}</p>
+                <p>
+                  {rolesLabel(roles)}
+                  {jerseyNumber !== null && `, dorsal ${jerseyNumber}`}
+                </p>
                 <p className={styles.muted}>
                   {roles.map((r, i) => (i === 0 ? cap(CAN[r]) : CAN[r])).join('. También ')}.
                 </p>

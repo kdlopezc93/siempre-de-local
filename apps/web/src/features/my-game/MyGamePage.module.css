@@ -125,3 +125,9 @@
     color: var(--sdl-fg);
   }
 }
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-4);
+}

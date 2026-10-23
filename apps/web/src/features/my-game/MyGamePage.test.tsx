@@ -94,6 +94,9 @@ describe('Mi juego (07 §4.3)', () => {
   it('tu tarjeta, tu podio (repetir es discreto) y tu conocimiento', async () => {
     api();
     renderPage();
+    // Su dorsal, arriba.
+    expect(screen.getByRole('img', { name: 'Dorsal 10' })).toBeInTheDocument();
+    expect(screen.getByText('Dorsal 10')).toBeInTheDocument();
     const card = await screen.findByRole('article', { name: 'Tarjeta del jugador' });
     expect(card).toHaveTextContent(/^74de media como Extremo/);
 

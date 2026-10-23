@@ -30,6 +30,8 @@ export const MeResponseSchema = z.object({
       }),
       club: z.object({ id: z.uuid(), name: z.string() }),
       roles: z.array(TeamRoleSchema),
+      /** Tu dorsal en ese equipo (lo pone el entrenador), o null. */
+      jerseyNumber: z.int().nullable(),
     }),
   ),
   clubs: z.array(z.object({ id: z.uuid(), name: z.string(), role: ClubRoleSchema })),

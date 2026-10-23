@@ -8,6 +8,7 @@ import { ApiError } from '../../shared/api/http';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
 import { LeadTask } from '../../shared/ui/TaskCard';
+import { initialsOf } from '../../shared/ui/TeamHeader';
 import { lineOfPosition, Token } from '../../shared/ui/Token';
 import { PlayerCard } from '../card/PlayerCard';
 import { useMyCard } from '../card/use-card';
@@ -27,7 +28,28 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
   const membership = me.teams.find((t) => t.team.id === teamId);
   return (
     <Screen className={styles.screen}>
-      <h1 className={styles.title}>Mi juego</h1>
+      <header className={styles.hero}>
+        <Token
+          text={
+            membership?.jerseyNumber != null
+              ? String(membership.jerseyNumber)
+              : initialsOf(me.profile.displayName)
+          }
+          size="lg"
+          tone="amber"
+          {...(membership?.jerseyNumber != null
+            ? { label: `Dorsal ${membership.jerseyNumber}` }
+            : {})}
+        />
+        <div>
+          <h1 className={styles.title}>Mi juego</h1>
+          <p className={styles.muted}>
+            {membership?.jerseyNumber != null
+              ? `Dorsal ${membership.jerseyNumber}`
+              : 'Sin dorsal todavía: te lo pone el entrenador.'}
+          </p>
+        </div>
+      </header>
       {membership && <CardSection teamId={teamId} format={membership.team.format} />}
       <PositionSection me={me} teamId={teamId} />
       <KnowledgeSection />
