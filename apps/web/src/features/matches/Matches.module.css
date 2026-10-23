@@ -348,3 +348,10 @@
   font-size: var(--sdl-text-xl);
   font-weight: 700;
 }
+
+.score {
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

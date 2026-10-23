@@ -1,0 +1,406 @@
+import type { Match, MatchRatingValue, MatchRoster } from '@sdl/contracts';
+import { Minus } from '@phosphor-icons/react/dist/csr/Minus';
+import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
+import { useId, useState } from 'react';
+
+import { ApiError } from '../../shared/api/http';
+import { Button } from '../../shared/ui/Button';
+import { Sheet } from '../../shared/ui/Sheet';
+import { initialsOf } from '../../shared/ui/TeamHeader';
+import { Token } from '../../shared/ui/Token';
+import { RATING_OPTIONS, type RatablePlayer, whoPlayed } from './after-match';
+import styles from './AfterMatch.module.css';
+import {
+  useMatchRatings,
+  usePublishedLineup,
+  useRateMatchPlayer,
+  useRecordMatchResult,
+} from './use-matches';
+
+const tokenText = (p: { jerseyNumber: number | null; displayName: string }) =>
+  p.jerseyNumber !== null ? String(p.jerseyNumber) : initialsOf(p.displayName);
+
+const failure = (error: unknown, fallback: string) =>
+  error instanceof ApiError && error.status < 500 ? error.message : fallback;
+
+/**
+ * Después del partido (D18), para el cuerpo técnico: el marcador con la figura y cómo jugó
+ * cada uno. Cada evaluación se guarda al tocarla.
+ */
+export function AfterMatch({
+  teamId,
+  teamName,
+  match,
+  roster,
+}: {
+  teamId: string;
+  teamName: string;
+  match: Match;
+  roster: MatchRoster;
+}) {
+  const ratings = useMatchRatings(teamId, match.id);
+  const lineup = usePublishedLineup(teamId, match.id, match.published?.at ?? null);
+  const [added, setAdded] = useState<ReadonlySet<string>>(new Set());
+  const [adding, setAdding] = useState(false);
+  const { played, others } = whoPlayed({
+    roster,
+    lineup: lineup.data ?? null,
+    ratings: ratings.data?.items ?? [],
+    added,
+  });
+  const byPlayer = new Map((ratings.data?.items ?? []).map((r) => [r.playerId, r]));
+  const rated = played.filter((p) => byPlayer.has(p.playerId)).length;
+
+  return (
+    <>
+      <ResultBoard
+        teamId={teamId}
+        teamName={teamName}
+        match={match}
+        candidates={played.length ? played : others}
+      />
+
+      <section aria-labelledby="como-jugo" className={styles.section}>
+        <div className={styles.sectionHead}>
+          <h2 id="como-jugo" className={styles.sectionTitle}>
+            Cómo jugó cada uno
+          </h2>
+          {played.length > 0 && (
+            <p className={styles.progress}>
+              {rated} de {played.length}
+            </p>
+          )}
+        </div>
+        {ratings.isError && (
+          <p role="alert" className={styles.error}>
+            No pudimos cargar las evaluaciones. Revisa tu conexión.
+          </p>
+        )}
+        {played.length === 0 && (
+          <p className={styles.muted}>
+            Nadie quedó en la alineación ni dijo “voy”. Agrega a los que jugaron.
+          </p>
+        )}
+        <ul className={styles.players}>
+          {played.map((p) => {
+            const current = byPlayer.get(p.playerId);
+            return (
+              <RatingRow
+                key={p.playerId}
+                teamId={teamId}
+                matchId={match.id}
+                player={p}
+                rating={(current?.rating as MatchRatingValue | undefined) ?? null}
+                note={current?.note ?? null}
+              />
+            );
+          })}
+        </ul>
+        {others.length > 0 && (
+          <Button variant="ghost" onClick={() => setAdding(true)}>
+            Agregar a otro que jugó
+          </Button>
+        )}
+        <Sheet open={adding} onClose={() => setAdding(false)} title="¿Quién más jugó?">
+          <ul className={styles.pickList}>
+            {others.map((p) => (
+              <li key={p.playerId}>
+                <button
+                  type="button"
+                  className={styles.pick}
+                  onClick={() => {
+                    setAdded(new Set([...added, p.playerId]));
+                    setAdding(false);
+                  }}
+                >
+                  <Token text={tokenText(p)} size="sm" />
+                  <span>{p.displayName}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </Sheet>
+      </section>
+    </>
+  );
+}
+
+/** El marcador de pizarra: goles de cada lado con − y +, y la figura del partido. */
+function ResultBoard({
+  teamId,
+  teamName,
+  match,
+  candidates,
+}: {
+  teamId: string;
+  teamName: string;
+  match: Match;
+  candidates: RatablePlayer[];
+}) {
+  const save = useRecordMatchResult(teamId, match.id);
+  const [goalsFor, setGoalsFor] = useState(match.result?.goalsFor ?? 0);
+  const [goalsAgainst, setGoalsAgainst] = useState(match.result?.goalsAgainst ?? 0);
+  const [figureId, setFigureId] = useState<string | null>(match.result?.figure?.id ?? null);
+  const [picking, setPicking] = useState(false);
+  const figure =
+    candidates.find((p) => p.playerId === figureId) ??
+    (match.result?.figure && match.result.figure.id === figureId
+      ? {
+          playerId: match.result.figure.id,
+          displayName: match.result.figure.displayName,
+          jerseyNumber: match.result.figure.jerseyNumber,
+        }
+      : null);
+  const dirty =
+    !match.result ||
+    match.result.goalsFor !== goalsFor ||
+    match.result.goalsAgainst !== goalsAgainst ||
+    (match.result.figure?.id ?? null) !== figureId;
+
+  return (
+    <section aria-labelledby="resultado" className={styles.board}>
+      <h2 id="resultado" className={styles.sectionTitle}>
+        Resultado
+      </h2>
+      <div className={styles.score}>
+        <Goals side={teamName} value={goalsFor} onChange={setGoalsFor} />
+        <span className={styles.dash} aria-hidden="true">
+          –
+        </span>
+        <Goals side={match.opponent} value={goalsAgainst} onChange={setGoalsAgainst} />
+      </div>
+
+      <div className={styles.figure}>
+        <div className={styles.figureWho}>
+          <span className={styles.figureLabel}>Figura del partido</span>
+          {figure ? (
+            <span className={styles.figureName}>
+              <Token text={tokenText(figure)} size="sm" tone="amber" />
+              {figure.displayName}
+            </span>
+          ) : (
+            <span className={styles.muted}>Sin elegir</span>
+          )}
+        </div>
+        <button type="button" className={styles.textButton} onClick={() => setPicking(true)}>
+          {figure ? 'Cambiar' : 'Elegir'}
+        </button>
+      </div>
+      <Sheet open={picking} onClose={() => setPicking(false)} title="Figura del partido">
+        <ul className={styles.pickList}>
+          {candidates.map((p) => (
+            <li key={p.playerId}>
+              <button
+                type="button"
+                className={styles.pick}
+                aria-pressed={p.playerId === figureId}
+                onClick={() => {
+                  setFigureId(p.playerId);
+                  setPicking(false);
+                }}
+              >
+                <Token
+                  text={tokenText(p)}
+                  size="sm"
+                  tone={p.playerId === figureId ? 'amber' : 'board'}
+                />
+                <span>{p.displayName}</span>
+              </button>
+            </li>
+          ))}
+          <li>
+            <button
+              type="button"
+              className={styles.pick}
+              aria-pressed={figureId === null}
+              onClick={() => {
+                setFigureId(null);
+                setPicking(false);
+              }}
+            >
+              Sin figura
+            </button>
+          </li>
+        </ul>
+      </Sheet>
+
+      <Button
+        busy={save.isPending}
+        disabled={!dirty}
+        onClick={() => save.mutate({ goalsFor, goalsAgainst, figurePlayerId: figureId })}
+      >
+        {match.result ? 'Guardar los cambios' : 'Guardar el resultado'}
+      </Button>
+      <p role="status" className={styles.saved}>
+        {save.isSuccess && !dirty ? 'Resultado guardado. Lo ve todo el equipo.' : ''}
+      </p>
+      {save.isError && (
+        <p role="alert" className={styles.error}>
+          {failure(save.error, 'No pudimos guardar el resultado. Revisa tu conexión.')}
+        </p>
+      )}
+    </section>
+  );
+}
+
+function Goals({
+  side,
+  value,
+  onChange,
+}: {
+  side: string;
+  value: number;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <div role="group" aria-label={`Goles de ${side}`} className={styles.goals}>
+      <span className={styles.side}>{side}</span>
+      <output className={styles.number} aria-live="polite">
+        {value}
+      </output>
+      <div className={styles.steppers}>
+        <button
+          type="button"
+          className={styles.step}
+          aria-label={`Un gol menos para ${side}`}
+          disabled={value === 0}
+          onClick={() => onChange(value - 1)}
+        >
+          <Minus size={20} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className={styles.step}
+          aria-label={`Un gol más para ${side}`}
+          disabled={value === 99}
+          onClick={() => onChange(value + 1)}
+        >
+          <Plus size={20} aria-hidden="true" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/** Un jugador: sus cinco palabras (se guarda al tocar) y la nota, que se abre aparte. */
+function RatingRow({
+  teamId,
+  matchId,
+  player,
+  rating,
+  note,
+}: {
+  teamId: string;
+  matchId: string;
+  player: RatablePlayer;
+  rating: MatchRatingValue | null;
+  note: string | null;
+}) {
+  const rate = useRateMatchPlayer(teamId, matchId, player.playerId);
+  const [noteOpen, setNoteOpen] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [draft, setDraft] = useState(note ?? '');
+  const noteId = useId();
+  // Mientras se guarda, se ve lo que tocó (sin esperar al servidor).
+  const pending = rate.isPending ? rate.variables : undefined;
+  const shown = pending === undefined ? rating : ((pending?.rating as MatchRatingValue) ?? null);
+
+  return (
+    <li className={styles.player}>
+      <div className={styles.playerHead}>
+        <Token text={tokenText(player)} size="sm" />
+        <span className={styles.playerName}>{player.displayName}</span>
+        <span role="status" className={styles.rowStatus}>
+          {rate.isPending ? 'Guardando…' : rate.isSuccess ? 'Guardada' : ''}
+        </span>
+      </div>
+      <div role="group" aria-label={`Cómo jugó ${player.displayName}`} className={styles.scale}>
+        {RATING_OPTIONS.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            className={styles.option}
+            aria-pressed={shown === o.value}
+            onClick={() => {
+              if (shown !== o.value) rate.mutate({ rating: o.value, note: note });
+            }}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+      {rate.isError && (
+        <p role="alert" className={styles.error}>
+          {failure(rate.error, 'No se guardó. Revisa tu conexión y toca de nuevo.')}
+        </p>
+      )}
+      <div className={styles.rowActions}>
+        <button
+          type="button"
+          className={styles.textButton}
+          aria-expanded={noteOpen}
+          aria-controls={noteId}
+          onClick={() => setNoteOpen(!noteOpen)}
+        >
+          {note ? 'Ver la nota' : 'Nota'}
+        </button>
+        {rating !== null && (
+          <button
+            type="button"
+            className={styles.textButton}
+            disabled={rate.isPending}
+            // Con nota, se pregunta: quitar la evaluación también la borra.
+            onClick={() => (note ? setConfirmRemove(true) : rate.mutate(null))}
+          >
+            No jugó
+          </button>
+        )}
+      </div>
+      <Sheet
+        open={confirmRemove}
+        onClose={() => setConfirmRemove(false)}
+        title={`¿${player.displayName} no jugó?`}
+      >
+        <div className={styles.note}>
+          <p>Se quita su evaluación de este partido, con tu nota.</p>
+          <Button
+            variant="danger"
+            busy={rate.isPending}
+            onClick={() => rate.mutate(null, { onSuccess: () => setConfirmRemove(false) })}
+          >
+            Quitar la evaluación
+          </Button>
+          <Button variant="ghost" onClick={() => setConfirmRemove(false)}>
+            Dejarla
+          </Button>
+        </div>
+      </Sheet>
+      {noteOpen && (
+        <div id={noteId} className={styles.note}>
+          <label className={styles.noteLabel}>
+            Nota para el cuerpo técnico
+            <textarea
+              className={styles.textarea}
+              value={draft}
+              maxLength={280}
+              rows={3}
+              onChange={(e) => setDraft(e.target.value)}
+            />
+          </label>
+          {rating === null ? (
+            <p className={styles.muted}>Primero elige cómo jugó.</p>
+          ) : (
+            <Button
+              variant="secondary"
+              busy={rate.isPending}
+              disabled={draft.trim() === (note ?? '')}
+              onClick={() => rate.mutate({ rating, note: draft })}
+            >
+              Guardar la nota
+            </Button>
+          )}
+        </div>
+      )}
+    </li>
+  );
+}

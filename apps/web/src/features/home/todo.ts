@@ -185,15 +185,16 @@ export function arrange(todos: readonly Todo[]): { lead: Todo | null; rest: Todo
 /**
  * Partidos (Fase 7, D16: el aviso va en el inicio). Al jugador: las convocatorias que no
  * respondió (lo primero después de un examen a medias). Al cuerpo técnico: el próximo partido
- * con gente sin responder.
+ * con gente sin responder y, ya jugado, cargar el resultado.
  */
 export function matchTodos(input: {
   teamId: string;
   matches: readonly Match[];
   player: boolean;
   staff: boolean;
+  now?: Date;
 }): Todo[] {
-  const { teamId, matches, player, staff } = input;
+  const { teamId, matches, player, staff, now = new Date() } = input;
   const open = matches.filter((m) => m.open).sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const path = (m: Match) => `/equipos/${teamId}/partidos/${m.id}`;
   const todos: Todo[] = [];
@@ -236,6 +237,24 @@ export function matchTodos(input: {
       count: next.replies.pending,
       to: path(next),
     });
+  }
+  // Después del partido (D18): al cuerpo técnico, los de la última semana sin resultado.
+  if (staff) {
+    const weekAgo = now.getTime() - 7 * 86_400_000;
+    for (const m of matches) {
+      const started = new Date(m.startsAt).getTime();
+      if (m.status !== 'scheduled' || m.open || m.result || started < weekAgo) continue;
+      todos.push({
+        id: `match-result-${m.id}`,
+        priority: 2,
+        who: 'staff',
+        icon: 'match',
+        title: `¿Cómo salió contra ${m.opponent}?`,
+        detail: 'Carga el resultado y evalúa a los que jugaron.',
+        short: `${m.opponent}, sin resultado`,
+        to: `/equipos/${teamId}/partidos/${m.id}`,
+      });
+    }
   }
   return todos;
 }

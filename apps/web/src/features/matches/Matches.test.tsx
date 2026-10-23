@@ -310,4 +310,90 @@ describe('partidos en la app (Fase 7)', () => {
     // Sin encaje ni nada que tocar.
     expect(screen.queryByText(/encaje/)).toBeNull();
   });
+
+  it('después del partido: el cuerpo técnico carga el resultado con la figura y evalúa (D18)', async () => {
+    const ANA = ROSTER[0]!.playerId;
+    let result: unknown;
+    let rating: unknown;
+    const played = match({ open: false, startsAt: future(-1) });
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: { match: played, roster: ROSTER },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/lineups`]: { status: 200, body: { items: [] } },
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}/ratings`]: { status: 200, body: { items: [] } },
+      [`PUT /api/v1/teams/${TEAM_A}/matches/${M1}/result`]: (init) => {
+        result = JSON.parse(init.body as string);
+        return {
+          status: 200,
+          body: {
+            match: {
+              ...played,
+              result: {
+                goalsFor: 2,
+                goalsAgainst: 1,
+                figure: { id: ANA, displayName: 'Ana', jerseyNumber: 4 },
+                at: future(0),
+              },
+            },
+            roster: ROSTER,
+          },
+        };
+      },
+      [`PUT /api/v1/teams/${TEAM_A}/matches/${M1}/ratings/${ANA}`]: (init) => {
+        rating = JSON.parse(init.body as string);
+        return {
+          status: 200,
+          body: {
+            items: [
+              {
+                playerId: ANA,
+                displayName: 'Ana',
+                jerseyNumber: 4,
+                rating: 4,
+                note: null,
+                ratedBy: { id: ME_TWO_TEAMS.user.id, name: 'Kevin' },
+                ratedAt: future(0),
+              },
+            ],
+          },
+        };
+      },
+    });
+    const user = userEvent.setup();
+    renderAt('/p', [
+      { path: '/p', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+
+    const board = await screen.findByRole('region', { name: 'Resultado' });
+    await user.click(within(board).getByRole('button', { name: 'Un gol más para Primer equipo' }));
+    await user.click(within(board).getByRole('button', { name: 'Un gol más para Primer equipo' }));
+    await user.click(within(board).getByRole('button', { name: 'Un gol más para Los Pibes' }));
+    expect(within(board).getByRole('group', { name: 'Goles de Primer equipo' })).toHaveTextContent(
+      '2',
+    );
+    await user.click(within(board).getByRole('button', { name: 'Elegir' }));
+    await user.click(await screen.findByRole('button', { name: /Ana/ }));
+    await user.click(within(board).getByRole('button', { name: 'Guardar el resultado' }));
+    await vi.waitFor(() =>
+      expect(result).toEqual({ goalsFor: 2, goalsAgainst: 1, figurePlayerId: ANA }),
+    );
+    expect(await within(board).findByText(/Resultado guardado/)).toBeInTheDocument();
+
+    // Sin alineación publicada, se evalúa a los que dijeron "voy"; el resto, para agregar.
+    const ratings = screen.getByRole('region', { name: 'Cómo jugó cada uno' });
+    expect(within(ratings).queryByRole('group', { name: 'Cómo jugó Beto' })).toBeNull();
+    const ana = within(ratings).getByRole('group', { name: 'Cómo jugó Ana' });
+    await user.click(within(ana).getByRole('button', { name: 'Muy bien' }));
+    await vi.waitFor(() => expect(rating).toEqual({ rating: 4, note: null }));
+    expect(await within(ana).findByRole('button', { name: 'Muy bien' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(within(ratings).getByText('1 de 1')).toBeInTheDocument();
+    expect(
+      within(ratings).getByRole('button', { name: 'Agregar a otro que jugó' }),
+    ).toBeInTheDocument();
+  });
 });
