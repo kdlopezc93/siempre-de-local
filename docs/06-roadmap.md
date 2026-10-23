@@ -89,7 +89,7 @@ Decisiones de este plan:
 - **Dónde viven los bancos:** archivos en el repo, revisados en un PR y con el lint en la CI. La pantalla de administración queda para cuando haya varios revisores.
 
 ### Fase 5 · Alineaciones y validación
-Plan en PRs (2026-10-22; decisiones en `02` §9.5):
+**Cerrada el 2026-10-22** (#49–#53). Plan en PRs (decisiones en `02` §9.5):
 
 | # | PR | Estado |
 |---|---|---|
@@ -97,13 +97,30 @@ Plan en PRs (2026-10-22; decisiones en `02` §9.5):
 | 2 | API: señales de cada jugador para el planificador (respetando a ciegas) y guardar alineaciones | #50 ✔ |
 | 3 | Planificador en el celular: convocatoria, formato del partido (F11/F8), formación, modos, pizarra, armar a mano (lo movido queda fijado), desglose | #51 ✔ |
 | 4 | Guardar y abrir alineaciones: guardar desde el planificador, lista, ver tal como se guardó, editar (abre con todo fijado), borrar | #52 ✔ |
-| 5 | Informe de validación: test vs. entrenador (solo `blind`) y conocimiento vs. tarjeta (Spearman por posición), en `/equipos/:id/validacion` | |
+| 5 | Informe de validación: test vs. entrenador (solo `blind`) y conocimiento vs. tarjeta (Spearman por posición), en `/equipos/:id/validacion` | #53 ✔ |
 
 - Reconciliar con `planificador-partido.jsx` (D6): **hecho**, ver `02` §9.5.
 - Encaje multi-fuente (A/V/C/R, con C = conocimiento corregido por azar), modos, umbral opcional de conocimiento mínimo, fijar jugadores, desglose explicable.
-- Informe de validación (test vs. entrenador; conocimiento vs. tarjeta).
+- Informe de validación (test vs. entrenador; conocimiento vs. tarjeta): **hecho**. Con datos reales de un equipo es la base para afinar pesos en la Fase 7.
 
-### Fase 6 · Contenido, psicometría y medición
+### Fase 6 · Experiencia (navegación, inicio y cambio visual)
+Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no encuentro las cosas", "se ve feo y anticuado" y "hay mucho texto". Auditoría, nueva estructura y plan en `07-experiencia.md`.
+
+| # | PR | Estado |
+|---|---|---|
+| 1 | Auditoría, nueva estructura y plan (`07-experiencia.md`) | |
+| 2 | Sistema de diseño v2 (contraste verificado; se conservan el icono y las animaciones de entrar) | |
+| 3 | Armazón: encabezado de equipo y barra inferior por rol | |
+| 4 | Inicio "lo que toca" | |
+| 5 | Plantilla: lista compacta, búsqueda, filtros y vista Pizarra | |
+| 6 | Ficha del jugador para el cuerpo técnico | |
+| 7 | Mi juego: tarjeta, posición, conocimiento, historial y perfil | |
+| 8 | Equipo: datos, integrantes, invitar, informe y cuenta | |
+| 9 | Tus datos: página pública, "Eliminar mis datos", eliminar mi cuenta y descargar mis datos | |
+| 10 | Dieta de texto y afirmaciones respaldadas | |
+| 11 | Auditoría final: diseño, rendimiento, terceros (inventario, `pnpm audit`, CSP) y contraste | |
+
+### Fase 7 · Contenido, psicometría y medición
 - Ampliar el banco de posición del test de orientación a ~40 ítems (hoy 31, 20 por intento).
 - Análisis de ítems de los bancos de conocimiento (dificultad, discriminación) → nuevas versiones del banco.
 - Afinar pesos del test, de las medias por posición y del encaje con datos reales.
@@ -114,7 +131,7 @@ Plan en PRs (2026-10-22; decisiones en `02` §9.5):
 
 | Pendiente (traspaso §6) | Destino |
 |---|---|
-| 1. Afinar ponderaciones con estudios | Fase 6 |
+| 1. Afinar ponderaciones con estudios | Fase 7 |
 | 2. Estudio de validación con el equipo | Fase 5 |
 | 3. Panel con historial propio | Resuelto por la BD |
 | 4. Preparación media por posición | Fase 4, como conocimiento por posición (la preparación se retiró) |
