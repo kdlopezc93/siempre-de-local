@@ -57,6 +57,33 @@ export const StartExamRequestSchema = z.object({
   teamId: z.uuid().optional(),
 });
 
+const BoardPointSchema = z.object({ x: z.number(), y: z.number() });
+
+/**
+ * La pizarra de una pregunta (Fase 8, 02 §6.2): la jugada en la cancha de siempre (100×150,
+ * tu arco abajo). Los puntos de respuesta no van aquí sino en cada opción, ya barajada.
+ */
+export const ExamBoardSchema = z.object({
+  view: z.enum(['full', 'own-half', 'rival-half']),
+  pieces: z.array(
+    BoardPointSchema.extend({
+      side: z.enum(['own', 'rival']),
+      label: z.string().max(3).optional(),
+      you: z.boolean().optional(),
+    }),
+  ),
+  ball: BoardPointSchema.optional(),
+  arrows: z
+    .array(
+      z.object({
+        kind: z.enum(['pass', 'run', 'dribble']),
+        from: BoardPointSchema,
+        to: BoardPointSchema,
+      }),
+    )
+    .optional(),
+});
+
 /** Un examen en curso: las preguntas **sin** la correcta ni la explicación. */
 export const ExamInProgressSchema = z.object({
   state: z.literal('in_progress'),
@@ -72,7 +99,12 @@ export const ExamInProgressSchema = z.object({
       id: z.uuid(),
       area: AreaSchema,
       text: z.string(),
-      options: z.array(z.object({ id: z.uuid(), label: z.string() })),
+      /** Pregunta tipo pizarra, o null si es solo texto. */
+      board: ExamBoardSchema.nullable(),
+      /** `spot`: dónde se toca esa opción en la pizarra (si se responde tocando). */
+      options: z.array(
+        z.object({ id: z.uuid(), label: z.string(), spot: BoardPointSchema.nullable() }),
+      ),
       answerOptionId: z.uuid().nullable(),
     }),
   ),
@@ -116,6 +148,7 @@ export type KnowledgeBand = z.infer<typeof KnowledgeBandSchema>;
 export type CertPositionsResponse = z.infer<typeof CertPositionsResponseSchema>;
 export type StartExamRequest = z.infer<typeof StartExamRequestSchema>;
 export type ExamInProgress = z.infer<typeof ExamInProgressSchema>;
+export type ExamBoardView = z.infer<typeof ExamBoardSchema>;
 export type ExamResult = z.infer<typeof ExamResultSchema>;
 export type ExamResponse = z.infer<typeof ExamResponseSchema>;
 export type AnswerRequest = z.infer<typeof AnswerRequestSchema>;

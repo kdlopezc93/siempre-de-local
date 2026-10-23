@@ -6,6 +6,7 @@ import { Link, useBlocker } from 'react-router';
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
+import { ExamBoard } from './ExamBoard';
 import styles from './Knowledge.module.css';
 import {
   CLOCK_ANNOUNCEMENTS,
@@ -184,6 +185,8 @@ function Clock({ exam, onTimeUp }: { exam: ExamInProgress; onTimeUp: () => void 
   );
 }
 
+const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+
 function Question({
   exam,
   index,
@@ -201,6 +204,13 @@ function Question({
   const heading = useRef<HTMLHeadingElement>(null);
   const [picked, setPicked] = useState<string | null>(null);
   const chosen = picked ?? item.answerOptionId;
+  // Con puntos en la pizarra, cada opción lleva su letra (A–D) en la cancha y en la lista.
+  const options = item.options.map((o, i) => ({ ...o, letter: LETTERS[i]! }));
+  const lettered = options.some((o) => o.spot);
+  const choose = (optionId: string) => {
+    setPicked(optionId);
+    onChoose(optionId);
+  };
 
   // Cada pregunta nueva recibe el foco: el lector de pantalla la lee.
   useEffect(() => heading.current?.focus(), []);
@@ -213,20 +223,32 @@ function Question({
       <h1 ref={heading} tabIndex={-1} className={styles.text}>
         {item.text}
       </h1>
+      {item.board && (
+        <ExamBoard
+          board={item.board}
+          options={options}
+          chosen={chosen}
+          disabled={picked !== null}
+          onChoose={choose}
+        />
+      )}
       <div className={styles.options}>
-        {item.options.map((option) => (
+        {options.map((option) => (
           <button
             key={option.id}
             type="button"
             className={styles.option}
             aria-pressed={chosen === option.id}
             disabled={picked !== null}
-            onClick={() => {
-              setPicked(option.id);
-              onChoose(option.id);
-            }}
+            onClick={() => choose(option.id)}
           >
-            <span className={styles.mark} aria-hidden="true" />
+            {lettered ? (
+              <span className={styles.letter} aria-hidden="true">
+                {option.letter}
+              </span>
+            ) : (
+              <span className={styles.mark} aria-hidden="true" />
+            )}
             <span>{option.label}</span>
           </button>
         ))}

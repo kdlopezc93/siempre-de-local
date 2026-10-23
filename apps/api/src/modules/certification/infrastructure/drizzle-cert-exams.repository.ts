@@ -171,6 +171,7 @@ export class DrizzleCertExamsRepository implements CertExamsRepository {
         optionOrder: certExamItem.optionOrder,
         answerOptionId: certExamItem.answerOptionId,
         text: certItem.text,
+        diagram: certItem.diagram,
         areaCode: certArea.code,
         areaName: certArea.name,
       })
@@ -186,6 +187,7 @@ export class DrizzleCertExamsRepository implements CertExamsRepository {
         itemId: certOption.itemId,
         label: certOption.label,
         isCorrect: certOption.isCorrect,
+        sort: certOption.sort,
       })
       .from(certOption)
       .where(
@@ -197,11 +199,21 @@ export class DrizzleCertExamsRepository implements CertExamsRepository {
     const byId = new Map(options.map((o) => [o.id, o]));
     return rows.map((r) => {
       const ordered = r.optionOrder.map((id) => byId.get(id)!);
+      // Los puntos se escriben en el orden de las opciones (`sort`); viajan pegados a cada una.
+      const spots = r.diagram?.spots;
       return {
         itemId: r.itemId,
         area: { code: r.areaCode, name: r.areaName },
         text: r.text,
-        options: ordered.map(({ id, label }) => ({ id, label })),
+        board: r.diagram
+          ? {
+              view: r.diagram.view,
+              pieces: r.diagram.pieces.map((p) => ({ ...p })),
+              ...(r.diagram.ball ? { ball: r.diagram.ball } : {}),
+              ...(r.diagram.arrows ? { arrows: r.diagram.arrows.map((a) => ({ ...a })) } : {}),
+            }
+          : null,
+        options: ordered.map(({ id, label, sort }) => ({ id, label, spot: spots?.[sort] ?? null })),
         correctOptionId: ordered.find((o) => o.isCorrect)!.id,
         answerOptionId: r.answerOptionId,
       };

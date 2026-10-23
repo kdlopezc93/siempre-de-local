@@ -3,6 +3,7 @@ export * from './position-scoring.js';
 export * from './positions.js';
 export * from './rating.js';
 export * from './bank-lint.js';
+export * from './exam-board.js';
 export * from './knowledge.js';
 export * from './lineup/index.js';
 export * from './validation.js';

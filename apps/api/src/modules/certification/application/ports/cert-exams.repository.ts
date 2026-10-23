@@ -1,3 +1,4 @@
+import type { ExamBoardView } from '@sdl/contracts';
 import type { Difficulty, ExamConfig, KnowledgeBand, PositionCode } from '@sdl/domain';
 
 export interface Area {
@@ -58,8 +59,10 @@ export interface ExamItem {
   itemId: string;
   area: Area;
   text: string;
-  /** En el orden barajado en que se mostraron. */
-  options: { id: string; label: string }[];
+  /** La jugada dibujada (pregunta tipo pizarra), sin los puntos de respuesta. */
+  board: ExamBoardView | null;
+  /** En el orden barajado en que se mostraron; `spot`, dónde se toca en la pizarra. */
+  options: { id: string; label: string; spot: { x: number; y: number } | null }[];
   correctOptionId: string;
   answerOptionId: string | null;
 }

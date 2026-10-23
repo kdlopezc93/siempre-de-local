@@ -1,3 +1,4 @@
+import type { ExamBoard } from '@sdl/domain';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -89,8 +90,8 @@ export const certItem = pgTable(
     difficulty: smallint().notNull(),
     kind: certItemKind().notNull().default('text'),
     text: text().notNull(),
-    /** Jugadores en la pizarra para el tipo `pitch_situation` (v2). */
-    diagram: jsonb(),
+    /** La jugada para el tipo `pitch_situation` (Fase 8), con un punto por opción si se toca. */
+    diagram: jsonb().$type<ExamBoard>(),
     /** Nunca se envía al jugador durante el examen. */
     explanation: text().notNull(),
     sort: smallint().notNull(),

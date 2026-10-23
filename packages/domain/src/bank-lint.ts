@@ -1,3 +1,4 @@
+import { boardIssues, type ExamBoard } from './exam-board.js';
 import { difficultyQuotas, type Difficulty, type ExamConfig } from './knowledge.js';
 
 /** Un banco tal como se escribe (antes de publicarlo). */
@@ -10,6 +11,8 @@ export interface BankDraft {
     text: string;
     options: readonly { label: string; correct?: boolean }[];
     explanation: string;
+    /** Pregunta tipo pizarra (Fase 8): la jugada dibujada y, si se responde tocando, un punto por opción. */
+    board?: ExamBoard;
   }[];
 }
 
@@ -78,6 +81,11 @@ export function lintBank(bank: BankDraft, cfg: ExamConfig): LintIssue[] {
       error('duplicate-option', item.code, 'Hay opciones repetidas.');
     }
     if (labels.some((l) => !l)) error('empty-option', item.code, 'Hay una opción vacía.');
+    if (item.board) {
+      for (const problem of boardIssues(item.board, item.options.length)) {
+        error('board', item.code, problem);
+      }
+    }
 
     const right = correct[0];
     if (right) {

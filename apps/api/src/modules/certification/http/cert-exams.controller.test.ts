@@ -229,6 +229,43 @@ describe('examen de conocimiento', () => {
     expect((await start(caro)).statusCode).toBe(422);
   });
 
+  it('pizarra (Fase 8): la jugada sin los puntos; cada opción barajada trae el suyo', async () => {
+    const SPOTS = [
+      { x: 20, y: 110 },
+      { x: 45, y: 100 },
+      { x: 75, y: 112 },
+      { x: 50, y: 138 },
+    ];
+    const bank = certBankFixture(40, { position: 'LAT' });
+    const withBoards = {
+      ...bank,
+      items: bank.items.map((item) => ({
+        ...item,
+        board: {
+          view: 'own-half' as const,
+          pieces: [{ side: 'rival' as const, x: 60, y: 95, label: '9' }],
+          ball: { x: 30, y: 90 },
+          spots: SPOTS,
+        },
+      })),
+    };
+    await publishCertBank(connection.db, withBoards);
+    const exam = ExamInProgressSchema.parse((await start(ana, 'LAT')).json());
+    const authored = new Map(
+      withBoards.items.flatMap((item) => item.options.map((o, i) => [o.label, SPOTS[i]])),
+    );
+    for (const item of exam.items) {
+      expect(item.board).toEqual({
+        view: 'own-half',
+        pieces: [{ side: 'rival', x: 60, y: 95, label: '9' }],
+        ball: { x: 30, y: 90 },
+      });
+      for (const option of item.options) expect(option.spot).toEqual(authored.get(option.label));
+    }
+    // Ninguna clave delata la correcta ni el orden en que se escribieron las opciones.
+    expect(JSON.stringify(exam)).not.toMatch(/"(spots|correct\w*|isCorrect)":/i);
+  });
+
   it('sin banco publicado, sin consentimiento o desde un equipo ajeno no se empieza', async () => {
     expect(ErrorBodySchema.parse((await start(caro, 'MC')).json()).error.code).toBe(
       'NO_PUBLISHED_BANK',
