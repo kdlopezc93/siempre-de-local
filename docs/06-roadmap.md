@@ -101,7 +101,7 @@ Decisiones de este plan:
 
 - Reconciliar con `planificador-partido.jsx` (D6): **hecho**, ver `02` §9.5.
 - Encaje multi-fuente (A/V/C/R, con C = conocimiento corregido por azar), modos, umbral opcional de conocimiento mínimo, fijar jugadores, desglose explicable.
-- Informe de validación (test vs. entrenador; conocimiento vs. tarjeta): **hecho**. Con datos reales de un equipo es la base para afinar pesos en la Fase 7.
+- Informe de validación (test vs. entrenador; conocimiento vs. tarjeta): **hecho**. Con datos reales de un equipo es la base para afinar pesos en la Fase 8.
 
 ### Fase 6 · Experiencia (navegación, inicio y cambio visual)
 Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no encuentro las cosas", "se ve feo y anticuado" y "hay mucho texto". Auditoría, nueva estructura y plan en `07-experiencia.md`.
@@ -121,7 +121,18 @@ Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no
 | 11 | Dieta de texto y afirmaciones respaldadas | |
 | 12 | Auditoría final: diseño, rendimiento, terceros (inventario, `pnpm audit`, CSP) y contraste | |
 
-### Fase 7 · Contenido, psicometría y medición
+### Fase 7 · Partidos: convocatoria, alineación publicada y después del partido
+Pedida por Kevin el 2026-10-22: "cada vez que sale una fecha me gustaría enviar la convocatoria". Se arma sobre el planificador (Fase 5).
+
+1. **Convocatoria:** el cuerpo técnico crea un partido con fecha, hora, lugar y rival (solo texto) y formato (entre los del equipo, D14). Se la envía a los jugadores.
+2. **Aviso a los jugadores:** les llega una notificación (D16) y la ven en el inicio, en "lo que toca". Responden **voy / no voy** (y pueden cambiar hasta que se cierre). El cuerpo técnico ve quién respondió y quién falta.
+3. **Alineación con los que van:** el planificador abre con la convocatoria ya hecha (los que dijeron "voy" como disponibles) y la alineación queda **ligada al partido**.
+4. **Alineación publicada:** al publicarla, **todo el equipo la ve sin poder editarla** (la pizarra, titulares y suplentes), con otro aviso. El desglose del encaje (tarjeta, test, conocimiento) **no** se muestra a los jugadores: es del cuerpo técnico.
+5. **Después del partido** (otra versión): guardar el resultado y evaluar a los jugadores del partido; alimenta las valoraciones y, con el tiempo, la validación.
+
+Decisiones abiertas: D16 (cómo llegan los avisos) y D17 (quién ve la alineación y cuándo se puede cambiar una publicada).
+
+### Fase 8 · Contenido, psicometría y medición
 - Ampliar el banco de posición del test de orientación a ~40 ítems (hoy 31, 20 por intento).
 - Análisis de ítems de los bancos de conocimiento (dificultad, discriminación) → nuevas versiones del banco.
 - Afinar pesos del test, de las medias por posición y del encaje con datos reales.
@@ -132,7 +143,7 @@ Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no
 
 | Pendiente (traspaso §6) | Destino |
 |---|---|
-| 1. Afinar ponderaciones con estudios | Fase 7 |
+| 1. Afinar ponderaciones con estudios | Fase 8 |
 | 2. Estudio de validación con el equipo | Fase 5 |
 | 3. Panel con historial propio | Resuelto por la BD |
 | 4. Preparación media por posición | Fase 4, como conocimiento por posición (la preparación se retiró) |
@@ -173,7 +184,9 @@ Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no
 | D12 | Formación por defecto para F8 y F11 en el planificador | **Decidido** (2026-10-22): F8 1-3-3-1 (más 1-2-4-1, 1-3-4, 1-2-3-2, del prototipo); F11 1-4-3-3 (más 1-4-4-2, 1-4-2-3-1, 1-3-5-2) |
 | D13 | Plazo por defecto para presentar una re-evaluación | 14 días; al vencer, C = 0 en el planificador hasta que presente |
 | D14 | Equipos que juegan varios formatos: qué formato usa cada cosa | **Decidido** (2026-10-22, Kevin): el test, la valoración y la tarjeta usan el **principal** (`team.format`); el planificador elige por partido entre los formatos del equipo (`team.formats`) |
-| D15 | Dónde se guardan las fotos | Propuesta: Cloudflare R2 (junto con el hosting de D5), servidas por el mismo dominio. Exige actualizar la política de datos (D7). Decidir antes del PR 9 de la Fase 6 |
+| D15 | Dónde se guardan las fotos | **Decidido** (2026-10-22, Kevin): Cloudflare R2 (junto con el hosting de D5), servidas por el API del mismo dominio. En local, el disco, detrás del mismo puerto. Exige actualizar la política de datos (D7) |
+| D16 | Cómo llegan los avisos de la Fase 7 (convocatoria, alineación publicada) | Propuesta: **Web Push** de la PWA (en iPhone solo con la app instalada, iOS 16.4+), y siempre también en el inicio ("lo que toca") para quien no las active. Sin WhatsApp ni correo al principio. Decidir antes de la Fase 7 |
+| D17 | Alineación publicada: quién la ve y si se puede cambiar | Propuesta: la ve todo el equipo, sin el desglose del encaje; el cuerpo técnico puede republicarla (avisa de nuevo) hasta la hora del partido. Decidir antes de la Fase 7 |
 
 ## Cómo trabajar con Claude en este proyecto
 - Empezar cada conversación leyendo `00-contexto-proyecto.md`.
