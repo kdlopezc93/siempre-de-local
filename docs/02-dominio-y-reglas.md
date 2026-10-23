@@ -38,7 +38,7 @@ El jugador puede declarar en su perfil sus **posiciones preferidas** (1–3). Es
 - **Versionado:** `QuestionnaireVersion` inmutable una vez publicado. Cambiar un peso = nueva versión. Publicar una versión retira la anterior; los intentos viejos siguen apuntando a la suya.
 - **v1** (contenido del prototipo, histórico): 15 ítems de posición por intento + 8 de preparación de la ganadora.
 - **v2** (vigente desde el 2026-10-21): **solo posición**, los mismos 31 ítems, **20 por intento**. Sin preparación (§5).
-- Objetivo de contenido: ampliar el banco a ~40 ítems para que dos intentos no se parezcan tanto (Fase 7).
+- Objetivo de contenido: ampliar el banco a ~40 ítems para que dos intentos no se parezcan tanto (Fase 8).
 
 ## 3. Flujo de un intento (v2)
 
