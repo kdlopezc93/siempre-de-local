@@ -130,7 +130,17 @@ Pedida por Kevin el 2026-10-22: "cada vez que sale una fecha me gustaría enviar
 4. **Alineación publicada:** al publicarla, **todo el equipo la ve sin poder editarla** (la pizarra, titulares y suplentes), con otro aviso. El desglose del encaje (tarjeta, test, conocimiento) **no** se muestra a los jugadores: es del cuerpo técnico.
 5. **Después del partido** (otra versión): guardar el resultado y evaluar a los jugadores del partido; alimenta las valoraciones y, con el tiempo, la validación.
 
-Decisiones abiertas: D16 (cómo llegan los avisos) y D17 (quién ve la alineación y cuándo se puede cambiar una publicada).
+Plan en PRs (2026-10-22, con D16 y D17 decididos):
+
+| # | PR | Estado |
+|---|---|---|
+| 1 | Partidos en el API: modelo, reglas en el dominio, convocar, editar o cancelar, y voy / no voy | |
+| 2 | Convocar y responder en la app: lista de partidos, formulario y "lo que toca" | |
+| 3 | La alineación del partido: el planificador abre con los que van; publicar y republicar | |
+| 4 | La alineación publicada para todo el equipo, sin editar ni desglose | |
+| 5 | Notificaciones push (Web Push, D16), con su fila en el inventario de terceros (`04` §6) | |
+
+El punto 5 de arriba (después del partido) queda para otra versión.
 
 ### Fase 8 · Contenido, psicometría y medición
 - Ampliar el banco de posición del test de orientación a ~40 ítems (hoy 31, 20 por intento).
@@ -185,8 +195,8 @@ Decisiones abiertas: D16 (cómo llegan los avisos) y D17 (quién ve la alineaci�
 | D13 | Plazo por defecto para presentar una re-evaluación | 14 días; al vencer, C = 0 en el planificador hasta que presente |
 | D14 | Equipos que juegan varios formatos: qué formato usa cada cosa | **Decidido** (2026-10-22, Kevin): el test, la valoración y la tarjeta usan el **principal** (`team.format`); el planificador elige por partido entre los formatos del equipo (`team.formats`) |
 | D15 | Dónde se guardan las fotos | **Decidido** (2026-10-22, Kevin): Cloudflare R2 (junto con el hosting de D5), servidas por el API del mismo dominio. En local, el disco, detrás del mismo puerto. Exige actualizar la política de datos (D7) |
-| D16 | Cómo llegan los avisos de la Fase 7 (convocatoria, alineación publicada) | Propuesta: **Web Push** de la PWA (en iPhone solo con la app instalada, iOS 16.4+), y siempre también en el inicio ("lo que toca") para quien no las active. Sin WhatsApp ni correo al principio. Decidir antes de la Fase 7 |
-| D17 | Alineación publicada: quién la ve y si se puede cambiar | Propuesta: la ve todo el equipo, sin el desglose del encaje; el cuerpo técnico puede republicarla (avisa de nuevo) hasta la hora del partido. Decidir antes de la Fase 7 |
+| D16 | Cómo llegan los avisos de la Fase 7 (convocatoria, alineación publicada) | **Decidido** (2026-10-22, Kevin): **primero en el inicio** ("lo que toca"); las **notificaciones push** (Web Push; en iPhone solo con la app instalada, iOS 16.4+) en un PR propio al final de la fase. Sin WhatsApp ni correo |
+| D17 | Alineación publicada: quién la ve y si se puede cambiar | **Decidido** (2026-10-22, Kevin): la ve **todo el equipo**, sin el desglose del encaje; el cuerpo técnico puede **republicarla** (avisa de nuevo) **hasta la hora del partido**; después queda fija |
 
 ## Cómo trabajar con Claude en este proyecto
 - Empezar cada conversación leyendo `00-contexto-proyecto.md`.

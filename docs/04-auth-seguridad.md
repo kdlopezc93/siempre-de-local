@@ -66,6 +66,9 @@ Los admins de club se crean por script al inicio; ellos crean equipos e invitan 
 | Solicitar re-evaluación de conocimiento (motivo obligatorio) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Ver solicitudes de re-evaluación propias y su motivo | ✔ | – | – | – | – |
 | Crear/editar alineaciones | ✘ | ✔ | ✔ | ✘ | ✘ |
+| Convocar, editar o cancelar partidos (`team.matches.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
+| Responder voy / no voy | ✔ propio | – | – | – | – |
+| Ver quién respondió qué | ✘ (solo cuántos) | ✔ | ✔ | ✔ | ✘ |
 | Invitar jugadores | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Invitar entrenadores | ✘ | ✘ | ✘ | ✔ | ✘ |
 | Quitar miembros / cambiar roles | ✘ | ✘ | jugadores | ✔ | ✘ |
