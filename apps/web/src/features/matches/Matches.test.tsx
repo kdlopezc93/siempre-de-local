@@ -25,6 +25,8 @@ const match = (over: object = {}) => ({
   replies: { yes: 3, no: 1, pending: 2 },
   myReply: null,
   published: null,
+  result: null,
+  myRating: null,
   ...over,
 });
 const ROSTER = [

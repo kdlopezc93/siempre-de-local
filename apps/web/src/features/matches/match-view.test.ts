@@ -15,6 +15,8 @@ const match = (id: string, startsAt: string, open: boolean): Match => ({
   replies: { yes: 0, no: 0, pending: 0 },
   myReply: null,
   published: null,
+  result: null,
+  myRating: null,
 });
 
 describe('partidos en la app', () => {

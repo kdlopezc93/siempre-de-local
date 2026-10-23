@@ -51,6 +51,7 @@ describe('TeamPage', () => {
         season: '2026',
         club: { id: ME_TWO_TEAMS.clubs[0]!.id, name: 'Los del Barrio' },
         ratingsVisibleToPlayers: visible,
+        matchRatingsVisibleToPlayers: true,
       },
       myRoles: ['coach', 'player'],
     });
@@ -81,6 +82,7 @@ describe('TeamPage', () => {
         season: '2026',
         club: { id: ME_TWO_TEAMS.clubs[0]!.id, name: 'Los del Barrio' },
         ratingsVisibleToPlayers: true,
+        matchRatingsVisibleToPlayers: true,
         ...over,
       },
       myRoles: ['coach', 'player'],
@@ -129,6 +131,7 @@ describe('TeamPage', () => {
             season: '2026',
             club: { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f99', name: 'Otro club' },
             ratingsVisibleToPlayers: true,
+            matchRatingsVisibleToPlayers: true,
           },
           myRoles: ['player'],
         },

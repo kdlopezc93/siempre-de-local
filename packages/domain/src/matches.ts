@@ -25,3 +25,24 @@ export function replySummary(
   }
   return summary;
 }
+
+/**
+ * Después del partido (`02` §13, D18): el resultado y las evaluaciones se cargan una vez que
+ * empezó (no cancelado) y se pueden corregir después; no hay plazo.
+ */
+export function hasMatchStarted(
+  match: { status: MatchStatus; startsAt: Date },
+  now: Date,
+): boolean {
+  return match.status === 'scheduled' && now >= match.startsAt;
+}
+
+/** Evaluación del partido: 1 a 5 con palabras (D18). */
+export type MatchRating = 1 | 2 | 3 | 4 | 5;
+export const MATCH_RATING_LABELS: Readonly<Record<MatchRating, string>> = {
+  1: 'Flojo',
+  2: 'Regular',
+  3: 'Bien',
+  4: 'Muy bien',
+  5: 'Figura',
+};

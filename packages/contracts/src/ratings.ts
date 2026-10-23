@@ -78,7 +78,6 @@ export const RatingAttributesResponseSchema = z.object({
   formulaVersion: z.string(),
 });
 
-/** PATCH /api/v1/teams/:teamId — ajustes del equipo (coach, admin del club). */
 /**
  * PATCH /api/v1/teams/:teamId — los datos y ajustes del equipo (coach y admin del club). Solo
  * lo que cambia. `format` es el principal (D14) y tiene que estar entre `formats`.
@@ -86,6 +85,7 @@ export const RatingAttributesResponseSchema = z.object({
 export const UpdateTeamRequestSchema = z
   .object({
     ratingsVisibleToPlayers: z.boolean(),
+    matchRatingsVisibleToPlayers: z.boolean(),
     name: z.string().trim().min(2).max(60),
     format: MatchFormatSchema,
     formats: z

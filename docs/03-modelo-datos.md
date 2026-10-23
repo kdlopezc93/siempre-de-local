@@ -68,6 +68,7 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 | format | enum `match_format` (`F8`,`F11`) | |
 | season | text | |
 | ratings_visible_to_players | boolean default true | ¿el jugador ve su tarjeta? (D8) |
+| match_ratings_visible_to_players | boolean default true | ¿el jugador ve su evaluación de cada partido? (D18) |
 | archived_at | timestamptz null | |
 
 **team_membership** — `team_id, user_id, role team_role ('coach','assistant','player'), jersey_number smallint null, joined_at, left_at` · PK (team_id, user_id, role)
@@ -265,9 +266,11 @@ Las medias por posición **no se guardan**: se calculan en el dominio con `ratin
 
 Implementado en `apps/api/src/modules/assessments/infrastructure/schema.ts` (migración `0008_coach_assessment`), con índice `(team_id, player_user_id, created_at desc)`; `coach_user_id` queda en null si se borra la cuenta de quien valoró. **`blind` lo calcula el servidor:** es `true` en la primera valoración de esa persona a ese jugador, porque la app no le muestra el test hasta que la registra (`GET /teams/:id/squad`).
 
-**team_match** — `id, team_id, created_by (set null), format, starts_at timestamptz, place text, opponent text, status match_status ('scheduled','cancelled'), lineup_id (set null, la publicada), published_at, created_at, updated_at`. Índice `(team_id, starts_at)`.
+**team_match** — `id, team_id, created_by (set null), format, starts_at timestamptz, place text, opponent text, status match_status ('scheduled','cancelled'), lineup_id (set null, la publicada), published_at, goals_for smallint null, goals_against smallint null, figure_player_id (set null), result_at, created_at, updated_at`. Índice `(team_id, starts_at)`; check: goles entre 0 y 99. El resultado y la figura se cargan después del partido (D18).
 
 **match_reply** — `match_id (cascade), user_id (cascade), reply match_reply_value ('yes','no'), replied_at` · PK (match_id, user_id). Una por jugador; se reemplaza al cambiar.
+
+**match_rating** — `match_id (cascade), player_user_id (cascade), rating smallint 1–5 (check), note text null, rated_by (set null), rated_at` · PK (match_id, player_user_id), índice `(player_user_id)`. La evaluación del partido (D18): una por jugador, quien la corrige la reemplaza; migración `0020_match_result`.
 
 **push_subscription** — `id, user_id (cascade), endpoint unique, p256dh, auth, created_at`. Una por navegador: si el celular cambia de cuenta, pasa a la nueva; se borra al apagar los avisos, si el servicio responde 404/410, o con la cuenta (migración `0019_push_subscriptions`).
 

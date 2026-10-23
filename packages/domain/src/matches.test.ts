@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { isMatchOpen, replySummary } from './matches.js';
+import { hasMatchStarted, isMatchOpen, MATCH_RATING_LABELS, replySummary } from './matches.js';
 
 describe('partidos (Fase 7)', () => {
   const startsAt = new Date('2026-11-01T15:00:00Z');
@@ -26,5 +26,25 @@ describe('partidos (Fase 7)', () => {
       no: ['beto'],
       pending: ['ciro'],
     });
+  });
+
+  it('después del partido: se carga desde la hora del partido, nunca si se canceló (D18)', () => {
+    expect(
+      hasMatchStarted({ status: 'scheduled', startsAt }, new Date('2026-11-01T14:59:59Z')),
+    ).toBe(false);
+    expect(hasMatchStarted({ status: 'scheduled', startsAt }, startsAt)).toBe(true);
+    expect(
+      hasMatchStarted({ status: 'cancelled', startsAt }, new Date('2026-11-05T12:00:00Z')),
+    ).toBe(false);
+  });
+
+  it('la escala de la evaluación va de Flojo a Figura', () => {
+    expect(Object.values(MATCH_RATING_LABELS)).toEqual([
+      'Flojo',
+      'Regular',
+      'Bien',
+      'Muy bien',
+      'Figura',
+    ]);
   });
 });

@@ -63,6 +63,8 @@ export const team = pgTable(
     season: text().notNull(),
     /** ¿El jugador ve su tarjeta 0–99? (D8) */
     ratingsVisibleToPlayers: boolean().notNull().default(true),
+    /** ¿El jugador ve su evaluación de cada partido? (D18) */
+    matchRatingsVisibleToPlayers: boolean().notNull().default(true),
     archivedAt: timestamp({ withTimezone: true }),
     createdAt: createdAt(),
   },

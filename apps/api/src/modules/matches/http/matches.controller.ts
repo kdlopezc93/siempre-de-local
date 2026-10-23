@@ -1,9 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import {
   CreateMatchRequestSchema,
   type MatchListResponse,
+  MatchRatingRequestSchema,
+  type MatchRatingsResponse,
   MatchReplyRequestSchema,
   type MatchResponse,
+  MatchResultRequestSchema,
+  type PlayerMatchRatingsResponse,
   UpdateMatchRequestSchema,
 } from '@sdl/contracts';
 import { z } from 'zod';
@@ -78,5 +82,82 @@ export class MatchesController {
       parseInput(z.uuid(), matchId),
       parseInput(MatchReplyRequestSchema, body).reply,
     );
+  }
+
+  /** Después del partido (D18): resultado y figura. */
+  @Put(':matchId/result')
+  @Can('team.matches.write', { teamParam: 'teamId' })
+  recordResult(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('matchId') matchId: string,
+    @Body() body: unknown,
+  ): Promise<MatchResponse> {
+    return this.matches.recordResult(
+      actor,
+      teamId,
+      parseInput(z.uuid(), matchId),
+      parseInput(MatchResultRequestSchema, body),
+    );
+  }
+
+  @Get(':matchId/ratings')
+  @Can('team.results.read', { teamParam: 'teamId' })
+  ratings(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('matchId') matchId: string,
+  ): Promise<MatchRatingsResponse> {
+    return this.matches.ratings(actor, teamId, parseInput(z.uuid(), matchId));
+  }
+
+  @Put(':matchId/ratings/:playerId')
+  @Can('team.ratings.write', { teamParam: 'teamId' })
+  rate(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('matchId') matchId: string,
+    @Param('playerId') playerId: string,
+    @Body() body: unknown,
+  ): Promise<MatchRatingsResponse> {
+    return this.matches.rate(
+      actor,
+      teamId,
+      parseInput(z.uuid(), matchId),
+      parseInput(z.uuid(), playerId),
+      parseInput(MatchRatingRequestSchema, body),
+    );
+  }
+
+  @Delete(':matchId/ratings/:playerId')
+  @Can('team.ratings.write', { teamParam: 'teamId' })
+  unrate(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('matchId') matchId: string,
+    @Param('playerId') playerId: string,
+  ): Promise<MatchRatingsResponse> {
+    return this.matches.unrate(
+      actor,
+      teamId,
+      parseInput(z.uuid(), matchId),
+      parseInput(z.uuid(), playerId),
+    );
+  }
+}
+
+/** Cómo le fue a un jugador partido a partido (ficha del jugador, cuerpo técnico). */
+@Controller('teams/:teamId/players/:playerId/match-ratings')
+export class PlayerMatchRatingsController {
+  constructor(private readonly matches: Matches) {}
+
+  @Get()
+  @Can('team.results.read', { teamParam: 'teamId' })
+  list(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('playerId') playerId: string,
+  ): Promise<PlayerMatchRatingsResponse> {
+    return this.matches.playerRatings(actor, teamId, parseInput(z.uuid(), playerId));
   }
 }
