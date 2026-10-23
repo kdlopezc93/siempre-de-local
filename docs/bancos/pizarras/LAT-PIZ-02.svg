@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 72 100 78" width="400" height="312" font-family="Arial Narrow, Arial, sans-serif" font-weight="700">
+<defs><marker id="h" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L6,3 L0,6 z" fill="#eef1ea"/></marker></defs>
+<rect x="0" y="72" width="100" height="78" fill="#13241b"/>
+<g fill="none" stroke="#3a6b52" stroke-width="0.8">
+<rect x="3" y="3" width="94" height="144"/><line x1="3" y1="75" x2="97" y2="75"/>
+<circle cx="50" cy="75" r="11"/><rect x="26" y="126" width="48" height="21"/>
+<rect x="38" y="140" width="24" height="7"/><rect x="26" y="3" width="48" height="21"/>
+<rect x="38" y="3" width="24" height="7"/></g>
+<circle cx="80" cy="112" r="3.4" fill="#e8b84b" stroke="#e8b84b" stroke-width="0.9"/>
+<text x="80" y="113.3" font-size="3.6" text-anchor="middle" fill="#0b140f">2</text>
+<circle cx="60" cy="124" r="3.4" fill="#13241b" stroke="#eef1ea" stroke-width="0.9"/>
+<text x="60" y="125.3" font-size="3.6" text-anchor="middle" fill="#eef1ea">4</text>
+<circle cx="42" cy="124" r="3.4" fill="#13241b" stroke="#eef1ea" stroke-width="0.9"/>
+<text x="42" y="125.3" font-size="3.6" text-anchor="middle" fill="#eef1ea">3</text>
+<circle cx="20" cy="108" r="3.4" fill="#13241b" stroke="#eef1ea" stroke-width="0.9"/>
+<text x="20" y="109.3" font-size="3.6" text-anchor="middle" fill="#eef1ea">6</text>
+<path d="M10.4,101.4 L15.6,106.6 M15.6,101.4 L10.4,106.6" stroke="#eef1ea" stroke-width="1" stroke-linecap="round"/>
+<text x="17.4" y="101.8" font-size="3.6" fill="#eef1ea">7</text>
+<path d="M47.4,125.4 L52.6,130.6 M52.6,125.4 L47.4,130.6" stroke="#eef1ea" stroke-width="1" stroke-linecap="round"/>
+<text x="54.4" y="125.8" font-size="3.6" fill="#eef1ea">9</text>
+<path d="M83.4,119.4 L88.6,124.6 M88.6,119.4 L83.4,124.6" stroke="#eef1ea" stroke-width="1" stroke-linecap="round"/>
+<text x="90.4" y="119.8" font-size="3.6" fill="#eef1ea">11</text>
+<circle cx="14" cy="100" r="1.7" fill="#eef1ea"/>
+<circle cx="74" cy="130" r="5.5" fill="#e8b84b" stroke="#e8b84b" stroke-width="0.7"/>
+<text x="74" y="131.6" font-size="4.6" text-anchor="middle" fill="#0b140f">A</text>
+<circle cx="92" cy="100" r="5.5" fill="none" stroke="#e8b84b" stroke-width="0.7" stroke-dasharray="1.4 1"/>
+<text x="92" y="101.6" font-size="4.6" text-anchor="middle" fill="#e8b84b">B</text>
+<circle cx="34" cy="136" r="5.5" fill="none" stroke="#e8b84b" stroke-width="0.7" stroke-dasharray="1.4 1"/>
+<text x="34" y="137.6" font-size="4.6" text-anchor="middle" fill="#e8b84b">C</text>
+<circle cx="62" cy="104" r="5.5" fill="none" stroke="#e8b84b" stroke-width="0.7" stroke-dasharray="1.4 1"/>
+<text x="62" y="105.6" font-size="4.6" text-anchor="middle" fill="#e8b84b">D</text>
+</svg>
