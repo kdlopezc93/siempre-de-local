@@ -105,7 +105,7 @@ function PositionSection({ me, teamId }: { me: Me; teamId: string }) {
           />
         )
       ) : latest.kind === 'pending' ? (
-        <p className={styles.note}>Tu test se envía cuando vuelva la señal.</p>
+        <p className={styles.note}>Tu test se envía cuando tengas señal y abras la app.</p>
       ) : (
         <>
           <Link to={`/resultados/${latest.result.attemptId}`} className={styles.podium}>

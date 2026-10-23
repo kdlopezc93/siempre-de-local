@@ -47,9 +47,7 @@ export function ValidationPage({ teamId }: { teamId: string }) {
           <TestSection data={report.data.testVsStaff} />
           <KnowledgeSection data={report.data.knowledgeVsCard} />
           <p className={styles.note}>
-            Son datos de un solo equipo y pocas personas: sirven para ver tendencias, no para sacar
-            conclusiones firmes. El test compara las posiciones de cada jugador entre sí; la tarjeta
-            y el conocimiento sí comparan jugadores.
+            Un solo equipo y pocas personas: sirve para ver tendencias, no para concluir.
           </p>
         </>
       )}

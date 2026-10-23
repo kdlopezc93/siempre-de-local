@@ -127,7 +127,7 @@ describe('examen de conocimiento', () => {
 
     const card = await screen.findByRole('article', { name: 'Defensa central' });
     expect(card).toHaveTextContent('2 preguntas en 20 minutos. Áreas: marcaje, juego aéreo.');
-    expect(screen.getByText(/no si lo haces en la cancha/)).toBeInTheDocument();
+    expect(screen.getByText(/no cómo juegas/)).toBeInTheDocument();
 
     await userEvent.click(within(card).getByRole('button', { name: 'Presentar el examen' }));
     expect(card).toHaveTextContent('El reloj de 20 minutos arranca apenas empieces');

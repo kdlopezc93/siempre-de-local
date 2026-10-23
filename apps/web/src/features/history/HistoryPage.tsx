@@ -73,7 +73,7 @@ function Entry({
           {when}
           {teamName(entry.teamId) && `, ${teamName(entry.teamId)}`}
         </p>
-        <p className={styles.pending}>Pendiente de enviar: se envía cuando vuelva la señal.</p>
+        <p className={styles.pending}>Pendiente: se envía cuando tengas señal y abras la app.</p>
       </div>
     );
   }

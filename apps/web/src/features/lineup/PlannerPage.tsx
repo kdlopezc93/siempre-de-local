@@ -368,8 +368,7 @@ function Planner({
       />
 
       <p className={styles.note}>
-        El encaje junta tu valoración, la tarjeta, el examen de conocimiento y el test (este último
-        solo de quienes ya valoraste). Es una propuesta: tú decides.
+        Es una propuesta: tú decides. Toca un puesto para ver de dónde sale su encaje.
       </p>
     </Screen>
   );

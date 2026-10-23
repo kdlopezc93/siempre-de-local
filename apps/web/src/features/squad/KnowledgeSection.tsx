@@ -64,9 +64,8 @@ export function KnowledgeSection({
         </>
       )}
       <p className={styles.note}>
-        Mide lo que respondió en la app sobre la posición, no lo que hace en la cancha. Si crees que
-        el puntaje ya no lo refleja, pide una re-evaluación: su resultado reemplaza al anterior
-        aunque sea más bajo.
+        Mide lo que sabe de la posición, no cómo juega. Una re-evaluación reemplaza al puntaje
+        anterior, aunque salga más bajo.
       </p>
     </section>
   );

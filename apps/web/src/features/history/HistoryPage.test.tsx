@@ -84,7 +84,7 @@ describe('HistoryPage', () => {
 
     const items = within(await screen.findByRole('list')).getAllByRole('listitem');
     expect(items).toHaveLength(3);
-    expect(items[0]).toHaveTextContent('Pendiente de enviar');
+    expect(items[0]).toHaveTextContent('Pendiente: se envía cuando tengas señal y abras la app.');
     expect(items[1]).toHaveTextContent('Delantero centro');
     expect(items[1]).toHaveTextContent('Extremo y Mediapunta');
     expect(within(items[2]!).getByRole('link')).toHaveAttribute('href', `/resultados/${uuid(201)}`);
