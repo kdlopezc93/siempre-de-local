@@ -1,5 +1,6 @@
 import type { Icon } from '@phosphor-icons/react';
 import { Brain } from '@phosphor-icons/react/dist/csr/Brain';
+import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
 import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
 import { ClipboardText } from '@phosphor-icons/react/dist/csr/ClipboardText';
 import { IdentificationCard } from '@phosphor-icons/react/dist/csr/IdentificationCard';
@@ -23,6 +24,7 @@ const ICONS: Record<TodoIcon, Icon> = {
   card: IdentificationCard,
   review: Warning,
   lineup: Strategy,
+  match: CalendarCheck,
 };
 
 /**

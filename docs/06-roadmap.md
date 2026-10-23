@@ -104,6 +104,7 @@ Decisiones de este plan:
 - Informe de validación (test vs. entrenador; conocimiento vs. tarjeta): **hecho**. Con datos reales de un equipo es la base para afinar pesos en la Fase 8.
 
 ### Fase 6 · Experiencia (navegación, inicio y cambio visual)
+**Cerrada el 2026-10-22** (#55–#68), con las fotos pospuestas (#65 en borrador).
 Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no encuentro las cosas", "se ve feo y anticuado" y "hay mucho texto". Auditoría, nueva estructura y plan en `07-experiencia.md`.
 
 | # | PR | Estado |
@@ -119,7 +120,7 @@ Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no
 | 9 | Fotos del jugador y del equipo | **Pospuesto** (2026-10-22, costos de R2): hecho en #65, en borrador |
 | 10 | Tus datos: página pública, "Eliminar mis datos", eliminar mi cuenta y descargar mis datos | #66 ✔ |
 | 11 | Dieta de texto y afirmaciones respaldadas | #67 ✔ |
-| 12 | Auditoría final: diseño, rendimiento, terceros (inventario, `pnpm audit`, CSP) y contraste | |
+| 12 | Auditoría final: diseño, rendimiento, terceros (inventario, `pnpm audit`, CSP) y contraste | #68 ✔ |
 
 ### Fase 7 · Partidos: convocatoria, alineación publicada y después del partido
 Pedida por Kevin el 2026-10-22: "cada vez que sale una fecha me gustaría enviar la convocatoria". Se arma sobre el planificador (Fase 5).
@@ -134,7 +135,7 @@ Plan en PRs (2026-10-22, con D16 y D17 decididos):
 
 | # | PR | Estado |
 |---|---|---|
-| 1 | Partidos en el API: modelo, reglas en el dominio, convocar, editar o cancelar, y voy / no voy | |
+| 1 | Partidos en el API: modelo, reglas en el dominio, convocar, editar o cancelar, y voy / no voy | #69 ✔ |
 | 2 | Convocar y responder en la app: lista de partidos, formulario y "lo que toca" | |
 | 3 | La alineación del partido: el planificador abre con los que van; publicar y republicar | |
 | 4 | La alineación publicada para todo el equipo, sin editar ni desglose | |

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { arrange, lastLineup, playerTodos, staffTodos } from './todo';
+import { arrange, lastLineup, matchTodos, playerTodos, staffTodos } from './todo';
 
 const NOW = new Date('2026-10-22T12:00:00Z');
 const bank = {
@@ -131,5 +131,36 @@ describe('lo que toca al cuerpo técnico', () => {
         },
       ]),
     ).toMatchObject({ title: 'Última alineación: Fecha 3', to: '/equipos/t1/alineaciones/b' });
+  });
+});
+
+describe('lo que toca: partidos (D16)', () => {
+  const m = (id: string, startsAt: string, over: object = {}) => ({
+    id,
+    format: 'F11' as const,
+    startsAt,
+    place: 'La 14',
+    opponent: id,
+    status: 'scheduled' as const,
+    open: true,
+    createdBy: null,
+    replies: { yes: 1, no: 0, pending: 3 },
+    myReply: null,
+    published: null,
+    ...over,
+  });
+
+  it('al jugador, las convocatorias sin responder; al cuerpo técnico, el próximo con gente sin responder', () => {
+    const matches = [
+      m('Pibes', '2026-11-01T15:00:00.000Z'),
+      m('Veteranos', '2026-11-08T15:00:00.000Z', { myReply: 'yes' }),
+      m('Cancelado', '2026-11-02T15:00:00.000Z', { open: false, status: 'cancelled' }),
+    ];
+    const todos = matchTodos({ teamId: 't1', matches, player: true, staff: true });
+    expect(todos.map((t) => [t.who, t.title])).toEqual([
+      ['player', 'Te convocaron: Pibes'],
+      ['staff', 'Pibes: 3 jugadores sin responder'],
+    ]);
+    expect(arrange(todos).lead!.to).toBe('/equipos/t1/partidos/Pibes');
   });
 });

@@ -13,12 +13,12 @@ const ids = (roles: Parameters<typeof tabsFor>[1]) => tabsFor('t1', roles).map((
 
 describe('navegación por rol (07 §4.2)', () => {
   it('pestañas según el rol en el equipo', () => {
-    expect(ids(['player'])).toEqual(['inicio', 'mi-juego', 'equipo']);
-    expect(ids(['assistant'])).toEqual(['inicio', 'plantilla', 'alineaciones', 'equipo']);
+    expect(ids(['player'])).toEqual(['inicio', 'partidos', 'mi-juego', 'equipo']);
+    expect(ids(['assistant'])).toEqual(['inicio', 'plantilla', 'partidos', 'equipo']);
     expect(ids(['coach', 'player'])).toEqual([
       'inicio',
       'plantilla',
-      'alineaciones',
+      'partidos',
       'mi-juego',
       'equipo',
     ]);
@@ -29,7 +29,8 @@ describe('navegación por rol (07 §4.2)', () => {
     const at = (path: string) => activeTab(path, tabs)?.id;
     expect(at('/')).toBe('inicio');
     expect(at('/equipos/t1/plantilla/p9/tarjeta')).toBe('plantilla');
-    expect(at('/equipos/t1/planificador')).toBe('alineaciones');
+    expect(at('/equipos/t1/planificador')).toBe('partidos');
+    expect(at('/equipos/t1/partidos/m1')).toBe('partidos');
     expect(at('/conocimiento')).toBe('mi-juego');
     expect(at('/equipos/t1/validacion')).toBe('equipo');
     // Ni "/" como prefijo de todo ni otro equipo.

@@ -38,7 +38,7 @@ describe('armazón: equipo arriba, pestañas del rol abajo (07 §4)', () => {
       within(nav)
         .getAllByRole('link')
         .map((l) => l.textContent),
-    ).toEqual(['Inicio', 'Plantilla', 'Alineaciones', 'Mi juego', 'Equipo']);
+    ).toEqual(['Inicio', 'Plantilla', 'Partidos', 'Mi juego', 'Equipo']);
     expect(within(nav).getByRole('link', { name: 'Plantilla' })).toHaveAttribute(
       'aria-current',
       'page',
@@ -49,13 +49,13 @@ describe('armazón: equipo arriba, pestañas del rol abajo (07 §4)', () => {
     localStorage.setItem('sdl.equipoActivo', TEAM_B);
     renderAt('/');
     expect(screen.getByRole('button', { name: /Los del jueves\. Cambiar/ })).toBeInTheDocument();
-    // Ahí solo es jugador: sin plantilla ni alineaciones.
+    // Ahí solo es jugador: sin plantilla.
     const nav = screen.getByRole('navigation', { name: 'Principal' });
     expect(
       within(nav)
         .getAllByRole('link')
         .map((l) => l.textContent),
-    ).toEqual(['Inicio', 'Mi juego', 'Equipo']);
+    ).toEqual(['Inicio', 'Partidos', 'Mi juego', 'Equipo']);
   });
 
   it('al cambiar de equipo va a la misma pestaña si tu rol allá la tiene; si no, al inicio', async () => {
