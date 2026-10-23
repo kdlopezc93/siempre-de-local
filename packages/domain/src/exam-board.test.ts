@@ -48,6 +48,7 @@ describe('pizarra del examen (Fase 8)', () => {
   });
 
   it('sin puntos de respuesta, la pizarra solo se mira', () => {
-    expect(boardIssues({ ...BOARD, spots: undefined }, 4)).toEqual([]);
+    const { spots: _spots, ...lookOnly } = BOARD;
+    expect(boardIssues(lookOnly, 4)).toEqual([]);
   });
 });

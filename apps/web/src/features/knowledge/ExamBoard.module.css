@@ -84,8 +84,12 @@
   height: 44px;
   border: 2px dashed var(--sdl-primary);
   border-radius: 50%;
-  background: var(--sdl-surface);
+  /* Transparente: no tapa a los jugadores de abajo; la letra lleva contorno de cancha. */
+  background: transparent;
   color: var(--sdl-primary);
+  text-shadow:
+    0 0 3px var(--sdl-surface),
+    0 0 2px var(--sdl-surface);
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-lg);
   font-weight: 700;
@@ -103,6 +107,7 @@
   border-style: solid;
   background: var(--sdl-primary);
   color: var(--sdl-on-primary);
+  text-shadow: none;
 }
 
 .spot:disabled {

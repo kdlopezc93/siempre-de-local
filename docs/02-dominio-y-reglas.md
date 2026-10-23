@@ -106,7 +106,8 @@ Medir con más rigor el conocimiento táctico de un jugador sobre **una posició
   - **Área de competencia** de la posición (ej. DFC: marcaje, línea defensiva y fuera de juego, juego aéreo, salida de balón, balón parado, coberturas).
   - **Dificultad** 1–3.
   - Enunciado, 4 opciones, 1 correcta y una **explicación** (uso interno y para feedback futuro).
-- Tipos de ítem: v1 texto de opción múltiple; v2 **situación sobre pizarra** (SVG con jugadores colocados), que mide mejor la lectura de juego que el texto.
+- Tipos de ítem: texto de opción múltiple y **situación sobre pizarra** (`pitch_situation`, Fase 8), que mide mejor la lectura de juego que el texto.
+- **Pizarra** (`ExamBoard`, `domain/exam-board.ts`): la jugada sobre la cancha de siempre (100×150, tu arco abajo), vista entera, tu mitad o la del rival; los tuyos (O, uno puede ser "tú"), los rivales (X), el balón y flechas de pase, desmarque o conducción. Si se responde tocando, **un punto por opción** en el orden en que se escriben (`qb` en `banks/authoring.ts`); el servidor los pega a cada opción ya barajada y el celular pone las letras A–D, así que el dibujo **no delata la correcta**. Se guarda en `cert_item.diagram` (sin migración). Reglas del lint (errores): todo dentro de la vista, hasta 22 jugadores, etiquetas de 1 a 3 caracteres, un solo "tú", tantos puntos como opciones y a 15 unidades o más entre sí (para que los botones de 44 px no se pisen).
 
 ### 6.3 Reglas del examen (valores iniciales, configurables por versión del banco)
 

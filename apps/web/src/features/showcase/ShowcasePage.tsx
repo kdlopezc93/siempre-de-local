@@ -23,6 +23,7 @@ import { LeadTask, TaskRow } from '../../shared/ui/TaskCard';
 import { TeamHeader } from '../../shared/ui/TeamHeader';
 import { lineOfPosition, Token, type TokenLine } from '../../shared/ui/Token';
 import { PlayerCard } from '../card/PlayerCard';
+import { ExamBoard } from '../knowledge/ExamBoard';
 import { DEMO_PLAYERS, DEMO_TEAMS } from './showcase-data';
 import styles from './ShowcasePage.module.css';
 
@@ -56,6 +57,7 @@ export function ShowcasePage() {
           <Route path="alineaciones" element={<Lineups />} />
           <Route path="mi-juego" element={<MyGame />} />
           <Route path="equipo" element={<Team />} />
+          <Route path="pizarra" element={<BoardSamples />} />
         </Routes>
       </div>
       <BottomNav items={NAV} current={current} />
@@ -431,5 +433,90 @@ function Icon({ glyph: Glyph }: { glyph: typeof House }) {
     <span className={styles.rowIcon} aria-hidden="true">
       <Glyph size={22} />
     </span>
+  );
+}
+
+/** Preguntas tipo pizarra del examen (Fase 8), para ver cómo se ven antes de escribir bancos. */
+const BOARD_SAMPLES = [
+  {
+    text: 'El 9 rival recibe de espaldas en la puerta del área. ¿Dónde te paras?',
+    board: {
+      view: 'own-half' as const,
+      pieces: [
+        { side: 'own' as const, x: 50, y: 124, label: '4', you: true },
+        { side: 'own' as const, x: 30, y: 126, label: '2' },
+        { side: 'own' as const, x: 12, y: 118, label: '3' },
+        { side: 'own' as const, x: 88, y: 118, label: '6' },
+        { side: 'own' as const, x: 50, y: 94, label: '5' },
+        { side: 'rival' as const, x: 52, y: 108, label: '9' },
+        { side: 'rival' as const, x: 36, y: 86, label: '8' },
+        { side: 'rival' as const, x: 78, y: 92, label: '7' },
+      ],
+      ball: { x: 37, y: 89 },
+      arrows: [{ kind: 'pass' as const, from: { x: 38, y: 89 }, to: { x: 51, y: 105 } }],
+    },
+    options: [
+      { label: 'Pegado a su espalda, sin dejarlo girar', spot: { x: 52, y: 118 } },
+      { label: 'Adelante, para anticipar el pase', spot: { x: 52, y: 98 } },
+      { label: 'A un costado, cerrando el giro hacia afuera', spot: { x: 70, y: 106 } },
+      { label: 'Atrás, cerca del arco, esperando', spot: { x: 50, y: 138 } },
+    ],
+  },
+  {
+    text: 'Recuperas en el medio y el 7 ya arrancó. ¿A quién se la das?',
+    board: {
+      view: 'rival-half' as const,
+      pieces: [
+        { side: 'own' as const, x: 50, y: 62, label: '8', you: true },
+        { side: 'own' as const, x: 80, y: 42, label: '7' },
+        { side: 'own' as const, x: 50, y: 28, label: '9' },
+        { side: 'own' as const, x: 32, y: 46, label: '10' },
+        { side: 'own' as const, x: 14, y: 66, label: '3' },
+        { side: 'rival' as const, x: 52, y: 22 },
+        { side: 'rival' as const, x: 38, y: 40 },
+        { side: 'rival' as const, x: 64, y: 30 },
+        { side: 'rival' as const, x: 72, y: 50 },
+      ],
+      ball: { x: 53, y: 64 },
+      arrows: [{ kind: 'run' as const, from: { x: 80, y: 42 }, to: { x: 86, y: 18 } }],
+    },
+    options: [
+      { label: 'Al espacio, a la carrera del 7', spot: { x: 86, y: 20 } },
+      { label: 'Al pie del 9, de espaldas', spot: { x: 48, y: 34 } },
+      { label: 'Al 10, entre líneas', spot: { x: 26, y: 48 } },
+      { label: 'Atrás, al lateral', spot: { x: 14, y: 70 } },
+    ],
+  },
+];
+
+function BoardSamples() {
+  const [chosen, setChosen] = useState<Record<number, string>>({});
+  return (
+    <>
+      {BOARD_SAMPLES.map((sample, n) => {
+        const options = sample.options.map((o, i) => ({
+          ...o,
+          id: `${n}-${i}`,
+          letter: 'ABCD'[i]!,
+        }));
+        return (
+          <section key={n} className={styles.group} aria-label={`Pregunta de muestra ${n + 1}`}>
+            <h2 className={styles.groupTitle}>{sample.text}</h2>
+            <ExamBoard
+              board={sample.board}
+              options={options}
+              chosen={chosen[n] ?? null}
+              disabled={false}
+              onChoose={(id) => setChosen({ ...chosen, [n]: id })}
+            />
+            {options.map((o) => (
+              <p key={o.id} className={styles.muted}>
+                {o.letter}. {o.label}
+              </p>
+            ))}
+          </section>
+        );
+      })}
+    </>
   );
 }
