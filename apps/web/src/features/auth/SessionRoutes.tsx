@@ -33,7 +33,6 @@ const screens = {
   planner: () => import('../lineup/PlannerPage'),
   validation: () => import('../validation/ValidationPage'),
   lineups: () => import('../lineup/SavedLineupsPage'),
-  myCard: () => import('../card/MyCardPage'),
   staffCard: () => import('../card/StaffCardPage'),
   rate: () => import('../card/RatePage'),
   myGame: () => import('../my-game/MyGamePage'),
@@ -65,7 +64,6 @@ const LineupViewPage = lazy(() => screens.lineups().then((m) => ({ default: m.Li
 const ValidationPage = lazy(() =>
   screens.validation().then((m) => ({ default: m.ValidationPage })),
 );
-const MyCardPage = lazy(() => screens.myCard().then((m) => ({ default: m.MyCardPage })));
 const StaffCardPage = lazy(() => screens.staffCard().then((m) => ({ default: m.StaffCardPage })));
 const RatePage = lazy(() => screens.rate().then((m) => ({ default: m.RatePage })));
 const MyGamePage = lazy(() => screens.myGame().then((m) => ({ default: m.MyGamePage })));
@@ -216,10 +214,10 @@ export function AssessRoute() {
   );
 }
 
-/** "/equipos/:teamId/tarjeta" — la tarjeta del propio jugador. */
+/** "/equipos/:teamId/tarjeta" — tu tarjeta vive en Mi juego; la ruta vieja lleva ahí. */
 export function MyCardRoute() {
   const { teamId = '' } = useParams();
-  return <ShellRoute>{(me) => <MyCardPage me={me} teamId={teamId} />}</ShellRoute>;
+  return <Navigate to={`/equipos/${teamId}/mi-juego`} replace />;
 }
 
 /** "/equipos/:teamId/plantilla/:playerId/tarjeta" */
@@ -278,7 +276,7 @@ export function ValidationRoute() {
 /** "/equipos/:teamId/mi-juego" — lo tuyo como jugador. */
 export function MyGameRoute() {
   const { teamId = '' } = useParams();
-  return <ShellRoute>{() => <MyGamePage teamId={teamId} />}</ShellRoute>;
+  return <ShellRoute>{(me) => <MyGamePage me={me} teamId={teamId} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/equipo" — el equipo y tu cuenta. */

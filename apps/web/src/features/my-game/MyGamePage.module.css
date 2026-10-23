@@ -1,11 +1,36 @@
 .screen {
-  gap: var(--sdl-space-5);
+  gap: var(--sdl-space-6);
 }
 
 .title {
   font-size: var(--sdl-text-display);
   line-height: var(--sdl-leading-display);
   letter-spacing: var(--sdl-tracking-display);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.sectionTitle {
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-body);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}
+
+.muted {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.note {
+  padding: var(--sdl-space-4);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  color: var(--sdl-fg-muted);
 }
 
 .list {
@@ -25,17 +50,77 @@
   color: var(--sdl-primary);
 }
 
+/* El podio de tu último test: lleva a su resultado completo. */
+.podium {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-4);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  color: var(--sdl-fg);
+  text-decoration: none;
+  transition: background-color var(--sdl-duration-fast) var(--sdl-ease-out);
+}
+
+.podium ol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.podium li {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+}
+
+.podiumName {
+  flex: 1;
+  font-weight: 600;
+}
+
+.podium li:first-child .podiumName {
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-xl);
+  font-weight: 700;
+}
+
+.podiumMeta {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.quietRow {
+  display: flex;
+  gap: var(--sdl-space-5);
+}
+
 .quiet {
   display: inline-flex;
   align-items: center;
-  align-self: flex-start;
   min-height: var(--sdl-touch-min);
   color: var(--sdl-fg-muted);
   font-size: var(--sdl-text-sm);
   text-underline-offset: 4px;
 }
 
+.ready {
+  color: var(--sdl-primary);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}
+
 @media (hover: hover) {
+  .podium:hover {
+    background: var(--sdl-surface-hover);
+  }
+
   .quiet:hover {
     color: var(--sdl-fg);
   }
