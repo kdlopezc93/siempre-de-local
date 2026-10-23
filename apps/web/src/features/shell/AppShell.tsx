@@ -1,7 +1,7 @@
 import { House } from '@phosphor-icons/react/dist/csr/House';
 import { IdentificationCard } from '@phosphor-icons/react/dist/csr/IdentificationCard';
 import { ShieldCheck } from '@phosphor-icons/react/dist/csr/ShieldCheck';
-import { Strategy } from '@phosphor-icons/react/dist/csr/Strategy';
+import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
 import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
 import { Suspense, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router';
@@ -23,7 +23,7 @@ import { useActiveTeam } from './use-active-team';
 const ICONS = {
   inicio: House,
   plantilla: UsersThree,
-  alineaciones: Strategy,
+  partidos: CalendarCheck,
   'mi-juego': IdentificationCard,
   equipo: ShieldCheck,
 } satisfies Record<TabId, unknown>;

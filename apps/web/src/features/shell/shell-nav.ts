@@ -1,6 +1,6 @@
 import type { MatchFormat, TeamRole } from '@sdl/contracts';
 
-export type TabId = 'inicio' | 'plantilla' | 'alineaciones' | 'mi-juego' | 'equipo';
+export type TabId = 'inicio' | 'plantilla' | 'partidos' | 'mi-juego' | 'equipo';
 
 export interface Tab {
   id: TabId;
@@ -18,20 +18,21 @@ export function tabsFor(teamId: string, roles: readonly TeamRole[]): Tab[] {
   const player = roles.includes('player');
   const tabs: Tab[] = [{ id: 'inicio', label: 'Inicio', to: '/', match: ['/'] }];
   if (staff) {
-    tabs.push(
-      {
-        id: 'plantilla',
-        label: 'Plantilla',
-        to: `${team}/plantilla`,
-        match: [`${team}/plantilla`],
-      },
-      {
-        id: 'alineaciones',
-        label: 'Alineaciones',
-        to: `${team}/alineaciones`,
-        match: [`${team}/alineaciones`, `${team}/planificador`],
-      },
-    );
+    tabs.push({
+      id: 'plantilla',
+      label: 'Plantilla',
+      to: `${team}/plantilla`,
+      match: [`${team}/plantilla`],
+    });
+  }
+  // Partidos: la convocatoria, responder y (adentro) las alineaciones. Para todos.
+  if (staff || player) {
+    tabs.push({
+      id: 'partidos',
+      label: 'Partidos',
+      to: `${team}/partidos`,
+      match: [`${team}/partidos`, `${team}/alineaciones`, `${team}/planificador`],
+    });
   }
   if (player) {
     tabs.push({

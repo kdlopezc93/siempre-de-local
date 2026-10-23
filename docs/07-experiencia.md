@@ -61,6 +61,10 @@ Escudo con iniciales, nombre del equipo, club y formato. Al tocarlo, la lista de
 
 Las pantallas de tarea (test, examen, puntuar, valorar) ocupan la pantalla completa, sin barra, con "cerrar" arriba.
 
+### 4.2.1 Partidos (Fase 7)
+
+La pestaña **Alineaciones pasa a Partidos** y la tienen también los jugadores: Inicio · Plantilla · **Partidos** · Mi juego · Equipo (el cuerpo técnico que también juega), Inicio · **Partidos** · Mi juego · Equipo (jugador). Adentro: los próximos partidos (convocar, responder voy / no voy) y, para el cuerpo técnico, las alineaciones guardadas.
+
 ### 4.3 Qué va en cada pestaña
 
 - **Inicio:** tarjetas de "lo que toca", según el rol.

@@ -1,7 +1,14 @@
-import type { CertPositionsResponse, LineupListResponse, SquadResponse } from '@sdl/contracts';
+import type {
+  CertPositionsResponse,
+  LineupListResponse,
+  Match,
+  SquadResponse,
+} from '@sdl/contracts';
 import { POSITIONS } from '@sdl/domain';
 
-export type TodoIcon = 'exam' | 'test' | 'assess' | 'card' | 'review' | 'lineup';
+import { matchWhen } from '../matches/match-view';
+
+export type TodoIcon = 'exam' | 'test' | 'assess' | 'card' | 'review' | 'lineup' | 'match';
 
 export interface Todo {
   id: string;
@@ -173,4 +180,48 @@ export function lastLineup(teamId: string, lineups: LineupListResponse['items'])
 export function arrange(todos: readonly Todo[]): { lead: Todo | null; rest: Todo[] } {
   const sorted = [...todos].sort((a, b) => a.priority - b.priority);
   return { lead: sorted[0] ?? null, rest: sorted.slice(1) };
+}
+
+/**
+ * Partidos (Fase 7, D16: el aviso va en el inicio). Al jugador: las convocatorias que no
+ * respondió (lo primero después de un examen a medias). Al cuerpo técnico: el próximo partido
+ * con gente sin responder.
+ */
+export function matchTodos(input: {
+  teamId: string;
+  matches: readonly Match[];
+  player: boolean;
+  staff: boolean;
+}): Todo[] {
+  const { teamId, matches, player, staff } = input;
+  const open = matches.filter((m) => m.open).sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  const path = (m: Match) => `/equipos/${teamId}/partidos/${m.id}`;
+  const todos: Todo[] = [];
+  if (player) {
+    for (const m of open.filter((x) => !x.myReply)) {
+      todos.push({
+        id: `match-${m.id}`,
+        priority: 1,
+        who: 'player',
+        icon: 'match',
+        title: `Te convocaron: ${m.opponent}`,
+        detail: `${matchWhen(m.startsAt)}. ¿Vas?`,
+        to: path(m),
+      });
+    }
+  }
+  const next = open[0];
+  if (staff && next && next.replies.pending > 0) {
+    todos.push({
+      id: `match-pending-${next.id}`,
+      priority: 3,
+      who: 'staff',
+      icon: 'match',
+      title: `${next.opponent}: ${plural(next.replies.pending, 'jugador sin responder', 'jugadores sin responder')}`,
+      short: `${next.opponent}, sin responder`,
+      count: next.replies.pending,
+      to: path(next),
+    });
+  }
+  return todos;
 }

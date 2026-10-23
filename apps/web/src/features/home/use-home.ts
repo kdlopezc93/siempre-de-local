@@ -4,9 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import type { Me } from '../../shared/api/auth';
 import { fetchCertPositions } from '../../shared/api/certification';
 import { fetchLineups } from '../../shared/api/lineups';
+import { fetchMatches } from '../../shared/api/matches';
 import { fetchSquad } from '../../shared/api/squad';
 import { useHistory } from '../history/use-history';
-import { lastLineup, playerTodos, staffTodos, type Todo } from './todo';
+import { lastLineup, matchTodos, playerTodos, staffTodos, type Todo } from './todo';
 
 /**
  * Lo que toca en el equipo activo, armado en el celular con lo que ya traen la plantilla,
@@ -27,6 +28,12 @@ export function useHomeTodos(me: Me, teamId: string | undefined, roles: readonly
     queryKey: ['team', teamId, 'squad'],
     queryFn: () => fetchSquad(teamId!),
     enabled: staff && !!teamId,
+    networkMode: 'offlineFirst',
+  });
+  const matches = useQuery({
+    queryKey: ['team', teamId, 'matches'],
+    queryFn: () => fetchMatches(teamId!),
+    enabled: (staff || player) && !!teamId,
     networkMode: 'offlineFirst',
   });
   const lineups = useQuery({
@@ -62,6 +69,8 @@ export function useHomeTodos(me: Me, teamId: string | undefined, roles: readonly
       );
     }
     if (staff && squad.data) todos.push(...staffTodos({ teamId, squad: squad.data.players }));
+    if (matches.data)
+      todos.push(...matchTodos({ teamId, matches: matches.data.items, player, staff }));
     if (staff && lineups.data) shortcut = lastLineup(teamId, lineups.data.items);
   }
   return { todos, shortcut, isPending, isError, staff, player };

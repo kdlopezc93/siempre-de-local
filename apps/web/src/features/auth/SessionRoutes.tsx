@@ -39,6 +39,9 @@ const screens = {
   team: () => import('../team/TeamPage'),
   account: () => import('../account/AccountPage'),
   myData: () => import('../my-data/MyDataPage'),
+  matches: () => import('../matches/MatchesPage'),
+  match: () => import('../matches/MatchPage'),
+  matchForm: () => import('../matches/MatchFormPage'),
 };
 
 const JoinPage = lazy(() => screens.join().then((m) => ({ default: m.JoinPage })));
@@ -71,6 +74,9 @@ const MyGamePage = lazy(() => screens.myGame().then((m) => ({ default: m.MyGameP
 const TeamPage = lazy(() => screens.team().then((m) => ({ default: m.TeamPage })));
 const AccountPage = lazy(() => screens.account().then((m) => ({ default: m.AccountPage })));
 const MyDataPage = lazy(() => screens.myData().then((m) => ({ default: m.MyDataPage })));
+const MatchesPage = lazy(() => screens.matches().then((m) => ({ default: m.MatchesPage })));
+const MatchPage = lazy(() => screens.match().then((m) => ({ default: m.MatchPage })));
+const MatchFormPage = lazy(() => screens.matchForm().then((m) => ({ default: m.MatchFormPage })));
 
 /** Precarga las pantallas que se usan desde el inicio cuando el navegador está libre. */
 function usePreloadScreens() {
@@ -300,4 +306,26 @@ export function MyDataRoute() {
       <MyDataPage signedIn={!!session.data} />
     </Suspense>
   );
+}
+
+/** "/equipos/:teamId/partidos" */
+export function MatchesRoute() {
+  const { teamId = '' } = useParams();
+  return <ShellRoute>{(me) => <MatchesPage me={me} teamId={teamId} />}</ShellRoute>;
+}
+
+/** "/equipos/:teamId/partidos/nuevo" y "…/:matchId/editar" */
+export function MatchFormRoute() {
+  const { teamId = '', matchId } = useParams();
+  return (
+    <ShellRoute>
+      {(me) => <MatchFormPage me={me} teamId={teamId} {...(matchId ? { matchId } : {})} />}
+    </ShellRoute>
+  );
+}
+
+/** "/equipos/:teamId/partidos/:matchId" */
+export function MatchRoute() {
+  const { teamId = '', matchId = '' } = useParams();
+  return <ShellRoute>{(me) => <MatchPage me={me} teamId={teamId} matchId={matchId} />}</ShellRoute>;
 }
