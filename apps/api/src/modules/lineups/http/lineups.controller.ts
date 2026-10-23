@@ -1,5 +1,10 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put } from '@nestjs/common';
-import { LineupInputSchema, type LineupListResponse, type LineupResponse } from '@sdl/contracts';
+import {
+  LineupInputSchema,
+  type LineupListResponse,
+  type LineupResponse,
+  type PublishedLineupResponse,
+} from '@sdl/contracts';
 import { z } from 'zod';
 
 import { Can } from '../../../shared/authz/can.decorator.js';
@@ -95,5 +100,21 @@ export class LineupsController {
     @Param('lineupId') lineupId: string,
   ): Promise<void> {
     await this.lineups.publish(actor, teamId, parseInput(z.uuid(), lineupId));
+  }
+}
+
+/** La alineación publicada de un partido, para todo el equipo (Fase 7, D17). */
+@Controller('teams/:teamId/matches/:matchId/lineup')
+export class PublishedLineupController {
+  constructor(private readonly lineups: Lineups) {}
+
+  @Get()
+  @Can('team.read', { teamParam: 'teamId' })
+  get(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('matchId') matchId: string,
+  ): Promise<PublishedLineupResponse> {
+    return this.lineups.published(actor, teamId, parseInput(z.uuid(), matchId));
   }
 }

@@ -1,4 +1,5 @@
 import type { Match, MatchRoster } from '@sdl/contracts';
+import { findFormation } from '@sdl/domain';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
@@ -11,9 +12,10 @@ import { initialsOf } from '../../shared/ui/TeamHeader';
 import { Token } from '../../shared/ui/Token';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import { usePublishLineup, useLineups } from '../lineup/use-lineups';
-import { matchWhen } from './match-view';
+import { matchWhen, slotName } from './match-view';
+import { PublishedBoard } from './PublishedBoard';
 import styles from './Matches.module.css';
-import { useMatch, useReplyMatch, useUpdateMatch } from './use-matches';
+import { useMatch, usePublishedLineup, useReplyMatch, useUpdateMatch } from './use-matches';
 
 /** /equipos/:teamId/partidos/:matchId — el partido: responder, y para el cuerpo técnico, quién va. */
 export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; matchId: string }) {
@@ -65,6 +67,10 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
           </p>
         )}
       </header>
+
+      {match.published && (
+        <PublishedSection teamId={teamId} match={match} meId={me.user.id} player={player} />
+      )}
 
       {player && <ReplyButtons teamId={teamId} match={match} />}
 
@@ -256,6 +262,61 @@ function MatchLineups({ teamId, match }: { teamId: string; match: Match }) {
           No pudimos publicarla. Revisa tu conexión e intenta de nuevo.
         </p>
       )}
+    </section>
+  );
+}
+
+/** La alineación publicada, para todo el equipo (D17): dónde estás tú, la cancha y el banco. */
+function PublishedSection({
+  teamId,
+  match,
+  meId,
+  player,
+}: {
+  teamId: string;
+  match: Match;
+  meId: string;
+  player: boolean;
+}) {
+  const lineup = usePublishedLineup(teamId, match.id, match.published?.at ?? null);
+  if (!lineup.data) {
+    return lineup.isError ? (
+      <p role="alert" className={styles.muted}>
+        No pudimos cargar la alineación. Revisa tu conexión.
+      </p>
+    ) : null;
+  }
+  const data = lineup.data;
+  const formation = findFormation(data.formation);
+  const mySlot = data.starters.find((s) => s.player?.id === meId);
+  const slot = mySlot && formation?.slots.find((s) => s.id === mySlot.slotId);
+  const onBench = data.bench.some((p) => p.id === meId);
+  return (
+    <section aria-labelledby="la-alineacion" className={styles.section}>
+      <h2 id="la-alineacion" className={styles.sectionTitle}>
+        La alineación
+      </h2>
+      {player && (
+        <p className={styles.myPlace}>
+          {slot
+            ? `Eres titular: ${slotName(slot)}.`
+            : onBench
+              ? 'Vas al banco.'
+              : 'Esta vez no estás en la lista.'}
+        </p>
+      )}
+      <PublishedBoard lineup={data} meId={meId} />
+      <h3 className={styles.sectionTitle}>Suplentes ({data.bench.length})</h3>
+      <p className={styles.muted}>
+        {data.bench.length
+          ? data.bench
+              .map((p) =>
+                p.jerseyNumber !== null ? `${p.jerseyNumber} ${p.displayName}` : p.displayName,
+              )
+              .join(', ')
+          : 'Ninguno.'}
+      </p>
+      <p className={styles.muted}>Publicada el {matchWhen(data.publishedAt)}.</p>
     </section>
   );
 }

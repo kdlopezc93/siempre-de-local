@@ -242,4 +242,70 @@ describe('partidos en la app (Fase 7)', () => {
     await userEvent.click(within(section).getByRole('button', { name: 'Publicar' }));
     await vi.waitFor(() => expect(published).toBe(L1));
   });
+
+  it('el equipo ve la alineación publicada y el jugador sabe dónde juega', async () => {
+    const at = new Date(Date.now() - 3_600_000).toISOString();
+    const slots = [
+      'POR',
+      'LAT-1',
+      'DFC-1',
+      'DFC-2',
+      'LAT-2',
+      'MCD',
+      'MC-1',
+      'MC-2',
+      'EXT-1',
+      'DC',
+      'EXT-2',
+    ];
+    const p = (
+      n: number,
+      name: string,
+      id = `0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f${String(n).padStart(2, '0')}`,
+    ) => ({
+      id,
+      displayName: name,
+      jerseyNumber: n,
+    });
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_B}/matches/${M1}`]: {
+        status: 200,
+        body: {
+          match: match({
+            myReply: 'yes',
+            published: { lineupId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fc1', at },
+          }),
+          roster: null,
+        },
+      },
+      [`GET /api/v1/teams/${TEAM_B}/matches/${M1}/lineup`]: {
+        status: 200,
+        body: {
+          matchId: M1,
+          format: 'F11',
+          formation: '1-4-3-3',
+          publishedAt: at,
+          starters: slots.map((slotId, i) => ({
+            slotId,
+            // Kevin (quien mira) de lateral izquierdo.
+            player:
+              slotId === 'LAT-1' ? p(10, 'Kevin', ME_TWO_TEAMS.user.id) : p(i + 20, `Jugador ${i}`),
+          })),
+          bench: [p(50, 'Beto')],
+        },
+      },
+    });
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_B} matchId={M1} /> },
+    ]);
+    expect(await screen.findByText('Eres titular: Lateral por la izquierda.')).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', {
+        name: /^Alineación 1-4-3-3\. Portero: Jugador 0; Lateral por la izquierda: Kevin/,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('50 Beto')).toBeInTheDocument();
+    // Sin encaje ni nada que tocar.
+    expect(screen.queryByText(/encaje/)).toBeNull();
+  });
 });

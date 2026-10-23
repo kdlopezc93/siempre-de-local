@@ -157,10 +157,16 @@ describe('lo que toca: partidos (D16)', () => {
       m('Pibes', '2026-11-01T15:00:00.000Z'),
       m('Veteranos', '2026-11-08T15:00:00.000Z', { myReply: 'yes' }),
       m('Cancelado', '2026-11-02T15:00:00.000Z', { open: false, status: 'cancelled' }),
+      m('Publicado', '2026-11-03T15:00:00.000Z', {
+        myReply: 'yes',
+        replies: { yes: 1, no: 0, pending: 0 },
+        published: { lineupId: 'l1', at: '2026-10-30T15:00:00.000Z' },
+      }),
     ];
     const todos = matchTodos({ teamId: 't1', matches, player: true, staff: true });
     expect(todos.map((t) => [t.who, t.title])).toEqual([
       ['player', 'Te convocaron: Pibes'],
+      ['player', 'Ya está la alineación: Publicado'],
       ['staff', 'Pibes: 3 jugadores sin responder'],
     ]);
     expect(arrange(todos).lead!.to).toBe('/equipos/t1/partidos/Pibes');

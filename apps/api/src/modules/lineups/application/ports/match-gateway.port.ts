@@ -8,7 +8,13 @@ export interface MatchGateway {
   find(
     teamId: string,
     matchId: string,
-  ): Promise<{ format: MatchFormat; status: MatchStatus; startsAt: Date } | null>;
+  ): Promise<{
+    format: MatchFormat;
+    status: MatchStatus;
+    startsAt: Date;
+    lineupId: string | null;
+    publishedAt: Date | null;
+  } | null>;
   publish(matchId: string, lineupId: string, at: Date): Promise<void>;
 }
 

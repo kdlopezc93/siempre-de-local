@@ -341,3 +341,10 @@
     background: var(--sdl-primary-hover);
   }
 }
+
+.myPlace {
+  color: var(--sdl-primary);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-xl);
+  font-weight: 700;
+}

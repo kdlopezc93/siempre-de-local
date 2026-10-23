@@ -137,7 +137,7 @@ Plan en PRs (2026-10-22, con D16 y D17 decididos):
 |---|---|---|
 | 1 | Partidos en el API: modelo, reglas en el dominio, convocar, editar o cancelar, y voy / no voy | #69 ✔ |
 | 2 | Convocar y responder en la app: lista de partidos, formulario y "lo que toca" | #70 ✔ |
-| 3 | La alineación del partido: el planificador abre con los que van; publicar y republicar | |
+| 3 | La alineación del partido: el planificador abre con los que van; publicar y republicar | #72 ✔ |
 | 4 | La alineación publicada para todo el equipo, sin editar ni desglose | |
 | 5 | Notificaciones push (Web Push, D16), con su fila en el inventario de terceros (`04` §6) | |
 
