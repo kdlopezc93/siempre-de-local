@@ -51,4 +51,24 @@ describe('pizarra del examen (Fase 8)', () => {
     const { spots: _spots, ...lookOnly } = BOARD;
     expect(boardIssues(lookOnly, 4)).toEqual([]);
   });
+
+  it('un punto no se corta en el borde ni tapa a un jugador o al balón', () => {
+    const problems = boardIssues(
+      {
+        ...BOARD,
+        spots: [
+          { x: 20, y: 74 },
+          { x: 50, y: 122 },
+          { x: 30, y: 92 },
+          { x: 75, y: 130 },
+        ],
+      },
+      4,
+    );
+    expect(problems).toEqual([
+      'El punto de respuesta 1 queda en el borde de la vista (se corta).',
+      'El punto de respuesta 2 tapa a un jugador o al balón (mínimo 8).',
+      'El punto de respuesta 3 tapa a un jugador o al balón (mínimo 8).',
+    ]);
+  });
 });

@@ -56,3 +56,20 @@ export function qb(
     board: { ...board, spots: ordered.map((o) => o.spot) },
   };
 }
+
+/**
+ * Una pregunta de pizarra que solo se mira: la jugada se dibuja, pero se responde con las
+ * opciones escritas, como en `q`.
+ */
+export function qLook(
+  code: string,
+  area: string,
+  difficulty: Difficulty,
+  text: string,
+  board: Omit<ExamBoard, 'spots'>,
+  correct: string,
+  wrong: readonly [string, string, string],
+  explanation: string,
+): Item {
+  return { ...q(code, area, difficulty, text, correct, wrong, explanation), board };
+}

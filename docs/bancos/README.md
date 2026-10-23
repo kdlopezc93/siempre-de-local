@@ -13,4 +13,6 @@ Cada archivo es la **hoja de revisión** de un banco de preguntas (`02` §6): to
 
 **Después de la revisión**, las correcciones se pasan al archivo del banco (`apps/api/src/modules/certification/infrastructure/seed/banks/`) y se llena `review` con quién revisó y la fecha. Recién ahí `db:seed` lo publica.
 
-Estas hojas se generan con `pnpm bank:lint -- --md ../../docs/bancos`: no se editan a mano.
+Las preguntas de pizarra traen su dibujo en `pizarras/` (un SVG por pregunta): la correcta va con el anillo lleno.
+
+Estas hojas y los dibujos se generan con `pnpm bank:lint -- --md ../../docs/bancos`: no se editan a mano.

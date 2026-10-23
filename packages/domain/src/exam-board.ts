@@ -36,6 +36,10 @@ export const BOARD_VIEWBOX: Readonly<Record<BoardView, readonly [number, number,
  * cada unidad mide ~3,3 px, así que 15 dejan los botones de 48 px sin pisarse.
  */
 export const MIN_SPOT_DISTANCE = 15;
+/** Un punto no se monta sobre un jugador ni el balón (la letra taparía su número). */
+export const MIN_SPOT_TO_PIECE = 8;
+/** Ni queda cortado por el borde de la vista. */
+const SPOT_INSET = 6;
 
 const MAX_PIECES = 22;
 const MAX_LABEL = 3;
@@ -73,8 +77,22 @@ export function boardIssues(board: ExamBoard, optionCount: number): string[] {
     if (spots.length !== optionCount) {
       problems.push(`Tiene ${spots.length} puntos de respuesta para ${optionCount} opciones.`);
     }
-    if (spots.some((s) => !inView(s)))
-      problems.push('Un punto de respuesta queda fuera de la vista.');
+    const insetView = (p: BoardPoint) =>
+      p.x >= vx + SPOT_INSET &&
+      p.x <= vx + vw - SPOT_INSET &&
+      p.y >= vy + SPOT_INSET &&
+      p.y <= vy + vh - SPOT_INSET;
+    spots.forEach((s, i) => {
+      if (!insetView(s)) {
+        problems.push(`El punto de respuesta ${i + 1} queda en el borde de la vista (se corta).`);
+      }
+      const things = [...board.pieces, ...(board.ball ? [board.ball] : [])];
+      if (things.some((t) => Math.hypot(t.x - s.x, t.y - s.y) < MIN_SPOT_TO_PIECE)) {
+        problems.push(
+          `El punto de respuesta ${i + 1} tapa a un jugador o al balón (mínimo ${MIN_SPOT_TO_PIECE}).`,
+        );
+      }
+    });
     for (let i = 0; i < spots.length; i++) {
       for (let j = i + 1; j < spots.length; j++) {
         if (Math.hypot(spots[i]!.x - spots[j]!.x, spots[i]!.y - spots[j]!.y) < MIN_SPOT_DISTANCE) {

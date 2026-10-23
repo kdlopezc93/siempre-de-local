@@ -1,5 +1,6 @@
 import { POSITIONS, type LintIssue } from '@sdl/domain';
 
+import { boardSvg } from './board-svg.js';
 import type { CertBankContent } from './cert-bank.js';
 
 const DIFFICULTY = { 1: 'fácil', 2: 'media', 3: 'difícil' } as const;
@@ -31,6 +32,26 @@ export function lintReport(bank: CertBankContent, issues: readonly LintIssue[]):
  * correcta marcada y la explicación, agrupadas por área. Sale en Markdown para leerla en
  * GitHub o imprimirla.
  */
+const LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+/** El dibujo de cada pregunta de pizarra del banco, para guardarlo junto a la hoja. */
+export function boardImages(bank: CertBankContent): { file: string; svg: string }[] {
+  return bank.items.flatMap((item) =>
+    item.board
+      ? [
+          {
+            file: `pizarras/${item.code}.svg`,
+            svg: boardSvg(
+              item.board,
+              LETTERS,
+              item.options.findIndex((o) => o.correct),
+            ),
+          },
+        ]
+      : [],
+  );
+}
+
 export function reviewSheet(bank: CertBankContent, issues: readonly LintIssue[]): string {
   const out = [
     `# Banco de ${POSITIONS[bank.position].name} (${bank.label})`,
@@ -55,9 +76,13 @@ export function reviewSheet(bank: CertBankContent, issues: readonly LintIssue[])
     out.push(`## ${area.name}`, '');
     for (const item of bank.items.filter((i) => i.area === area.code)) {
       out.push(`### ${item.code} · ${DIFFICULTY[item.difficulty]}`, '', item.text, '');
-      for (const option of item.options) {
-        out.push(option.correct ? `- [x] **${option.label}**` : `- [ ] ${option.label}`);
-      }
+      // Pizarra (Fase 8): el dibujo al lado, en `pizarras/`, con las letras de cada punto.
+      const lettered = Boolean(item.board?.spots?.length);
+      if (item.board) out.push(`![Pizarra de ${item.code}](pizarras/${item.code}.svg)`, '');
+      item.options.forEach((option, i) => {
+        const label = lettered ? `${LETTERS[i]}. ${option.label}` : option.label;
+        out.push(option.correct ? `- [x] **${label}**` : `- [ ] ${label}`);
+      });
       out.push('', `> ${item.explanation}`, '');
     }
   }

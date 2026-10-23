@@ -443,7 +443,7 @@ const BOARD_SAMPLES = [
     board: {
       view: 'own-half' as const,
       pieces: [
-        { side: 'own' as const, x: 50, y: 124, label: '4', you: true },
+        { side: 'own' as const, x: 62, y: 132, label: '4', you: true },
         { side: 'own' as const, x: 30, y: 126, label: '2' },
         { side: 'own' as const, x: 12, y: 118, label: '3' },
         { side: 'own' as const, x: 88, y: 118, label: '6' },
@@ -457,8 +457,8 @@ const BOARD_SAMPLES = [
     },
     options: [
       { label: 'Pegado a su espalda, sin dejarlo girar', spot: { x: 52, y: 118 } },
-      { label: 'Adelante, para anticipar el pase', spot: { x: 52, y: 98 } },
-      { label: 'A un costado, cerrando el giro hacia afuera', spot: { x: 70, y: 106 } },
+      { label: 'Adelante, para anticipar el pase', spot: { x: 62, y: 96 } },
+      { label: 'A un costado, cerrando el giro hacia afuera', spot: { x: 76, y: 110 } },
       { label: 'Atrás, cerca del arco, esperando', spot: { x: 50, y: 138 } },
     ],
   },
@@ -482,9 +482,9 @@ const BOARD_SAMPLES = [
     },
     options: [
       { label: 'Al espacio, a la carrera del 7', spot: { x: 86, y: 20 } },
-      { label: 'Al pie del 9, de espaldas', spot: { x: 48, y: 34 } },
-      { label: 'Al 10, entre líneas', spot: { x: 26, y: 48 } },
-      { label: 'Atrás, al lateral', spot: { x: 14, y: 70 } },
+      { label: 'Al pie del 9, de espaldas', spot: { x: 42, y: 24 } },
+      { label: 'Al 10, entre líneas', spot: { x: 22, y: 40 } },
+      { label: 'Atrás, al lateral', spot: { x: 22, y: 72 } },
     ],
   },
 ];
