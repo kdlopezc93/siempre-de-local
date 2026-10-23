@@ -7,6 +7,7 @@ import type { Me } from '../../shared/api/auth';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
 import { FORMAT_LABEL } from '../shell/shell-nav';
+import { CardVisibility } from './CardVisibility';
 import styles from './TeamPage.module.css';
 
 /**
@@ -46,6 +47,7 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
         )}
         <Item to="/bases" icon={Question} title="En qué se basa el test" />
       </ul>
+      {(coach || clubAdmin) && <CardVisibility teamId={teamId} />}
     </Screen>
   );
 }

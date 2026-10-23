@@ -93,7 +93,7 @@ function renderAt(path: string) {
 describe('SquadPage', () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it('reparto según el cuerpo técnico, huecos y el test oculto hasta valorar', async () => {
+  it('una fila por jugador: ficha, posición, lo que falta y su media; lleva a su ficha', async () => {
     fakeApi({
       [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
       [`GET /api/v1/teams/${TEAM_ID}/squad`]: { status: 200, body: SQUAD },
@@ -101,55 +101,55 @@ describe('SquadPage', () => {
     renderAt(`/equipos/${TEAM_ID}/plantilla`);
 
     expect(await screen.findByText('2 jugadores')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /Reparto según cuerpo técnico/ })).toHaveAccessibleName(
-      /Extremo: Beto/,
-    );
-    expect(screen.getByText(/^Huecos: Portero, Lateral/)).toBeInTheDocument();
-    expect(screen.getByText('1 jugador sin valorar.')).toBeInTheDocument();
-
-    const [ana, beto] = within(screen.getByRole('list')).getAllByRole('article');
-    expect(ana).toHaveTextContent('Valóralo para verlo');
-    expect(within(ana!).getByRole('link', { name: 'Valorar a Ana' })).toBeInTheDocument();
-    expect(beto).toHaveTextContent('Extremo, Delantero centro, Mediapunta');
-    expect(
-      within(beto!).getByRole('link', { name: 'Volver a valorar a Beto' }),
-    ).toBeInTheDocument();
-
-    // Según el test, Ana (oculto) no cuenta.
-    await userEvent.click(screen.getByRole('radio', { name: 'Test' }));
-    expect(screen.getByText('1 jugador sin test a la vista.')).toBeInTheDocument();
+    const [ana, beto] = within(screen.getByRole('list')).getAllByRole('link');
+    expect(ana).toHaveAttribute('href', `/equipos/${TEAM_ID}/plantilla/${ANA}`);
+    expect(ana).toHaveTextContent('AnaDefensa central');
+    expect(ana).toHaveTextContent('Valorar');
+    expect(ana).toHaveTextContent('– sin tarjeta');
+    expect(beto).toHaveTextContent('BetoExtremo, re-evaluación vencida');
+    expect(beto).toHaveTextContent('74 de media');
+    // Un solo camino al jugador: nada de "Ver tarjeta" ni "Valorar" sueltos en la lista.
+    expect(screen.queryByRole('link', { name: /Tarjeta de/ })).toBeNull();
   });
 
-  it('el coach decide si los jugadores ven su tarjeta (D8)', async () => {
-    let patch: unknown;
+  it('filtros y búsqueda viven en la URL (los enlaces del inicio llegan filtrados)', async () => {
     fakeApi({
       [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
       [`GET /api/v1/teams/${TEAM_ID}/squad`]: { status: 200, body: SQUAD },
-      [`PATCH /api/v1/teams/${TEAM_ID}`]: (init) => {
-        patch = JSON.parse(init.body as string);
-        return {
-          status: 200,
-          body: { ...TEAM, team: { ...TEAM.team, ratingsVisibleToPlayers: false } },
-        };
-      },
     });
-    renderAt(`/equipos/${TEAM_ID}/plantilla`);
+    const router = renderAt(`/equipos/${TEAM_ID}/plantilla?filtro=por-valorar`);
 
-    const beto = (await screen.findAllByRole('article'))[1]!;
-    expect(beto).toHaveTextContent('74 de media como Extremo');
-    expect(beto).toHaveTextContent(
-      'ConocimientoDefensa central 80% (Sólido), re-evaluación vencida',
+    expect(await screen.findByText('1 de 2')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Por valorar, 1' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
     );
-    expect(within(beto).getByRole('link', { name: 'Tarjeta de Beto' })).toHaveTextContent(
-      'Ver tarjeta',
-    );
+    await userEvent.click(screen.getByRole('button', { name: 'Por valorar, 1' }));
+    expect(screen.getByText('2 jugadores')).toBeInTheDocument();
 
-    const toggle = screen.getByRole('switch', { name: /Los jugadores ven su tarjeta/ });
-    expect(toggle).toBeChecked();
-    await userEvent.click(toggle);
-    await vi.waitFor(() => expect(toggle).not.toBeChecked());
-    expect(patch).toEqual({ ratingsVisibleToPlayers: false });
-    expect(screen.getByText('Solo el cuerpo técnico ve las tarjetas.')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Delanteros, 1' }));
+    expect(router.state.location.search).toBe('?filtro=ataque');
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Buscar jugador' }), 'ana');
+    expect(screen.getByText('Nadie con esa búsqueda o esos filtros.')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Ver a todos' }));
+    expect(router.state.location.search).toBe('');
+  });
+
+  it('la pizarra: reparto según la fuente, huecos y el test oculto hasta valorar', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
+      [`GET /api/v1/teams/${TEAM_ID}/squad`]: { status: 200, body: SQUAD },
+    });
+    renderAt(`/equipos/${TEAM_ID}/plantilla?vista=pizarra`);
+
+    expect(
+      await screen.findByRole('img', { name: /Reparto según cuerpo técnico/ }),
+    ).toHaveAccessibleName(/Extremo: Beto/);
+    expect(screen.getByText(/^Huecos: Portero, Lateral/)).toBeInTheDocument();
+    expect(screen.getByText('1 jugador sin valorar.')).toBeInTheDocument();
+    // Según el test, Ana (oculto) no cuenta.
+    await userEvent.click(screen.getByRole('button', { name: 'Test' }));
+    expect(screen.getByText('1 jugador sin test a la vista.')).toBeInTheDocument();
   });
 
   it('descarga la plantilla en CSV con el nombre que propone el API', async () => {
