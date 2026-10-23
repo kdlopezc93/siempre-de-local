@@ -115,10 +115,11 @@ Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no
 | 5 | Plantilla: lista compacta, búsqueda, filtros y vista Pizarra | |
 | 6 | Ficha del jugador para el cuerpo técnico | |
 | 7 | Mi juego: tarjeta, posición, conocimiento, historial y perfil | |
-| 8 | Equipo: datos, integrantes, invitar, informe y cuenta | |
-| 9 | Tus datos: página pública, "Eliminar mis datos", eliminar mi cuenta y descargar mis datos | |
-| 10 | Dieta de texto y afirmaciones respaldadas | |
-| 11 | Auditoría final: diseño, rendimiento, terceros (inventario, `pnpm audit`, CSP) y contraste | |
+| 8 | Equipo: datos del equipo (nombre, formatos en que juega), integrantes, invitar, informe y cuenta | |
+| 9 | Fotos del jugador y del equipo | |
+| 10 | Tus datos: página pública, "Eliminar mis datos", eliminar mi cuenta y descargar mis datos | |
+| 11 | Dieta de texto y afirmaciones respaldadas | |
+| 12 | Auditoría final: diseño, rendimiento, terceros (inventario, `pnpm audit`, CSP) y contraste | |
 
 ### Fase 7 · Contenido, psicometría y medición
 - Ampliar el banco de posición del test de orientación a ~40 ítems (hoy 31, 20 por intento).
@@ -171,6 +172,8 @@ Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no
 | D11 | ¿Los compañeros ven el conocimiento de otros? | Solo la banda, sin puntaje |
 | D12 | Formación por defecto para F8 y F11 en el planificador | **Decidido** (2026-10-22): F8 1-3-3-1 (más 1-2-4-1, 1-3-4, 1-2-3-2, del prototipo); F11 1-4-3-3 (más 1-4-4-2, 1-4-2-3-1, 1-3-5-2) |
 | D13 | Plazo por defecto para presentar una re-evaluación | 14 días; al vencer, C = 0 en el planificador hasta que presente |
+| D14 | Equipos que juegan varios formatos: qué formato usa cada cosa | Propuesta: el test, la valoración y la tarjeta usan el **principal**; el planificador deja elegir por partido entre los del equipo (ya lo hace). Decidir antes del PR 8 de la Fase 6 |
+| D15 | Dónde se guardan las fotos | Propuesta: Cloudflare R2 (junto con el hosting de D5), servidas por el mismo dominio. Exige actualizar la política de datos (D7). Decidir antes del PR 9 de la Fase 6 |
 
 ## Cómo trabajar con Claude en este proyecto
 - Empezar cada conversación leyendo `00-contexto-proyecto.md`.
