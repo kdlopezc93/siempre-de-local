@@ -144,7 +144,7 @@ Auditoría del 2026-10-22 (Fase 6, PR 12; `07` §4.8).
   - Los únicos enlaces a otros sitios son los que el usuario abre: las referencias de "En qué se basa el test" y compartir la invitación por WhatsApp (`wa.me`).
 - **El API habla con dos servicios:**
   - **Postgres**;
-  - **Los servicios de push** de cada navegador (Google FCM, Apple, Mozilla), solo si alguien activó los avisos (Fase 7, D16). Llevan el rival y la hora del partido, cifrados (Web Push, VAPID).
+  - **Los servicios de push** de cada navegador (Google FCM, Apple, Mozilla), solo si alguien activó los avisos (Fase 7, D16). Llevan el tipo de aviso (convocatoria, alineación o figura del partido), el rival y la hora del partido, cifrados (Web Push, VAPID).
   - **Google**, solo al entrar. Scopes por defecto (`openid email profile`), y se comprobó en la base que:
     - la foto de Google **no se guarda** (`user.image` en null por hook; 0 usuarios con imagen);
     - los tokens de Google **no se guardan** (`access`, `refresh` e `id` en null; 0 cuentas con tokens).

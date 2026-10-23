@@ -14,6 +14,9 @@ import { PlayerCard } from '../card/PlayerCard';
 import { useMyCard } from '../card/use-card';
 import { useHistory } from '../history/use-history';
 import { useCertPositions } from '../knowledge/use-knowledge';
+import { ratingLabel } from '../matches/after-match';
+import { matchDay } from '../matches/match-view';
+import { useMatches } from '../matches/use-matches';
 import styles from './MyGamePage.module.css';
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
@@ -52,6 +55,7 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
       </header>
       {membership && <CardSection teamId={teamId} format={membership.team.format} />}
       <PositionSection me={me} teamId={teamId} />
+      <MatchesSection meId={me.user.id} teamId={teamId} />
       <KnowledgeSection />
       <ul className={styles.list}>
         <li>
@@ -96,6 +100,48 @@ function CardSection({ teamId, format }: { teamId: string; format: 'F11' | 'F8' 
     <section aria-label="Tu tarjeta" className={styles.section}>
       <PlayerCard card={card.data.card} format={format} />
       <p className={styles.muted}>Es la mirada de tu cuerpo técnico, no un veredicto.</p>
+    </section>
+  );
+}
+
+/**
+ * Tus últimos partidos (D18): el marcador y cómo jugaste, si tu equipo lo muestra; la figura
+ * siempre. Sin partidos con nada que mostrar, no aparece.
+ */
+function MatchesSection({ meId, teamId }: { meId: string; teamId: string }) {
+  const matches = useMatches(teamId);
+  const mine = (matches.data?.items ?? [])
+    .filter((m) => m.result && (m.myRating !== null || m.result.figure?.id === meId))
+    .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
+    .slice(0, 5);
+  if (mine.length === 0) return null;
+  return (
+    <section aria-labelledby="partidos" className={styles.section}>
+      <h2 id="partidos" className={styles.sectionTitle}>
+        Tus últimos partidos
+      </h2>
+      <ul className={styles.matches}>
+        {mine.map((m) => (
+          <li key={m.id}>
+            <Link to={`/equipos/${teamId}/partidos/${m.id}`} className={styles.matchRow}>
+              <span className={styles.matchWho}>
+                {m.opponent}
+                <span className={styles.matchMeta}>
+                  {matchDay(m.startsAt)}, {m.result!.goalsFor} a {m.result!.goalsAgainst}
+                </span>
+              </span>
+              <span className={styles.matchRating}>
+                {m.result!.figure?.id === meId
+                  ? 'Figura del partido'
+                  : m.myRating !== null
+                    ? ratingLabel(m.myRating)
+                    : null}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <p className={styles.muted}>Es la mirada de tu cuerpo técnico, partido a partido.</p>
     </section>
   );
 }

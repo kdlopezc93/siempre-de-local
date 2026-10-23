@@ -1,10 +1,10 @@
 # Política de tratamiento de datos personales — Siempre de Local
 
-> **BORRADOR `2026-10-borrador-3` — pendiente de revisión legal (D7).** No usar con equipos reales hasta que lo revise alguien que conozca la Ley 1581 de 2012 y el Decreto 1377 de 2013. Al publicar la versión revisada cambia `POLICY_VERSION` en `packages/contracts/src/consent.ts` y todos vuelven a aceptarla.
+> **BORRADOR `2026-10-borrador-4` — pendiente de revisión legal (D7).** No usar con equipos reales hasta que lo revise alguien que conozca la Ley 1581 de 2012 y el Decreto 1377 de 2013. Al publicar la versión revisada cambia `POLICY_VERSION` en `packages/contracts/src/consent.ts` y todos vuelven a aceptarla.
 >
 > Los textos entre corchetes `[…]` hay que completarlos antes de publicar.
 
-**Versión:** 2026-10-borrador-3 · **Vigente desde:** [fecha de publicación]
+**Versión:** 2026-10-borrador-4 · **Vigente desde:** [fecha de publicación]
 
 ## 1. Quién es responsable de tus datos
 
@@ -19,7 +19,7 @@ Solo los necesarios para que la app funcione:
 - **De lo que haces en la app:** tus respuestas al test de posición y a los exámenes de conocimiento, con sus resultados, y si vas o no a cada partido.
 - **Lo que registra tu cuerpo técnico sobre ti:** la tarjeta de atributos (0–99), su valoración de tu posición, cómo jugaste cada partido (de "Flojo" a "Figura") y las notas que escriba.
 - **Técnicos:** fecha de tus sesiones y el navegador desde el que entras, para mantener tu sesión segura.
-- **Si activas los avisos:** la dirección que tu navegador nos da para mandarte notificaciones (convocatorias y alineaciones). Los avisos pasan por el servicio de notificaciones de tu navegador (Google, Apple o Mozilla) y llevan solo el rival y la hora del partido. Los apagas cuando quieras en Tu cuenta.
+- **Si activas los avisos:** la dirección que tu navegador nos da para mandarte notificaciones (convocatorias, alineaciones y, si fuiste la figura del partido, la felicitación). Los avisos pasan por el servicio de notificaciones de tu navegador (Google, Apple o Mozilla) y llevan solo el rival y la hora del partido. Los apagas cuando quieras en Tu cuenta.
 
 No pedimos documento de identidad, dirección, teléfono ni fecha de nacimiento.
 

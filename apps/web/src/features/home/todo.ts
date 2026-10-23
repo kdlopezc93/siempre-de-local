@@ -192,9 +192,11 @@ export function matchTodos(input: {
   matches: readonly Match[];
   player: boolean;
   staff: boolean;
+  /** Para saber si fue la figura. */
+  meId?: string;
   now?: Date;
 }): Todo[] {
-  const { teamId, matches, player, staff, now = new Date() } = input;
+  const { teamId, matches, player, staff, meId, now = new Date() } = input;
   const open = matches.filter((m) => m.open).sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   const path = (m: Match) => `/equipos/${teamId}/partidos/${m.id}`;
   const todos: Todo[] = [];
@@ -237,6 +239,29 @@ export function matchTodos(input: {
       count: next.replies.pending,
       to: path(next),
     });
+  }
+  // Después del partido (D18): al jugador, el resultado de los últimos 3 días; si fue la
+  // figura, la felicitación va arriba.
+  if (player) {
+    const recent = now.getTime() - 3 * 86_400_000;
+    for (const m of matches) {
+      if (!m.result || new Date(m.result.at).getTime() < recent) continue;
+      const score = `${m.result.goalsFor} a ${m.result.goalsAgainst}`;
+      const figure = meId !== undefined && m.result.figure?.id === meId;
+      todos.push({
+        id: `match-played-${m.id}`,
+        priority: figure ? 1 : 7,
+        who: 'player',
+        icon: 'match',
+        title: figure ? `¡Fuiste la figura contra ${m.opponent}!` : `${m.opponent}: ${score}`,
+        detail: figure
+          ? `${score}. Felicitaciones.`
+          : m.myRating !== null
+            ? 'Mira cómo jugaste.'
+            : 'Ya está el resultado.',
+        to: `/equipos/${teamId}/partidos/${m.id}`,
+      });
+    }
   }
   // Después del partido (D18): al cuerpo técnico, los de la última semana sin resultado.
   if (staff) {

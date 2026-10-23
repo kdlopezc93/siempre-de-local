@@ -396,4 +396,38 @@ describe('partidos en la app (Fase 7)', () => {
       within(ratings).getByRole('button', { name: 'Agregar a otro que jugó' }),
     ).toBeInTheDocument();
   });
+
+  it('el jugador ve el resultado, la figura y cómo jugó; ya no se responde (D18)', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_B}/matches/${M1}`]: {
+        status: 200,
+        body: {
+          match: match({
+            open: false,
+            startsAt: future(-1),
+            myReply: 'yes',
+            result: {
+              goalsFor: 3,
+              goalsAgainst: 3,
+              figure: { id: ME_TWO_TEAMS.user.id, displayName: 'Kevin', jerseyNumber: 10 },
+              at: future(0),
+            },
+            myRating: 4,
+          }),
+          roster: null,
+        },
+      },
+    });
+    renderAt('/p', [
+      { path: '/p', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_B} matchId={M1} /> },
+    ]);
+    const board = await screen.findByRole('region', { name: 'Resultado' });
+    expect(within(board).getByRole('group', { name: 'Goles de Los del jueves' })).toHaveTextContent(
+      '3',
+    );
+    expect(within(board).queryByRole('button')).toBeNull();
+    expect(within(board).getByText('¡Fuiste la figura del partido!')).toBeInTheDocument();
+    expect(within(board).getByText('Muy bien')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Voy' })).toBeNull();
+  });
 });
