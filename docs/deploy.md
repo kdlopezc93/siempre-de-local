@@ -92,7 +92,7 @@ fly ssh console --app sdl-api-staging -C "node dist/scripts/bootstrap-team.js --
 
 ## 9. Pendiente al tener el dominio
 
-- **CSP** en `apps/web/public/_headers`: `default-src 'self'; connect-src 'self' https://api.siempredelocal.app; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'`; verificar el login con Google y el service worker antes de dejarla.
+- **CSP:** ya la pone el build en `_headers` con el `VITE_API_URL` de staging (`04` §6.3). Basta con construir con `VITE_API_URL=https://api.siempredelocal.app` y verificar el login con Google y el service worker.
 - **HSTS** en el dominio (Cloudflare → SSL/TLS → Edge Certificates).
 - **Backups:** Neon guarda historial para restaurar (6 h en el plan gratis); para producción, plan con más días y una prueba de restauración (`04` §4).
 - **Política de datos (D7):** completar los `[…]` y la revisión legal antes del primer equipo real.

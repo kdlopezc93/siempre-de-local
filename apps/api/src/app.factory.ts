@@ -29,6 +29,16 @@ export async function createApp(
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
   });
   registerOriginCheck(app.getHttpAdapter().getInstance(), env.WEB_ORIGIN);
+  // El API solo responde JSON (y archivos): que el navegador no interprete nada más (`04`).
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .addHook('onSend', async (_request, reply, payload) => {
+      reply.header('X-Content-Type-Options', 'nosniff');
+      reply.header('Referrer-Policy', 'no-referrer');
+      reply.header('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
+      return payload;
+    });
   app.enableShutdownHooks();
   return app;
 }

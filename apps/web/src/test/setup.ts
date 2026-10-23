@@ -12,7 +12,7 @@ afterEach(() => {
 });
 
 // jsdom no implementa <dialog> modal (la hoja inferior lo usa): lo justo para abrir y cerrar.
-if (!HTMLDialogElement.prototype.showModal) {
+if (typeof HTMLDialogElement !== 'undefined' && !HTMLDialogElement.prototype.showModal) {
   HTMLDialogElement.prototype.showModal = function (this: HTMLDialogElement) {
     this.open = true;
   };

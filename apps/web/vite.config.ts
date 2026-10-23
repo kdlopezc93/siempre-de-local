@@ -1,7 +1,10 @@
 import { fileURLToPath } from 'node:url';
 
 import react from '@vitejs/plugin-react';
-import { defineConfig, type Plugin, type ProxyOptions } from 'vite';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { defineConfig, loadEnv, type Plugin, type ProxyOptions } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
 const APP_HOST = 'app.sdl.localtest.me';
@@ -86,95 +89,147 @@ function tunnelProxy(publicOrigin: string): Record<string, ProxyOptions> {
   };
 }
 
-export default defineConfig({
-  resolve: { conditions: ['@sdl/source'] },
-  plugins: [
-    react(),
-    watchWorkspacePackages(),
-    ...(TUNNEL_ORIGIN ? [selfDestroyingServiceWorker()] : []),
-    VitePWA({
-      registerType: 'autoUpdate',
-      injectRegister: false,
-      includeAssets: ['favicon.svg', 'apple-touch-icon-180x180.png'],
-      manifest: {
-        name: 'Siempre de Local',
-        short_name: 'De Local',
-        description: 'La mano derecha de tu equipo de fútbol amateur.',
-        lang: 'es-419',
-        start_url: '/',
-        scope: '/',
-        display: 'standalone',
-        orientation: 'portrait',
-        background_color: '#0b140f',
-        theme_color: '#0b140f',
-        icons: [
-          { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
-          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
-          {
-            src: 'maskable-icon-512x512.png',
-            sizes: '512x512',
-            type: 'image/png',
-            purpose: 'maskable',
-          },
-        ],
-      },
-      workbox: {
-        // Solo woff2: los .woff de respaldo no hacen falta en navegadores con service worker.
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
-        navigateFallback: '/index.html',
-        // Si el API comparte origen (túnel), su callback de OAuth no es la SPA.
-        navigateFallbackDenylist: [/^\/api\//],
-        runtimeCaching: [
-          {
-            // Respuestas del API que deben verse sin conexión (ADR-06).
-            // Por ruta y no por origen: en producción el API está en api.<dominio>.
-            // La función se copia tal cual al service worker: no puede usar variables de aquí.
-            urlPattern: ({ url, request }) =>
-              request.method === 'GET' &&
-              (['/api/v1/me', '/api/v1/me/attempts', '/api/v1/questionnaires/current'].includes(
-                url.pathname,
-              ) ||
-                url.pathname.startsWith('/api/v1/attempts/') ||
-                // El planificador se usa en la cancha, a veces sin señal.
-                /^\/api\/v1\/teams\/[^/]+(\/lineup-inputs)?$/.test(url.pathname)),
-            // Con red manda el servidor (revalida con ETag); sin red, la última copia.
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: API_CACHE_NAME,
-              networkTimeoutSeconds: 4,
-              cacheableResponse: { statuses: [200] },
+/**
+ * Política de seguridad de contenido (07 §4.8, `04`): la app solo carga lo suyo. Scripts,
+ * estilos, fuentes e iconos van empaquetados; el único otro origen es el API (`api.` en
+ * staging; en local y por el túnel, el mismo origen). Sin `unsafe-inline`: el HTML del build no
+ * trae nada en línea. Para sumar un origen, primero pasa por el inventario de terceros (`04`).
+ */
+export function contentSecurityPolicy(apiUrl: string | undefined): string {
+  const api = apiUrl ? new URL(apiUrl).origin : null;
+  return [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self'",
+    "img-src 'self' data:",
+    "font-src 'self'",
+    `connect-src 'self'${api ? ` ${api}` : ''}`,
+    "manifest-src 'self'",
+    "worker-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+  ].join('; ');
+}
+
+/** Los encabezados de seguridad, iguales en `vite preview` (túnel, e2e) y en Cloudflare Pages. */
+const SECURITY_HEADERS = {
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+};
+
+/** Pone la CSP en el `_headers` del build (Cloudflare Pages), con el API de este build. */
+function cspInHeadersFile(csp: string): Plugin {
+  let outDir = 'dist';
+  return {
+    name: 'sdl-csp-headers',
+    apply: 'build',
+    configResolved(config) {
+      outDir = config.build.outDir;
+    },
+    closeBundle() {
+      const file = join(outDir, '_headers');
+      writeFileSync(file, readFileSync(file, 'utf8').replace('__CSP__', csp));
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => {
+  const csp = contentSecurityPolicy(loadEnv(mode, process.cwd(), 'VITE_').VITE_API_URL);
+  return {
+    resolve: { conditions: ['@sdl/source'] },
+    plugins: [
+      react(),
+      cspInHeadersFile(csp),
+      watchWorkspacePackages(),
+      ...(TUNNEL_ORIGIN ? [selfDestroyingServiceWorker()] : []),
+      VitePWA({
+        registerType: 'autoUpdate',
+        injectRegister: false,
+        includeAssets: ['favicon.svg', 'apple-touch-icon-180x180.png'],
+        manifest: {
+          name: 'Siempre de Local',
+          short_name: 'De Local',
+          description: 'La mano derecha de tu equipo de fútbol amateur.',
+          lang: 'es-419',
+          start_url: '/',
+          scope: '/',
+          display: 'standalone',
+          orientation: 'portrait',
+          background_color: '#0b140f',
+          theme_color: '#0b140f',
+          icons: [
+            { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
+            { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+            { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+            {
+              src: 'maskable-icon-512x512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
             },
-          },
-        ],
-      },
-    }),
-  ],
-  server: TUNNEL_ORIGIN
-    ? {
-        // pnpm dev:tunnel: el celular abre el túnel y recibe los cambios en vivo (HMR).
-        port: TUNNEL_PORT,
-        strictPort: true,
-        allowedHosts: ['.devtunnels.ms'],
-        // Sin `host`: el cliente de HMR se conecta al mismo host de la página (el túnel).
-        hmr: { protocol: 'wss', clientPort: 443 },
-        proxy: tunnelProxy(TUNNEL_ORIGIN),
-        ...watchOptions,
-      }
-    : {
-        // Caddy (https://app.sdl.localtest.me) reenvía al puerto 5173 del host.
-        host: '0.0.0.0',
-        port: 5173,
-        strictPort: true,
-        allowedHosts: [APP_HOST],
-        hmr: { host: APP_HOST, protocol: 'wss', clientPort: 443 },
-        ...watchOptions,
-      },
-  // pnpm preview:tunnel: build real con service worker servida por el mismo túnel.
-  preview: {
-    port: TUNNEL_PORT,
-    strictPort: true,
-    allowedHosts: ['.devtunnels.ms', APP_HOST],
-    ...(TUNNEL_ORIGIN ? { proxy: tunnelProxy(TUNNEL_ORIGIN) } : {}),
-  },
+          ],
+        },
+        workbox: {
+          // Solo woff2: los .woff de respaldo no hacen falta en navegadores con service worker.
+          globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+          navigateFallback: '/index.html',
+          // Si el API comparte origen (túnel), su callback de OAuth no es la SPA.
+          navigateFallbackDenylist: [/^\/api\//],
+          runtimeCaching: [
+            {
+              // Respuestas del API que deben verse sin conexión (ADR-06).
+              // Por ruta y no por origen: en producción el API está en api.<dominio>.
+              // La función se copia tal cual al service worker: no puede usar variables de aquí.
+              urlPattern: ({ url, request }) =>
+                request.method === 'GET' &&
+                (['/api/v1/me', '/api/v1/me/attempts', '/api/v1/questionnaires/current'].includes(
+                  url.pathname,
+                ) ||
+                  url.pathname.startsWith('/api/v1/attempts/') ||
+                  // El planificador se usa en la cancha, a veces sin señal.
+                  /^\/api\/v1\/teams\/[^/]+(\/lineup-inputs)?$/.test(url.pathname)),
+              // Con red manda el servidor (revalida con ETag); sin red, la última copia.
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: API_CACHE_NAME,
+                networkTimeoutSeconds: 4,
+                cacheableResponse: { statuses: [200] },
+              },
+            },
+          ],
+        },
+      }),
+    ],
+    server: TUNNEL_ORIGIN
+      ? {
+          // pnpm dev:tunnel: el celular abre el túnel y recibe los cambios en vivo (HMR).
+          port: TUNNEL_PORT,
+          strictPort: true,
+          allowedHosts: ['.devtunnels.ms'],
+          // Sin `host`: el cliente de HMR se conecta al mismo host de la página (el túnel).
+          hmr: { protocol: 'wss', clientPort: 443 },
+          proxy: tunnelProxy(TUNNEL_ORIGIN),
+          ...watchOptions,
+        }
+      : {
+          // Caddy (https://app.sdl.localtest.me) reenvía al puerto 5173 del host.
+          host: '0.0.0.0',
+          port: 5173,
+          strictPort: true,
+          allowedHosts: [APP_HOST],
+          hmr: { host: APP_HOST, protocol: 'wss', clientPort: 443 },
+          ...watchOptions,
+        },
+    // pnpm preview:tunnel: build real con service worker servida por el mismo túnel.
+    preview: {
+      headers: { 'Content-Security-Policy': csp, ...SECURITY_HEADERS },
+      port: TUNNEL_PORT,
+      strictPort: true,
+      allowedHosts: ['.devtunnels.ms', APP_HOST],
+      ...(TUNNEL_ORIGIN ? { proxy: tunnelProxy(TUNNEL_ORIGIN) } : {}),
+    },
+  };
 });

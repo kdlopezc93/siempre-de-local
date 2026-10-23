@@ -108,17 +108,17 @@ Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no
 
 | # | PR | Estado |
 |---|---|---|
-| 1 | Auditoría, nueva estructura y plan (`07-experiencia.md`) | |
-| 2 | Sistema de diseño v2 (contraste verificado; se conservan el icono y las animaciones de entrar) | |
-| 3 | Armazón: encabezado de equipo y barra inferior por rol | |
-| 4 | Inicio "lo que toca" | |
-| 5 | Plantilla: lista compacta, búsqueda, filtros y vista Pizarra | |
-| 6 | Ficha del jugador para el cuerpo técnico | |
-| 7 | Mi juego: tarjeta, posición, conocimiento, historial y perfil | |
-| 8 | Equipo: datos del equipo (nombre, formatos en que juega), integrantes, invitar, informe y cuenta | |
+| 1 | Auditoría, nueva estructura y plan (`07-experiencia.md`) | #55 ✔ |
+| 2 | Sistema de diseño v2 (contraste verificado; se conservan el icono y las animaciones de entrar) | #56 ✔ |
+| 3 | Armazón: encabezado de equipo y barra inferior por rol | #58 ✔ |
+| 4 | Inicio "lo que toca" | #59 ✔ |
+| 5 | Plantilla: lista compacta, búsqueda, filtros y vista Pizarra | #60 ✔ |
+| 6 | Ficha del jugador para el cuerpo técnico | #61 ✔ |
+| 7 | Mi juego: tarjeta, posición, conocimiento, historial y perfil | #62 ✔ |
+| 8 | Equipo: datos del equipo (nombre, formatos en que juega), integrantes, invitar, informe y cuenta | #63 ✔ |
 | 9 | Fotos del jugador y del equipo | **Pospuesto** (2026-10-22, costos de R2): hecho en #65, en borrador |
-| 10 | Tus datos: página pública, "Eliminar mis datos", eliminar mi cuenta y descargar mis datos | |
-| 11 | Dieta de texto y afirmaciones respaldadas | |
+| 10 | Tus datos: página pública, "Eliminar mis datos", eliminar mi cuenta y descargar mis datos | #66 ✔ |
+| 11 | Dieta de texto y afirmaciones respaldadas | #67 ✔ |
 | 12 | Auditoría final: diseño, rendimiento, terceros (inventario, `pnpm audit`, CSP) y contraste | |
 
 ### Fase 7 · Partidos: convocatoria, alineación publicada y después del partido

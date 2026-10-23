@@ -24,6 +24,18 @@ test.describe.configure({ mode: 'serial' });
 
 let joinPath: string;
 
+// La CSP (vite.config.ts) va en `vite preview`: si el navegador bloquea algo, el recorrido falla.
+let cspViolations: string[] = [];
+test.beforeEach(({ page }) => {
+  cspViolations = [];
+  page.on('console', (message) => {
+    if (/Content Security Policy/i.test(message.text())) cspViolations.push(message.text());
+  });
+});
+test.afterEach(() => {
+  expect(cspViolations, 'la CSP bloqueó algo').toEqual([]);
+});
+
 test('el entrenador crea un enlace de invitación', async ({ page, context }) => {
   const { teamId, coach } = fixtures();
   await signIn(context, coach);
