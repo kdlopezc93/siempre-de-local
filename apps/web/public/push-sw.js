@@ -12,6 +12,30 @@ const WHEN = new Intl.DateTimeFormat('es-419', {
   minute: '2-digit',
 });
 
+/**
+ * El texto de cada tipo de aviso. Uno que este service worker no conoce (lo agregó una versión
+ * más nueva del servidor y el celular todavía no abrió la app) lleva un texto neutro: nunca el
+ * de otro tipo.
+ */
+function noticeText(data, when) {
+  switch (data.kind) {
+    case 'match-called':
+      return { title: `Te convocaron: ${data.opponent}`, body: `${when}. ¿Vas?` };
+    case 'lineup-published':
+      return {
+        title: `Ya está la alineación: ${data.opponent}`,
+        body: `${when}. Mira dónde juegas.`,
+      };
+    case 'match-figure':
+      return {
+        title: `¡Fuiste la figura contra ${data.opponent}!`,
+        body: 'Felicitaciones de tu cuerpo técnico.',
+      };
+    default:
+      return { title: `Novedades del partido: ${data.opponent}`, body: 'Toca para verlas.' };
+  }
+}
+
 self.addEventListener('push', (event) => {
   let data;
   try {
@@ -21,15 +45,7 @@ self.addEventListener('push', (event) => {
   }
   if (!data || typeof data.url !== 'string' || !data.url.startsWith('/')) return;
   const when = data.startsAt ? WHEN.format(new Date(data.startsAt)) : '';
-  const { title, body } =
-    data.kind === 'match-figure'
-      ? {
-          title: `¡Fuiste la figura contra ${data.opponent}!`,
-          body: 'Felicitaciones de tu cuerpo técnico.',
-        }
-      : data.kind === 'lineup-published'
-        ? { title: `Ya está la alineación: ${data.opponent}`, body: `${when}. Mira dónde juegas.` }
-        : { title: `Te convocaron: ${data.opponent}`, body: `${when}. ¿Vas?` };
+  const { title, body } = noticeText(data, when);
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
