@@ -25,8 +25,7 @@ export function KnowledgePage({ me }: { me: Me }) {
       <header className={styles.header}>
         <h1 className={styles.display}>Examen de conocimiento</h1>
         <p className={styles.lead}>
-          20 situaciones de partido sobre una posición, en 20 minutos. No hay aprobado: cuenta tu
-          mejor puntaje y no vence. Cada posición se puede repetir una vez al mes.
+          Situaciones de partido sobre una posición, con reloj. Cuenta tu mejor puntaje y no vence.
         </p>
       </header>
 
@@ -45,8 +44,7 @@ export function KnowledgePage({ me }: { me: Me }) {
       )}
 
       <p className={styles.note}>
-        Mide lo que respondes en la app sobre la posición: no si lo haces en la cancha, y no es un
-        título. Al terminar ves tu puntaje por área, no las respuestas correctas.
+        Mide lo que sabes de la posición, no cómo juegas. No es un título.
       </p>
 
       {history.data && history.data.length > 0 && (

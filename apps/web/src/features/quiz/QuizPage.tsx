@@ -89,8 +89,8 @@ function Intro({
       <div className={styles.intro}>
         <h1 className={styles.display}>¿Dónde deberías jugar?</h1>
         <p className={styles.lead}>
-          Son 20 preguntas sobre situaciones de juego y tus cualidades. Al final ves las 3
-          posiciones donde mejor encajas. Toma unos 5 minutos.
+          20 preguntas sobre situaciones de juego y tus cualidades. Al final ves las 3 posiciones
+          donde mejor encajas.
         </p>
         <p className={styles.meta}>
           {team.name}, {FORMAT[team.format]}
@@ -194,7 +194,7 @@ function Question({
 const PENDING_NOTE = {
   sending: 'Calculando tu resultado oficial…',
   'saved-offline':
-    'Sin señal: este es tu podio provisional. Tu test quedó guardado y lo enviamos solito cuando vuelva la conexión.',
+    'Sin señal: este es tu podio provisional. Tu test quedó guardado en este celular y se envía cuando tengas señal y abras la app.',
   'needs-auth':
     'Tu sesión venció. Tu test sigue guardado en el celular: entra de nuevo y se envía solo.',
 } as const;

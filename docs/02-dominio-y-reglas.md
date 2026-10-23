@@ -348,3 +348,14 @@ Avisos: `NOT_ENOUGH_PLAYERS`, `PLAYER_WITHOUT_DATA` (va al final), `MIN_KNOWLEDG
 ## 12. Importación de CSV heredados — descartada
 
 **Decidido el 2026-10-22: no se importan los resultados del prototipo.** El test cambió (v2: 20 preguntas, podio y sin preparación), así que esos resultados no son comparables con los nuevos; los jugadores vuelven a hacer el test en la app. Se implementó y se retiró antes de fusionar (PR #37); si algún día hiciera falta, está en el historial de esa rama.
+
+## Afirmaciones de la app (principio 8 de `07`)
+
+Revisadas el 2026-10-22 (Fase 6, PR 11). La app no promete lo que no mide:
+- **"En qué se basa el test"** (`features/science`):
+  - cada afirmación sale de una referencia verificada (leída en PubMed Central o confirmada por DOI en Crossref);
+  - lo que es criterio del test se dice como criterio (p. ej., que "fuerza y juego aéreo" sume a central y delantero);
+  - se corrigió que los estudios de la MLS usan seguimiento óptico, no GPS, y que solo los porteros son de forma consistente los más altos y pesados.
+- **Sin tiempos no medidos:** se quitó "toma unos 5 minutos" hasta medirlo con datos reales (`quiz_attempt.started_at` / `submitted_at`).
+- **Sin envío en segundo plano:** la cola sin conexión envía con la app abierta (`use-outbox`), así que se dice "cuando tengas señal y abras la app".
+- **La afinidad compara las respuestas** con lo que pide cada posición, no "tu forma de jugar".

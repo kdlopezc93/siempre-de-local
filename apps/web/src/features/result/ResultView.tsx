@@ -70,8 +70,8 @@ export function ResultView({ format, podium, provisional }: ResultData) {
           ))}
         </ol>
         <p className={styles.note}>
-          La afinidad compara tu forma de jugar con cada posición. Si la 2.ª y la 3.ª están cerca,
-          también encajas bien ahí. No sirve para compararte con otro jugador.
+          La afinidad compara tus respuestas con lo que pide cada posición. No sirve para compararte
+          con otro jugador.
         </p>
       </section>
 
