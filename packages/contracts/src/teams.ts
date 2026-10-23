@@ -19,6 +19,8 @@ export const TeamResponseSchema = z.object({
     club: z.object({ id: z.uuid(), name: z.string() }),
     /** ¿El jugador ve su tarjeta 0–99? (D8) */
     ratingsVisibleToPlayers: z.boolean(),
+    /** ¿El jugador ve su evaluación de cada partido? (D18) */
+    matchRatingsVisibleToPlayers: z.boolean(),
   }),
   /** Roles activos de quien pregunta en este equipo (vacío si entra como admin del club). */
   myRoles: z.array(TeamRoleSchema),

@@ -69,6 +69,9 @@ Los admins de club se crean por script al inicio; ellos crean equipos e invitan 
 | Convocar, editar o cancelar partidos (`team.matches.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Responder voy / no voy | ✔ propio | – | – | – | – |
 | Ver quién respondió qué | ✘ (solo cuántos) | ✔ | ✔ | ✔ | ✘ |
+| Cargar el resultado y la figura del partido (`team.matches.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
+| Evaluar a los jugadores del partido (`team.ratings.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
+| Ver las evaluaciones del partido con notas | propia, sin nota, si el equipo las muestra (D18) | ✔ | ✔ | ✔ | ✘ |
 | Invitar jugadores | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Invitar entrenadores | ✘ | ✘ | ✘ | ✔ | ✘ |
 | Quitar miembros / cambiar roles | ✘ | ✘ | jugadores | ✔ | ✘ |
@@ -121,7 +124,7 @@ Medidas:
 2. **Minimización:** nombre visible, email (viene de Google), foto de perfil de Google **no** se guarda, datos del test, exámenes, tarjeta y valoraciones. Nada de documento de identidad, dirección ni fecha de nacimiento.
 3. **La tarjeta 0–99 y las notas del entrenador son datos personales evaluativos:** solo los ve el cuerpo técnico (y el propio jugador si el equipo lo permite). Nunca públicos.
 4. **Derechos del titular desde la app** (Fase 6, PR 10):
-   - **Conocer:** "Descargar mis datos" (`GET /me/export`): un JSON con su cuenta, perfil, aceptaciones de la política, membresías, resultados de tests y exámenes (nunca las respuestas correctas), y lo que el cuerpo técnico registró sobre él (tarjetas y valoraciones, **con sus notas**: son datos sobre él). Revisar con la versión legal de la política (D7).
+   - **Conocer:** "Descargar mis datos" (`GET /me/export`): un JSON con su cuenta, perfil, aceptaciones de la política, membresías, resultados de tests y exámenes (nunca las respuestas correctas), y lo que el cuerpo técnico registró sobre él (tarjetas, valoraciones y evaluaciones de cada partido, **con sus notas**: son datos sobre él), y sus respuestas a las convocatorias. Revisar con la versión legal de la política (D7).
    - **Suprimir:** "Eliminar mi cuenta" (`DELETE /me`, escribiendo ELIMINAR). Borra en el momento la fila del usuario. En cascada se va todo lo suyo: perfil, tests, exámenes, tarjetas y valoraciones sobre él, membresías, sesiones y consentimientos. Lo que hizo sobre otros queda sin autor (`set null`). No se permite si es el único dueño o admin de un club (409 `LAST_CLUB_ADMIN`). Queda en `audit_log` `account.deleted`, sin datos personales.
    - **Página pública `/tus-datos`** (sin sesión): qué se guarda y cómo eliminarlo. Enlazada desde la pantalla de entrar y desde Tu cuenta. Es la URL de eliminación de datos que pide Google para el inicio de sesión.
 5. **No es un veredicto:** la app lo dice en resultados, tarjeta y puntaje de conocimiento, y el entrenador lo ve al consultarlos.

@@ -21,6 +21,7 @@ const TEAM = {
     season: '2026',
     club: { id: uuid(10), name: 'Los del Barrio' },
     ratingsVisibleToPlayers: true,
+    matchRatingsVisibleToPlayers: true,
   },
   myRoles: ['coach'],
 };

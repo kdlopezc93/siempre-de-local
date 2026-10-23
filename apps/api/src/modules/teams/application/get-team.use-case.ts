@@ -11,7 +11,7 @@ import {
 import { can, type Actor } from '../../../shared/authz/policy.js';
 import {
   TEAMS_REPOSITORY,
-  type TeamRecord,
+  type TeamSettings,
   type TeamsRepository,
 } from './ports/teams.repository.js';
 
@@ -46,7 +46,7 @@ export class UpdateTeam {
     // Solo lo que vino (Zod deja `undefined` en lo que no).
     const changes = Object.fromEntries(
       Object.entries(patch).filter(([, value]) => value !== undefined),
-    ) as Partial<Pick<TeamRecord, 'ratingsVisibleToPlayers' | 'name' | 'format' | 'formats'>>;
+    ) as TeamSettings;
     // El principal (D14) tiene que estar entre los formatos en que juega.
     const formats = patch.formats ?? team.formats;
     const format = patch.format ?? team.format;

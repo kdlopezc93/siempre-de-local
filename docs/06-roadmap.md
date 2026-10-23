@@ -129,7 +129,7 @@ Pedida por Kevin el 2026-10-22: "cada vez que sale una fecha me gustaría enviar
 2. **Aviso a los jugadores:** les llega una notificación (D16) y la ven en el inicio, en "lo que toca". Responden **voy / no voy** (y pueden cambiar hasta que se cierre). El cuerpo técnico ve quién respondió y quién falta.
 3. **Alineación con los que van:** el planificador abre con la convocatoria ya hecha (los que dijeron "voy" como disponibles) y la alineación queda **ligada al partido**.
 4. **Alineación publicada:** al publicarla, **todo el equipo la ve sin poder editarla** (la pizarra, titulares y suplentes), con otro aviso. El desglose del encaje (tarjeta, test, conocimiento) **no** se muestra a los jugadores: es del cuerpo técnico.
-5. **Después del partido** (otra versión): guardar el resultado y evaluar a los jugadores del partido; alimenta las valoraciones y, con el tiempo, la validación.
+5. **Después del partido** (PR 6–8, D18): guardar el resultado y la figura, y evaluar a los jugadores del partido de 1 a 5 con palabras. Con datos reales, alimentará las valoraciones y la validación (Fase 8).
 
 Plan en PRs (2026-10-22, con D16 y D17 decididos):
 
@@ -139,9 +139,12 @@ Plan en PRs (2026-10-22, con D16 y D17 decididos):
 | 2 | Convocar y responder en la app: lista de partidos, formulario y "lo que toca" | #70 ✔ |
 | 3 | La alineación del partido: el planificador abre con los que van; publicar y republicar | #72 ✔ |
 | 4 | La alineación publicada para todo el equipo, sin editar ni desglose | #73 ✔ |
-| 5 | Notificaciones push (Web Push, D16), con su fila en el inventario de terceros (`04` §6) | |
+| 5 | Notificaciones push (Web Push, D16), con su fila en el inventario de terceros (`04` §6) | #74 ✔ |
+| 6 | Después del partido en el API: resultado, figura, evaluaciones de 1 a 5 y quién las ve (D18); política `borrador-3` | |
+| 7 | Cargar el resultado y evaluar en la app (cuerpo técnico): el partido jugado, "lo que toca", el ajuste en Equipo y la evaluación partido a partido en la ficha | |
+| 8 | El jugador ve el resultado y la figura en el partido, y su evaluación (si el equipo la muestra) en el partido y en Mi juego | |
 
-El punto 5 de arriba (después del partido) queda para otra versión.
+El punto 5 (después del partido) se sumó el 2026-10-23 como PR 6–8.
 
 ### Fase 8 · Contenido, psicometría y medición
 - Ampliar el banco de posición del test de orientación a ~40 ítems (hoy 31, 20 por intento).
@@ -198,6 +201,7 @@ El punto 5 de arriba (después del partido) queda para otra versión.
 | D15 | Dónde se guardan las fotos | **Decidido** (2026-10-22, Kevin): Cloudflare R2 (junto con el hosting de D5), servidas por el API del mismo dominio. En local, el disco, detrás del mismo puerto. Exige actualizar la política de datos (D7) |
 | D16 | Cómo llegan los avisos de la Fase 7 (convocatoria, alineación publicada) | **Decidido** (2026-10-22, Kevin): **primero en el inicio** ("lo que toca"); las **notificaciones push** (Web Push; en iPhone solo con la app instalada, iOS 16.4+) en un PR propio al final de la fase. Sin WhatsApp ni correo |
 | D17 | Alineación publicada: quién la ve y si se puede cambiar | **Decidido** (2026-10-22, Kevin): la ve **todo el equipo**, sin el desglose del encaje; el cuerpo técnico puede **republicarla** (avisa de nuevo) **hasta la hora del partido**; después queda fija |
+| D18 | Después del partido: cómo se evalúa y quién lo ve | **Decidido** (2026-10-23, Kevin): **1 a 5 con palabras** (Flojo · Regular · Bien · Muy bien · Figura) y nota opcional del cuerpo técnico; el jugador ve **la suya, sin nota, según un ajuste del equipo** (como la tarjeta, D8; por defecto, sí). El resultado y la figura del partido los ve todo el equipo |
 
 ## Cómo trabajar con Claude en este proyecto
 - Empezar cada conversación leyendo `00-contexto-proyecto.md`.

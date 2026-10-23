@@ -1,6 +1,11 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
-import { MatchListResponseSchema, MatchResponseSchema } from '@sdl/contracts';
+import {
+  MatchListResponseSchema,
+  MatchRatingsResponseSchema,
+  MatchResponseSchema,
+  PlayerMatchRatingsResponseSchema,
+} from '@sdl/contracts';
 import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -54,14 +59,15 @@ describe('partidos: convocar y responder (Fase 7)', () => {
   });
 
   const call = (
-    method: 'GET' | 'POST' | 'PATCH' | 'PUT',
+    method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE',
     path: string,
     who: SeededUser,
     body?: object,
+    base = `/teams/${teamId}/matches`,
   ) =>
     app.inject({
       method,
-      url: `/api/v1/teams/${teamId}/matches${path}`,
+      url: `/api/v1${base}${path}`,
       headers: { cookie: who.cookie, origin: TEST_ENV.WEB_ORIGIN },
       ...(body ? { payload: body } : {}),
     });
@@ -151,5 +157,122 @@ describe('partidos: convocar y responder (Fase 7)', () => {
     expect((await call('PATCH', `/${other.id}`, coach, { place: 'Otra' })).json()).toMatchObject({
       error: { code: 'MATCH_CLOSED' },
     });
+  });
+
+  it('después del partido: resultado, figura y evaluaciones (D18)', async () => {
+    const { match } = MatchResponseSchema.parse((await convocar()).json());
+    const early = await call('PUT', `/${match.id}/result`, coach, {
+      goalsFor: 2,
+      goalsAgainst: 1,
+      figurePlayerId: null,
+    });
+    expect(early.statusCode).toBe(409);
+    expect(early.json()).toMatchObject({ error: { code: 'MATCH_NOT_STARTED' } });
+    expect(
+      (await call('PUT', `/${match.id}/ratings/${ana.userId}`, coach, { rating: 4 })).statusCode,
+    ).toBe(409);
+
+    await connection.db
+      .update(teamMatch)
+      .set({ startsAt: new Date(Date.now() - 60_000) })
+      .where(eq(teamMatch.id, match.id));
+
+    // El resultado lo carga el cuerpo técnico; la figura tiene que ser del equipo.
+    const result = { goalsFor: 2, goalsAgainst: 1, figurePlayerId: ana.userId };
+    expect((await call('PUT', `/${match.id}/result`, ana, result)).statusCode).toBe(403);
+    expect(
+      (
+        await call('PUT', `/${match.id}/result`, coach, {
+          ...result,
+          figurePlayerId: outsider.userId,
+        })
+      ).json(),
+    ).toMatchObject({ error: { code: 'PLAYER_NOT_IN_TEAM' } });
+    const saved = MatchResponseSchema.parse(
+      (await call('PUT', `/${match.id}/result`, coach, result)).json(),
+    );
+    expect(saved.match.result).toMatchObject({
+      goalsFor: 2,
+      goalsAgainst: 1,
+      figure: { id: ana.userId, displayName: 'ana', jerseyNumber: 4 },
+    });
+
+    // Evaluaciones de 1 a 5, una por jugador; la nota es del cuerpo técnico.
+    expect(
+      (await call('PUT', `/${match.id}/ratings/${ana.userId}`, coach, { rating: 6 })).statusCode,
+    ).toBe(400);
+    expect(
+      (await call('PUT', `/${match.id}/ratings/${outsider.userId}`, coach, { rating: 3 })).json(),
+    ).toMatchObject({ error: { code: 'PLAYER_NOT_IN_TEAM' } });
+    expect(
+      (await call('PUT', `/${match.id}/ratings/${beto.userId}`, ana, { rating: 1 })).statusCode,
+    ).toBe(403);
+    await call('PUT', `/${match.id}/ratings/${beto.userId}`, coach, { rating: 3 });
+    await call('PUT', `/${match.id}/ratings/${ana.userId}`, coach, { rating: 5, note: ' Golazo ' });
+    const corrected = await call('PUT', `/${match.id}/ratings/${beto.userId}`, coach, {
+      rating: 2,
+      note: '',
+    });
+    expect(MatchRatingsResponseSchema.parse(corrected.json()).items).toMatchObject([
+      { displayName: 'ana', rating: 5, note: 'Golazo', ratedBy: { name: 'coach' } },
+      { displayName: 'beto', rating: 2, note: null },
+    ]);
+    expect((await call('GET', `/${match.id}/ratings`, ana)).statusCode).toBe(403);
+
+    // Cada jugador ve la suya, sin nota, si el equipo las muestra (por defecto, sí).
+    const seen = MatchResponseSchema.parse((await call('GET', `/${match.id}`, ana)).json());
+    expect(seen.match).toMatchObject({ myRating: 5, result: { goalsFor: 2 } });
+    const betoList = MatchListResponseSchema.parse((await call('GET', '', beto)).json());
+    expect(betoList.items.find((m) => m.id === match.id)!.myRating).toBe(2);
+    expect(
+      (await call('PATCH', '', coach, { matchRatingsVisibleToPlayers: false }, `/teams/${teamId}`))
+        .statusCode,
+    ).toBe(200);
+    const hidden = MatchResponseSchema.parse((await call('GET', `/${match.id}`, ana)).json());
+    expect(hidden.match).toMatchObject({ myRating: null, result: { goalsFor: 2 } });
+    await call('PATCH', '', coach, { matchRatingsVisibleToPlayers: true }, `/teams/${teamId}`);
+
+    // Al final no jugó: se le quita.
+    const removed = await call('DELETE', `/${match.id}/ratings/${beto.userId}`, coach);
+    expect(MatchRatingsResponseSchema.parse(removed.json()).items).toHaveLength(1);
+
+    // Partido a partido, en la ficha del jugador (cuerpo técnico).
+    const history = await call(
+      'GET',
+      '',
+      coach,
+      undefined,
+      `/teams/${teamId}/players/${ana.userId}/match-ratings`,
+    );
+    expect(PlayerMatchRatingsResponseSchema.parse(history.json()).items).toEqual([
+      expect.objectContaining({
+        matchId: match.id,
+        opponent: 'Los Pibes',
+        rating: 5,
+        note: 'Golazo',
+      }),
+    ]);
+    expect(
+      (
+        await call(
+          'GET',
+          '',
+          ana,
+          undefined,
+          `/teams/${teamId}/players/${ana.userId}/match-ratings`,
+        )
+      ).statusCode,
+    ).toBe(403);
+
+    // Y en Tus datos.
+    const exported = await call('GET', '', ana, undefined, '/me/export');
+    expect(exported.json().matches).toContainEqual(
+      expect.objectContaining({
+        opponent: 'Los Pibes',
+        rating: 5,
+        note: 'Golazo',
+        ratedBy: 'coach',
+      }),
+    );
   });
 });

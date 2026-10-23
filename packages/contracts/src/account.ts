@@ -43,5 +43,17 @@ export const MyDataExportSchema = z.object({
       notes: z.string().nullable(),
     }),
   ),
+  /** Tus partidos: lo que respondiste y cómo te evaluaron (D18). */
+  matches: z.array(
+    z.object({
+      team: z.string(),
+      opponent: z.string(),
+      startsAt: z.iso.datetime(),
+      reply: z.enum(['yes', 'no']).nullable(),
+      rating: z.int().nullable(),
+      ratedBy: z.string().nullable(),
+      note: z.string().nullable(),
+    }),
+  ),
 });
 export type MyDataExport = z.infer<typeof MyDataExportSchema>;

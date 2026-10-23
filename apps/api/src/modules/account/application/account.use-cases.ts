@@ -37,16 +37,25 @@ export class MyData {
   async export(user: User): Promise<MyDataExport> {
     const account = await this.accounts.account(user.id);
     if (!account) throw new NotFoundError('Cuenta no encontrada');
-    const [profile, consents, memberships, orientationTests, knowledgeExams, cards, assessments] =
-      await Promise.all([
-        this.profiles.profileOf(user),
-        this.accounts.consents(user.id),
-        this.memberships.listForUser(user.id),
-        this.attempts.list(user.id),
-        this.exams.myExams(user.id),
-        this.accounts.cardsAbout(user.id),
-        this.accounts.assessmentsAbout(user.id),
-      ]);
+    const [
+      profile,
+      consents,
+      memberships,
+      orientationTests,
+      knowledgeExams,
+      cards,
+      assessments,
+      matches,
+    ] = await Promise.all([
+      this.profiles.profileOf(user),
+      this.accounts.consents(user.id),
+      this.memberships.listForUser(user.id),
+      this.attempts.list(user.id),
+      this.exams.myExams(user.id),
+      this.accounts.cardsAbout(user.id),
+      this.accounts.assessmentsAbout(user.id),
+      this.accounts.matchesOf(user.id),
+    ]);
     return {
       exportedAt: new Date().toISOString(),
       account: { ...account, createdAt: account.createdAt.toISOString() },
@@ -57,6 +66,7 @@ export class MyData {
       knowledgeExams,
       cards,
       assessments,
+      matches,
     };
   }
 

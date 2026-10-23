@@ -8,15 +8,21 @@ export interface TeamRecord {
   season: string;
   club: { id: string; name: string };
   ratingsVisibleToPlayers: boolean;
+  matchRatingsVisibleToPlayers: boolean;
 }
+
+/** Lo que se cambia desde Datos del equipo y los ajustes de visibilidad (D8, D14, D18). */
+export type TeamSettings = Partial<
+  Pick<
+    TeamRecord,
+    'ratingsVisibleToPlayers' | 'matchRatingsVisibleToPlayers' | 'name' | 'format' | 'formats'
+  >
+>;
 
 export interface TeamsRepository {
   findById(teamId: string): Promise<TeamRecord | null>;
   /** Solo lo que cambia; `name-taken` si el club ya tiene otro equipo con ese nombre esta temporada. */
-  updateSettings(
-    teamId: string,
-    settings: Partial<Pick<TeamRecord, 'ratingsVisibleToPlayers' | 'name' | 'format' | 'formats'>>,
-  ): Promise<'ok' | 'name-taken'>;
+  updateSettings(teamId: string, settings: TeamSettings): Promise<'ok' | 'name-taken'>;
   /** Cambia el dorsal del jugador activo; false si no es jugador activo del equipo. */
   setJerseyNumber(teamId: string, userId: string, jerseyNumber: number | null): Promise<boolean>;
 }

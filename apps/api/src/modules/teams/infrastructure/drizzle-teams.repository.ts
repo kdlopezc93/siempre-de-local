@@ -10,7 +10,11 @@ import { DB_CONNECTION } from '../../../shared/db/db.module.js';
 import type { MembershipsQuery } from '../../identity/application/ports/memberships.query.js';
 import { user } from '../../identity/infrastructure/schema.js';
 import type { TeamPlayersQuery } from '../../squad/application/ports/squad.ports.js';
-import type { TeamRecord, TeamsRepository } from '../application/ports/teams.repository.js';
+import type {
+  TeamRecord,
+  TeamSettings,
+  TeamsRepository,
+} from '../application/ports/teams.repository.js';
 import { club, clubMembership, team, teamMembership } from './schema.js';
 
 const UNIQUE_VIOLATION = '23505';
@@ -38,6 +42,7 @@ export class DrizzleTeamsRepository
         season: team.season,
         club: { id: club.id, name: club.name },
         ratingsVisibleToPlayers: team.ratingsVisibleToPlayers,
+        matchRatingsVisibleToPlayers: team.matchRatingsVisibleToPlayers,
       })
       .from(team)
       .innerJoin(club, eq(team.clubId, club.id))
@@ -45,10 +50,7 @@ export class DrizzleTeamsRepository
     return row ?? null;
   }
 
-  async updateSettings(
-    teamId: string,
-    settings: Partial<Pick<TeamRecord, 'ratingsVisibleToPlayers' | 'name' | 'format' | 'formats'>>,
-  ) {
+  async updateSettings(teamId: string, settings: TeamSettings) {
     try {
       await this.connection.db.update(team).set(settings).where(eq(team.id, teamId));
       return 'ok' as const;

@@ -149,6 +149,8 @@ describe('lo que toca: partidos (D16)', () => {
     replies: { yes: 1, no: 0, pending: 3 },
     myReply: null,
     published: null,
+    result: null,
+    myRating: null,
     ...over,
   });
 

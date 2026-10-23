@@ -6,6 +6,8 @@ export interface AccountRepository {
   consents(userId: string): Promise<MyDataExport['consents']>;
   cardsAbout(userId: string): Promise<MyDataExport['cards']>;
   assessmentsAbout(userId: string): Promise<MyDataExport['assessments']>;
+  /** Sus partidos: lo que respondió y cómo lo evaluaron (D18). */
+  matchesOf(userId: string): Promise<MyDataExport['matches']>;
   /** Clubes donde es el único dueño o admin: borrarlo los dejaría sin nadie que los maneje. */
   clubsOnlyManagedBy(userId: string): Promise<string[]>;
   /**

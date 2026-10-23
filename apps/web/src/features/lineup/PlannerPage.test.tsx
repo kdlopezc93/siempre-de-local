@@ -18,6 +18,7 @@ const TEAM = {
     season: '2026',
     club: { id: uuid(10), name: 'Los del Barrio' },
     ratingsVisibleToPlayers: true,
+    matchRatingsVisibleToPlayers: true,
   },
   myRoles: ['coach'],
 };
@@ -158,6 +159,8 @@ describe('planificador', () => {
       replies: { yes: 8, no: 1, pending: 0 },
       myReply: null,
       published: null,
+      result: null,
+      myRating: null,
     };
     const roster = PLAYERS.map((p, i) => ({
       playerId: p.playerId,

@@ -1,12 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { alias } from 'drizzle-orm/pg-core';
-import { and, asc, desc, eq, inArray, ne } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNotNull, ne, or } from 'drizzle-orm';
 
 import type { DbConnection } from '../../../shared/db/client.js';
 import { DB_CONNECTION } from '../../../shared/db/db.module.js';
 import { coachAssessment } from '../../assessments/infrastructure/schema.js';
 import { dataConsent } from '../../identity/infrastructure/consent.schema.js';
 import { user } from '../../identity/infrastructure/schema.js';
+import { matchRating, matchReply, teamMatch } from '../../matches/infrastructure/schema.js';
 import { playerRating, playerRatingValue } from '../../ratings/infrastructure/schema.js';
 import { club, clubMembership, team } from '../../teams/infrastructure/schema.js';
 import type { AccountRepository } from '../application/ports/account.ports.js';
@@ -94,6 +95,33 @@ export class DrizzleAccountRepository implements AccountRepository {
       .where(eq(coachAssessment.playerUserId, userId))
       .orderBy(desc(coachAssessment.createdAt));
     return rows.map((r) => ({ ...r, createdAt: r.createdAt.toISOString() }));
+  }
+
+  async matchesOf(userId: string) {
+    const rows = await this.connection.db
+      .select({
+        team: team.name,
+        opponent: teamMatch.opponent,
+        startsAt: teamMatch.startsAt,
+        reply: matchReply.reply,
+        rating: matchRating.rating,
+        ratedBy: author.name,
+        note: matchRating.note,
+      })
+      .from(teamMatch)
+      .innerJoin(team, eq(teamMatch.teamId, team.id))
+      .leftJoin(
+        matchReply,
+        and(eq(matchReply.matchId, teamMatch.id), eq(matchReply.userId, userId)),
+      )
+      .leftJoin(
+        matchRating,
+        and(eq(matchRating.matchId, teamMatch.id), eq(matchRating.playerUserId, userId)),
+      )
+      .leftJoin(author, eq(matchRating.ratedBy, author.id))
+      .where(or(isNotNull(matchReply.userId), isNotNull(matchRating.playerUserId)))
+      .orderBy(desc(teamMatch.startsAt));
+    return rows.map((r) => ({ ...r, startsAt: r.startsAt.toISOString() }));
   }
 
   async clubsOnlyManagedBy(userId: string) {

@@ -2,11 +2,17 @@ import { Inject, Injectable } from '@nestjs/common';
 import type {
   CreateMatchRequest,
   Match,
+  MatchRatingRequest,
+  MatchRatingsResponse,
+  MatchRatingValue,
   MatchReply,
   MatchResponse,
+  MatchResultRequest,
+  PlayerMatchRatingsResponse,
+  Profile,
   UpdateMatchRequest,
 } from '@sdl/contracts';
-import { isMatchOpen, replySummary } from '@sdl/domain';
+import { hasMatchStarted, isMatchOpen, replySummary } from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
 import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
@@ -34,9 +40,19 @@ import {
   type MatchRecord,
 } from './ports/matches.repository.js';
 
+type TeamPlayer = Awaited<ReturnType<TeamPlayersQuery['activePlayers']>>[number];
+
+const byJerseyThenName = (
+  a: { jerseyNumber: number | null; displayName: string },
+  b: { jerseyNumber: number | null; displayName: string },
+) =>
+  (a.jerseyNumber ?? 1000) - (b.jerseyNumber ?? 1000) ||
+  a.displayName.localeCompare(b.displayName, 'es');
+
 /**
  * Partidos (Fase 7): el cuerpo técnico convoca, edita o cancela; cada jugador responde voy /
- * no voy hasta la hora del partido (D17); el equipo lo ve. El reloj se inyecta (`now`).
+ * no voy hasta la hora del partido (D17); el equipo lo ve. Después del partido, el resultado y
+ * las evaluaciones (D18). El reloj se inyecta (`now`).
  */
 @Injectable()
 export class Matches {
@@ -50,13 +66,12 @@ export class Matches {
   ) {}
 
   async list(actor: Actor, teamId: string, now = new Date()): Promise<Match[]> {
-    await this.authorize(actor, teamId, 'team.read');
-    const [records, playerIds] = await Promise.all([
+    const team = await this.authorize(actor, teamId, 'team.read');
+    const [records, players] = await Promise.all([
       this.matches.listByTeam(teamId),
-      this.activePlayerIds(teamId),
+      this.players.activePlayers(teamId),
     ]);
-    const replies = await this.matches.replies(records.map((m) => m.id));
-    return records.map((m) => this.toMatch(m, actor, playerIds, replies.get(m.id)!, now));
+    return this.toMatches(records, actor, team, players, now);
   }
 
   async get(
@@ -68,18 +83,12 @@ export class Matches {
     const team = await this.authorize(actor, teamId, 'team.read');
     const record = await this.findOr404(teamId, matchId);
     const players = await this.players.activePlayers(teamId);
-    const replies = (await this.matches.replies([matchId])).get(matchId)!;
-    const match = this.toMatch(
-      record,
-      actor,
-      players.map((p) => p.userId),
-      replies,
-      now,
-    );
+    const [match] = await this.toMatches([record], actor, team, players, now);
     // Quién respondió qué lo ve el cuerpo técnico (y el admin del club), no los compañeros.
     if (!can(actor, 'team.results.read', { teamId, clubId: team.club.id })) {
-      return { match, roster: null };
+      return { match: match!, roster: null };
     }
+    const replies = (await this.matches.replies([matchId])).get(matchId)!;
     const profiles = await this.profiles.profilesOf(
       players.map((p) => ({ id: p.userId, name: p.name })),
     );
@@ -90,12 +99,8 @@ export class Matches {
         jerseyNumber: p.jerseyNumber,
         reply: replies.get(p.userId) ?? null,
       }))
-      .sort(
-        (a, b) =>
-          (a.jerseyNumber ?? 1000) - (b.jerseyNumber ?? 1000) ||
-          a.displayName.localeCompare(b.displayName, 'es'),
-      );
-    return { match, roster };
+      .sort(byJerseyThenName);
+    return { match: match!, roster };
   }
 
   async create(actor: Actor, teamId: string, request: CreateMatchRequest, now = new Date()) {
@@ -160,30 +165,184 @@ export class Matches {
     return this.get(actor, teamId, matchId, now);
   }
 
-  private toMatch(
-    m: MatchRecord,
+  /** Después del partido (D18): el resultado lo carga el cuerpo técnico desde la hora. */
+  async recordResult(
     actor: Actor,
-    playerIds: string[],
-    replies: Map<string, MatchReply>,
+    teamId: string,
+    matchId: string,
+    request: MatchResultRequest,
+    now = new Date(),
+  ): Promise<MatchResponse> {
+    await this.authorize(actor, teamId, 'team.matches.write');
+    const record = await this.findOr404(teamId, matchId);
+    this.requireStarted(record, now);
+    if (request.figurePlayerId) await this.requirePlayer(teamId, request.figurePlayerId);
+    await this.matches.setResult(matchId, { ...request, resultAt: now });
+    await this.record(actor, teamId, matchId, 'match.result_recorded', {
+      goalsFor: request.goalsFor,
+      goalsAgainst: request.goalsAgainst,
+      figure: request.figurePlayerId !== null,
+    });
+    return this.get(actor, teamId, matchId, now);
+  }
+
+  /** Las evaluaciones del partido, con nota y autor: cuerpo técnico y admin del club. */
+  async ratings(actor: Actor, teamId: string, matchId: string): Promise<MatchRatingsResponse> {
+    await this.authorize(actor, teamId, 'team.results.read');
+    await this.findOr404(teamId, matchId);
+    const [rows, players] = await Promise.all([
+      this.matches.ratings(matchId),
+      this.players.activePlayers(teamId),
+    ]);
+    const jersey = new Map(players.map((p) => [p.userId, p.jerseyNumber]));
+    const profiles = await this.profilesOf(
+      rows.map((r) => ({ id: r.playerId, name: r.playerName })),
+    );
+    const items = rows
+      .map((r) => ({
+        playerId: r.playerId,
+        displayName: profiles.get(r.playerId)?.displayName ?? r.playerName,
+        jerseyNumber: jersey.get(r.playerId) ?? null,
+        rating: r.rating,
+        note: r.note,
+        ratedBy: r.ratedBy,
+        ratedAt: r.ratedAt.toISOString(),
+      }))
+      .sort(byJerseyThenName);
+    return { items };
+  }
+
+  /** Evaluar (o corregir) a un jugador del equipo en el partido: 1 Flojo a 5 Figura. */
+  async rate(
+    actor: Actor,
+    teamId: string,
+    matchId: string,
+    playerId: string,
+    request: MatchRatingRequest,
+    now = new Date(),
+  ): Promise<MatchRatingsResponse> {
+    await this.authorize(actor, teamId, 'team.ratings.write');
+    const record = await this.findOr404(teamId, matchId);
+    this.requireStarted(record, now);
+    await this.requirePlayer(teamId, playerId);
+    await this.matches.setRating(matchId, playerId, {
+      rating: request.rating as MatchRatingValue,
+      note: request.note ?? null,
+      ratedBy: actor.userId,
+    });
+    await this.record(actor, teamId, matchId, 'match.player_rated', { playerId });
+    return this.ratings(actor, teamId, matchId);
+  }
+
+  /** Quitar la evaluación (p. ej., al final no jugó). */
+  async unrate(
+    actor: Actor,
+    teamId: string,
+    matchId: string,
+    playerId: string,
+  ): Promise<MatchRatingsResponse> {
+    await this.authorize(actor, teamId, 'team.ratings.write');
+    await this.findOr404(teamId, matchId);
+    await this.matches.deleteRating(matchId, playerId);
+    await this.record(actor, teamId, matchId, 'match.player_unrated', { playerId });
+    return this.ratings(actor, teamId, matchId);
+  }
+
+  /** Cómo le fue a un jugador partido a partido, con notas: cuerpo técnico y admin del club. */
+  async playerRatings(
+    actor: Actor,
+    teamId: string,
+    playerId: string,
+  ): Promise<PlayerMatchRatingsResponse> {
+    await this.authorize(actor, teamId, 'team.results.read');
+    const rows = await this.matches.playerRatings(teamId, playerId);
+    return { items: rows.map((r) => ({ ...r, startsAt: r.startsAt.toISOString() })) };
+  }
+
+  private async toMatches(
+    records: MatchRecord[],
+    actor: Actor,
+    team: TeamRecord,
+    players: TeamPlayer[],
     now: Date,
-  ): Match {
-    const summary = replySummary(playerIds, replies);
-    return {
-      id: m.id,
-      format: m.format,
-      startsAt: m.startsAt.toISOString(),
-      place: m.place,
-      opponent: m.opponent,
-      status: m.status,
-      open: isMatchOpen(m, now),
-      createdBy: m.createdBy,
-      replies: { yes: summary.yes.length, no: summary.no.length, pending: summary.pending.length },
-      myReply: replies.get(actor.userId) ?? null,
-      published:
-        m.lineupId && m.publishedAt
-          ? { lineupId: m.lineupId, at: m.publishedAt.toISOString() }
-          : null,
-    };
+  ): Promise<Match[]> {
+    const ids = records.map((m) => m.id);
+    const [replies, myRatings, profiles] = await Promise.all([
+      this.matches.replies(ids),
+      this.myRatings(actor, team, ids),
+      this.profilesOf(records.flatMap((m) => (m.figure ? [m.figure] : []))),
+    ]);
+    const playerIds = players.map((p) => p.userId);
+    const jersey = new Map(players.map((p) => [p.userId, p.jerseyNumber]));
+    return records.map((m) => {
+      const matchReplies = replies.get(m.id)!;
+      const summary = replySummary(playerIds, matchReplies);
+      return {
+        id: m.id,
+        format: m.format,
+        startsAt: m.startsAt.toISOString(),
+        place: m.place,
+        opponent: m.opponent,
+        status: m.status,
+        open: isMatchOpen(m, now),
+        createdBy: m.createdBy,
+        replies: {
+          yes: summary.yes.length,
+          no: summary.no.length,
+          pending: summary.pending.length,
+        },
+        myReply: matchReplies.get(actor.userId) ?? null,
+        published:
+          m.lineupId && m.publishedAt
+            ? { lineupId: m.lineupId, at: m.publishedAt.toISOString() }
+            : null,
+        result:
+          m.goalsFor !== null && m.goalsAgainst !== null && m.resultAt
+            ? {
+                goalsFor: m.goalsFor,
+                goalsAgainst: m.goalsAgainst,
+                figure: m.figure
+                  ? {
+                      id: m.figure.id,
+                      displayName: profiles.get(m.figure.id)?.displayName ?? m.figure.name,
+                      jerseyNumber: jersey.get(m.figure.id) ?? null,
+                    }
+                  : null,
+                at: m.resultAt.toISOString(),
+              }
+            : null,
+        myRating: myRatings.get(m.id) ?? null,
+      };
+    });
+  }
+
+  /** Su evaluación de cada partido, solo si es jugador y el equipo las muestra (D18). */
+  private async myRatings(actor: Actor, team: TeamRecord, matchIds: string[]) {
+    const isPlayer = (actor.teams.get(team.id) ?? []).includes('player');
+    if (!isPlayer || !team.matchRatingsVisibleToPlayers) return new Map<string, MatchRatingValue>();
+    return this.matches.ratingsOf(matchIds, actor.userId);
+  }
+
+  private async profilesOf(users: { id: string; name: string }[]) {
+    return users.length > 0 ? this.profiles.profilesOf(users) : new Map<string, Profile>();
+  }
+
+  private async requirePlayer(teamId: string, playerId: string) {
+    const players = await this.players.activePlayers(teamId);
+    if (!players.some((p) => p.userId === playerId)) {
+      throw new BusinessRuleError('No es jugador de este equipo.', 'PLAYER_NOT_IN_TEAM');
+    }
+  }
+
+  private requireStarted(record: MatchRecord, now: Date) {
+    if (!hasMatchStarted(record, now)) {
+      throw new ConflictError(
+        record.status === 'cancelled'
+          ? 'El partido fue cancelado.'
+          : 'El resultado y las evaluaciones se cargan desde la hora del partido.',
+        'MATCH_NOT_STARTED',
+      );
+    }
   }
 
   private async activePlayerIds(teamId: string) {
