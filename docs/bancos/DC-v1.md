@@ -10,9 +10,9 @@
 
 Quedas mano a mano con el arquero, que sale a achicar. ¿Qué haces?
 
-- [ ] Pateo fuerte al medio apenas entro al área, para no darle tiempo
+- [ ] Pateo fuerte al primer palo, de una, para no darle tiempo
 - [x] **Levanto la cabeza y elijo según cómo sale**
-- [ ] Lo encaro por el lado de mi pierna buena, haga lo que haga
+- [ ] Lo encaro hacia el lado de mi pierna buena
 - [ ] Freno y espero que llegue un compañero para dársela
 
 > Mano a mano, si no miras decide el arquero. Mirarlo te dice si salió rápido (picarla o eludirlo) o se quedó (cruzarla). Patear sin mirar o frenar le da la ventaja a él.
@@ -21,8 +21,8 @@ Quedas mano a mano con el arquero, que sale a achicar. ¿Qué haces?
 
 Recibes en el área con el arco a la vista y un defensor que llega a cerrarte. ¿Qué buscas?
 
-- [ ] Controlar bien antes de patear, aunque llegue el defensor
-- [ ] Pasarla a un compañero que está más lejos del arco
+- [ ] Controlar bien antes, para patear más seguro
+- [ ] Pasarla atrás a un volante que llega de frente
 - [x] **Patear rápido, con pocos toques**
 - [ ] Gambetear al defensor para patear después con más espacio
 
@@ -32,9 +32,9 @@ Recibes en el área con el arco a la vista y un defensor que llega a cerrarte. �
 
 Pateas desde un costado del área y el arquero cubre bien su primer palo. ¿Adónde apuntas?
 
-- [ ] Al primer palo con fuerza, por si se equivoca
+- [ ] Fuerte y a media altura, al primer palo
 - [ ] Arriba, al medio del arco, por encima de él
-- [ ] Al cuerpo del arquero, para que dé rebote
+- [ ] Al medio, a media altura, para asegurar el arco
 - [x] **Al segundo palo, cruzado y abajo**
 
 > Si el primer palo está tapado, el espacio está al otro lado: el remate cruzado y abajo es el más difícil de alcanzar y, si lo desvía, puede quedar para el que llega.
@@ -63,7 +63,7 @@ Fallaste dos ocasiones claras en el primer tiempo y te llega otra. ¿Qué haces?
 
 ### DC-DEF-06 · media
 
-Vas a patear un penal. ¿Qué es lo más importante?
+Vas a patear un penal eligiendo el lado de antemano, sin esperar al arquero. ¿Qué es lo más importante?
 
 - [ ] Patearlo lo más fuerte posible, aunque no lo ubique bien
 - [ ] Cambiar de lado en el último paso si el arquero se mueve
@@ -94,11 +94,11 @@ El arquero rival es muy alto y sale poco. Vas a patear desde fuera del área. ¿
 
 > Un arquero alto tarda más en bajar: el remate abajo y a un costado es el que más le cuesta. Si sale poco, la vaselina no tiene sentido.
 
-### DC-DEF-09 · difícil
+### DC-DEF-09 · media
 
 Quedas solo frente al arco, pero el balón te llega a tu pierna mala. ¿Qué haces?
 
-- [ ] Me la acomodo a la buena, aunque se acerque un defensor
+- [ ] Me la acomodo a la buena para patear mejor
 - [x] **Pateo con la mala, sin perder tiempo**
 - [ ] La paso a un compañero que llega por detrás
 - [ ] Intento un taco con la buena para sorprender
@@ -145,7 +145,7 @@ Tu volante tiene el balón de frente y los centrales rivales están adelantados.
 Antes de que salga el pase te das cuenta de que estás más adelantado que el último defensor. ¿Qué haces?
 
 - [x] **Vuelvo a su línea antes de arrancar**
-- [ ] Me quedo y arranco igual, quizás el árbitro no lo ve
+- [ ] Me quedo adelantado y pido el pase al pie, de espaldas
 - [ ] Levanto la mano para que mi compañero no me la pase
 - [ ] Sigo corriendo hacia el arco para llegar antes
 
@@ -155,7 +155,7 @@ Antes de que salga el pase te das cuenta de que estás más adelantado que el ú
 
 El central te marca muy pegado. ¿Cómo te lo sacas de encima?
 
-- [ ] Me quedo quieto a su lado hasta que se canse
+- [ ] Me quedo pegado a él esperando un balón aéreo
 - [x] **Amago hacia un lado y arranco hacia el otro**
 - [ ] Lo empujo con el brazo para ganar un metro
 - [ ] Bajo hasta la mitad de la cancha para recibir solo
@@ -213,7 +213,7 @@ En el partido quedaste varias veces en fuera de juego por arrancar antes. ¿Qué
 - [ ] Arranco igual, pero más rápido
 - [ ] Me quedo bien atrás de la línea y no pico más
 - [x] **Corro en curva, paralelo a la línea, y entro con el pase**
-- [ ] Le pido a mi compañero que pase antes
+- [ ] Freno y pido el balón al pie, quieto
 
 > La curva te deja en movimiento y habilitado: entras recién cuando el pase sale. Dejar de picar o arrancar más rápido no resuelve el momento del arranque.
 
@@ -248,9 +248,9 @@ Tu 10 recibe de cara y los centrales rivales están en línea. ¿Adónde picas?
 Recibes de espaldas al arco con un defensor pegado. ¿Qué buscas primero?
 
 - [ ] Girar de inmediato para encarar el arco
-- [ ] Devolverla de taco sin mirar a quién
+- [ ] Devolverla de taco hacia un compañero
 - [x] **Proteger el balón con el cuerpo**
-- [ ] Tirarme para pedir la falta
+- [ ] Dejarme caer al primer contacto
 
 > De espaldas y con el defensor encima, lo primero es no perderla: el cuerpo entre él y el balón te da tiempo para que lleguen tus compañeros.
 
@@ -293,7 +293,7 @@ Un balón largo te llega por el aire y el central está detrás de ti. ¿Qué bu
 
 - [ ] Saltar lo más alto posible cuando llegue el balón
 - [ ] Retroceder hacia el central para chocarlo
-- [x] **Ganar la posición antes de que caiga**
+- [x] **Pongo el cuerpo delante del central antes de que caiga**
 - [ ] Dejarla caer y pelear el rebote
 
 > El duelo aéreo se gana antes del salto: si tu cuerpo está entre el central y la caída, él no llega aunque salte más.
@@ -327,7 +327,7 @@ Descargas el balón al volante que llega de frente. ¿Qué haces después?
 - [ ] Me quedo de espaldas por si me la devuelve al pie
 - [x] **Giro y ataco el espacio para la devolución**
 - [ ] Bajo a la mitad de la cancha para ayudar
-- [ ] Miro la jugada desde donde estoy
+- [ ] Me abro hacia la banda para arrastrar al lateral
 
 > La descarga es la mitad de la jugada: la otra es moverte para recibir la devolución de frente. Quedarte quieto te convierte en un pase de ida sin vuelta.
 
@@ -386,7 +386,7 @@ Llega un centro desde la derecha y tu compañero ya ataca el primer palo. ¿Adó
 - [ ] También al primer palo, para pelearla entre dos
 - [ ] Al borde del área, por el rebote
 - [ ] Al punto de penal y me quedo quieto
-- [x] **Al segundo palo**
+- [x] **Al segundo palo, para dar otra opción**
 
 > Si los dos van al mismo lugar, el centro tiene un solo destino. Ocupar el otro palo le da al centrador dos opciones y al rival dos marcas.
 
@@ -414,14 +414,14 @@ Atacas un centro con un defensor detrás de ti. ¿Cómo saltas?
 
 ### DC-AER-05 · media
 
-Tu lateral va a centrar y hay otro compañero en el área. ¿Qué haces?
+Tu extremo va a centrar y un compañero ya está en el punto de penal. Tú estás del lado del segundo palo. ¿Qué movimiento haces?
 
-- [ ] Voy a la misma zona, para pelearla entre los dos
-- [ ] Me quedo afuera del área esperando el rebote
-- [x] **Ataco una zona distinta a la suya**
-- [ ] Me acerco al lateral para tirar una pared corta
+- [ ] Voy también al punto de penal, para pelearla entre los dos
+- [ ] Me quedo quieto en el segundo palo esperando
+- [x] **Cruzo hacia el primer palo, por delante de mi marca**
+- [ ] Salgo del área para esperar el rebote
 
-> Dos jugadores en zonas distintas obligan a dos defensores y abren dos destinos. En la misma zona se estorban y el centro tiene un solo blanco.
+> Cruzar por delante de tu marca te deja ganar el primer palo y arrastra defensores: tu compañero del punto de penal queda con menos marca. Quieto en el segundo palo o amontonado en el penal, la defensa los marca fácil.
 
 ### DC-AER-06 · media
 
@@ -455,17 +455,6 @@ El arquero rival duda en los centros y sale tarde. ¿Qué buscas?
 - [ ] Quedarme atrás por si el balón rebota afuera
 
 > Si el arquero sale tarde, el área chica es tierra de nadie: el que llega primero remata. Alejarte desperdicia su duda.
-
-### DC-AER-09 · difícil
-
-Va a llegar un centro raso desde la línea de fondo y estás en el punto de penal con un central. ¿Qué haces?
-
-- [ ] Corro al primer palo con el central
-- [ ] Me meto al área chica a buscar el balón
-- [x] **Freno y me quedo atrás, donde suele caer el pase**
-- [ ] Salto como si fuera un centro alto
-
-> En el centro raso desde el fondo, los defensores corren hacia su arco. Si frenas, el pase atrás te encuentra solo y de frente.
 
 ### DC-AER-10 · difícil
 
@@ -566,7 +555,7 @@ Van ganando, están cansados y quedan quince minutos. ¿Cómo presionas?
 - [ ] Igual que al principio, a todo lo que se mueva
 - [ ] Dejo de presionar para guardar energía
 - [ ] Solo presiono al arquero
-- [x] **Elijo los momentos para presionar**
+- [x] **Elijo los momentos: un mal control o un pase atrás**
 
 > Cansado, presionar todo te deja sin piernas y abre huecos. Elegir los momentos en que la presión puede robar la pelota rinde más con menos.
 
@@ -622,7 +611,7 @@ El central rival tiene el balón y tu equipo presiona arriba. ¿Por dónde vas a
 
 El arquero ataja un remate de tu compañero, pero no la retiene. ¿Qué haces?
 
-- [ ] Me lamento y vuelvo a mi lugar
+- [ ] Freno para no chocar con el arquero
 - [ ] Me quedo quieto viendo dónde cae
 - [x] **Sigo la jugada hacia el arco por el rebote**
 - [ ] Corro hacia el córner por si sale
@@ -675,21 +664,21 @@ Un defensor despeja de cabeza un centro y el balón cae en la puerta del área. 
 
 ### DC-ARE-06 · media
 
-Ves que el arquero rival da rebotes cortos cuando ataja. ¿Qué cambias?
+Un defensor despeja un centro y tu equipo va a volver a cargar el balón al área. Quedaste adelantado, cerca del arco. ¿Qué haces?
 
-- [ ] Pateo más fuerte para que no la ataje
-- [ ] Pateo solo desde lejos
-- [ ] Le pido a los volantes que lleguen ellos
-- [x] **Sigo cada remate hacia el arco**
+- [ ] Me quedo donde estoy, para estar cerca del arco
+- [ ] Pido el pase al pie, de espaldas al arco
+- [ ] Me quedo quieto para que no me vean adelantado
+- [x] **Salgo hasta la línea del último defensor**
 
-> Si el arquero da rebotes, cada remate es una segunda ocasión: estar cerca después de cada tiro es lo que convierte esos rebotes en goles.
+> Después del despeje, la defensa sube: si te quedas adelantado, el próximo pase te encuentra en fuera de juego. Salir a su línea te habilita para la segunda llegada.
 
 ### DC-ARE-07 · media
 
 Un compañero queda mejor ubicado que tú dentro del área. Tú tienes el balón con un ángulo difícil. ¿Qué haces?
 
-- [x] **Se la doy**
-- [ ] Pateo igual, el delantero es el que define
+- [x] **Se la doy al que está mejor ubicado**
+- [ ] Pateo igual al primer palo, por si el arquero se equivoca
 - [ ] Intento gambetear para mejorar el ángulo
 - [ ] La aguanto esperando que llegue otro
 
@@ -723,7 +712,18 @@ El rival defiende con todos en el área y tu equipo centra mucho. ¿Qué haces?
 
 - [ ] Me quedo fijo en el punto de penal
 - [ ] Me voy de a poco hacia la banda
-- [x] **Me muevo entre zonas**
+- [x] **Me muevo entre los palos y el punto de penal**
 - [ ] Bajo a la mitad de la cancha a armar
 
 > Con el área llena, el que está quieto queda marcado. Moverte entre zonas obliga a los defensores a pasarse la marca, y en ese momento quedas libre.
+
+### DC-ARE-11 · difícil
+
+Va a llegar un centro raso desde la línea de fondo y estás en el punto de penal con un central. ¿Qué haces?
+
+- [ ] Corro al primer palo con el central
+- [ ] Me meto al área chica a buscar el balón
+- [ ] Salto como si fuera un centro alto
+- [x] **Freno y me quedo atrás, donde suele caer el pase**
+
+> En el centro raso desde el fondo, los defensores corren hacia su arco. Si frenas, el pase atrás te encuentra solo y de frente.

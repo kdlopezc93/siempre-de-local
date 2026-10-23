@@ -284,6 +284,20 @@ describe('lint del banco', () => {
     expect(issues).toContain('warning:absolute-distractor');
   });
 
+  it('y si la correcta es casi siempre la más corta (el patrón contrario)', () => {
+    const bank = draft(60);
+    const items = bank.items.map((item) => ({
+      ...item,
+      options: [
+        option('Corta', true),
+        option('Una opción bastante más larga'),
+        option('Otra opción también más larga'),
+        option('Y una tercera más larga todavía'),
+      ],
+    }));
+    expect(rules(lintBank({ ...bank, items }, cfg))).toContain('warning:shortest-correct');
+  });
+
   it('cada dificultad debe alcanzar su cupo y cada área tener ítems', () => {
     const bank = draft(60);
     const items = bank.items.map((item) => ({ ...item, difficulty: 2 as const }));

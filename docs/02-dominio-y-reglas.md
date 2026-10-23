@@ -145,7 +145,7 @@ Las bandas no bloquean nada; son la etiqueta que ven el jugador y el entrenador.
 ### 6.5 Calidad del banco
 "Más certero" sale de que las preguntas sean buenas:
 1. **Revisión de contenido** por al menos un entrenador antes de publicar.
-2. **Reglas de redacción** comprobadas al publicar (*lint*): la correcta no puede ser sistemáticamente la más larga; nada de distractores con absolutos obvios ("siempre", "nunca"); distractores plausibles.
+2. **Reglas de redacción** comprobadas al publicar (*lint*): la correcta no puede ser sistemáticamente la más larga ni la más corta (aviso si lo es en más del 40 % de los ítems; por azar sería el 25 %); nada de distractores con absolutos obvios ("siempre", "nunca"); distractores plausibles.
 3. **Análisis de ítems** con ≥ 30 respuestas por ítem: retirar los que acierta casi todo el mundo (> 95%) y los que discriminan al revés. Los cambios se publican como **nueva versión** del banco.
 
 **Consecuencia de que el puntaje no caduque:** un puntaje sacado con una versión del banco que luego resultó mala (preguntas demasiado fáciles) seguiría contando para siempre. Mitigación: al retirar una versión por problemas de calidad, el admin puede marcar sus puntajes **"a revisar"**; siguen visibles, pero el entrenador ve el aviso y el jugador puede presentar de nuevo sin esperar el mes. Es una acción excepcional y queda auditada.
