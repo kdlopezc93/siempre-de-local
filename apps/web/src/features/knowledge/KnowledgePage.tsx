@@ -22,9 +22,6 @@ export function KnowledgePage({ me }: { me: Me }) {
 
   return (
     <Screen className={styles.screen}>
-      <Link to="/" className={styles.back}>
-        Volver al inicio
-      </Link>
       <header className={styles.header}>
         <h1 className={styles.display}>Examen de conocimiento</h1>
         <p className={styles.lead}>

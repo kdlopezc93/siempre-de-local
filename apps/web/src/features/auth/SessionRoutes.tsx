@@ -5,6 +5,7 @@ import type { Me } from '../../shared/api/auth';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
 import { HomePage } from '../home/HomePage';
+import { AppShell } from '../shell/AppShell';
 import { useInvitationPreview } from '../join/use-join';
 import { LoginPage } from './LoginPage';
 import { useSession } from './use-session';
@@ -35,6 +36,9 @@ const screens = {
   myCard: () => import('../card/MyCardPage'),
   staffCard: () => import('../card/StaffCardPage'),
   rate: () => import('../card/RatePage'),
+  myGame: () => import('../my-game/MyGamePage'),
+  team: () => import('../team/TeamPage'),
+  account: () => import('../account/AccountPage'),
 };
 
 const JoinPage = lazy(() => screens.join().then((m) => ({ default: m.JoinPage })));
@@ -64,6 +68,9 @@ const ValidationPage = lazy(() =>
 const MyCardPage = lazy(() => screens.myCard().then((m) => ({ default: m.MyCardPage })));
 const StaffCardPage = lazy(() => screens.staffCard().then((m) => ({ default: m.StaffCardPage })));
 const RatePage = lazy(() => screens.rate().then((m) => ({ default: m.RatePage })));
+const MyGamePage = lazy(() => screens.myGame().then((m) => ({ default: m.MyGamePage })));
+const TeamPage = lazy(() => screens.team().then((m) => ({ default: m.TeamPage })));
+const AccountPage = lazy(() => screens.account().then((m) => ({ default: m.AccountPage })));
 
 /** Precarga las pantallas que se usan desde el inicio cuando el navegador está libre. */
 function usePreloadScreens() {
@@ -128,10 +135,15 @@ function RequireSession({ children }: { children: (me: Me) => ReactNode }) {
   );
 }
 
+/** RequireSession dentro del armazón: encabezado del equipo y barra de abajo (07 §4). */
+function ShellRoute({ children }: { children: (me: Me) => ReactNode }) {
+  return <RequireSession>{(me) => <AppShell me={me}>{children(me)}</AppShell>}</RequireSession>;
+}
+
 /** "/" */
 export function HomeRoute() {
   usePreloadScreens();
-  return <RequireSession>{(me) => <HomePage me={me} />}</RequireSession>;
+  return <ShellRoute>{(me) => <HomePage me={me} />}</ShellRoute>;
 }
 
 /** "/entrar" — si ya hay sesión, vuelve al inicio. */
@@ -160,7 +172,7 @@ export function JoinRoute() {
 /** "/equipos/:teamId/invitar" — el API decide si puede (coach o admin del club). */
 export function InviteRoute() {
   const { teamId = '' } = useParams();
-  return <RequireSession>{() => <InvitePage teamId={teamId} />}</RequireSession>;
+  return <ShellRoute>{() => <InvitePage teamId={teamId} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/test" — el test de orientación del jugador. */
@@ -172,28 +184,28 @@ export function QuizRoute() {
 /** "/resultados/:attemptId" — un resultado oficial guardado. */
 export function ResultRoute() {
   const { attemptId = '' } = useParams();
-  return <RequireSession>{() => <ResultPage attemptId={attemptId} />}</RequireSession>;
+  return <ShellRoute>{() => <ResultPage attemptId={attemptId} />}</ShellRoute>;
 }
 
 /** "/historial" — mis tests. */
 export function HistoryRoute() {
-  return <RequireSession>{(me) => <HistoryPage me={me} />}</RequireSession>;
+  return <ShellRoute>{(me) => <HistoryPage me={me} />}</ShellRoute>;
 }
 
 /** "/bases" — en qué se basa el test. */
 export function ScienceRoute() {
-  return <RequireSession>{() => <SciencePage />}</RequireSession>;
+  return <ShellRoute>{() => <SciencePage />}</ShellRoute>;
 }
 
 /** "/perfil" — el perfil propio. */
 export function ProfileRoute() {
-  return <RequireSession>{(me) => <ProfilePage me={me} />}</RequireSession>;
+  return <ShellRoute>{(me) => <ProfilePage me={me} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/plantilla" — el panel del cuerpo técnico (el API decide quién entra). */
 export function SquadRoute() {
   const { teamId = '' } = useParams();
-  return <RequireSession>{() => <SquadPage teamId={teamId} />}</RequireSession>;
+  return <ShellRoute>{() => <SquadPage teamId={teamId} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/plantilla/:playerId/valorar" */
@@ -207,15 +219,13 @@ export function AssessRoute() {
 /** "/equipos/:teamId/tarjeta" — la tarjeta del propio jugador. */
 export function MyCardRoute() {
   const { teamId = '' } = useParams();
-  return <RequireSession>{(me) => <MyCardPage me={me} teamId={teamId} />}</RequireSession>;
+  return <ShellRoute>{(me) => <MyCardPage me={me} teamId={teamId} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/plantilla/:playerId/tarjeta" */
 export function StaffCardRoute() {
   const { teamId = '', playerId = '' } = useParams();
-  return (
-    <RequireSession>{() => <StaffCardPage teamId={teamId} playerId={playerId} />}</RequireSession>
-  );
+  return <ShellRoute>{() => <StaffCardPage teamId={teamId} playerId={playerId} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/plantilla/:playerId/tarjeta/puntuar" */
@@ -227,16 +237,12 @@ export function RateRoute() {
 /** "/equipos/:teamId/plantilla/:playerId" — el perfil del jugador para el cuerpo técnico. */
 export function PlayerProfileRoute() {
   const { teamId = '', playerId = '' } = useParams();
-  return (
-    <RequireSession>
-      {() => <PlayerProfilePage teamId={teamId} playerId={playerId} />}
-    </RequireSession>
-  );
+  return <ShellRoute>{() => <PlayerProfilePage teamId={teamId} playerId={playerId} />}</ShellRoute>;
 }
 
 /** "/conocimiento" — el examen de conocimiento por posición. */
 export function KnowledgeRoute() {
-  return <RequireSession>{(me) => <KnowledgePage me={me} />}</RequireSession>;
+  return <ShellRoute>{(me) => <KnowledgePage me={me} />}</ShellRoute>;
 }
 
 /** "/conocimiento/examen/:examId" — un examen en curso o su resultado. */
@@ -248,25 +254,40 @@ export function ExamRoute() {
 /** "/equipos/:teamId/planificador" — armar la alineación (cuerpo técnico). */
 export function PlannerRoute() {
   const { teamId = '' } = useParams();
-  return <RequireSession>{() => <PlannerPage teamId={teamId} />}</RequireSession>;
+  return <ShellRoute>{() => <PlannerPage teamId={teamId} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/alineaciones" */
 export function SavedLineupsRoute() {
   const { teamId = '' } = useParams();
-  return <RequireSession>{() => <SavedLineupsPage teamId={teamId} />}</RequireSession>;
+  return <ShellRoute>{() => <SavedLineupsPage teamId={teamId} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/alineaciones/:lineupId" */
 export function LineupViewRoute() {
   const { teamId = '', lineupId = '' } = useParams();
-  return (
-    <RequireSession>{() => <LineupViewPage teamId={teamId} lineupId={lineupId} />}</RequireSession>
-  );
+  return <ShellRoute>{() => <LineupViewPage teamId={teamId} lineupId={lineupId} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/validacion" — informe de validación (cuerpo técnico y admin del club). */
 export function ValidationRoute() {
   const { teamId = '' } = useParams();
-  return <RequireSession>{() => <ValidationPage teamId={teamId} />}</RequireSession>;
+  return <ShellRoute>{() => <ValidationPage teamId={teamId} />}</ShellRoute>;
+}
+
+/** "/equipos/:teamId/mi-juego" — lo tuyo como jugador. */
+export function MyGameRoute() {
+  const { teamId = '' } = useParams();
+  return <ShellRoute>{() => <MyGamePage teamId={teamId} />}</ShellRoute>;
+}
+
+/** "/equipos/:teamId/equipo" — el equipo y tu cuenta. */
+export function TeamRoute() {
+  const { teamId = '' } = useParams();
+  return <ShellRoute>{(me) => <TeamPage me={me} teamId={teamId} />}</ShellRoute>;
+}
+
+/** "/cuenta" — tú: perfil, tus equipos y roles, cerrar sesión. */
+export function AccountRoute() {
+  return <ShellRoute>{(me) => <AccountPage me={me} />}</ShellRoute>;
 }

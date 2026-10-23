@@ -48,8 +48,8 @@ export function PlannerPage({ teamId }: { teamId: string }) {
   const editingId = params.get('alineacion');
   const saved = useLineup(teamId, editingId);
   const back = (
-    <Link to={`/equipos/${teamId}/plantilla`} className={styles.back}>
-      Volver a la plantilla
+    <Link to={`/equipos/${teamId}/alineaciones`} className={styles.back}>
+      Alineaciones
     </Link>
   );
   if (team.isPending || inputs.isPending || (editingId && saved.isPending)) {

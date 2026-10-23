@@ -1,5 +1,3 @@
-import { Link } from 'react-router';
-
 import { Screen } from '../../shared/ui/Screen';
 import styles from './SciencePage.module.css';
 
@@ -57,9 +55,6 @@ const REFERENCES = [
 export function SciencePage() {
   return (
     <Screen className={styles.screen}>
-      <Link to="/" className={styles.back}>
-        Volver al inicio
-      </Link>
       <h1 className={styles.title}>En qué se basa el test</h1>
       <p className={styles.lead}>
         Es una herramienta de <strong>orientación</strong> construida con lo que dice la ciencia del

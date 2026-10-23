@@ -27,8 +27,8 @@ export function ValidationPage({ teamId }: { teamId: string }) {
   });
   return (
     <Screen className={styles.screen}>
-      <Link to={`/equipos/${teamId}/plantilla`} className={styles.back}>
-        Volver a la plantilla
+      <Link to={`/equipos/${teamId}/equipo`} className={styles.back}>
+        Equipo
       </Link>
       <header>
         <h1 className={styles.title}>Informe de validación</h1>

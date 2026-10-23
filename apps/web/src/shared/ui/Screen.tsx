@@ -10,5 +10,13 @@ export function Screen({
   children: ReactNode;
   className?: string | undefined;
 }) {
-  return <main className={[styles.screen, className].filter(Boolean).join(' ')}>{children}</main>;
+  return (
+    <main
+      id="contenido"
+      tabIndex={-1}
+      className={[styles.screen, className].filter(Boolean).join(' ')}
+    >
+      {children}
+    </main>
+  );
 }

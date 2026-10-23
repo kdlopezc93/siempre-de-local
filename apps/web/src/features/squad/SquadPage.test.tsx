@@ -100,7 +100,7 @@ describe('SquadPage', () => {
     });
     renderAt(`/equipos/${TEAM_ID}/plantilla`);
 
-    expect(await screen.findByText('Primer equipo: 2 jugadores')).toBeInTheDocument();
+    expect(await screen.findByText('2 jugadores')).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /Reparto según cuerpo técnico/ })).toHaveAccessibleName(
       /Extremo: Beto/,
     );

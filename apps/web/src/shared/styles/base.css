@@ -48,6 +48,10 @@ p {
   text-wrap: pretty;
 }
 
+main:focus {
+  outline: none;
+}
+
 :focus-visible {
   outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
   outline-offset: var(--sdl-focus-offset);

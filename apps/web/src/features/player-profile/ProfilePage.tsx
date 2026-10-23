@@ -1,7 +1,6 @@
 import type { DominantFoot, Profile } from '@sdl/contracts';
 import { POSITION_CODES, POSITIONS } from '@sdl/domain';
 import { useId, useState, type FormEvent } from 'react';
-import { Link } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
@@ -50,9 +49,6 @@ export function ProfilePage({ me }: { me: Me }) {
 
   return (
     <Screen className={styles.screen}>
-      <Link to="/" className={styles.back}>
-        Volver al inicio
-      </Link>
       <h1 className={styles.title}>Tu perfil</h1>
       <p className={styles.lead}>
         Esto es lo que tú dices de ti. Tu entrenador lo ve junto con tu test y su propia mirada.

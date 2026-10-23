@@ -1,5 +1,3 @@
-import { Link } from 'react-router';
-
 import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
 import { Screen } from '../../shared/ui/Screen';
@@ -14,9 +12,6 @@ export function MyCardPage({ me, teamId }: { me: Me; teamId: string }) {
 
   return (
     <Screen className={styles.screen}>
-      <Link to="/" className={styles.back}>
-        Volver al inicio
-      </Link>
       <header>
         <h1 className={styles.title}>Tu tarjeta</h1>
         {membership && <p className={styles.muted}>{membership.team.name}</p>}

@@ -85,18 +85,23 @@ Las pantallas de tarea (test, examen, puntuar, valorar) ocupan la pantalla compl
   - integrantes por rol;
   - **Invitar** (aquí, asociado al equipo);
   - **Informe de validación**;
-  - "En qué se basa el test";
-  - la cuenta: cerrar sesión, privacidad.
+  - "En qué se basa el test".
+- **Tu cuenta** (`/cuenta`, fuera de las pestañas): se llega desde **tu ficha, arriba a la derecha del encabezado**, en todas las pantallas. Es de ti como persona, igual en todos tus equipos; por eso no va en Equipo (que cambia con el equipo) ni en Mi juego (que un asistente que no juega no tiene). Decidido con Kevin el 2026-10-22.
+  - Tu nombre, tu correo y "Editar mi perfil".
+  - **Tus equipos con tu rol en cada uno y lo que te permite**, y los clubes que administras. Es copia de la matriz del API (`policy.ts`), que es la que decide.
+  - **Tus datos:** descargar y eliminar (§4.5).
+  - **Cerrar sesión**, en este celular o en todos tus dispositivos (en una hoja).
+  - Separado de la navegación principal, como piden las guías de `ui-ux-pro-max` para salir y borrar la cuenta.
 
 ### 4.4 Qué se quita
 
-- Del inicio: el correo, el "muy pronto", la lista de enlaces y los botones de cerrar sesión (pasan a Equipo, en "Tu cuenta").
+- Del inicio: el correo, el "muy pronto", la lista de enlaces y los botones de cerrar sesión (pasan a "Tu cuenta").
 - De la plantilla: los botones "Armar la alineación" e "Informe de validación" (tienen su lugar en la barra o en Equipo).
 - Los "Volver a…" donde la barra ya lleva.
 
 ### 4.5 Eliminación de datos
 
-- **Enlace "Eliminar mis datos"** en Equipo → Tu cuenta, en la pantalla de entrar y en la política de tratamiento.
+- **Enlace "Eliminar mis datos"** en Tu cuenta, en la pantalla de entrar y en la política de tratamiento.
 - Lleva a una **página pública** (`/tus-datos`, sin sesión) que explica qué se borra, qué se conserva de forma anónima y en cuánto tiempo, y cómo pedirlo. Google la exige para publicar el inicio de sesión con Google.
 - Con sesión, **"Eliminar mi cuenta"** desde la app, con confirmación. Borra o anonimiza según `04-auth-seguridad.md` §5 y la política, y cierra todas las sesiones.
 - Al lado, **"Descargar mis datos"** (`GET /me/export`, ya previsto en `04` §5).

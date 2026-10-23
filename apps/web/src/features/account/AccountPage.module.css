@@ -1,0 +1,86 @@
+.screen {
+  gap: var(--sdl-space-6);
+}
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-4);
+}
+
+.heroText {
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--sdl-text-xl);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  overflow-wrap: anywhere;
+}
+
+.list,
+.teams {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--sdl-surface);
+  color: var(--sdl-primary);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.sectionTitle {
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-body);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}
+
+.team {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sdl-space-3);
+  padding-block: var(--sdl-space-3);
+  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+}
+
+.teamText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.teamName {
+  font-weight: 600;
+}
+
+.sheetActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.error {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}

@@ -10,3 +10,10 @@
   padding-inline: max(var(--sdl-gutter), env(safe-area-inset-left))
     max(var(--sdl-gutter), env(safe-area-inset-right));
 }
+
+/* Dentro del armazón: el encabezado ya cubre la zona segura de arriba y la barra la de abajo. */
+:global([data-shell]) .screen {
+  min-height: auto;
+  padding-top: var(--sdl-space-5);
+  padding-bottom: calc(var(--sdl-nav-height) + env(safe-area-inset-bottom) + var(--sdl-space-8));
+}

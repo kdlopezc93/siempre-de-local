@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router';
 
 import { fetchAttempt } from '../../shared/api/quiz';
 import { Screen } from '../../shared/ui/Screen';
@@ -17,9 +16,6 @@ export function ResultPage({ attemptId }: { attemptId: string }) {
 
   return (
     <Screen className={styles.screen}>
-      <Link to="/" className={styles.back}>
-        Volver al inicio
-      </Link>
       {attempt.isPending && (
         <p className="sr-only" role="status">
           Cargando tu resultado…

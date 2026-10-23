@@ -41,7 +41,6 @@ export function SquadPage({ teamId }: { teamId: string }) {
     );
     return (
       <Screen className={styles.screen}>
-        <BackLink />
         <h1 className={styles.title}>Plantilla</h1>
         <p role="alert" className={styles.muted}>
           {forbidden
@@ -62,22 +61,12 @@ export function SquadPage({ teamId }: { teamId: string }) {
 
   return (
     <Screen className={styles.screen}>
-      <BackLink />
       <header>
         <h1 className={styles.title}>Plantilla</h1>
         <p className={styles.muted}>
-          {team.data.team.name}: {players.length} {players.length === 1 ? 'jugador' : 'jugadores'}
+          {players.length} {players.length === 1 ? 'jugador' : 'jugadores'}
         </p>
       </header>
-
-      {myRoles.some((r) => r === 'coach' || r === 'assistant') && (
-        <Link to={`/equipos/${teamId}/planificador`} className={styles.cardLink}>
-          Armar la alineación
-        </Link>
-      )}
-      <Link to={`/equipos/${teamId}/validacion`} className={styles.cardLink}>
-        Informe de validación
-      </Link>
 
       <section aria-labelledby="reparto" className={styles.section}>
         <h2 id="reparto" className={styles.sectionTitle}>
@@ -155,14 +144,6 @@ function describeRoster(roster: Record<string, string[]>): string {
         `${POSITIONS[pos as keyof typeof POSITIONS].name}: ${names.length ? names.join(', ') : 'hueco'}`,
     )
     .join('; ');
-}
-
-function BackLink() {
-  return (
-    <Link to="/" className={styles.back}>
-      Volver al inicio
-    </Link>
-  );
 }
 
 const name = (pos: keyof typeof POSITIONS) => POSITIONS[pos].name;

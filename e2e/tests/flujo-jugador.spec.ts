@@ -29,6 +29,11 @@ test('el entrenador crea un enlace de invitación', async ({ page, context }) =>
   await signIn(context, coach);
 
   await page.goto('/');
+  // La barra de abajo: Equipo → Invitar jugadores.
+  await page
+    .getByRole('navigation', { name: 'Principal' })
+    .getByRole('link', { name: 'Equipo' })
+    .click();
   await page.getByRole('link', { name: 'Invitar jugadores' }).click();
   await expect(page).toHaveURL(`/equipos/${teamId}/invitar`);
 
@@ -59,8 +64,8 @@ test('un jugador nuevo se une, acepta la política y hace su test', async ({ pag
   await expect(page.getByRole('heading', { name: 'Ya estás en el equipo' })).toBeVisible();
   await page.getByRole('link', { name: 'Ir a mi equipo' }).click();
 
-  // El test: 20 preguntas.
-  await page.getByRole('link', { name: 'Hacer mi test de posición' }).click();
+  // En el inicio, lo primero es hacer el test: 20 preguntas.
+  await page.getByRole('link', { name: /Haz tu test de posición/ }).click();
   await page.getByRole('button', { name: 'Empezar' }).click();
   await answerAll(page);
 
@@ -70,10 +75,14 @@ test('un jugador nuevo se une, acepta la política y hace su test', async ({ pag
   await expect(page.getByRole('img', { name: /Cancha con tus posiciones marcadas/ })).toBeVisible();
   await expect(page.getByRole('list').first().getByRole('listitem')).toHaveCount(3);
 
-  // Y queda en su historial.
+  // Y queda en su historial: Mi juego → Mi posición.
   await page.getByRole('link', { name: 'Volver al inicio' }).click();
-  await page.getByRole('link', { name: 'Tus tests' }).click();
-  await expect(page.getByRole('list').getByRole('link')).toHaveCount(1);
+  await page
+    .getByRole('navigation', { name: 'Principal' })
+    .getByRole('link', { name: 'Mi juego' })
+    .click();
+  await page.getByRole('link', { name: /Mi posición/ }).click();
+  await expect(page.getByRole('main').getByRole('list').getByRole('link')).toHaveCount(1);
 });
 
 async function answerAll(page: Page) {
