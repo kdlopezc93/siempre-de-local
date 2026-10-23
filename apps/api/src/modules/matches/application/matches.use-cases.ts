@@ -9,6 +9,7 @@ import type {
 import { isMatchOpen, replySummary } from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
+import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
 import { can, type Actor, type TeamPermission } from '../../../shared/authz/policy.js';
 import {
   BusinessRuleError,
@@ -45,6 +46,7 @@ export class Matches {
     @Inject(TEAM_PLAYERS_QUERY) private readonly players: TeamPlayersQuery,
     @Inject(PROFILES_QUERY) private readonly profiles: ProfilesQuery,
     @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+    @Inject(NOTIFIER) private readonly notifier: Notifier,
   ) {}
 
   async list(actor: Actor, teamId: string, now = new Date()): Promise<Match[]> {
@@ -105,6 +107,13 @@ export class Matches {
     }
     const id = await this.matches.create(teamId, actor.userId, { ...request, startsAt });
     await this.record(actor, teamId, id, 'match.created', { startsAt: request.startsAt });
+    // D16: también aparece en "lo que toca"; el aviso es un extra que no puede fallar esto.
+    await this.notifier.notifyUsers(await this.activePlayerIds(teamId), {
+      kind: 'match-called',
+      opponent: request.opponent,
+      startsAt: startsAt.toISOString(),
+      url: `/equipos/${teamId}/partidos/${id}`,
+    });
     return this.get(actor, teamId, id, now);
   }
 

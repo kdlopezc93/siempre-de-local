@@ -10,6 +10,7 @@ export interface MatchGateway {
     matchId: string,
   ): Promise<{
     format: MatchFormat;
+    opponent: string;
     status: MatchStatus;
     startsAt: Date;
     lineupId: string | null;

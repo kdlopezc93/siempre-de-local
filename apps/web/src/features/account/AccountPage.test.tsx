@@ -1,11 +1,19 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { ME_TWO_TEAMS } from '../../test/me-two-teams';
 import { AccountPage } from './AccountPage';
+
+const pushMock = vi.hoisted(() => ({ state: 'off' as string, mutate: vi.fn() }));
+vi.mock('../../shared/push/use-push', () => ({
+  usePush: () => ({
+    state: pushMock.state,
+    toggle: { mutate: pushMock.mutate, isPending: false, isError: false },
+  }),
+}));
 
 function renderAccount() {
   render(
@@ -127,5 +135,18 @@ describe('Tu cuenta', () => {
     );
     await userEvent.click(screen.getAllByRole('button', { name: 'Eliminar mi cuenta' }).at(-1)!);
     await vi.waitFor(() => expect(router.state.location.search).toBe('?cuenta=eliminada'));
+  });
+
+  it('avisos: se activan con el interruptor; en iPhone sin instalar, explica cómo', async () => {
+    pushMock.state = 'off';
+    renderAccount();
+    await userEvent.click(screen.getByRole('switch', { name: 'Avisarme en este celular' }));
+    expect(pushMock.mutate).toHaveBeenCalledWith(true);
+    cleanup();
+
+    pushMock.state = 'ios-install';
+    renderAccount();
+    expect(screen.getByRole('switch', { name: 'Avisarme en este celular' })).toBeDisabled();
+    expect(screen.getByText(/primero agrega la app al inicio/)).toBeInTheDocument();
   });
 });

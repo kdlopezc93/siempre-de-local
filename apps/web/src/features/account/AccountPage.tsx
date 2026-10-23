@@ -13,6 +13,8 @@ import { initialsOf } from '../../shared/ui/TeamHeader';
 import { Token } from '../../shared/ui/Token';
 import { useSignOut, useSignOutEverywhere } from '../auth/use-session';
 import { rolesLabel } from '../shell/shell-nav';
+import { usePush } from '../../shared/push/use-push';
+import type { PushState } from '../../shared/push/push';
 import styles from './AccountPage.module.css';
 import { useDeleteAccount, useDownloadMyData } from './use-account';
 
@@ -101,6 +103,7 @@ export function AccountPage({ me }: { me: Me }) {
         </ul>
       </section>
 
+      <Notices />
       <SignOut />
       <YourData />
     </Screen>
@@ -217,6 +220,48 @@ function YourData() {
           </Button>
         </form>
       </Sheet>
+    </section>
+  );
+}
+
+const NOTICE_HINT: Record<PushState, string> = {
+  on: 'Te avisamos cuando te convoquen y cuando salga la alineación.',
+  off: 'Igual lo ves en el inicio, en lo que toca.',
+  denied: 'Los bloqueaste para esta app. Actívalos en la configuración del navegador.',
+  unsupported: 'Este navegador no permite avisos. Lo que toca lo ves en el inicio.',
+  'ios-install':
+    'En iPhone, primero agrega la app al inicio (Compartir → Agregar a inicio) y ábrela desde ahí.',
+  'not-configured': 'Los avisos todavía no están activos en este servidor.',
+};
+
+/** Avisos en este celular (Fase 7, D16): opcionales; lo que toca siempre está en el inicio. */
+function Notices() {
+  const { state, toggle } = usePush();
+  if (!state) return null;
+  const canToggle = state === 'on' || state === 'off';
+  return (
+    <section aria-labelledby="avisos" className={styles.section}>
+      <h2 id="avisos" className={styles.sectionTitle}>
+        Avisos
+      </h2>
+      <label className={styles.switchRow}>
+        <input
+          type="checkbox"
+          role="switch"
+          checked={state === 'on'}
+          disabled={!canToggle || toggle.isPending}
+          onChange={(e) => toggle.mutate(e.target.checked)}
+        />
+        <span>Avisarme en este celular</span>
+      </label>
+      <p className={styles.muted} aria-live="polite">
+        {NOTICE_HINT[state]}
+      </p>
+      {toggle.isError && (
+        <p role="alert" className={styles.error}>
+          No pudimos cambiar los avisos. Revisa tu conexión e intenta de nuevo.
+        </p>
+      )}
     </section>
   );
 }

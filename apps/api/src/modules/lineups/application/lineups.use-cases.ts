@@ -5,6 +5,7 @@ import type { z } from 'zod';
 
 import { can, type Actor, type TeamPermission } from '../../../shared/authz/policy.js';
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
+import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
 import {
   BusinessRuleError,
   ConflictError,
@@ -42,6 +43,7 @@ export class Lineups {
     @Inject(MATCH_GATEWAY) private readonly matches: MatchGateway,
     @Inject(AUDIT_LOG) private readonly audit: AuditLog,
     @Inject(PROFILES_QUERY) private readonly profiles: ProfilesQuery,
+    @Inject(NOTIFIER) private readonly notifier: Notifier,
   ) {}
 
   /**
@@ -105,6 +107,16 @@ export class Lineups {
       teamId,
       meta: { lineupId },
     });
+    const roster = await this.players.activePlayers(teamId);
+    await this.notifier.notifyUsers(
+      roster.map((p) => p.userId),
+      {
+        kind: 'lineup-published',
+        opponent: match.opponent,
+        startsAt: match.startsAt.toISOString(),
+        url: `/equipos/${teamId}/partidos/${found.matchId}`,
+      },
+    );
   }
 
   async create(actor: Actor, teamId: string, input: LineupInput): Promise<Lineup> {
