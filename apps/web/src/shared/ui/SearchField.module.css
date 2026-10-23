@@ -1,0 +1,56 @@
+.field {
+  display: flex;
+  align-items: center;
+  min-height: var(--sdl-touch-min);
+  padding-inline: var(--sdl-space-4) var(--sdl-space-1);
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-surface);
+  color: var(--sdl-fg-muted);
+}
+
+.field:focus-within {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+}
+
+.label {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  min-width: 0;
+}
+
+.label input {
+  flex: 1;
+  min-width: 0;
+  height: var(--sdl-touch-min);
+  border: 0;
+  background: transparent;
+  color: var(--sdl-fg);
+  font: inherit;
+  font-size: var(--sdl-text-base);
+  outline: none;
+}
+
+/* La X propia reemplaza la del navegador. */
+.label input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.label input::placeholder {
+  color: var(--sdl-fg-muted);
+}
+
+.clear {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--sdl-fg-muted);
+  cursor: pointer;
+}

@@ -1,30 +1,76 @@
 import type { MatchFormat, SquadPlayer } from '@sdl/contracts';
-import { BAND_LABELS, POSITIONS } from '@sdl/domain';
+import { POSITIONS } from '@sdl/domain';
+import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
+import { Chips } from '../../shared/ui/Chips';
 import { Pitch } from '../../shared/ui/Pitch';
+import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
-import { rankedAverages } from '../card/card-view';
-import { useUpdateTeam } from '../card/use-card';
+import { SearchField } from '../../shared/ui/SearchField';
+import { Segmented } from '../../shared/ui/Segmented';
+import { Sheet } from '../../shared/ui/Sheet';
+import { Token } from '../../shared/ui/Token';
+import { initialsOf } from '../../shared/ui/TeamHeader';
 import { useTeam } from '../team-admin/use-invitations';
 import { distribution, type DistributionSource } from './distribution';
+import {
+  bestAverage,
+  filterCounts,
+  filterSquad,
+  LINE_FILTERS,
+  lineOf,
+  parseFilters,
+  positionLabel,
+  serializeFilters,
+  STATUS_FILTERS,
+  type SquadFilter,
+} from './squad-filters';
 import styles from './SquadPage.module.css';
 import { useExportTeam, useSquad } from './use-squad';
 
-const SOURCES: { value: DistributionSource; label: string; empty: string }[] = [
-  { value: 'staff', label: 'Cuerpo técnico', empty: 'sin valorar' },
-  { value: 'test', label: 'Test', empty: 'sin test a la vista' },
-  { value: 'preferred', label: 'Preferidas', empty: 'sin preferidas' },
-];
+type View = 'lista' | 'pizarra';
+const VIEWS = [
+  { value: 'lista', label: 'Lista' },
+  { value: 'pizarra', label: 'Pizarra' },
+] as const;
+const SOURCES = [
+  { value: 'staff', label: 'Cuerpo técnico' },
+  { value: 'test', label: 'Test' },
+  { value: 'preferred', label: 'Preferidas' },
+] as const;
+const SOURCE_EMPTY: Record<DistributionSource, string> = {
+  staff: 'sin valorar',
+  test: 'sin test a la vista',
+  preferred: 'sin preferidas',
+};
 
-/** /equipos/:teamId/plantilla — la plantilla del cuerpo técnico. */
+/**
+ * /equipos/:teamId/plantilla — una fila por jugador, con buscador y filtros; o la pizarra
+ * del reparto. Vista, búsqueda y filtros viven en la URL (`?vista=`, `?q=`, `?filtro=`):
+ * los enlaces del inicio llegan filtrados y "atrás" vuelve a como estaba.
+ */
 export function SquadPage({ teamId }: { teamId: string }) {
   const team = useTeam(teamId);
   const squad = useSquad(teamId);
-  const [source, setSource] = useState<DistributionSource>('staff');
+  const [params, setParams] = useSearchParams();
+  const view: View = params.get('vista') === 'pizarra' ? 'pizarra' : 'lista';
+  // Todo cambio de la URL en una sola llamada: dos seguidas se pisan.
+  const setParam = (changes: Record<string, string>) =>
+    setParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        for (const [key, value] of Object.entries(changes)) {
+          if (value) next.set(key, value);
+          else next.delete(key);
+        }
+        return next;
+      },
+      { replace: true },
+    );
 
   if (team.isPending || squad.isPending) {
     return (
@@ -51,89 +97,220 @@ export function SquadPage({ teamId }: { teamId: string }) {
     );
   }
 
-  const format = team.data.team.format;
   const players = squad.data.players;
+  const format = team.data.team.format;
   // El coach o el admin del club (que entra sin roles en el equipo); el asistente no.
   const myRoles = team.data.myRoles;
-  const canChangeSettings = myRoles.includes('coach') || myRoles.length === 0;
-  const { roster, gaps, unknown } = distribution(players, source, format);
-  const sourceInfo = SOURCES.find((s) => s.value === source)!;
+  const canExport = myRoles.includes('coach') || myRoles.length === 0;
 
   return (
     <Screen className={styles.screen}>
-      <header>
+      <div className={styles.titleRow}>
         <h1 className={styles.title}>Plantilla</h1>
-        <p className={styles.muted}>
-          {players.length} {players.length === 1 ? 'jugador' : 'jugadores'}
-        </p>
-      </header>
+        <Segmented
+          label="Ver como"
+          options={VIEWS}
+          value={view}
+          onChange={(v) => setParam({ vista: v === 'lista' ? '' : v })}
+        />
+      </div>
 
-      <section aria-labelledby="reparto" className={styles.section}>
-        <h2 id="reparto" className={styles.sectionTitle}>
-          Reparto
-        </h2>
-        <fieldset className={styles.sources}>
-          <legend className="sr-only">Contar según</legend>
-          {SOURCES.map((s) => (
-            <label key={s.value} className={styles.source}>
-              <input
-                type="radio"
-                name="source"
-                value={s.value}
-                checked={source === s.value}
-                onChange={() => setSource(s.value)}
-              />
-              <span>{s.label}</span>
-            </label>
-          ))}
-        </fieldset>
-        <div className={styles.board}>
-          <Pitch
-            format={format}
-            roster={roster}
-            label={`Reparto según ${sourceInfo.label.toLowerCase()}: ${describeRoster(roster)}`}
-          />
-        </div>
-        <p className={styles.gaps}>
-          {gaps.length === 0
-            ? 'Sin huecos: hay al menos uno en cada posición.'
-            : `Huecos: ${gaps.map((pos) => POSITIONS[pos].name).join(', ')}.`}
+      {players.length === 0 ? (
+        <p className={styles.empty}>
+          Todavía no hay jugadores.{' '}
+          <Link to={`/equipos/${teamId}/invitar`}>Invita a tu equipo</Link>.
         </p>
-        {unknown > 0 && (
-          <p className={styles.muted}>
-            {unknown} {unknown === 1 ? 'jugador' : 'jugadores'} {sourceInfo.empty}.
-          </p>
-        )}
-      </section>
-
-      <section aria-labelledby="jugadores" className={styles.section}>
-        <h2 id="jugadores" className={styles.sectionTitle}>
-          Jugadores
-        </h2>
-        {players.length === 0 ? (
-          <p className={styles.muted}>
-            Todavía no hay jugadores.{' '}
-            <Link to={`/equipos/${teamId}/invitar`}>Invita a tu equipo</Link>.
-          </p>
-        ) : (
-          <ul className={styles.players}>
-            {players.map((player) => (
-              <li key={player.userId}>
-                <PlayerRow teamId={teamId} player={player} format={format} />
-              </li>
-            ))}
-          </ul>
-        )}
-        <p className={styles.muted}>
-          El test de cada jugador aparece cuando lo valoras: así tu primera valoración es a ciegas y
-          sirve para saber si el test acierta.
-        </p>
-      </section>
-
-      {canChangeSettings && (
-        <CardVisibility teamId={teamId} visible={team.data.team.ratingsVisibleToPlayers} />
+      ) : view === 'lista' ? (
+        <ListView
+          teamId={teamId}
+          players={players}
+          format={format}
+          query={params.get('q') ?? ''}
+          filters={parseFilters(params.get('filtro'))}
+          onQuery={(q) => setParam({ q })}
+          onFilters={(f) => setParam({ filtro: serializeFilters(f) })}
+          onClear={() => setParam({ q: '', filtro: '' })}
+        />
+      ) : (
+        <BoardView
+          players={players}
+          format={format}
+          source={sourceFrom(params.get('fuente'))}
+          onSource={(s) => setParam({ fuente: s === 'staff' ? '' : s })}
+        />
       )}
+
+      {canExport && players.length > 0 && <ExportButton teamId={teamId} />}
     </Screen>
+  );
+}
+
+const sourceFrom = (raw: string | null): DistributionSource =>
+  raw === 'test' || raw === 'preferred' ? raw : 'staff';
+
+function ListView({
+  teamId,
+  players,
+  format,
+  query,
+  filters,
+  onQuery,
+  onFilters,
+  onClear,
+}: {
+  teamId: string;
+  players: SquadPlayer[];
+  format: MatchFormat;
+  query: string;
+  filters: ReadonlySet<SquadFilter>;
+  onQuery: (q: string) => void;
+  onFilters: (f: Set<SquadFilter>) => void;
+  onClear: () => void;
+}) {
+  const [why, setWhy] = useState(false);
+  const shown = filterSquad(players, query, filters);
+  const counts = filterCounts(players);
+  const toggle = (value: SquadFilter) => {
+    const next = new Set(filters);
+    if (next.has(value)) next.delete(value);
+    else next.add(value);
+    onFilters(next);
+  };
+  // Los de estado, solo si hay alguno; las líneas, siempre.
+  const options = [
+    ...STATUS_FILTERS.filter((f) => counts[f.value] > 0 || filters.has(f.value)),
+    ...LINE_FILTERS,
+  ].map((f) => ({ ...f, count: counts[f.value] }));
+
+  return (
+    <>
+      <SearchField
+        label="Buscar jugador"
+        placeholder="Nombre o dorsal…"
+        value={query}
+        onChange={onQuery}
+      />
+      <Chips label="Filtrar" options={options} selected={filters} onToggle={toggle} />
+      <div className={styles.countRow}>
+        <p className={styles.muted} aria-live="polite">
+          {shown.length === players.length
+            ? `${players.length} ${players.length === 1 ? 'jugador' : 'jugadores'}`
+            : `${shown.length} de ${players.length}`}
+        </p>
+        {counts['por-valorar'] > 0 && (
+          <button type="button" className={styles.why} onClick={() => setWhy(true)}>
+            ¿Por qué valorar primero?
+          </button>
+        )}
+      </div>
+      {shown.length === 0 ? (
+        <div className={styles.empty}>
+          <p>Nadie con esa búsqueda o esos filtros.</p>
+          <Button variant="ghost" onClick={onClear}>
+            Ver a todos
+          </Button>
+        </div>
+      ) : (
+        <ul className={styles.list}>
+          {shown.map((p) => (
+            <li key={p.userId}>
+              <PlayerRow teamId={teamId} player={p} format={format} />
+            </li>
+          ))}
+        </ul>
+      )}
+      <Sheet open={why} onClose={() => setWhy(false)} title="Valorar primero, a ciegas">
+        <p className={styles.sheetText}>
+          El test de cada jugador aparece cuando lo valoras. Así tu primera valoración no se deja
+          llevar por lo que dijo el test, y sirve para saber si el test acierta (lo ves en el
+          informe de validación).
+        </p>
+      </Sheet>
+    </>
+  );
+}
+
+function PlayerRow({
+  teamId,
+  player,
+  format,
+}: {
+  teamId: string;
+  player: SquadPlayer;
+  format: MatchFormat;
+}) {
+  const media = bestAverage(player, format);
+  const notes = [
+    player.test.status === 'none' && 'sin test',
+    player.knowledge.some((k) => k.review === 'expired') && 're-evaluación vencida',
+  ].filter(Boolean);
+  return (
+    <Row
+      to={`/equipos/${teamId}/plantilla/${player.userId}`}
+      leading={
+        <Token
+          text={
+            player.jerseyNumber !== null
+              ? String(player.jerseyNumber)
+              : initialsOf(player.displayName)
+          }
+          line={lineOf(player)}
+        />
+      }
+      title={player.displayName}
+      meta={[positionLabel(player), ...notes].join(', ')}
+      trailing={
+        <>
+          {!player.assessedByMe && (
+            <span className={styles.flag}>
+              <Warning size={16} weight="fill" aria-hidden="true" />
+              Valorar
+            </span>
+          )}
+          <span className={styles.media}>
+            {media ?? '–'}
+            <span className="sr-only">{media !== null ? ' de media' : ' sin tarjeta'}</span>
+          </span>
+        </>
+      }
+    />
+  );
+}
+
+function BoardView({
+  players,
+  format,
+  source,
+  onSource,
+}: {
+  players: SquadPlayer[];
+  format: MatchFormat;
+  source: DistributionSource;
+  onSource: (s: DistributionSource) => void;
+}) {
+  const { roster, gaps, unknown } = distribution(players, source, format);
+  const label = SOURCES.find((s) => s.value === source)!.label;
+  return (
+    <section aria-label="Reparto" className={styles.board}>
+      <Segmented label="Contar según" options={SOURCES} value={source} onChange={onSource} />
+      <div className={styles.pitch}>
+        <Pitch
+          format={format}
+          roster={roster}
+          label={`Reparto según ${label.toLowerCase()}: ${describeRoster(roster)}`}
+        />
+      </div>
+      <p>
+        {gaps.length === 0
+          ? 'Sin huecos: hay al menos uno en cada posición.'
+          : `Huecos: ${gaps.map((pos) => POSITIONS[pos].name).join(', ')}.`}
+      </p>
+      {unknown > 0 && (
+        <p className={styles.muted}>
+          {unknown} {unknown === 1 ? 'jugador' : 'jugadores'} {SOURCE_EMPTY[source]}.
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -146,151 +323,25 @@ function describeRoster(roster: Record<string, string[]>): string {
     .join('; ');
 }
 
-const name = (pos: keyof typeof POSITIONS) => POSITIONS[pos].name;
-
-function PlayerRow({
-  teamId,
-  player,
-  format,
-}: {
-  teamId: string;
-  player: SquadPlayer;
-  format: MatchFormat;
-}) {
-  const { test, latestAssessment, card } = player;
-  const best = card ? rankedAverages(card.positionAverages, format)[0] : undefined;
-  return (
-    <article className={styles.player}>
-      <header className={styles.playerHead}>
-        <h3 className={styles.playerName}>
-          {player.jerseyNumber !== null && (
-            <span className={styles.jersey}>{player.jerseyNumber}</span>
-          )}
-          <Link to={`/equipos/${teamId}/plantilla/${player.userId}`} className={styles.playerLink}>
-            {player.displayName}
-          </Link>
-        </h3>
-        <Link
-          to={`/equipos/${teamId}/plantilla/${player.userId}/valorar`}
-          className={styles.assess}
-          aria-label={`${player.assessedByMe ? 'Volver a valorar' : 'Valorar'} a ${player.displayName}`}
-        >
-          {player.assessedByMe ? 'Volver a valorar' : 'Valorar'}
-        </Link>
-      </header>
-      <dl className={styles.facts}>
-        <div>
-          <dt>Cuerpo técnico</dt>
-          <dd>
-            {latestAssessment
-              ? `${name(latestAssessment.primaryPosition)}${latestAssessment.secondaryPositions.length ? ` (también ${latestAssessment.secondaryPositions.map(name).join(', ')})` : ''}`
-              : 'Sin valorar'}
-          </dd>
-        </div>
-        <div>
-          <dt>Test</dt>
-          <dd className={test.status === 'hidden' ? styles.hidden : undefined}>
-            {test.status === 'none'
-              ? 'Todavía no lo hace'
-              : test.status === 'hidden'
-                ? 'Valóralo para verlo'
-                : test.podium.map(name).join(', ')}
-          </dd>
-        </div>
-        <div>
-          <dt>Tarjeta</dt>
-          <dd>{best ? `${best.value} de media como ${name(best.pos)}` : 'Sin puntuar'}</dd>
-        </div>
-        <div>
-          <dt>Conocimiento</dt>
-          <dd>{knowledgeLine(player.knowledge)}</dd>
-        </div>
-        <div>
-          <dt>Prefiere</dt>
-          <dd>
-            {player.preferredPositions.length
-              ? player.preferredPositions.map(name).join(', ')
-              : 'No lo dijo'}
-          </dd>
-        </div>
-      </dl>
-      <Link
-        to={`/equipos/${teamId}/plantilla/${player.userId}/tarjeta`}
-        className={styles.cardLink}
-        aria-label={`Tarjeta de ${player.displayName}`}
-      >
-        {card ? 'Ver tarjeta' : 'Puntuar tarjeta'}
-      </Link>
-    </article>
-  );
-}
-
-/** D8: si los jugadores ven su tarjeta en este equipo. */
-function CardVisibility({ teamId, visible }: { teamId: string; visible: boolean }) {
-  const update = useUpdateTeam(teamId);
-  return (
-    <section aria-labelledby="ajustes" className={styles.section}>
-      <h2 id="ajustes" className={styles.sectionTitle}>
-        Ajustes
-      </h2>
-      <label className={styles.setting}>
-        <input
-          type="checkbox"
-          role="switch"
-          checked={update.isPending ? !visible : visible}
-          disabled={update.isPending}
-          onChange={(event) => update.mutate({ ratingsVisibleToPlayers: event.target.checked })}
-        />
-        <span>
-          Los jugadores ven su tarjeta
-          <span className={styles.settingHint}>
-            {visible
-              ? 'Cada uno ve la suya, sin tus notas.'
-              : 'Solo el cuerpo técnico ve las tarjetas.'}
-          </span>
-        </span>
-      </label>
-      {update.isError && (
-        <p role="alert" className={styles.error}>
-          No pudimos cambiar el ajuste. Revisa tu conexión e intenta de nuevo.
-        </p>
-      )}
-      <ExportButton teamId={teamId} />
-    </section>
-  );
-}
-
 /** La plantilla en CSV: lo mismo que se ve aquí, sin notas y respetando la regla a ciegas. */
 function ExportButton({ teamId }: { teamId: string }) {
   const exporter = useExportTeam(teamId);
   return (
-    <>
-      <Button variant="secondary" busy={exporter.isPending} onClick={() => exporter.mutate()}>
+    <div className={styles.export}>
+      <button
+        type="button"
+        className={styles.why}
+        disabled={exporter.isPending}
+        aria-busy={exporter.isPending || undefined}
+        onClick={() => exporter.mutate()}
+      >
         {exporter.isPending ? 'Preparando…' : 'Descargar la plantilla (CSV)'}
-      </Button>
-      <p className={styles.muted}>
-        Para abrir en Excel o Google Sheets. No lleva notas, y los tests que todavía no ves tampoco
-        salen.
-      </p>
+      </button>
       {exporter.isError && (
         <p role="alert" className={styles.error}>
           No pudimos descargar el archivo. Revisa tu conexión e intenta de nuevo.
         </p>
       )}
-    </>
+    </div>
   );
-}
-
-/** "Defensa central 80% (Sólido)"; marca la re-evaluación abierta. */
-function knowledgeLine(knowledge: SquadPlayer['knowledge']): string {
-  if (knowledge.length === 0) return 'Sin examen';
-  return knowledge
-    .map((k) => {
-      const score =
-        k.pct === null ? 'sin puntaje' : `${Math.round(k.pct * 100)}% (${BAND_LABELS[k.band!]})`;
-      const review =
-        k.review === 'expired' ? ', re-evaluación vencida' : k.review ? ', en re-evaluación' : '';
-      return `${name(k.position)} ${score}${review}`;
-    })
-    .join('; ');
 }

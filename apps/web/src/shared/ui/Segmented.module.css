@@ -1,0 +1,32 @@
+.segmented {
+  display: inline-flex;
+  flex: none;
+  padding: 3px;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-surface);
+}
+
+.segmented button {
+  min-height: 44px;
+  padding-inline: var(--sdl-space-4);
+  border: 0;
+  border-radius: var(--sdl-radius-pill);
+  background: transparent;
+  color: var(--sdl-fg-muted);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--sdl-duration-fast) var(--sdl-ease-out);
+}
+
+.segmented button[aria-pressed='true'] {
+  background: var(--sdl-surface-raised);
+  color: var(--sdl-fg);
+}
+
+@media (hover: hover) {
+  .segmented button[aria-pressed='false']:hover {
+    color: var(--sdl-fg);
+  }
+}

@@ -55,3 +55,25 @@
   color: var(--sdl-danger-fg);
   font-size: var(--sdl-text-sm);
 }
+
+.setting {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sdl-space-3);
+  min-height: var(--sdl-touch-min);
+  cursor: pointer;
+}
+
+.setting input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 2px;
+  accent-color: var(--sdl-primary);
+}
+
+.settingHint {
+  display: block;
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
