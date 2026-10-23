@@ -213,7 +213,7 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
 function BackLink({ to }: { to: string }) {
   return (
     <Link to={to} className={styles.back}>
-      {to.endsWith('/plantilla') ? 'Volver a la plantilla' : 'Volver al perfil'}
+      {to.endsWith('/plantilla') ? 'Volver a la plantilla' : 'Volver a la ficha'}
     </Link>
   );
 }

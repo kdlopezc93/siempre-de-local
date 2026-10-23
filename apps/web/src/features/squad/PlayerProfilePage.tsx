@@ -1,37 +1,56 @@
 import type { MatchFormat, PlayerProfileResponse } from '@sdl/contracts';
 import { ELIGIBLE_POSITIONS, POSITIONS, type PositionCode } from '@sdl/domain';
 import { useId, useState, type FormEvent } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 
 import { ApiError } from '../../shared/api/http';
 import { Screen } from '../../shared/ui/Screen';
-import { RATED_ON } from '../card/card-view';
+import { SectionTabs } from '../../shared/ui/SectionTabs';
+import { initialsOf } from '../../shared/ui/TeamHeader';
+import { lineOfPosition, Token } from '../../shared/ui/Token';
+import { RATED_ON, rankedAverages } from '../card/card-view';
 import { PlayerCard } from '../card/PlayerCard';
 import { useTeam } from '../team-admin/use-invitations';
 import styles from './PlayerProfilePage.module.css';
 import { KnowledgeSection } from './KnowledgeSection';
-import { agreement, jerseyHolders } from './profile-view';
+import { agreement, bestKnowledge, jerseyHolders, sheetPosition } from './profile-view';
 import { usePlayerProfile, useSetJersey, useSquad } from './use-squad';
 
 const FOOT = { left: 'Zurdo', right: 'Diestro', both: 'Ambidiestro' } as const;
 const name = (pos: PositionCode) => POSITIONS[pos].name;
 const percent = (pct: number) => `${Math.round(pct * 100)}%`;
 
-/** /equipos/:teamId/plantilla/:playerId — todo lo de un jugador, para el cuerpo técnico. */
+type Section = 'resumen' | 'tarjeta' | 'conocimiento' | 'valoraciones';
+const SECTIONS = [
+  { value: 'resumen', label: 'Resumen' },
+  { value: 'tarjeta', label: 'Tarjeta' },
+  { value: 'conocimiento', label: 'Conocimiento' },
+  { value: 'valoraciones', label: 'Valoraciones' },
+] as const;
+const sectionFrom = (raw: string | null): Section =>
+  SECTIONS.find((s) => s.value === raw)?.value ?? 'resumen';
+
+/**
+ * /equipos/:teamId/plantilla/:playerId — la ficha del jugador para el cuerpo técnico (07
+ * §4.3): su ficha y tres datos arriba, valorar y puntuar en un solo lugar, y el detalle por
+ * secciones (la elegida va en la URL, `?ver=`).
+ */
 export function PlayerProfilePage({ teamId, playerId }: { teamId: string; playerId: string }) {
   const team = useTeam(teamId);
   const profile = usePlayerProfile(teamId, playerId);
+  const [params, setParams] = useSearchParams();
+  const section = sectionFrom(params.get('ver'));
 
   const back = (
     <Link to={`/equipos/${teamId}/plantilla`} className={styles.back}>
-      Volver a la plantilla
+      Plantilla
     </Link>
   );
   if (team.isPending || profile.isPending) {
     return (
       <Screen>
         <p className="sr-only" role="status">
-          Cargando el perfil…
+          Cargando la ficha…
         </p>
       </Screen>
     );
@@ -44,7 +63,7 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
         <p role="alert">
           {missing
             ? 'Ese jugador no está en la plantilla.'
-            : 'No pudimos cargar el perfil. Revisa tu conexión e intenta de nuevo.'}
+            : 'No pudimos cargar la ficha. Revisa tu conexión e intenta de nuevo.'}
         </p>
       </Screen>
     );
@@ -57,26 +76,34 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
   // El dorsal: el coach o el admin del club (que entra sin roles en el equipo).
   const managesMembers = team.data.myRoles.includes('coach') || team.data.myRoles.length === 0;
   const here = `/equipos/${teamId}/plantilla/${playerId}`;
+  const position = sheetPosition(data);
+  const media = data.card ? rankedAverages(data.card.positionAverages, format)[0] : undefined;
+  const knows = bestKnowledge(data);
 
   return (
     <Screen className={styles.screen}>
       {back}
-      <header className={styles.head}>
-        {player.jerseyNumber !== null && (
-          <span className={styles.jersey}>
-            <span className="sr-only">Dorsal </span>
-            {player.jerseyNumber}
-          </span>
-        )}
-        <div className={styles.headText}>
+      <header className={styles.hero}>
+        <Token
+          text={
+            player.jerseyNumber !== null
+              ? String(player.jerseyNumber)
+              : initialsOf(player.displayName)
+          }
+          line={position ? lineOfPosition(position) : null}
+          size="xl"
+          {...(player.jerseyNumber !== null ? { label: `Dorsal ${player.jerseyNumber}` } : {})}
+        />
+        <div className={styles.heroText}>
           <h1 className={styles.title}>{player.displayName}</h1>
+          <p className={styles.heroPos}>{position ? name(position) : 'Sin posición todavía'}</p>
           <p className={styles.muted}>
             {[
               player.dominantFoot && FOOT[player.dominantFoot],
               player.playsGoalkeeper && 'Dice que ataja',
             ]
               .filter(Boolean)
-              .join('. ') || 'No completó su perfil.'}
+              .join('. ')}
           </p>
         </div>
       </header>
@@ -84,7 +111,31 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
         <JerseyEditor teamId={teamId} playerId={playerId} current={player.jerseyNumber} />
       )}
 
-      <WhereTheySee data={data} />
+      <dl className={styles.stats}>
+        <div>
+          <dt>Media</dt>
+          <dd>{media ? media.value : '–'}</dd>
+          {media && <dd className={styles.statNote}>{name(media.pos)}</dd>}
+        </div>
+        <div>
+          <dt>Test</dt>
+          <dd className={styles.statWord}>
+            {data.test.status === 'visible'
+              ? name(data.test.podium[0]!)
+              : data.test.status === 'hidden'
+                ? 'Oculto'
+                : 'Sin hacer'}
+          </dd>
+          {data.test.status === 'hidden' && (
+            <dd className={styles.statNote}>Valóralo para verlo</dd>
+          )}
+        </div>
+        <div>
+          <dt>Conocimiento</dt>
+          <dd>{knows ? percent(knows.pct) : '–'}</dd>
+          {knows && <dd className={styles.statNote}>{name(knows.position)}</dd>}
+        </div>
+      </dl>
 
       {rates && (
         <div className={styles.actions}>
@@ -93,7 +144,7 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
           </Link>
           <Link
             to={`${here}/tarjeta/puntuar`}
-            state={{ back: here }}
+            state={{ back: `${here}?ver=tarjeta` }}
             className={styles.secondaryLink}
           >
             {data.card ? 'Puntuar de nuevo' : 'Puntuar tarjeta'}
@@ -101,67 +152,77 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
         </div>
       )}
 
-      {data.test.status === 'visible' && (
-        <TestSection
-          ranking={data.test.ranking}
-          format={format}
-          submittedAt={data.test.submittedAt}
-        />
+      <SectionTabs
+        label="Ver"
+        options={SECTIONS}
+        value={section}
+        onChange={(v) => setParams(v === 'resumen' ? {} : { ver: v }, { replace: true })}
+      />
+
+      {section === 'resumen' && (
+        <>
+          <WhereTheySee data={data} />
+          {data.test.status === 'visible' && (
+            <TestSection
+              ranking={data.test.ranking}
+              format={format}
+              submittedAt={data.test.submittedAt}
+            />
+          )}
+        </>
       )}
 
-      <section aria-labelledby="tarjeta" className={styles.section}>
-        <h2 id="tarjeta" className={styles.sectionTitle}>
-          Tarjeta
-        </h2>
-        {data.card ? (
-          <>
-            <PlayerCard card={data.card} format={format} headingLevel={3} />
+      {section === 'tarjeta' &&
+        (data.card ? (
+          <div className={styles.section}>
+            <PlayerCard card={data.card} format={format} headingLevel={2} />
             {data.cardCount > 1 && (
               <Link to={`${here}/tarjeta`} className={styles.back}>
                 Ver las {data.cardCount - 1} fotos anteriores
               </Link>
             )}
-          </>
+          </div>
         ) : (
-          <p className={styles.muted}>Todavía nadie del cuerpo técnico lo puntuó.</p>
-        )}
-      </section>
+          <p className={styles.empty}>Todavía nadie del cuerpo técnico lo puntuó.</p>
+        ))}
 
-      <KnowledgeSection
-        teamId={teamId}
-        playerId={playerId}
-        knowledge={data.knowledge}
-        manages={managesMembers}
-      />
+      {section === 'conocimiento' && (
+        <KnowledgeSection
+          teamId={teamId}
+          playerId={playerId}
+          knowledge={data.knowledge}
+          manages={managesMembers}
+        />
+      )}
 
-      <section aria-labelledby="valoraciones" className={styles.section}>
-        <h2 id="valoraciones" className={styles.sectionTitle}>
-          Valoraciones
-        </h2>
-        {data.assessments.length === 0 ? (
-          <p className={styles.muted}>Todavía nadie del cuerpo técnico lo valoró.</p>
-        ) : (
-          <ul className={styles.list}>
-            {data.assessments.map((a) => (
-              <li key={a.id}>
-                <div className={styles.listHead}>
-                  <span className={styles.listPos}>{name(a.primaryPosition)}</span>
-                  {a.blind && <span className={styles.tag}>A ciegas</span>}
-                </div>
-                {a.secondaryPositions.length > 0 && (
-                  <p>También {a.secondaryPositions.map(name).join(', ')}</p>
-                )}
-                <p className={styles.muted}>
-                  {RATED_ON.format(new Date(a.createdAt))}
-                  {a.assessor && `, ${a.assessor.name}`}. Seguridad {a.confidence} de 5.
-                </p>
-                {a.notes && <p className={styles.notes}>“{a.notes}”</p>}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      {section === 'valoraciones' && <Assessments data={data} />}
     </Screen>
+  );
+}
+
+function Assessments({ data }: { data: PlayerProfileResponse }) {
+  if (data.assessments.length === 0) {
+    return <p className={styles.empty}>Todavía nadie del cuerpo técnico lo valoró.</p>;
+  }
+  return (
+    <ul className={styles.list} aria-label="Valoraciones">
+      {data.assessments.map((a) => (
+        <li key={a.id}>
+          <div className={styles.listHead}>
+            <span className={styles.listPos}>{name(a.primaryPosition)}</span>
+            {a.blind && <span className={styles.tag}>A ciegas</span>}
+          </div>
+          {a.secondaryPositions.length > 0 && (
+            <p>También {a.secondaryPositions.map(name).join(', ')}</p>
+          )}
+          <p className={styles.muted}>
+            {RATED_ON.format(new Date(a.createdAt))}
+            {a.assessor && `, ${a.assessor.name}`}. Seguridad {a.confidence} de 5.
+          </p>
+          {a.notes && <p className={styles.notes}>“{a.notes}”</p>}
+        </li>
+      ))}
+    </ul>
   );
 }
 

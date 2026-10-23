@@ -45,7 +45,7 @@ export function RatePage({ teamId, playerId }: { teamId: string; playerId: strin
     return (
       <Screen className={styles.screen}>
         <Link to={cardPath} className={styles.back}>
-          {cardPath.endsWith('/tarjeta') ? 'Volver a la tarjeta' : 'Volver al perfil'}
+          {cardPath.endsWith('/tarjeta') ? 'Volver a la tarjeta' : 'Volver a la ficha'}
         </Link>
         <p role="alert">Ese jugador no está en la plantilla.</p>
       </Screen>
@@ -127,7 +127,7 @@ function RateForm({
   return (
     <Screen className={styles.screen}>
       <Link to={cardPath} className={styles.back}>
-        {cardPath.endsWith('/tarjeta') ? 'Volver a la tarjeta' : 'Volver al perfil'}
+        {cardPath.endsWith('/tarjeta') ? 'Volver a la tarjeta' : 'Volver a la ficha'}
       </Link>
       <header>
         <h1 className={styles.title}>Puntuar a {name}</h1>

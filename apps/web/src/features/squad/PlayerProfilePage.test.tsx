@@ -102,27 +102,34 @@ const routes = (profile: unknown) => ({
 describe('PlayerProfilePage', () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it('muestra dónde lo ve cada fuente, si coinciden, su test y sus valoraciones', async () => {
+  it('la ficha: su ficha y tres datos arriba, valorar y puntuar juntos, y el detalle por secciones', async () => {
     fakeApi(routes(PROFILE));
-    renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
+    const router = renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
 
-    expect(await screen.findByRole('heading', { name: 'Ana' })).toBeInTheDocument();
-    expect(screen.getByText('Dorsal')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Ana' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Dorsal 4' })).toBeInTheDocument();
     expect(screen.getByText('Zurdo')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Volver a valorar' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Puntuar tarjeta' })).toBeInTheDocument();
 
+    // Resumen (por defecto): dónde lo ven y su test.
     const where = screen.getByRole('region', { name: 'Dónde lo ven' });
     expect(where).toHaveTextContent('Cuerpo técnicoDefensa central');
     expect(where).toHaveTextContent('Sus preferidasLateral');
     expect(where).toHaveTextContent('El test coincide: Defensa central está en su podio.');
-
     const test = screen.getByRole('region', { name: 'Su test' });
     expect(within(test).getAllByRole('listitem')).toHaveLength(8);
     expect(within(test).getAllByRole('listitem')[0]).toHaveTextContent('Defensa central82%');
 
-    const assessments = screen.getByRole('region', { name: 'Valoraciones' });
+    // Las secciones van en la URL.
+    await userEvent.click(screen.getByRole('button', { name: 'Valoraciones' }));
+    expect(router.state.location.search).toBe('?ver=valoraciones');
+    const assessments = screen.getByRole('list', { name: 'Valoraciones' });
     expect(within(assessments).getAllByRole('listitem')).toHaveLength(2);
     expect(within(assessments).getByText('A ciegas')).toBeInTheDocument();
     expect(within(assessments).getByText('“Gana por arriba”')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Tarjeta' }));
     expect(screen.getByText('Todavía nadie del cuerpo técnico lo puntuó.')).toBeInTheDocument();
   });
 
@@ -134,6 +141,7 @@ describe('PlayerProfilePage', () => {
 
     const where = await screen.findByRole('region', { name: 'Dónde lo ven' });
     expect(where).toHaveTextContent('TestValóralo para verlo');
+    expect(screen.getByText('Oculto')).toBeInTheDocument();
     expect(where).not.toHaveTextContent('El test');
     expect(screen.queryByRole('region', { name: 'Su test' })).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Valorar' })).toBeInTheDocument();
@@ -168,7 +176,7 @@ describe('PlayerProfilePage', () => {
     const router = renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
 
     await userEvent.click(await screen.findByRole('link', { name: 'Volver a valorar' }));
-    expect(await screen.findByRole('link', { name: 'Volver al perfil' })).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: 'Volver a la ficha' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('radio', { name: /Defensa central/ }));
     await userEvent.click(screen.getByRole('button', { name: 'Guardar valoración' }));
     await vi.waitFor(() =>
