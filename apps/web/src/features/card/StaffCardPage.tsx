@@ -16,8 +16,8 @@ export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: 
   const history = useRatingHistory(teamId, playerId);
 
   const back = (
-    <Link to={`/equipos/${teamId}/plantilla`} className={styles.back}>
-      Volver a la plantilla
+    <Link to={`/equipos/${teamId}/plantilla/${playerId}?ver=tarjeta`} className={styles.back}>
+      Volver a la ficha
     </Link>
   );
   if (team.isPending || squad.isPending || history.isPending) {

@@ -163,6 +163,7 @@ Con `prefers-reduced-motion: reduce`, las duraciones pasan a 0 y la entrada se m
 | `Sheet` | Hoja inferior modal (`<dialog>`) | Atrapa y devuelve el foco; se cierra con X, velo, Escape o arrastrando la manija |
 | `Chips` | Filtros en fila que se deslizan de lado | Botones con `aria-pressed`; el prendido se rellena de tiza. Con conteo, `aria-label` "Por valorar, 4" |
 | `Segmented` | Conmutador de pocas opciones que cambian lo que se ve ("Lista \| Pizarra") | Botones con `aria-pressed` (no son pestañas con panel); 44px de alto |
+| `SectionTabs` | Secciones de una pantalla larga ("Resumen · Tarjeta · Conocimiento · Valoraciones"), subrayadas en ámbar | Se deslizan de lado si no caben; `aria-pressed`; la elegida va en la URL (`?ver=`) |
 | `SearchField` | Buscador redondo con lupa y X para limpiar | `type="search"`, etiqueta para lectores; la X reemplaza la del navegador |
 | `Row` | Fila de lista que lleva a otra pantalla: ficha, título, una línea, dato a la derecha | 64px de alto, título truncado con `…` |
 | `LeadTask` / `TaskRow` | "Lo que toca": el bloque ámbar (uno por pantalla) y las filas de tarea con icono y conteo | El bloque es lo más fuerte de la pantalla |

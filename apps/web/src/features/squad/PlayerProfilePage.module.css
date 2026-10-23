@@ -13,32 +13,83 @@
   touch-action: manipulation;
 }
 
-/* El dorsal manda: número grande en ámbar al lado del nombre. */
-.head {
+.hero {
   display: flex;
   align-items: center;
   gap: var(--sdl-space-4);
 }
 
-.jersey {
-  flex: none;
-  color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
-  font-size: 4rem;
-  font-weight: 700;
-  line-height: 0.9;
-  font-variant-numeric: tabular-nums;
-}
-
-.headText {
+.heroText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   min-width: 0;
 }
 
 .title {
-  font-size: var(--sdl-text-xl);
-  line-height: 1.1;
-  text-transform: uppercase;
+  font-size: var(--sdl-text-display);
+  line-height: var(--sdl-leading-display);
+  letter-spacing: var(--sdl-tracking-display);
   overflow-wrap: anywhere;
+}
+
+.heroPos {
+  font-weight: 600;
+}
+
+/* Tres datos de un vistazo: media, test y conocimiento. */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sdl-space-2);
+  margin: 0;
+}
+
+.stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--sdl-space-3);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface);
+}
+
+.stats dt {
+  order: 2;
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-xs);
+  font-weight: 600;
+}
+
+.stats dd {
+  margin: 0;
+  font-family: var(--sdl-font-display);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats .statWord {
+  font-size: 20px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.stats .statNote {
+  order: 3;
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-body);
+  font-size: var(--sdl-text-xs);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.empty {
+  padding-block: var(--sdl-space-6);
+  color: var(--sdl-fg-muted);
+  text-align: center;
 }
 
 .muted {
