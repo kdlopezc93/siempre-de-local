@@ -37,6 +37,8 @@ const TEAM_PERMISSIONS = {
   'team.ratings.write': { roles: STAFF, clubAdmin: false },
   'team.assessments.write': { roles: STAFF, clubAdmin: false },
   'team.lineups.write': { roles: STAFF, clubAdmin: false },
+  /** Convocar, editar o cancelar partidos (Fase 7). */
+  'team.matches.write': { roles: STAFF, clubAdmin: false },
   'team.attempts.void': { roles: ['coach'], clubAdmin: true },
   'team.reevaluations.request': { roles: ['coach'], clubAdmin: true },
   'team.players.invite': { roles: ['coach'], clubAdmin: true },

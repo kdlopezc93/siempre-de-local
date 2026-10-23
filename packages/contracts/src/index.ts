@@ -13,3 +13,4 @@ export * from './squad.js';
 export * from './teams.js';
 export * from './validation.js';
 export * from './account.js';
+export * from './matches.js';

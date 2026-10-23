@@ -349,6 +349,14 @@ Avisos: `NOT_ENOUGH_PLAYERS`, `PLAYER_WITHOUT_DATA` (va al final), `MIN_KNOWLEDG
 
 **Decidido el 2026-10-22: no se importan los resultados del prototipo.** El test cambió (v2: 20 preguntas, podio y sin preparación), así que esos resultados no son comparables con los nuevos; los jugadores vuelven a hacer el test en la app. Se implementó y se retiró antes de fusionar (PR #37); si algún día hiciera falta, está en el historial de esa rama.
 
+## 13. Partidos (Fase 7)
+
+- **Convocatoria:** el cuerpo técnico (coach y assistant, `team.matches.write`) crea un partido con formato (uno de los que juega el equipo, D14), fecha y hora con zona horaria, lugar y rival (texto libre, 1 a 80 caracteres). Tiene que ser en el futuro.
+- **Abierto hasta la hora del partido** (`isMatchOpen`, D17): mientras está programado y no empezó, cada jugador responde **voy / no voy** y puede cambiar; el cuerpo técnico lo edita, lo cancela y publica o republica la alineación. Cancelado o empezado, queda fijo (409 `MATCH_CLOSED`).
+- **Respuestas:** las cuenta `replySummary` entre los **jugadores activos** (quien salió del equipo no cuenta). El equipo ve cuántos van, no van y faltan; **quién respondió qué** lo ven el cuerpo técnico y el admin del club, no los compañeros.
+- **Alineación publicada** (PR 3 y 4): la ve todo el equipo sin el desglose del encaje (D17).
+- **Avisos** (D16): primero en "lo que toca" del inicio; push al final de la fase.
+
 ## Afirmaciones de la app (principio 8 de `07`)
 
 Revisadas el 2026-10-22 (Fase 6, PR 11). La app no promete lo que no mide:

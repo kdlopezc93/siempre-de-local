@@ -265,6 +265,12 @@ Las medias por posición **no se guardan**: se calculan en el dominio con `ratin
 
 Implementado en `apps/api/src/modules/assessments/infrastructure/schema.ts` (migración `0008_coach_assessment`), con índice `(team_id, player_user_id, created_at desc)`; `coach_user_id` queda en null si se borra la cuenta de quien valoró. **`blind` lo calcula el servidor:** es `true` en la primera valoración de esa persona a ese jugador, porque la app no le muestra el test hasta que la registra (`GET /teams/:id/squad`).
 
+**team_match** — `id, team_id, created_by (set null), format, starts_at timestamptz, place text, opponent text, status match_status ('scheduled','cancelled'), lineup_id (set null, la publicada), published_at, created_at, updated_at`. Índice `(team_id, starts_at)`.
+
+**match_reply** — `match_id (cascade), user_id (cascade), reply match_reply_value ('yes','no'), replied_at` · PK (match_id, user_id). Una por jugador; se reemplaza al cambiar.
+
+> **Implementado** (migración `0017_matches`, módulo `matches`, Fase 7). Reglas en `02` §13.
+
 **lineup**
 | Columna | Tipo | Notas |
 |---|---|---|
