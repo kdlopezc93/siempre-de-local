@@ -373,6 +373,10 @@ describe('partidos en la app (Fase 7)', () => {
     expect(within(board).getByRole('group', { name: 'Goles de Primer equipo' })).toHaveTextContent(
       '2',
     );
+    // Con el marcador sin guardar, volver a Partidos pregunta.
+    await user.click(screen.getByRole('link', { name: 'Partidos' }));
+    expect(await screen.findByRole('heading', { name: '¿Salir sin guardar?' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Seguir aquí' }));
     await user.click(within(board).getByRole('button', { name: 'Elegir' }));
     await user.click(await screen.findByRole('button', { name: /Ana/ }));
     await user.click(within(board).getByRole('button', { name: 'Guardar el resultado' }));

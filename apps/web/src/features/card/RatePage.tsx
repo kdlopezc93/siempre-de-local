@@ -14,6 +14,7 @@ import { Link, useNavigate } from 'react-router';
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
+import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { useBackTo } from '../squad/back';
 import { useSquad } from '../squad/use-squad';
 import { useTeam } from '../team-admin/use-invitations';
@@ -84,19 +85,25 @@ function RateForm({
   const navigate = useNavigate();
   const create = useCreateRating(teamId, playerId);
   // Se parte de la foto anterior: puntuar de nuevo es mover lo que cambió.
-  const [values, setValues] = useState<Record<RatingAttributeCode, number>>(
-    () =>
-      Object.fromEntries(
-        [...OUTFIELD_ATTRIBUTES, ...GOALKEEPER_ATTRIBUTES].map((code) => [
-          code,
-          previous?.values[code] ?? START,
-        ]),
-      ) as Record<RatingAttributeCode, number>,
-  );
-  const [goalkeeper, setGoalkeeper] = useState(
-    previous ? previous.values.GK_DIV !== undefined : mightKeep,
-  );
+  const [start] = useState(() => ({
+    values: Object.fromEntries(
+      [...OUTFIELD_ATTRIBUTES, ...GOALKEEPER_ATTRIBUTES].map((code) => [
+        code,
+        previous?.values[code] ?? START,
+      ]),
+    ) as Record<RatingAttributeCode, number>,
+    goalkeeper: previous ? previous.values.GK_DIV !== undefined : mightKeep,
+  }));
+  const [values, setValues] = useState(start.values);
+  const [goalkeeper, setGoalkeeper] = useState(start.goalkeeper);
   const [notes, setNotes] = useState('');
+  const guard = useUnsavedChanges(
+    notes.trim() !== '' ||
+      goalkeeper !== start.goalkeeper ||
+      Object.entries(values).some(
+        ([code, value]) => start.values[code as RatingAttributeCode] !== value,
+      ),
+  );
   const notesId = useId();
 
   const sent = Object.fromEntries(
@@ -113,7 +120,12 @@ function RateForm({
         values: sent as Parameters<typeof create.mutate>[0]['values'],
         notes: notes.trim() || undefined,
       },
-      { onSuccess: () => void navigate(cardPath) },
+      {
+        onSuccess: () => {
+          guard.release();
+          void navigate(cardPath);
+        },
+      },
     );
   }
 
@@ -126,6 +138,7 @@ function RateForm({
 
   return (
     <Screen className={styles.screen}>
+      {guard.prompt}
       <Link to={cardPath} className={styles.back}>
         {cardPath.endsWith('/tarjeta') ? 'Volver a la tarjeta' : 'Volver a la ficha'}
       </Link>

@@ -22,10 +22,11 @@ import { toLocalInputs } from '../matches/match-view';
 import { useMatch } from '../matches/use-matches';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
+import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { useTeam } from '../team-admin/use-invitations';
 import { fitTone, LineupBoard } from './LineupBoard';
 import styles from './PlannerPage.module.css';
-import { fromLineup, fromMatch, toLineupInput } from './planner-state';
+import { fromLineup, fromMatch, lineupSignature, toLineupInput } from './planner-state';
 import { SlotBreakdown } from './SlotBreakdown';
 import { useLineup, usePublishLineup, useSaveLineup } from './use-lineups';
 import { useLineupInputs, usePlanner } from './use-planner';
@@ -142,6 +143,10 @@ function Planner({
   );
   const replies = new Map(match?.roster?.map((r) => [r.playerId, r.reply]));
   const { state, formation, result } = p;
+  // Sin guardar: lo de la pizarra difiere de lo que se abrió o de lo último guardado.
+  const signature = lineupSignature(state, result);
+  const [savedSignature, setSavedSignature] = useState(signature);
+  const guard = useUnsavedChanges(signature !== savedSignature);
   const names = new Map(inputs.players.map((x) => [x.playerId, x.displayName]));
   const jerseys = new Map(inputs.players.map((x) => [x.playerId, x.jerseyNumber]));
   const pinnedSlots = new Set(state.pins.map((x) => x.slotId));
@@ -153,6 +158,7 @@ function Planner({
 
   return (
     <Screen className={styles.screen}>
+      {guard.prompt}
       {back}
       <header>
         <h1 className={styles.title}>Planificador</h1>
@@ -392,6 +398,7 @@ function Planner({
         saved={saved}
         match={match}
         toInput={(details) => toLineupInput(state, result, details)}
+        onSaved={() => setSavedSignature(signature)}
       />
 
       <p className={styles.note}>
@@ -440,10 +447,12 @@ function SaveSection({
   saved,
   match,
   toInput,
+  onSaved,
 }: {
   teamId: string;
   saved: Lineup | null;
   match: MatchResponse | null;
+  onSaved: () => void;
   toInput: (details: {
     name: string;
     matchDate: string | null;
@@ -476,7 +485,12 @@ function SaveSection({
         }),
         ...(currentId && !asNew ? { lineupId: currentId } : {}),
       },
-      { onSuccess: setDone },
+      {
+        onSuccess: (lineup) => {
+          setDone(lineup);
+          onSaved();
+        },
+      },
     );
   }
 

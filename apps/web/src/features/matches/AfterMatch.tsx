@@ -1,13 +1,14 @@
 import type { Match, MatchRatingValue, MatchRoster } from '@sdl/contracts';
 import { Minus } from '@phosphor-icons/react/dist/csr/Minus';
 import { Plus } from '@phosphor-icons/react/dist/csr/Plus';
-import { useId, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Sheet } from '../../shared/ui/Sheet';
 import { initialsOf } from '../../shared/ui/TeamHeader';
 import { Token } from '../../shared/ui/Token';
+import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { RATING_OPTIONS, ratingLabel, type RatablePlayer, whoPlayed } from './after-match';
 import styles from './AfterMatch.module.css';
 import {
@@ -42,6 +43,19 @@ export function AfterMatch({
   const lineup = usePublishedLineup(teamId, match.id, match.published?.at ?? null);
   const [added, setAdded] = useState<ReadonlySet<string>>(new Set());
   const [adding, setAdding] = useState(false);
+  // Un solo aviso de cambios sin guardar para toda la pantalla (React Router admite un bloqueo
+  // a la vez): el marcador y cada nota avisan si tienen algo pendiente.
+  const [unsaved, setUnsaved] = useState<ReadonlySet<string>>(new Set());
+  const report = useCallback<ReportUnsaved>((key, dirty) => {
+    setUnsaved((prev) => {
+      if (prev.has(key) === dirty) return prev;
+      const next = new Set(prev);
+      if (dirty) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  }, []);
+  const guard = useUnsavedChanges(unsaved.size > 0);
   const { played, others } = whoPlayed({
     roster,
     lineup: lineup.data ?? null,
@@ -53,7 +67,9 @@ export function AfterMatch({
 
   return (
     <>
+      {guard.prompt}
       <ResultBoard
+        report={report}
         teamId={teamId}
         teamName={teamName}
         match={match}
@@ -86,6 +102,7 @@ export function AfterMatch({
             const current = byPlayer.get(p.playerId);
             return (
               <RatingRow
+                report={report}
                 key={p.playerId}
                 teamId={teamId}
                 matchId={match.id}
@@ -126,12 +143,24 @@ export function AfterMatch({
 }
 
 /** El marcador de pizarra: goles de cada lado con − y +, y la figura del partido. */
+type ReportUnsaved = (key: string, dirty: boolean) => void;
+
+/** Avisa a la pantalla si esta parte tiene cambios sin guardar (y deja de hacerlo al salir). */
+function useReportUnsaved(report: ReportUnsaved, key: string, dirty: boolean) {
+  useEffect(() => {
+    report(key, dirty);
+    return () => report(key, false);
+  }, [report, key, dirty]);
+}
+
 function ResultBoard({
+  report,
   teamId,
   teamName,
   match,
   candidates,
 }: {
+  report: ReportUnsaved;
   teamId: string;
   teamName: string;
   match: Match;
@@ -156,6 +185,14 @@ function ResultBoard({
     match.result.goalsFor !== goalsFor ||
     match.result.goalsAgainst !== goalsAgainst ||
     (match.result.figure?.id ?? null) !== figureId;
+  // Sin resultado guardado, 0 a 0 sin figura es "no tocó nada".
+  useReportUnsaved(
+    report,
+    'result',
+    goalsFor !== (match.result?.goalsFor ?? 0) ||
+      goalsAgainst !== (match.result?.goalsAgainst ?? 0) ||
+      figureId !== (match.result?.figure?.id ?? null),
+  );
 
   return (
     <section aria-labelledby="resultado" className={styles.board}>
@@ -344,12 +381,14 @@ export function MatchResultView({
 
 /** Un jugador: sus cinco palabras (se guarda al tocar) y la nota, que se abre aparte. */
 function RatingRow({
+  report,
   teamId,
   matchId,
   player,
   rating,
   note,
 }: {
+  report: ReportUnsaved;
   teamId: string;
   matchId: string;
   player: RatablePlayer;
@@ -361,6 +400,7 @@ function RatingRow({
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [draft, setDraft] = useState(note ?? '');
   const noteId = useId();
+  useReportUnsaved(report, `note-${player.playerId}`, draft.trim() !== (note ?? '').trim());
   // Mientras se guarda, se ve lo que tocó (sin esperar al servidor).
   const pending = rate.isPending ? rate.variables : undefined;
   const shown = pending === undefined ? rating : ((pending?.rating as MatchRatingValue) ?? null);

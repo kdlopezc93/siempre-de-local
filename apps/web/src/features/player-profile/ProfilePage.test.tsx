@@ -1,10 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { Me } from '../../shared/api/auth';
+import { InDataRouter } from '../../test/data-router';
 import { fakeApi } from '../../test/fake-api';
 import { DEFAULT_PROFILE } from '../../test/me-fixture';
 import { uuid } from '../../test/questionnaire-fixture';
@@ -24,9 +25,9 @@ function renderProfile() {
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { mutations: { retry: false } } })}
     >
-      <MemoryRouter>
+      <InDataRouter>
         <ProfilePage me={ME} />
-      </MemoryRouter>
+      </InDataRouter>
     </QueryClientProvider>,
   );
 }

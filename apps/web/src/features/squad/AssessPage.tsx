@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router';
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
+import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { useTeam } from '../team-admin/use-invitations';
 import { useBackTo } from './back';
 import styles from './AssessPage.module.css';
@@ -31,6 +32,9 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
   const [confidence, setConfidence] = useState(3);
   const [notes, setNotes] = useState('');
   const [missingPrimary, setMissingPrimary] = useState(false);
+  const guard = useUnsavedChanges(
+    primary !== null || secondary.length > 0 || confidence !== 3 || notes.trim() !== '',
+  );
   const primaryHint = useId();
   const notesId = useId();
 
@@ -83,7 +87,12 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
         confidence,
         notes: notes.trim() || undefined,
       },
-      { onSuccess: () => void navigate(back) },
+      {
+        onSuccess: () => {
+          guard.release();
+          void navigate(back);
+        },
+      },
     );
   }
 
@@ -96,6 +105,7 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
 
   return (
     <Screen className={styles.screen}>
+      {guard.prompt}
       <BackLink to={back} />
       <header>
         <h1 className={styles.title}>Valorar a {player.displayName}</h1>
