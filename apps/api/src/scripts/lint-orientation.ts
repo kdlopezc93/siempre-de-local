@@ -1,15 +1,26 @@
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { parseArgs } from 'node:util';
+
 import { lintOrientation, ORIENTATION_COVERAGE, orientationCoverage, POSITIONS } from '@sdl/domain';
 
+import { orientationReviewSheet } from '../modules/questionnaires/application/orientation-report.js';
 import { ORIENTATION_V2 } from '../modules/questionnaires/infrastructure/seed/orientation-v2.content.js';
+import { ORIENTATION_V3 } from '../modules/questionnaires/infrastructure/seed/orientation-v3.content.js';
 
 /**
- * pnpm quiz:lint
+ * pnpm quiz:lint [-- --md <carpeta>]
  *
  * Control de calidad del test de orientación (02 §2): estructura de cada pregunta y cuántas
  * apuntan a cada posición, en el banco y por intento. Sale con error si hay errores de
- * estructura (no se podría publicar); los avisos de cobertura no bloquean.
+ * estructura (no se podría publicar); los avisos de cobertura no bloquean. Con `--md`, escribe
+ * la hoja de revisión de cada versión nueva frente a la anterior.
  */
-const VERSIONS = [ORIENTATION_V2];
+const { values } = parseArgs({
+  args: process.argv.slice(2).filter((arg) => arg !== '--'),
+  options: { md: { type: 'string' } },
+});
+
+const VERSIONS = [ORIENTATION_V2, ORIENTATION_V3];
 
 let blocking = 0;
 for (const version of VERSIONS) {
@@ -34,5 +45,12 @@ for (const version of VERSIONS) {
   ];
   console.log(`${lines.join('\n')}\n`);
   if (issues.some((i) => i.level === 'error')) blocking++;
+  const previous = VERSIONS[VERSIONS.indexOf(version) - 1];
+  if (values.md && previous) {
+    mkdirSync(values.md, { recursive: true });
+    const file = `${values.md}/orientacion-${version.label}.md`;
+    writeFileSync(file, orientationReviewSheet(version, previous));
+    console.log(`  Hoja de revisión: ${file}\n`);
+  }
 }
 process.exitCode = blocking > 0 ? 1 : 0;

@@ -17,6 +17,11 @@ export interface OrientationContent {
   prepItems: Partial<
     Record<PositionCode, { text: string; options: { label: string; isCorrect: boolean }[] }[]>
   >;
+  /**
+   * Desde v3, quién revisó las preguntas y cuándo (Fase 8): `null` es un borrador y no se
+   * publica. v1 y v2 no lo traen (vienen del prototipo).
+   */
+  review?: { reviewedBy: string; reviewedOn: string } | null;
 }
 
 /** Reglas que se comprueban al publicar una versión. Devuelve los problemas encontrados. */
@@ -28,6 +33,9 @@ export function validateOrientationContent(content: OrientationContent): string[
     problems.push(
       `Hay ${positionItems.length} ítems de posición y cada intento sirve ${positionItemsPerAttempt}`,
     );
+  }
+  if (content.review === null) {
+    problems.push('Es un borrador: falta la revisión (review) antes de publicarla');
   }
   const codes = new Set(positionItems.map((item) => item.code));
   if (codes.size !== positionItems.length) problems.push('Hay códigos de ítem repetidos');
