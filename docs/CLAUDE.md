@@ -56,7 +56,7 @@ Requisitos: Node 24 (`nvm use`, ver `.nvmrc`) y pnpm vía `corepack enable`.
 | `pnpm format` | Prettier |
 | `pnpm admin:seed-demo -- --team-id <uuid> [--coach-email <correo>]` | Llena un equipo con 14 jugadores de demostración (tests, valoraciones y tarjetas de un asistente demo, exámenes de conocimiento de las posiciones publicadas); con `--coach-email`, ese miembro del cuerpo técnico también los valora a ciegas (para ver el informe de validación desde su cuenta). Idempotente, nunca en producción. Recompila el API: con `dev:tunnel` corriendo, deténlo antes y vuelve a levantarlo |
 | `pnpm bank:lint [-- --md <carpeta>]` | Control de calidad de los bancos del examen de conocimiento; con `--md` escribe la hoja de revisión de cada banco para el entrenador revisor |
-| `pnpm quiz:lint` | Control de calidad del test de orientación: estructura de cada pregunta y cuántas apuntan a cada posición, en el banco y por intento |
+| `pnpm quiz:lint [-- --md <carpeta>]` | Control de calidad del test de orientación: estructura de cada pregunta y cuántas apuntan a cada posición, en el banco y por intento; con `--md ../../docs/test`, la hoja de revisión de cada versión nueva frente a la anterior |
 | `pnpm db:up` | Levanta Postgres 18 local (`docker compose up -d --wait db`) |
 | `pnpm db:generate` | Genera la migración SQL a partir del esquema Drizzle |
 | `pnpm db:migrate` | Aplica las migraciones pendientes |
