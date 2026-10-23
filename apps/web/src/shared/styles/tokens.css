@@ -1,6 +1,7 @@
 /*
- * Tokens del sistema de diseño "pizarra táctica" (docs/design-system.md).
+ * Tokens del sistema de diseño v2, "pizarra táctica" (docs/design-system.md).
  * Los componentes usan los roles semánticos (--sdl-fg, --sdl-primary…), nunca hex sueltos.
+ * Contraste de cada pareja medido en §3.3.
  */
 :root {
   color-scheme: dark;
@@ -8,21 +9,24 @@
   /* Paleta base (§3.1) */
   --sdl-color-bg: #0b140f;
   --sdl-color-bg-glow: #12241a;
-  --sdl-color-surface: #111e17;
-  --sdl-color-surface-hover: #14241b;
-  --sdl-color-surface-selected: #1a2b1f;
-  --sdl-color-line: #2c4f3d;
-  --sdl-color-border-strong: #4a7d62;
+  --sdl-color-surface: #13241b;
+  --sdl-color-surface-hover: #172b20;
+  --sdl-color-surface-selected: #1b3125;
+  --sdl-color-line: #2a4a38;
+  --sdl-color-border-strong: #4f8468;
   --sdl-color-pitch-line: #3a6b52;
   --sdl-color-chalk: #eef1ea;
-  --sdl-color-dim: #8ba192;
+  --sdl-color-dim: #9db3a4;
   --sdl-color-accent: #e8b84b;
   --sdl-color-accent-hover: #f0c661;
   --sdl-color-on-accent: #0b140f;
+  --sdl-color-on-accent-muted: #4a3a12;
   --sdl-color-green: #4cc38a;
-  --sdl-color-blue: #5aa8e0;
+  --sdl-color-blue: #6cb4ee;
+  --sdl-color-coral: #f2836b;
   --sdl-color-red: #e5555a;
   --sdl-color-red-text: #ef6b6f;
+  --sdl-color-scrim: rgb(4 9 6 / 72%);
   /* Fondo del logo de Google: exigido por sus directrices de marca. */
   --sdl-color-google-badge: #ffffff;
 
@@ -33,33 +37,43 @@
   --sdl-surface: var(--sdl-color-surface);
   --sdl-surface-hover: var(--sdl-color-surface-hover);
   --sdl-surface-selected: var(--sdl-color-surface-selected);
+  --sdl-surface-raised: var(--sdl-color-surface-selected);
   --sdl-border: var(--sdl-color-line);
   --sdl-border-control: var(--sdl-color-border-strong);
   --sdl-primary: var(--sdl-color-accent);
   --sdl-primary-hover: var(--sdl-color-accent-hover);
   --sdl-on-primary: var(--sdl-color-on-accent);
+  --sdl-on-primary-muted: var(--sdl-color-on-accent-muted);
   --sdl-focus-ring: var(--sdl-color-accent);
   --sdl-success: var(--sdl-color-green);
   --sdl-info: var(--sdl-color-blue);
   --sdl-danger: var(--sdl-color-red);
   --sdl-danger-fg: var(--sdl-color-red-text);
+  --sdl-scrim: var(--sdl-color-scrim);
   --sdl-chalk-stroke: var(--sdl-color-chalk);
   --sdl-pitch-stroke: var(--sdl-color-pitch-line);
 
+  /* Línea de cada posición: el aro de las fichas (§9.2). Nunca es la única pista. */
+  --sdl-line-portero: var(--sdl-color-chalk);
+  --sdl-line-defensa: var(--sdl-color-blue);
+  --sdl-line-medio: var(--sdl-color-green);
+  --sdl-line-ataque: var(--sdl-color-coral);
+
   /* Tipografía (§4) */
-  --sdl-font-display: 'Oswald', 'Arial Narrow', sans-serif;
-  --sdl-font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --sdl-font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --sdl-font-body: 'Barlow', system-ui, sans-serif;
   --sdl-text-xs: 12px;
-  --sdl-text-sm: 13px;
+  --sdl-text-sm: 14px;
   --sdl-text-base: 16px;
-  --sdl-text-lg: 17px;
-  --sdl-text-xl: clamp(22px, 5.5vw, 28px);
-  --sdl-text-display: clamp(34px, 9vw, 52px);
-  --sdl-leading-body: 1.6;
-  --sdl-leading-display: 0.98;
-  --sdl-tracking-display: 0.01em;
-  --sdl-tracking-button: 0.1em;
-  --sdl-tracking-eyebrow: 0.22em;
+  --sdl-text-lg: 18px;
+  --sdl-text-xl: clamp(22px, 6vw, 28px);
+  --sdl-text-display: clamp(36px, 10vw, 56px);
+  --sdl-text-number: clamp(48px, 15vw, 72px);
+  --sdl-leading-body: 1.5;
+  --sdl-leading-display: 0.95;
+  --sdl-tracking-display: -0.005em;
+  --sdl-tracking-button: 0.02em;
+  --sdl-tracking-eyebrow: 0.04em;
 
   /* Espaciado: escala de 4px (§5) */
   --sdl-space-1: 4px;
@@ -71,15 +85,21 @@
   --sdl-space-8: 32px;
   --sdl-space-10: 40px;
   --sdl-space-14: 56px;
-  --sdl-gutter: 18px;
+  --sdl-gutter: 16px;
   --sdl-content-max: 560px;
 
   /* Forma (§5) */
   --sdl-stroke: 1.5px;
-  --sdl-radius-sm: 11px;
-  --sdl-radius-md: 13px;
-  --sdl-radius-lg: 16px;
+  --sdl-radius-sm: 10px;
+  --sdl-radius-md: 14px;
+  --sdl-radius-lg: 20px;
   --sdl-radius-pill: 999px;
+
+  /* Armazón (§9.1) */
+  --sdl-header-height: 56px;
+  --sdl-nav-height: 64px;
+  --sdl-icon-sm: 18px;
+  --sdl-icon-md: 24px;
 
   /* Interacción (§6) */
   --sdl-touch-min: 48px;
@@ -90,7 +110,12 @@
   --sdl-duration-fast: 160ms;
   --sdl-duration-base: 240ms;
   --sdl-duration-enter: 450ms;
+  --sdl-duration-sheet: 320ms;
+  --sdl-duration-exit: 200ms;
   --sdl-ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --sdl-ease-in: cubic-bezier(0.4, 0, 1, 1);
+  /* Como un resorte suave: llega rápido y se asienta. */
+  --sdl-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -98,5 +123,7 @@
     --sdl-duration-fast: 0ms;
     --sdl-duration-base: 0ms;
     --sdl-duration-enter: 0ms;
+    --sdl-duration-sheet: 0ms;
+    --sdl-duration-exit: 0ms;
   }
 }

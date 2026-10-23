@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { createBrowserRouter, Navigate } from 'react-router';
 
 import {
@@ -24,7 +25,26 @@ import {
   SquadRoute,
 } from '../features/auth/SessionRoutes';
 
+/** Maqueta del sistema de diseño v2: solo en desarrollo, fuera del build de producción. */
+const ShowcasePage = import.meta.env.DEV
+  ? lazy(() =>
+      import('../features/showcase/ShowcasePage').then((m) => ({ default: m.ShowcasePage })),
+    )
+  : null;
+
 export const router = createBrowserRouter([
+  ...(ShowcasePage
+    ? [
+        {
+          path: '/muestra/*',
+          element: (
+            <Suspense>
+              <ShowcasePage />
+            </Suspense>
+          ),
+        },
+      ]
+    : []),
   { path: '/', element: <HomeRoute /> },
   { path: '/entrar', element: <LoginRoute /> },
   { path: '/unirse/:code', element: <JoinRoute /> },
