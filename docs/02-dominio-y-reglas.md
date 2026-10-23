@@ -133,6 +133,8 @@ Medir con más rigor el conocimiento táctico de un jugador sobre **una posició
 
 Las bandas no bloquean nada; son la etiqueta que ven el jugador y el entrenador. El peso en el planificador sale del valor, no de la banda (§9.1).
 
+**Para los compañeros (D11):** en Equipo → Integrantes, cada jugador muestra solo su **mejor banda** (la de su mejor puntaje) y la posición ("Sólido en Defensa central"), nunca el puntaje. "Insuficiente" no se muestra a los compañeros (`bestBandForTeammates`): exhibirlo ante el equipo desanima, y el cuerpo técnico lo ve en la ficha.
+
 ### 6.5 Calidad del banco
 "Más certero" sale de que las preguntas sean buenas:
 1. **Revisión de contenido** por al menos un entrenador antes de publicar.

@@ -86,7 +86,7 @@ La pestaña **Alineaciones pasa a Partidos** y la tienen también los jugadores:
 - **Alineaciones:** la lista de guardadas, con "Armar nueva" como acción principal.
 - **Equipo:**
   - datos del equipo;
-  - integrantes por rol;
+  - integrantes por rol (hecho en los pendientes después de la Fase 7: cuerpo técnico y jugadores con su mejor banda, D11);
   - **Invitar** (aquí, asociado al equipo);
   - **Informe de validación**;
   - "En qué se basa el test".

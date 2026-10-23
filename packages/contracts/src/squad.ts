@@ -90,3 +90,32 @@ export const PlayerProfileResponseSchema = z.object({
 });
 
 export type PlayerProfileResponse = z.infer<typeof PlayerProfileResponseSchema>;
+
+/**
+ * GET /api/v1/teams/:teamId/members — quiénes son del equipo, para todos sus miembros (y el
+ * admin del club): el cuerpo técnico con su rol y los jugadores con su dorsal y su mejor banda
+ * de conocimiento (D11: banda y posición, nunca el puntaje; "Insuficiente" no se muestra).
+ */
+export const TeamMembersResponseSchema = z.object({
+  staff: z.array(
+    z.object({
+      userId: z.uuid(),
+      displayName: z.string(),
+      role: z.enum(['coach', 'assistant']),
+    }),
+  ),
+  players: z.array(
+    z.object({
+      userId: z.uuid(),
+      displayName: z.string(),
+      jerseyNumber: z.int().nullable(),
+      bestBand: z
+        .object({
+          position: PositionCodeSchema,
+          band: KnowledgeBandSchema.exclude(['insufficient']),
+        })
+        .nullable(),
+    }),
+  ),
+});
+export type TeamMembersResponse = z.infer<typeof TeamMembersResponseSchema>;

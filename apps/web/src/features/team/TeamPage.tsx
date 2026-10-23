@@ -9,11 +9,12 @@ import { Screen } from '../../shared/ui/Screen';
 import { formatsLabel } from '../shell/shell-nav';
 import { VisibilitySettings } from './VisibilitySettings';
 import { TeamData } from './TeamData';
+import { TeamMembers } from './TeamMembers';
 import styles from './TeamPage.module.css';
 
 /**
- * /equipos/:teamId/equipo — el equipo (tu cuenta va aparte, en /cuenta). El PR 8 de la Fase 6 le suma los datos
- * del equipo y sus integrantes (07 §4.6).
+ * /equipos/:teamId/equipo — el equipo (tu cuenta va aparte, en /cuenta): sus datos, accesos,
+ * integrantes y ajustes (07 §4.6).
  */
 export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
   const membership = me.teams.find((t) => t.team.id === teamId);
@@ -48,6 +49,7 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
         )}
         <Item to="/bases" icon={Question} title="En qué se basa el test" />
       </ul>
+      <TeamMembers teamId={teamId} opensSheet={staff || clubAdmin} />
       {(coach || clubAdmin) && <VisibilitySettings teamId={teamId} />}
     </Screen>
   );

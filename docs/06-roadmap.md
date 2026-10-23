@@ -146,6 +146,15 @@ Plan en PRs (2026-10-22, con D16 y D17 decididos):
 
 El punto 5 (después del partido) se sumó el 2026-10-23 como PR 6–8.
 
+### Pendientes sueltos (después de la Fase 7)
+Elegidos por Kevin el 2026-10-23, antes del staging o la Fase 8: cosas chicas que se notan en el uso diario.
+
+| # | PR | Estado |
+|---|---|---|
+| 1 | Integrantes en Equipo para todos: cuerpo técnico y jugadores con su mejor banda (D11, sin puntaje) | #79 |
+| 2 | Avisar antes de salir con cambios sin guardar (formularios y el marcador del partido) | |
+| 3 | El nombre del entrenador revisor en los bancos del examen (D10), cuando Kevin lo tenga | |
+
 ### Fase 8 · Contenido, psicometría y medición
 - Ampliar el banco de posición del test de orientación a ~40 ítems (hoy 31, 20 por intento).
 - Análisis de ítems de los bancos de conocimiento (dificultad, discriminación) → nuevas versiones del banco.
@@ -194,7 +203,7 @@ El punto 5 (después del partido) se sumó el 2026-10-23 como PR 6–8.
 | D8 | ¿El jugador ve su tarjeta 0–99? | **Decidido: sí, configurable por equipo** (`team.ratings_visible_to_players`, interruptor del entrenador) (2026-10-22) |
 | D9 | Vigencia del puntaje de conocimiento | **Decidido: no caduca.** Un intento por posición cada 30 días. Reabrir solo si se ve que puntajes viejos no reflejan la realidad |
 | D10 | ¿Quién escribe los bancos de conocimiento? | Kevin + un entrenador revisor por posición; nunca un entrenador cuyos jugadores vayan a examinarse sin rotar revisores |
-| D11 | ¿Los compañeros ven el conocimiento de otros? | Solo la banda, sin puntaje |
+| D11 | ¿Los compañeros ven el conocimiento de otros? | Solo la banda, sin puntaje. **Hecho** (2026-10-23): la mejor banda con su posición, en Integrantes; "Insuficiente" no se muestra a los compañeros |
 | D12 | Formación por defecto para F8 y F11 en el planificador | **Decidido** (2026-10-22): F8 1-3-3-1 (más 1-2-4-1, 1-3-4, 1-2-3-2, del prototipo); F11 1-4-3-3 (más 1-4-4-2, 1-4-2-3-1, 1-3-5-2) |
 | D13 | Plazo por defecto para presentar una re-evaluación | 14 días; al vencer, C = 0 en el planificador hasta que presente |
 | D14 | Equipos que juegan varios formatos: qué formato usa cada cosa | **Decidido** (2026-10-22, Kevin): el test, la valoración y la tarjeta usan el **principal** (`team.format`); el planificador elige por partido entre los formatos del equipo (`team.formats`) |
