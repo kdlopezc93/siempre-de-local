@@ -7,6 +7,7 @@ import { LAT_V1 } from './lat-v1.bank.js';
 import { MC_V1 } from './mc-v1.bank.js';
 import { MCD_V1 } from './mcd-v1.bank.js';
 import { MP_V1 } from './mp-v1.bank.js';
+import { POR_V1 } from './por-v1.bank.js';
 import { MC_V2 } from './mc-v2.bank.js';
 
 /**
@@ -24,4 +25,5 @@ export const CERT_BANKS: readonly CertBankContent[] = [
   EXT_V1,
   MCD_V1,
   MP_V1,
+  POR_V1,
 ];
