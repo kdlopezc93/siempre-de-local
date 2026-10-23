@@ -1,12 +1,23 @@
-import type { CreateMatchRequest, MatchReply, UpdateMatchRequest } from '@sdl/contracts';
+import type {
+  CreateMatchRequest,
+  MatchRatingRequest,
+  MatchReply,
+  MatchResultRequest,
+  UpdateMatchRequest,
+} from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   createMatch,
   fetchMatch,
+  fetchMatchRatings,
   fetchMatches,
+  fetchPlayerMatchRatings,
   fetchPublishedLineup,
+  rateMatchPlayer,
+  recordMatchResult,
   replyMatch,
+  unrateMatchPlayer,
   updateMatch,
 } from '../../shared/api/matches';
 
@@ -57,6 +68,55 @@ export function usePublishedLineup(teamId: string, matchId: string, publishedAt:
     queryKey: [...matchesKey(teamId), matchId, 'lineup', publishedAt],
     queryFn: () => fetchPublishedLineup(teamId, matchId),
     enabled: publishedAt !== null,
+    networkMode: 'offlineFirst',
+  });
+}
+
+export const useRecordMatchResult = (teamId: string, matchId: string) =>
+  useMatchMutation(teamId, (request: MatchResultRequest) =>
+    recordMatchResult(teamId, matchId, request),
+  );
+
+const playerRatingsKey = (teamId: string, playerId: string) =>
+  ['team', teamId, 'players', playerId, 'match-ratings'] as const;
+
+const ratingsKey = (teamId: string, matchId: string) =>
+  [...matchesKey(teamId), matchId, 'ratings'] as const;
+
+/** Las evaluaciones del partido, con notas (cuerpo técnico). */
+export function useMatchRatings(teamId: string, matchId: string, enabled = true) {
+  return useQuery({
+    queryKey: ratingsKey(teamId, matchId),
+    queryFn: () => fetchMatchRatings(teamId, matchId),
+    enabled,
+    networkMode: 'offlineFirst',
+  });
+}
+
+/**
+ * Evaluar o quitar la evaluación de un jugador. Cada fila tiene la suya, así una no pisa el
+ * estado de otra; la respuesta trae la lista completa y la deja en caché.
+ */
+export function useRateMatchPlayer(teamId: string, matchId: string, playerId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (request: MatchRatingRequest | null) =>
+      request
+        ? rateMatchPlayer(teamId, matchId, playerId, request)
+        : unrateMatchPlayer(teamId, matchId, playerId),
+    onSuccess: (data) => {
+      queryClient.setQueryData(ratingsKey(teamId, matchId), data);
+      void queryClient.invalidateQueries({ queryKey: playerRatingsKey(teamId, playerId) });
+    },
+  });
+}
+
+/** Partido a partido de un jugador (ficha, cuerpo técnico). */
+export function usePlayerMatchRatings(teamId: string, playerId: string, enabled = true) {
+  return useQuery({
+    queryKey: playerRatingsKey(teamId, playerId),
+    queryFn: () => fetchPlayerMatchRatings(teamId, playerId),
+    enabled,
     networkMode: 'offlineFirst',
   });
 }

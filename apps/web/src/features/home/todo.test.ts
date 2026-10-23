@@ -173,4 +173,21 @@ describe('lo que toca: partidos (D16)', () => {
     ]);
     expect(arrange(todos).lead!.to).toBe('/equipos/t1/partidos/Pibes');
   });
+
+  it('después del partido: al cuerpo técnico, los de la última semana sin resultado (D18)', () => {
+    const played = { open: false, replies: { yes: 9, no: 0, pending: 0 } };
+    const matches = [
+      m('Jugado', '2026-11-01T15:00:00.000Z', played),
+      m('Con resultado', '2026-11-02T15:00:00.000Z', {
+        ...played,
+        result: { goalsFor: 2, goalsAgainst: 1, figure: null, at: '2026-11-02T18:00:00.000Z' },
+      }),
+      m('Viejo', '2026-10-20T15:00:00.000Z', played),
+      m('Cancelado', '2026-11-03T15:00:00.000Z', { ...played, status: 'cancelled' }),
+    ];
+    const now = new Date('2026-11-04T12:00:00.000Z');
+    const staff = matchTodos({ teamId: 't1', matches, player: false, staff: true, now });
+    expect(staff.map((t) => t.title)).toEqual(['¿Cómo salió contra Jugado?']);
+    expect(matchTodos({ teamId: 't1', matches, player: true, staff: false, now })).toEqual([]);
+  });
 });

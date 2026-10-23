@@ -182,6 +182,12 @@ Del lado del cuerpo técnico (perfil del jugador, sección "Conocimiento"): el m
 
 La pizarra del planificador usa las mismas líneas (`PitchLines`) con los puestos de la formación: dorsal (o iniciales) en el círculo y el nombre debajo; **el aro dice qué tan bien encaja** (verde ≥ 65%, ámbar ≥ 40%, rojo debajo) y un punto ámbar marca lo **fijado**. Cada puesto es un botón (rol, teclado, foco visible) con área táctil de ~60 px. Se toca un puesto y después otro (o un suplente y después un puesto); lo movido queda fijado y el resto se reacomoda. Debajo, el encaje medio por línea; al elegir un puesto, su desglose (cuerpo técnico, tarjeta, conocimiento, test) con barras de tiza y "sin dato" cuando falta.
 
+## 9.0.3 Después del partido (`features/matches/AfterMatch`, D18)
+
+- **El marcador es lo memorable:** cada equipo en su mitad, partida por la línea del medio (`--sdl-pitch-stroke`); los goles en `--sdl-text-number` con `tabular-nums`, y `−` / `+` redondos de 48 px debajo (con `touch-action: manipulation`, para que tocar rápido sume y no haga zoom). La figura del partido es una ficha ámbar (`Token tone="amber"`) y se elige en una hoja.
+- **Evaluar es una fila de cinco palabras** (Flojo · Regular · Bien · Muy bien · Figura) en una grilla de 5 columnas con 8 px entre botones; la elegida se rellena de ámbar (la palabra también lo dice, no solo el color). Se guarda al tocar, con "Guardando…" / "Guardada" por fila. La nota se abre aparte, y quitar una evaluación con nota pide confirmación.
+- En la lista de partidos, los jugados muestran el marcador ("2–1", y "2 a 1" para lectores de pantalla); en la ficha del jugador, "Últimos partidos" con la palabra en ámbar.
+
 ## 9.1 Movimiento con intención (Fase 2)
 
 - **Paso de pregunta en el test:** la pregunta entra de lado (`translateX(16px)` + opacidad, `--sdl-duration-base`).

@@ -134,6 +134,20 @@ function MatchRow({
 
 function RowStatus({ match, staff, player }: { match: Match; staff: boolean; player: boolean }) {
   if (match.status === 'cancelled') return <span className={styles.cancelled}>Cancelado</span>;
+  // Ya jugado (D18): el marcador; al cuerpo técnico, si falta cargarlo.
+  if (match.result) {
+    return (
+      <span className={styles.score}>
+        <span aria-hidden="true">
+          {match.result.goalsFor}–{match.result.goalsAgainst}
+        </span>
+        <span className="sr-only">
+          {match.result.goalsFor} a {match.result.goalsAgainst}
+        </span>
+      </span>
+    );
+  }
+  if (staff && !match.open) return <span className={styles.ask}>Cargar resultado</span>;
   if (player && match.open && !match.myReply) return <span className={styles.ask}>Responder</span>;
   if (player && match.myReply) {
     return <span className={styles.reply}>{match.myReply === 'yes' ? 'Voy' : 'No voy'}</span>;

@@ -135,6 +135,30 @@ describe('PlayerProfilePage', () => {
     expect(screen.getByText('Todavía nadie del cuerpo técnico lo puntuó.')).toBeInTheDocument();
   });
 
+  it('en el resumen, cómo jugó sus últimos partidos, con la nota (D18)', async () => {
+    fakeApi({
+      ...routes(PROFILE),
+      [`GET /api/v1/teams/${TEAM_ID}/players/${ANA}/match-ratings`]: {
+        status: 200,
+        body: {
+          items: [
+            {
+              matchId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fa1',
+              opponent: 'Los Pibes',
+              startsAt: '2026-11-01T15:00:00.000Z',
+              rating: 5,
+              note: 'Sacó dos en la línea',
+            },
+          ],
+        },
+      },
+    });
+    renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
+    const form = await screen.findByRole('region', { name: 'Últimos partidos' });
+    expect(within(form).getByRole('link', { name: /Los Pibes/ })).toHaveTextContent('Figura');
+    expect(within(form).getByText('Sacó dos en la línea')).toBeInTheDocument();
+  });
+
   it('con el test oculto no hay sección de test ni comparación', async () => {
     fakeApi(
       routes({ ...PROFILE, test: { status: 'hidden' }, assessments: [], assessedByMe: false }),

@@ -12,6 +12,11 @@ const WHEN = new Intl.DateTimeFormat('es-419', {
 /** "sáb, 1 nov, 3:00 p. m." en la hora del celular. */
 export const matchWhen = (iso: string) => WHEN.format(new Date(iso));
 
+const DAY = new Intl.DateTimeFormat('es-419', { weekday: 'short', day: 'numeric', month: 'short' });
+
+/** "sáb, 1 nov": el día del partido, sin la hora. */
+export const matchDay = (iso: string) => DAY.format(new Date(iso));
+
 /**
  * Próximos (programados que no empezaron, el más cercano primero) y pasados o cancelados (el
  * más reciente primero).

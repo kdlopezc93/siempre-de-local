@@ -72,6 +72,38 @@ describe('TeamPage', () => {
     expect(screen.getByText('Solo el cuerpo técnico la ve.')).toBeInTheDocument();
   });
 
+  it('y si ven cómo jugaron cada partido (D18)', async () => {
+    const team = (visible: boolean) => ({
+      team: {
+        id: TEAM_A,
+        name: 'Primer equipo',
+        format: 'F11',
+        formats: ['F11'],
+        season: '2026',
+        club: { id: ME_TWO_TEAMS.clubs[0]!.id, name: 'Los del Barrio' },
+        ratingsVisibleToPlayers: true,
+        matchRatingsVisibleToPlayers: visible,
+      },
+      myRoles: ['coach', 'player'],
+    });
+    let patch: unknown;
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}`]: { status: 200, body: team(true) },
+      [`PATCH /api/v1/teams/${TEAM_A}`]: (init) => {
+        patch = JSON.parse(init.body as string);
+        return { status: 200, body: team(false) };
+      },
+    });
+    renderTeam(TEAM_A);
+    const toggle = await screen.findByRole('switch', { name: /ven cómo jugaron cada partido/ });
+    await userEvent.click(toggle);
+    await vi.waitFor(() => expect(toggle).not.toBeChecked());
+    expect(patch).toEqual({ matchRatingsVisibleToPlayers: false });
+    expect(screen.getByText('Solo el cuerpo técnico las ve.')).toBeInTheDocument();
+    // El de la tarjeta no se movió.
+    expect(screen.getByRole('switch', { name: /ven su tarjeta/ })).toBeChecked();
+  });
+
   it('datos del equipo: el coach cambia el nombre y marca que juega los dos formatos (D14)', async () => {
     const team = (over: object = {}) => ({
       team: {

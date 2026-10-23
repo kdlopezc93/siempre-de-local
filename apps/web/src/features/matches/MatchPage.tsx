@@ -12,14 +12,19 @@ import { initialsOf } from '../../shared/ui/TeamHeader';
 import { Token } from '../../shared/ui/Token';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import { usePublishLineup, useLineups } from '../lineup/use-lineups';
+import { AfterMatch } from './AfterMatch';
 import { matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
 import styles from './Matches.module.css';
 import { useMatch, usePublishedLineup, useReplyMatch, useUpdateMatch } from './use-matches';
 
-/** /equipos/:teamId/partidos/:matchId — el partido: responder, y para el cuerpo técnico, quién va. */
+/**
+ * /equipos/:teamId/partidos/:matchId — el partido: responder, y para el cuerpo técnico, quién va
+ * y, ya jugado, el resultado y cómo jugó cada uno.
+ */
 export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; matchId: string }) {
-  const roles = me.teams.find((t) => t.team.id === teamId)?.roles ?? [];
+  const membership = me.teams.find((t) => t.team.id === teamId);
+  const roles = membership?.roles ?? [];
   const staff = roles.includes('coach') || roles.includes('assistant');
   const player = roles.includes('player');
   const data = useMatch(teamId, matchId);
@@ -51,6 +56,8 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
     );
   }
   const { match, roster } = data.data;
+  // Ya jugado (D18): el cuerpo técnico carga el resultado y evalúa; las respuestas pasan atrás.
+  const played = match.status === 'scheduled' && !match.open;
 
   return (
     <Screen className={styles.screen}>
@@ -72,6 +79,15 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         <PublishedSection teamId={teamId} match={match} meId={me.user.id} player={player} />
       )}
 
+      {staff && played && roster && (
+        <AfterMatch
+          teamId={teamId}
+          teamName={membership?.team.name ?? 'Nosotros'}
+          match={match}
+          roster={roster}
+        />
+      )}
+
       {player && <ReplyButtons teamId={teamId} match={match} />}
 
       <dl className={styles.counts}>
@@ -90,7 +106,7 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
       </dl>
 
       {staff && <MatchLineups teamId={teamId} match={match} />}
-      {roster && <Roster roster={roster} />}
+      {roster && !played && <Roster roster={roster} />}
       {staff && match.open && <StaffActions teamId={teamId} match={match} />}
     </Screen>
   );

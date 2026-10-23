@@ -1,11 +1,17 @@
 import {
   MatchListResponseSchema,
+  MatchRatingsResponseSchema,
   MatchResponseSchema,
+  PlayerMatchRatingsResponseSchema,
   PublishedLineupResponseSchema,
   type CreateMatchRequest,
   type MatchListResponse,
+  type MatchRatingRequest,
+  type MatchRatingsResponse,
   type MatchReply,
   type MatchResponse,
+  type MatchResultRequest,
+  type PlayerMatchRatingsResponse,
   type PublishedLineupResponse,
   type UpdateMatchRequest,
 } from '@sdl/contracts';
@@ -56,4 +62,53 @@ export function fetchPublishedLineup(
   matchId: string,
 ): Promise<PublishedLineupResponse> {
   return apiRequest(`${base(teamId)}/${matchId}/lineup`, PublishedLineupResponseSchema);
+}
+
+/** Después del partido (D18): el resultado y la figura (cuerpo técnico). */
+export function recordMatchResult(
+  teamId: string,
+  matchId: string,
+  request: MatchResultRequest,
+): Promise<MatchResponse> {
+  return apiRequest(`${base(teamId)}/${matchId}/result`, MatchResponseSchema, {
+    method: 'PUT',
+    body: JSON.stringify(request),
+  });
+}
+
+export function fetchMatchRatings(teamId: string, matchId: string): Promise<MatchRatingsResponse> {
+  return apiRequest(`${base(teamId)}/${matchId}/ratings`, MatchRatingsResponseSchema);
+}
+
+export function rateMatchPlayer(
+  teamId: string,
+  matchId: string,
+  playerId: string,
+  request: MatchRatingRequest,
+): Promise<MatchRatingsResponse> {
+  return apiRequest(`${base(teamId)}/${matchId}/ratings/${playerId}`, MatchRatingsResponseSchema, {
+    method: 'PUT',
+    body: JSON.stringify(request),
+  });
+}
+
+export function unrateMatchPlayer(
+  teamId: string,
+  matchId: string,
+  playerId: string,
+): Promise<MatchRatingsResponse> {
+  return apiRequest(`${base(teamId)}/${matchId}/ratings/${playerId}`, MatchRatingsResponseSchema, {
+    method: 'DELETE',
+  });
+}
+
+/** Partido a partido de un jugador (ficha, cuerpo técnico). */
+export function fetchPlayerMatchRatings(
+  teamId: string,
+  playerId: string,
+): Promise<PlayerMatchRatingsResponse> {
+  return apiRequest(
+    `/api/v1/teams/${teamId}/players/${playerId}/match-ratings`,
+    PlayerMatchRatingsResponseSchema,
+  );
 }

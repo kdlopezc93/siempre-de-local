@@ -348,3 +348,52 @@ button.secondaryLink {
     background: var(--sdl-surface-hover);
   }
 }
+
+/* Últimos partidos (D18): rival y día a la izquierda, la palabra a la derecha. */
+.matchForm {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.matchForm li {
+  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+}
+
+.matchFormRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sdl-space-3);
+  min-height: var(--sdl-touch-min);
+  color: var(--sdl-fg);
+  text-decoration: none;
+}
+
+.matchFormWho {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.matchFormWhen {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-xs);
+  font-weight: 500;
+}
+
+.matchFormRating {
+  flex: none;
+  color: var(--sdl-primary);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-lg);
+  font-weight: 700;
+}
+
+.matchFormNote {
+  padding-bottom: var(--sdl-space-2);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}

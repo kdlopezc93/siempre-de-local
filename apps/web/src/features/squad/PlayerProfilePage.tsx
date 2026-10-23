@@ -1,4 +1,8 @@
-import type { MatchFormat, PlayerProfileResponse } from '@sdl/contracts';
+import type {
+  MatchFormat,
+  PlayerMatchRatingsResponse,
+  PlayerProfileResponse,
+} from '@sdl/contracts';
 import { ELIGIBLE_POSITIONS, POSITIONS, type PositionCode } from '@sdl/domain';
 import { useId, useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router';
@@ -10,6 +14,9 @@ import { initialsOf } from '../../shared/ui/TeamHeader';
 import { lineOfPosition, Token } from '../../shared/ui/Token';
 import { RATED_ON, rankedAverages } from '../card/card-view';
 import { PlayerCard } from '../card/PlayerCard';
+import { ratingLabel } from '../matches/after-match';
+import { matchDay } from '../matches/match-view';
+import { usePlayerMatchRatings } from '../matches/use-matches';
 import { useTeam } from '../team-admin/use-invitations';
 import styles from './PlayerProfilePage.module.css';
 import { KnowledgeSection } from './KnowledgeSection';
@@ -38,6 +45,8 @@ const sectionFrom = (raw: string | null): Section =>
 export function PlayerProfilePage({ teamId, playerId }: { teamId: string; playerId: string }) {
   const team = useTeam(teamId);
   const profile = usePlayerProfile(teamId, playerId);
+  // En paralelo con la ficha, no después (se muestra en el resumen).
+  const matchRatings = usePlayerMatchRatings(teamId, playerId);
   const [params, setParams] = useSearchParams();
   const section = sectionFrom(params.get('ver'));
 
@@ -169,6 +178,7 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
               submittedAt={data.test.submittedAt}
             />
           )}
+          <MatchForm teamId={teamId} items={matchRatings.data?.items ?? []} />
         </>
       )}
 
@@ -197,6 +207,39 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
 
       {section === 'valoraciones' && <Assessments data={data} />}
     </Screen>
+  );
+}
+
+/** Cómo jugó sus últimos partidos (D18), con la nota del cuerpo técnico. */
+function MatchForm({
+  teamId,
+  items: all,
+}: {
+  teamId: string;
+  items: PlayerMatchRatingsResponse['items'];
+}) {
+  const items = all.slice(0, 5);
+  if (items.length === 0) return null;
+  return (
+    <section aria-labelledby="partidos" className={styles.section}>
+      <h2 id="partidos" className={styles.sectionTitle}>
+        Últimos partidos
+      </h2>
+      <ul className={styles.matchForm}>
+        {items.map((m) => (
+          <li key={m.matchId}>
+            <Link to={`/equipos/${teamId}/partidos/${m.matchId}`} className={styles.matchFormRow}>
+              <span className={styles.matchFormWho}>
+                {m.opponent}
+                <span className={styles.matchFormWhen}>{matchDay(m.startsAt)}</span>
+              </span>
+              <span className={styles.matchFormRating}>{ratingLabel(m.rating)}</span>
+            </Link>
+            {m.note && <p className={styles.matchFormNote}>{m.note}</p>}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
