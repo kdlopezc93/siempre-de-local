@@ -21,6 +21,7 @@
     "db:check": "pnpm --filter @sdl/api db:check",
     "db:seed": "pnpm --filter \"@sdl/api...\" build && pnpm --filter @sdl/api db:seed",
     "bank:lint": "pnpm --filter \"@sdl/api^...\" build && pnpm --filter @sdl/api bank:lint",
+    "quiz:lint": "pnpm --filter \"@sdl/api^...\" build && pnpm --filter @sdl/api quiz:lint",
     "admin:bootstrap-team": "pnpm --filter \"@sdl/api...\" build && pnpm --filter @sdl/api admin:bootstrap-team",
     "admin:seed-demo": "pnpm --filter \"@sdl/api...\" build && pnpm --filter @sdl/api admin:seed-demo",
     "proxy:up": "docker compose up -d proxy",

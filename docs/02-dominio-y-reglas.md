@@ -39,6 +39,10 @@ El jugador puede declarar en su perfil sus **posiciones preferidas** (1–3). Es
 - **v1** (contenido del prototipo, histórico): 15 ítems de posición por intento + 8 de preparación de la ganadora.
 - **v2** (vigente desde el 2026-10-21): **solo posición**, los mismos 31 ítems, **20 por intento**. Sin preparación (§5).
 - Objetivo de contenido: ampliar el banco a ~40 ítems para que dos intentos no se parezcan tanto (Fase 8).
+- **Control de calidad** (`pnpm quiz:lint`, `lintOrientation`, Fase 8):
+  - **Errores** (no se publica): 4 opciones por pregunta; cada opción da puntos enteros de 1 a 5 a entre 1 y 3 posiciones conocidas; sin códigos ni opciones repetidas.
+  - **Avisos de cobertura:** una pregunta **apunta** a una posición si alguna opción le da 3 puntos o más y es la que más recibe en esa opción. Se buscan **11 por posición** en el banco y que, en 9 de cada 10 intentos, le toquen **4 o más** (hipergeométrica exacta: con 20 de 40 al azar, 11 fuertes dejan menos de 4 en el 8 % de los intentos; con 10, en el 14 %).
+  - En v2 (2026-10-23): Lateral y Mediocentro tienen 5 cada una (en 1 de cada 10 intentos les tocan 2 o menos) y Extremo, 9. El resto pasa. Las preguntas nuevas de v3 van para esas tres.
 
 ## 3. Flujo de un intento (v2)
 
