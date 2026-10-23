@@ -3,6 +3,7 @@ import type {
   LineupInputsResponse,
   PlayerProfileResponse,
   SquadResponse,
+  TeamMembersResponse,
   ValidationResponse,
 } from '@sdl/contracts';
 import { z } from 'zod';
@@ -14,6 +15,7 @@ import { parseInput } from '../../../shared/http/validation.js';
 import { GetLineupInputs } from '../application/get-lineup-inputs.use-case.js';
 import { GetPlayerProfile } from '../application/get-player-profile.use-case.js';
 import { GetSquad } from '../application/get-squad.use-case.js';
+import { GetTeamMembers } from '../application/get-team-members.use-case.js';
 import { GetValidation } from '../application/get-validation.use-case.js';
 
 @Controller('teams/:teamId')
@@ -23,7 +25,18 @@ export class SquadController {
     private readonly getProfile: GetPlayerProfile,
     private readonly getInputs: GetLineupInputs,
     private readonly getValidation: GetValidation,
+    private readonly getMembers: GetTeamMembers,
   ) {}
+
+  /** Los integrantes, para todo el equipo (D11: de los jugadores, solo su mejor banda). */
+  @Get('members')
+  @Can('team.read', { teamParam: 'teamId' })
+  members(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+  ): Promise<TeamMembersResponse> {
+    return this.getMembers.execute(actor, teamId);
+  }
 
   @Get('squad')
   @Can('team.results.read', { teamParam: 'teamId' })

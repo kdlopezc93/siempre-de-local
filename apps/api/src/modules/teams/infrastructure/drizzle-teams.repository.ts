@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { MeResponse } from '@sdl/contracts';
-import { and, asc, eq, isNull } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull } from 'drizzle-orm';
 import { DatabaseError } from 'pg';
 
 import type { AuthorizationReader } from '../../../shared/authz/actor.port.js';
@@ -150,6 +150,21 @@ export class DrizzleTeamsRepository
       teams.set(row.team.id, entry);
     }
     return { teams: [...teams.values()], clubs: clubRows };
+  }
+
+  async activeStaff(teamId: string) {
+    const rows = await this.connection.db
+      .select({ userId: teamMembership.userId, name: user.name, role: teamMembership.role })
+      .from(teamMembership)
+      .innerJoin(user, eq(teamMembership.userId, user.id))
+      .where(
+        and(
+          eq(teamMembership.teamId, teamId),
+          inArray(teamMembership.role, ['coach', 'assistant']),
+          isNull(teamMembership.leftAt),
+        ),
+      );
+    return rows as { userId: string; name: string; role: 'coach' | 'assistant' }[];
   }
 
   activePlayers(teamId: string) {

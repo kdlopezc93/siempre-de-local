@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { lintBank, type BankDraft } from './bank-lint.js';
 import {
   bandFor,
+  bestBandForTeammates,
   bestKnowledge,
   canStartExam,
   DEFAULT_EXAM_CONFIG,
@@ -291,5 +292,22 @@ describe('lint del banco', () => {
     );
     expect(issues).toContain('error:difficulty-mix');
     expect(issues).toContain('error:empty-area');
+  });
+});
+
+describe('la mejor banda para los compañeros (D11)', () => {
+  it('la del mejor puntaje, con su posición; sin puntaje, nada', () => {
+    expect(
+      bestBandForTeammates([
+        { position: 'LAT', pct: 0.55 },
+        { position: 'DFC', pct: 0.72 },
+        { position: 'MC', pct: null },
+      ]),
+    ).toEqual({ position: 'DFC', band: 'solid' });
+    expect(bestBandForTeammates([{ position: 'MC', pct: null }])).toBeNull();
+  });
+
+  it('"Insuficiente" no se muestra a los compañeros', () => {
+    expect(bestBandForTeammates([{ position: 'DC', pct: 0.3 }])).toBeNull();
   });
 });

@@ -6,6 +6,10 @@ export interface TeamPlayersQuery {
   activePlayers(
     teamId: string,
   ): Promise<{ userId: string; name: string; jerseyNumber: number | null }[]>;
+  /** El cuerpo técnico activo: una fila por persona y rol. */
+  activeStaff(
+    teamId: string,
+  ): Promise<{ userId: string; name: string; role: 'coach' | 'assistant' }[]>;
 }
 export const TEAM_PLAYERS_QUERY = Symbol('TEAM_PLAYERS_QUERY');
 

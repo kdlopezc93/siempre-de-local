@@ -137,6 +137,22 @@ export const BAND_LABELS: Readonly<Record<KnowledgeBand, string>> = {
   insufficient: 'Insuficiente',
 };
 
+/**
+ * La mejor banda de un jugador (la de su mejor puntaje), para que la vean sus compañeros (D11:
+ * la banda y la posición, nunca el puntaje). "Insuficiente" no se muestra a los compañeros.
+ */
+export function bestBandForTeammates<P extends string>(
+  knowledge: readonly { position: P; pct: number | null }[],
+): { position: P; band: Exclude<KnowledgeBand, 'insufficient'> } | null {
+  let best: { position: P; pct: number } | null = null;
+  for (const k of knowledge) {
+    if (k.pct !== null && (!best || k.pct > best.pct)) best = { position: k.position, pct: k.pct };
+  }
+  if (!best) return null;
+  const band = bandFor(best.pct);
+  return band === 'insufficient' ? null : { position: best.position, band };
+}
+
 export interface ExamResult {
   score: number;
   total: number;

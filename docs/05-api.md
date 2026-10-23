@@ -109,7 +109,8 @@ Staff del equipo:
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/teams/:teamId/knowledge` | Por ahora va dentro de `/squad` (`knowledge` por jugador) y del perfil (`knowledge`). La vista para compañeros (solo banda, D11) queda para más adelante |
+| GET | `/teams/:teamId/knowledge` | Por ahora va dentro de `/squad` (`knowledge` por jugador) y del perfil (`knowledge`). La vista para compañeros (D11) va en `/members` |
+| GET | `/teams/:teamId/members` | **Implementado** (`team.read`: todo el equipo y el admin del club). Integrantes: `{ staff: [{ userId, displayName, role }], players: [{ userId, displayName, jerseyNumber, bestBand: { position, band } \| null }] }`. Sin puntajes; `bestBand` nunca es `insufficient` (`02` §6.4) |
 | POST | `/teams/:teamId/players/:userId/knowledge-reviews` | **Implementado** (coach, admin del club). `{ position, reason (5–500), dueInDays? (1–60, 14 por defecto) }`. 409 `REVIEW_ALREADY_OPEN` si hay una pendiente o vencida; 422 `NO_PUBLISHED_BANK`; 404 `PLAYER_NOT_IN_TEAM`. El jugador la ve en `/certification/positions` (`review`), presenta sin esperar el mes y su resultado reemplaza a los anteriores aunque sea más bajo (los demás quedan `superseded`). Auditado |
 | GET | `/teams/:teamId/knowledge-reviews?status=` | Por ahora no: las abiertas van en el perfil del jugador y en la plantilla |
 | DELETE | `/teams/:teamId/knowledge-reviews/:id` | **Implementado.** Cancela una pendiente o vencida (409 `REVIEW_CLOSED` si ya se cerró). Auditado |

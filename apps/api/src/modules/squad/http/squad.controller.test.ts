@@ -8,6 +8,7 @@ import {
   POLICY_VERSION,
   QuestionnaireResponseSchema,
   SquadResponseSchema,
+  TeamMembersResponseSchema,
   ValidationResponseSchema,
 } from '@sdl/contracts';
 import { randomUUID } from 'node:crypto';
@@ -123,6 +124,23 @@ describe('plantilla y valoraciones (a ciegas impuesto)', () => {
     await connection?.pool.end();
     vi.unstubAllEnvs();
     await container?.stop();
+  });
+
+  it('los integrantes los ve todo el equipo: cuerpo técnico y jugadores, sin puntajes (D11)', async () => {
+    const res = await call('GET', `/teams/${teamId}/members`, untested);
+    expect(res.statusCode).toBe(200);
+    const members = TeamMembersResponseSchema.parse(res.json());
+    expect(members.staff.map((s) => [s.displayName, s.role])).toEqual([
+      ['profe', 'coach'],
+      ['asistente', 'assistant'],
+    ]);
+    expect(members.players).toEqual([
+      expect.objectContaining({ displayName: 'Ana Probada', bestBand: null }),
+      expect.objectContaining({ displayName: 'Beto Nuevo', bestBand: null }),
+    ]);
+    expect(JSON.stringify(members)).not.toMatch(/pct|score/);
+    expect((await call('GET', `/teams/${teamId}/members`, owner)).statusCode).toBe(200);
+    expect((await call('GET', `/teams/${teamId}/members`, outsider)).statusCode).toBe(403);
   });
 
   it('quien valora no ve el test de un jugador hasta valorarlo', async () => {
