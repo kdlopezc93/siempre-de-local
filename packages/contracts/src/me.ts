@@ -27,6 +27,7 @@ export const MeResponseSchema = z.object({
         format: MatchFormatSchema,
         formats: z.array(MatchFormatSchema).min(1),
         season: z.string(),
+        photoUrl: z.string().nullable(),
       }),
       club: z.object({ id: z.uuid(), name: z.string() }),
       roles: z.array(TeamRoleSchema),

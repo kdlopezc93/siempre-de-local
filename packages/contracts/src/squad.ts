@@ -18,6 +18,7 @@ export const SquadResponseSchema = z.object({
       displayName: z.string(),
       jerseyNumber: z.int().nullable(),
       preferredPositions: z.array(PositionCodeSchema),
+      photoUrl: z.string().nullable(),
       test: z.discriminatedUnion('status', [
         z.object({ status: z.literal('none') }),
         /** Lo tiene, pero quien pregunta todavía no lo valoró. */

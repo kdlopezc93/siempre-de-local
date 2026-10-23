@@ -25,6 +25,8 @@ export const playerProfile = pgTable('player_profile', {
   displayName: text().notNull(),
   dominantFoot: dominantFoot(),
   playsGoalkeeper: boolean().notNull().default(false),
+  /** Su foto en el almacenamiento de fotos (ADR-09), o null. La sube él; es opcional. */
+  photoKey: text(),
   updatedAt: timestamp({ withTimezone: true })
     .notNull()
     .defaultNow()

@@ -4,4 +4,5 @@ export const DEFAULT_PROFILE = {
   dominantFoot: null,
   playsGoalkeeper: false,
   preferredPositions: [],
+  photoUrl: null,
 };

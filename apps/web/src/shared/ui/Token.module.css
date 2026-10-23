@@ -62,3 +62,15 @@
   --font: 44px;
   --ring-width: 4px;
 }
+
+/* La foto llena el disco; el aro de la línea sigue alrededor. */
+.photo {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.token:has(.photo) {
+  overflow: hidden;
+}

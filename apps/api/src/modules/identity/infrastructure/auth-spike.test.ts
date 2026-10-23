@@ -47,6 +47,7 @@ describe('spike de auth: Better Auth + Nest + Fastify', () => {
         dominantFoot: null,
         playsGoalkeeper: false,
         preferredPositions: [],
+        photoUrl: null,
       },
       consent: null,
       teams: [],

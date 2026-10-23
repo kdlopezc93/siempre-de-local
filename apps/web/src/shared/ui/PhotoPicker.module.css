@@ -1,0 +1,72 @@
+.picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-4);
+}
+
+.preview {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border: 3px solid var(--sdl-primary);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.actions {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sdl-space-1);
+}
+
+.choose {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--sdl-touch-min);
+  padding-inline: var(--sdl-space-4);
+  border: var(--sdl-stroke) solid var(--sdl-border-control);
+  border-radius: var(--sdl-radius-pill);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.picker:has(input:focus-visible) .choose {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+}
+
+.remove {
+  min-height: var(--sdl-touch-min);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sdl-fg-muted);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.error {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}
+
+@media (hover: hover) {
+  .choose:hover {
+    background: var(--sdl-surface-hover);
+  }
+
+  .remove:hover {
+    color: var(--sdl-fg);
+  }
+}

@@ -7,6 +7,7 @@ import type { AuthorizationReader } from '../../../shared/authz/actor.port.js';
 import type { ClubRole, TeamRole } from '../../../shared/authz/policy.js';
 import type { DbConnection } from '../../../shared/db/client.js';
 import { DB_CONNECTION } from '../../../shared/db/db.module.js';
+import { photoUrl } from '../../../shared/photos/photo-url.js';
 import type { MembershipsQuery } from '../../identity/application/ports/memberships.query.js';
 import { user } from '../../identity/infrastructure/schema.js';
 import type { TeamPlayersQuery } from '../../squad/application/ports/squad.ports.js';
@@ -37,12 +38,15 @@ export class DrizzleTeamsRepository
         formats: team.formats,
         season: team.season,
         club: { id: club.id, name: club.name },
+        photoKey: team.photoKey,
         ratingsVisibleToPlayers: team.ratingsVisibleToPlayers,
       })
       .from(team)
       .innerJoin(club, eq(team.clubId, club.id))
       .where(eq(team.id, teamId));
-    return row ?? null;
+    if (!row) return null;
+    const { photoKey, ...rest } = row;
+    return { ...rest, photoUrl: photoUrl(`teams/${row.id}/photo`, photoKey) };
   }
 
   async updateSettings(
@@ -56,6 +60,18 @@ export class DrizzleTeamsRepository
       if (isUniqueViolation(error)) return 'name-taken' as const;
       throw error;
     }
+  }
+
+  async photoKey(teamId: string) {
+    const [row] = await this.connection.db
+      .select({ photoKey: team.photoKey })
+      .from(team)
+      .where(eq(team.id, teamId));
+    return row?.photoKey ?? null;
+  }
+
+  async setPhotoKey(teamId: string, photoKey: string | null) {
+    await this.connection.db.update(team).set({ photoKey }).where(eq(team.id, teamId));
   }
 
   async setJerseyNumber(teamId: string, userId: string, jerseyNumber: number | null) {
@@ -115,6 +131,7 @@ export class DrizzleTeamsRepository
             format: team.format,
             formats: team.formats,
             season: team.season,
+            photoKey: team.photoKey,
           },
           club: { id: club.id, name: club.name },
           role: teamMembership.role,
@@ -135,7 +152,12 @@ export class DrizzleTeamsRepository
     // Un equipo por entrada, con todos los roles de la persona en él.
     const teams = new Map<string, MeResponse['teams'][number]>();
     for (const row of teamRows) {
-      const entry = teams.get(row.team.id) ?? { team: row.team, club: row.club, roles: [] };
+      const { photoKey, ...rest } = row.team;
+      const entry = teams.get(row.team.id) ?? {
+        team: { ...rest, photoUrl: photoUrl(`teams/${rest.id}/photo`, photoKey) },
+        club: row.club,
+        roles: [],
+      };
       entry.roles.push(row.role);
       teams.set(row.team.id, entry);
     }

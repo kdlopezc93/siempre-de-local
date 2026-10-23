@@ -4,7 +4,7 @@ import { z } from 'zod';
  * Versión vigente de la política de tratamiento de datos (docs/legal/). Cambiarla obliga
  * a todos a aceptarla de nuevo: así se publica la versión revisada por el abogado (D7).
  */
-export const POLICY_VERSION = '2026-10-borrador';
+export const POLICY_VERSION = '2026-10-borrador-2';
 
 /** POST /api/v1/me/consent */
 export const AcceptConsentRequestSchema = z.object({

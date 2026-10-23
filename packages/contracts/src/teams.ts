@@ -17,6 +17,8 @@ export const TeamResponseSchema = z.object({
     formats: z.array(MatchFormatSchema).min(1),
     season: z.string(),
     club: z.object({ id: z.uuid(), name: z.string() }),
+    /** Escudo o foto del equipo (ruta del API, con versión), o null. */
+    photoUrl: z.string().nullable(),
     /** ¿El jugador ve su tarjeta 0–99? (D8) */
     ratingsVisibleToPlayers: z.boolean(),
   }),

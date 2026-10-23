@@ -12,6 +12,8 @@ export const ProfileSchema = z.object({
   playsGoalkeeper: z.boolean(),
   /** De 1 a 3, en orden de preferencia. */
   preferredPositions: z.array(PositionCodeSchema).max(3),
+  /** Su foto (ruta del API, con versión), o null. Opcional; la ve solo su equipo. */
+  photoUrl: z.string().nullable(),
 });
 
 /** PATCH /api/v1/me/profile — solo los campos que cambian. */

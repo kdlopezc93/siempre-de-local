@@ -7,6 +7,7 @@ import { DB_CONNECTION } from '../../../shared/db/db.module.js';
 import type {
   ProfileRepository,
   StoredPreferences,
+  StoredProfile,
 } from '../application/ports/profile.repository.js';
 import { playerPreferredPosition, playerProfile } from './schema.js';
 
@@ -22,6 +23,7 @@ export class DrizzleProfileRepository implements ProfileRepository {
           displayName: playerProfile.displayName,
           dominantFoot: playerProfile.dominantFoot,
           playsGoalkeeper: playerProfile.playsGoalkeeper,
+          photoKey: playerProfile.photoKey,
         })
         .from(playerProfile)
         .where(eq(playerProfile.userId, userId)),
@@ -31,14 +33,16 @@ export class DrizzleProfileRepository implements ProfileRepository {
         .where(eq(playerPreferredPosition.userId, userId))
         .orderBy(asc(playerPreferredPosition.rank)),
     ]);
-    return { preferences: row ?? null, positions: positions.map((p) => p.position) };
+    const { photoKey = null, ...preferences } = row ?? {};
+    return {
+      preferences: row ? (preferences as StoredPreferences) : null,
+      positions: positions.map((p) => p.position),
+      photoKey,
+    };
   }
 
   async findMany(userIds: string[]) {
-    const result = new Map<
-      string,
-      { preferences: StoredPreferences | null; positions: PositionCode[] }
-    >();
+    const result = new Map<string, StoredProfile>();
     if (userIds.length === 0) return result;
     const { db } = this.connection;
     const [rows, positions] = await Promise.all([
@@ -49,12 +53,21 @@ export class DrizzleProfileRepository implements ProfileRepository {
         .where(inArray(playerPreferredPosition.userId, userIds))
         .orderBy(asc(playerPreferredPosition.rank)),
     ]);
-    for (const id of userIds) result.set(id, { preferences: null, positions: [] });
-    for (const { userId, displayName, dominantFoot, playsGoalkeeper } of rows) {
-      result.get(userId)!.preferences = { displayName, dominantFoot, playsGoalkeeper };
+    for (const id of userIds) result.set(id, { preferences: null, positions: [], photoKey: null });
+    for (const { userId, displayName, dominantFoot, playsGoalkeeper, photoKey } of rows) {
+      const entry = result.get(userId)!;
+      entry.preferences = { displayName, dominantFoot, playsGoalkeeper };
+      entry.photoKey = photoKey;
     }
     for (const { userId, position } of positions) result.get(userId)!.positions.push(position);
     return result;
+  }
+
+  async setPhotoKey(userId: string, photoKey: string | null, displayName: string) {
+    await this.connection.db
+      .insert(playerProfile)
+      .values({ userId, displayName, photoKey })
+      .onConflictDoUpdate({ target: playerProfile.userId, set: { photoKey } });
   }
 
   async savePreferences(userId: string, preferences: StoredPreferences): Promise<void> {

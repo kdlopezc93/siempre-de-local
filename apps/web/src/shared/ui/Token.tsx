@@ -1,4 +1,7 @@
 import { LINE_OF, type PositionCode } from '@sdl/domain';
+import { useState } from 'react';
+
+import { photoSrc } from '../api/photos';
 
 import styles from './Token.module.css';
 
@@ -19,6 +22,7 @@ export function Token({
   size = 'md',
   tone = 'board',
   label,
+  photo,
 }: {
   text: string;
   line?: TokenLine | null;
@@ -26,14 +30,30 @@ export function Token({
   /** `amber`: el equipo o lo elegido, rellena de ámbar. */
   tone?: 'board' | 'amber';
   label?: string;
+  /** Ruta de su foto (del API): reemplaza al texto dentro del disco; el aro se queda. */
+  photo?: string | null | undefined;
 }) {
+  const [broken, setBroken] = useState<string | null>(null);
+  const src = photoSrc(photo);
+  const showPhoto = src !== undefined && broken !== src;
   return (
     <span
       className={[styles.token, styles[size], styles[tone]].join(' ')}
       data-line={line ?? undefined}
       {...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': true })}
     >
-      {text}
+      {showPhoto ? (
+        <img
+          src={src}
+          alt=""
+          className={styles.photo}
+          decoding="async"
+          loading="lazy"
+          onError={() => setBroken(src)}
+        />
+      ) : (
+        text
+      )}
     </span>
   );
 }

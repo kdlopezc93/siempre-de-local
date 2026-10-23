@@ -1,3 +1,7 @@
+import { mkdtempSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { vi } from 'vitest';
 
@@ -16,6 +20,8 @@ export const TEST_ENV = {
 export async function bootApp(databaseUrl: string): Promise<NestFastifyApplication> {
   for (const [key, value] of Object.entries(TEST_ENV)) vi.stubEnv(key, value);
   vi.stubEnv('DATABASE_URL', databaseUrl);
+  // Cada app de prueba con su carpeta de fotos, fuera del repo.
+  vi.stubEnv('PHOTOS_DIR', mkdtempSync(join(tmpdir(), 'sdl-photos-')));
   const app = await createApp({ logger: false });
   await app.init();
   await app.getHttpAdapter().getInstance().ready();

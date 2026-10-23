@@ -4,6 +4,10 @@ import { useId, useState, type FormEvent } from 'react';
 
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
+import { PhotoPicker } from '../../shared/ui/PhotoPicker';
+import { initialsOf } from '../../shared/ui/TeamHeader';
+import { Token } from '../../shared/ui/Token';
+import { useTeamPhoto } from '../photos/use-photos';
 import { SESSION_KEY } from '../auth/use-session';
 import { useUpdateTeam } from '../card/use-card';
 import { FORMAT_LABEL, formatsLabel } from '../shell/shell-nav';
@@ -33,6 +37,7 @@ export function TeamData({ teamId, editable }: { teamId: string; editable: boole
           </button>
         )}
       </div>
+      <TeamPhoto teamId={teamId} name={t.name} photoUrl={t.photoUrl} editable={editable} />
       {editing ? (
         <TeamDataForm
           teamId={teamId}
@@ -173,5 +178,36 @@ function TeamDataForm({
         </Button>
       </div>
     </form>
+  );
+}
+
+/** Escudo o foto del equipo (07 §4.7): la ponen el coach o el admin del club. */
+function TeamPhoto({
+  teamId,
+  name,
+  photoUrl,
+  editable,
+}: {
+  teamId: string;
+  name: string;
+  photoUrl: string | null;
+  editable: boolean;
+}) {
+  const photo = useTeamPhoto(teamId);
+  if (!editable) {
+    return photoUrl ? (
+      <Token text={initialsOf(name)} tone="amber" size="lg" photo={photoUrl} />
+    ) : null;
+  }
+  return (
+    <PhotoPicker
+      label="Elegir el escudo o la foto del equipo"
+      current={photoUrl}
+      fallback={initialsOf(name)}
+      busy={photo.upload.isPending || photo.remove.isPending}
+      error={photo.error}
+      onUpload={(blob, done) => photo.upload.mutate(blob, { onSuccess: done })}
+      onRemove={() => photo.remove.mutate()}
+    />
   );
 }

@@ -104,6 +104,7 @@ describe('/api/v1/me y consentimiento', () => {
           format: 'F11',
           formats: ['F11'],
           season: '2026',
+          photoUrl: null,
         },
         club: { id: clubs[0]!.id, name: 'Los del Barrio' },
         roles: ['coach', 'player'],

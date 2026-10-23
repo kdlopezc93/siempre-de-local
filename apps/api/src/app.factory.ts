@@ -7,6 +7,7 @@ import { ENV } from './config/config.module.js';
 import type { Env } from './config/env.js';
 import { HttpExceptionFilter } from './shared/errors/http-exception.filter.js';
 import { registerOriginCheck } from './shared/http/origin-check.js';
+import { MAX_PHOTO_BYTES } from './shared/photos/clean-photo.js';
 
 /** Construye la app con la misma configuración en main.ts y en los tests. */
 export async function createApp(
@@ -29,6 +30,15 @@ export async function createApp(
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
   });
   registerOriginCheck(app.getHttpAdapter().getInstance(), env.WEB_ORIGIN);
+  // Las fotos llegan como bytes (WebP o JPEG), no como JSON; las limpia cleanPhoto.
+  app
+    .getHttpAdapter()
+    .getInstance()
+    .addContentTypeParser(
+      ['image/webp', 'image/jpeg'],
+      { parseAs: 'buffer', bodyLimit: MAX_PHOTO_BYTES },
+      (_request, body, done) => done(null, body),
+    );
   app.enableShutdownHooks();
   return app;
 }

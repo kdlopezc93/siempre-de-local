@@ -58,6 +58,7 @@ describe('perfil propio', () => {
       dominantFoot: null,
       playsGoalkeeper: false,
       preferredPositions: [],
+      photoUrl: null,
     });
   });
 
