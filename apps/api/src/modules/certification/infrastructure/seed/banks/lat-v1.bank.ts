@@ -909,11 +909,11 @@ export const LAT_V1: CertBankContent = {
         ],
         ball: { x: 84, y: 115 },
       },
-      { label: 'Al pivote, libre y de cara', spot: { x: 64, y: 93 } },
+      { label: 'Al pivote, libre y de cara', spot: { x: 50, y: 94 } },
       [
         { label: 'Al extremo, de espaldas y con marca', spot: { x: 78, y: 86 } },
         { label: 'Al central, con el 9 cerca', spot: { x: 56, y: 129 } },
-        { label: 'Un pelotazo arriba, sin mirar', spot: { x: 54, y: 80 } },
+        { label: 'Un pelotazo arriba, sin mirar', spot: { x: 60, y: 79 } },
       ],
       'Con el 11 encima, la salida es el compañero libre y de cara: el pivote recibe sin presión y puede cambiar de banda. El extremo está marcado y de espaldas, el central tiene al 9 cerca y el pelotazo casi siempre regala el balón.',
     ),

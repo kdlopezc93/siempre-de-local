@@ -33,6 +33,6 @@
 <text x="42" y="97.6" font-size="4.6" text-anchor="middle" fill="#e8b84b">B</text>
 <circle cx="82" cy="97" r="5.5" fill="#e8b84b" stroke="#e8b84b" stroke-width="0.7"/>
 <text x="82" y="98.6" font-size="4.6" text-anchor="middle" fill="#0b140f">C</text>
-<circle cx="50" cy="82" r="5.5" fill="none" stroke="#e8b84b" stroke-width="0.7" stroke-dasharray="1.4 1"/>
-<text x="50" y="83.6" font-size="4.6" text-anchor="middle" fill="#e8b84b">D</text>
+<circle cx="46" cy="80" r="5.5" fill="none" stroke="#e8b84b" stroke-width="0.7" stroke-dasharray="1.4 1"/>
+<text x="46" y="81.6" font-size="4.6" text-anchor="middle" fill="#e8b84b">D</text>
 </svg>

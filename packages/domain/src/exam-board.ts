@@ -37,7 +37,7 @@ export const BOARD_VIEWBOX: Readonly<Record<BoardView, readonly [number, number,
  */
 export const MIN_SPOT_DISTANCE = 15;
 /** Un punto no se monta sobre un jugador ni el balón (la letra taparía su número). */
-export const MIN_SPOT_TO_PIECE = 8;
+export const MIN_SPOT_TO_PIECE = 10;
 /** Ni queda cortado por el borde de la vista. */
 const SPOT_INSET = 6;
 

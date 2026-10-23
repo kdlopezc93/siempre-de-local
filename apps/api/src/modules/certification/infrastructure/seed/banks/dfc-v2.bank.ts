@@ -117,7 +117,7 @@ const BOARD_ITEMS = [
     [
       { label: 'Al otro central', spot: { x: 26, y: 130 } },
       { label: 'Al pivote, de espaldas y con marca', spot: { x: 42, y: 96 } },
-      { label: 'Un pelotazo al delantero', spot: { x: 50, y: 82 } },
+      { label: 'Un pelotazo al delantero', spot: { x: 46, y: 80 } },
     ],
     'La mejor salida es el compañero libre y de cara: el lateral recibe sin presión y con el campo de frente. El otro central y el pivote tienen un rival encima, y el pelotazo casi siempre regala el balón.',
   ),
