@@ -67,8 +67,8 @@ describe('pizarra del examen (Fase 8)', () => {
     );
     expect(problems).toEqual([
       'El punto de respuesta 1 queda en el borde de la vista (se corta).',
-      'El punto de respuesta 2 tapa a un jugador o al balón (mínimo 8).',
-      'El punto de respuesta 3 tapa a un jugador o al balón (mínimo 8).',
+      'El punto de respuesta 2 tapa a un jugador o al balón (mínimo 10).',
+      'El punto de respuesta 3 tapa a un jugador o al balón (mínimo 10).',
     ]);
   });
 });

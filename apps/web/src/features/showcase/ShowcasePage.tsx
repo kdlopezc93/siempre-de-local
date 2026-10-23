@@ -482,7 +482,7 @@ const BOARD_SAMPLES = [
     },
     options: [
       { label: 'Al espacio, a la carrera del 7', spot: { x: 86, y: 20 } },
-      { label: 'Al pie del 9, de espaldas', spot: { x: 42, y: 24 } },
+      { label: 'Al pie del 9, de espaldas', spot: { x: 40, y: 20 } },
       { label: 'Al 10, entre líneas', spot: { x: 22, y: 40 } },
       { label: 'Atrás, al lateral', spot: { x: 22, y: 72 } },
     ],

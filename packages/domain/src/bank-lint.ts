@@ -28,8 +28,11 @@ export interface LintIssue {
 /** Absolutos que delatan a un distractor ("siempre", "nunca"…): 02 §6.5. */
 const ABSOLUTES = /\b(siempre|nunca|jam[aá]s|todos|todas|ninguno|ninguna|nada|nadie)\b/i;
 
-/** Si la correcta es la más larga en más de esta proporción de ítems, se nota el patrón. */
-const LONGEST_CORRECT_MAX = 0.4;
+/**
+ * Si la correcta es la más larga (o la más corta) en más de esta proporción de ítems, se nota
+ * el patrón. Con cuatro opciones, por azar sería una de cada cuatro.
+ */
+const LENGTH_PATTERN_MAX = 0.4;
 
 /**
  * Reglas de calidad para publicar un banco (02 §6.5). Errores: estructura y tamaño.
@@ -54,6 +57,7 @@ export function lintBank(bank: BankDraft, cfg: ExamConfig): LintIssue[] {
   const codes = new Set<string>();
   const texts = new Set<string>();
   let longestCorrect = 0;
+  let shortestCorrect = 0;
 
   for (const item of bank.items) {
     if (codes.has(item.code)) error('duplicate-code', item.code, 'Código repetido.');
@@ -91,6 +95,7 @@ export function lintBank(bank: BankDraft, cfg: ExamConfig): LintIssue[] {
     if (right) {
       const others = item.options.filter((o) => o !== right);
       if (others.every((o) => right.label.trim().length > o.label.trim().length)) longestCorrect++;
+      if (others.every((o) => right.label.trim().length < o.label.trim().length)) shortestCorrect++;
       const giveaway = others.find((o) => ABSOLUTES.test(o.label) && !ABSOLUTES.test(right.label));
       if (giveaway) {
         warning(
@@ -102,11 +107,19 @@ export function lintBank(bank: BankDraft, cfg: ExamConfig): LintIssue[] {
     }
   }
 
-  if (bank.items.length > 0 && longestCorrect / bank.items.length > LONGEST_CORRECT_MAX) {
+  if (bank.items.length > 0 && longestCorrect / bank.items.length > LENGTH_PATTERN_MAX) {
     warning(
       'longest-correct',
       null,
       `La correcta es la opción más larga en ${longestCorrect} de ${bank.items.length} ítems: el patrón se nota.`,
+    );
+  }
+  // El patrón contrario: al acortar correctas para que no sean las más largas, se puede pasar.
+  if (bank.items.length > 0 && shortestCorrect / bank.items.length > LENGTH_PATTERN_MAX) {
+    warning(
+      'shortest-correct',
+      null,
+      `La correcta es la opción más corta en ${shortestCorrect} de ${bank.items.length} ítems: el patrón se nota.`,
     );
   }
 

@@ -116,7 +116,7 @@ const BOARD_ITEMS = [
     },
     { label: 'Al espacio, a la carrera del 7', spot: { x: 86, y: 20 } },
     [
-      { label: 'Al pie del 9, de espaldas y con marca', spot: { x: 42, y: 24 } },
+      { label: 'Al pie del 9, de espaldas y con marca', spot: { x: 40, y: 20 } },
       { label: 'Al 10, que tiene un rival encima', spot: { x: 22, y: 40 } },
       { label: 'Atrás, al lateral', spot: { x: 22, y: 72 } },
     ],

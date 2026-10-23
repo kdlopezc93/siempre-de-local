@@ -22,8 +22,8 @@
 <path d="M63.4,27.4 L68.6,32.6 M68.6,27.4 L63.4,32.6" stroke="#eef1ea" stroke-width="1" stroke-linecap="round"/>
 <path d="M71.4,47.4 L76.6,52.6 M76.6,47.4 L71.4,52.6" stroke="#eef1ea" stroke-width="1" stroke-linecap="round"/>
 <circle cx="53" cy="64" r="1.7" fill="#eef1ea"/>
-<circle cx="42" cy="24" r="5.5" fill="none" stroke="#e8b84b" stroke-width="0.7" stroke-dasharray="1.4 1"/>
-<text x="42" y="25.6" font-size="4.6" text-anchor="middle" fill="#e8b84b">A</text>
+<circle cx="40" cy="20" r="5.5" fill="none" stroke="#e8b84b" stroke-width="0.7" stroke-dasharray="1.4 1"/>
+<text x="40" y="21.6" font-size="4.6" text-anchor="middle" fill="#e8b84b">A</text>
 <circle cx="86" cy="20" r="5.5" fill="#e8b84b" stroke="#e8b84b" stroke-width="0.7"/>
 <text x="86" y="21.6" font-size="4.6" text-anchor="middle" fill="#0b140f">B</text>
 <circle cx="22" cy="40" r="5.5" fill="none" stroke="#e8b84b" stroke-width="0.7" stroke-dasharray="1.4 1"/>
