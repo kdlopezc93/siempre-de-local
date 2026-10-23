@@ -6,6 +6,7 @@ import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
+import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { Segmented } from '../../shared/ui/Segmented';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import { fromLocalInputs, toLocalInputs } from './match-view';
@@ -89,6 +90,9 @@ function MatchForm({
   const save = matchId ? update : create;
   const [draft, setDraft] = useState<Draft>(initial);
   const [invalid, setInvalid] = useState<string | null>(null);
+  const guard = useUnsavedChanges(
+    (Object.keys(initial) as (keyof Draft)[]).some((key) => draft[key] !== initial[key]),
+  );
   const ids = { date: useId(), time: useId(), place: useId(), opponent: useId() };
   const set = (key: keyof Draft) => (e: { target: { value: string } }) =>
     setDraft((d) => ({ ...d, [key]: e.target.value }));
@@ -109,8 +113,10 @@ function MatchForm({
       opponent: draft.opponent.trim(),
     };
     save.mutate(request, {
-      onSuccess: (data) =>
-        void navigate(`/equipos/${teamId}/partidos/${data.match.id}`, { replace: true }),
+      onSuccess: (data) => {
+        guard.release();
+        void navigate(`/equipos/${teamId}/partidos/${data.match.id}`, { replace: true });
+      },
     });
   }
 
@@ -124,6 +130,7 @@ function MatchForm({
 
   return (
     <Screen className={styles.screen}>
+      {guard.prompt}
       <Link
         to={matchId ? `/equipos/${teamId}/partidos/${matchId}` : `/equipos/${teamId}/partidos`}
         className={styles.back}

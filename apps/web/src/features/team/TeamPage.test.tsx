@@ -1,9 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
+import { InDataRouter } from '../../test/data-router';
 import { fakeApi } from '../../test/fake-api';
 import { ME_TWO_TEAMS, TEAM_A, TEAM_B } from '../../test/me-two-teams';
 import { TeamPage } from './TeamPage';
@@ -13,9 +14,9 @@ function renderTeam(teamId: string) {
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { mutations: { retry: false } } })}
     >
-      <MemoryRouter>
+      <InDataRouter>
         <TeamPage me={ME_TWO_TEAMS} teamId={teamId} />
-      </MemoryRouter>
+      </InDataRouter>
     </QueryClientProvider>,
   );
 }
@@ -171,9 +172,9 @@ describe('TeamPage', () => {
     });
     render(
       <QueryClientProvider client={new QueryClient()}>
-        <MemoryRouter>
+        <InDataRouter>
           <TeamPage me={{ ...ME_TWO_TEAMS, clubs: [] }} teamId={TEAM_B} />
-        </MemoryRouter>
+        </InDataRouter>
       </QueryClientProvider>,
     );
     expect(await screen.findByRole('region', { name: 'Datos del equipo' })).toHaveTextContent(

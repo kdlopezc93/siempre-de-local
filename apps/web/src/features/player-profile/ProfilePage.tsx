@@ -7,6 +7,7 @@ import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Pitch } from '../../shared/ui/Pitch';
 import { Screen } from '../../shared/ui/Screen';
+import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import styles from './ProfilePage.module.css';
 import { togglePreference, useSaveProfile } from './use-profile';
 
@@ -24,6 +25,10 @@ export function ProfilePage({ me }: { me: Me }) {
   const nameHintId = useId();
   const nameInvalid = draft.displayName.trim().length < 2;
   const [showNameError, setShowNameError] = useState(false);
+  // Guardado (o guardándose), ya no hay nada que perder.
+  const guard = useUnsavedChanges(
+    !save.isSuccess && !save.isPending && JSON.stringify(draft) !== JSON.stringify(me.profile),
+  );
 
   function change(next: Partial<Profile>) {
     setDraft((d) => ({ ...d, ...next }));
@@ -49,6 +54,7 @@ export function ProfilePage({ me }: { me: Me }) {
 
   return (
     <Screen className={styles.screen}>
+      {guard.prompt}
       <h1 className={styles.title}>Tu perfil</h1>
       <p className={styles.lead}>
         Esto es lo que tú dices de ti. Tu entrenador lo ve junto con tu test y su propia mirada.

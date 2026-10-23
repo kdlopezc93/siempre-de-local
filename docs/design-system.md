@@ -165,7 +165,8 @@ Con `prefers-reduced-motion: reduce`, las duraciones pasan a 0 y la entrada se m
 | `Segmented` | Conmutador de pocas opciones que cambian lo que se ve ("Lista \| Pizarra") | Botones con `aria-pressed` (no son pestañas con panel); 44px de alto |
 | `SectionTabs` | Secciones de una pantalla larga ("Resumen · Tarjeta · Conocimiento · Valoraciones"), subrayadas en ámbar | Se deslizan de lado si no caben; `aria-pressed`; la elegida va en la URL (`?ver=`) |
 | `SearchField` | Buscador redondo con lupa y X para limpiar | `type="search"`, etiqueta para lectores; la X reemplaza la del navegador |
-| `Row` | Fila de lista que lleva a otra pantalla: ficha, título, una línea, dato a la derecha | 64px de alto, título truncado con `…` |
+| `Row` | Fila de lista que lleva a otra pantalla: ficha, título, una línea, dato a la derecha | 64px de alto, título truncado con `…`; sin `to`, la misma fila sin enlace ni efecto al tocar |
+| `useUnsavedChanges` | Antes de salir con cambios sin guardar, una hoja "¿Salir sin guardar?" con **Seguir aquí** (principal) y **Salir sin guardar** (peligro); al cerrar o recargar, el aviso del navegador | Un aviso por pantalla (React Router admite un bloqueo a la vez): si hay varias partes editables, se juntan. Cambiar solo `?ver=` u otros parámetros no pregunta. Tras guardar, `release()` antes de navegar. En: tu perfil, convocar, datos del equipo, puntuar, valorar, el planificador y el marcador y las notas del partido |
 | `LeadTask` / `TaskRow` | "Lo que toca": el bloque ámbar (uno por pantalla) y las filas de tarea con icono y conteo | El bloque es lo más fuerte de la pantalla |
 
 ## 9.0 Ficha 0–99 (`features/card/PlayerCard`)

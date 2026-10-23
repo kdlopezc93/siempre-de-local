@@ -152,8 +152,8 @@ Elegidos por Kevin el 2026-10-23, antes del staging o la Fase 8: cosas chicas qu
 
 | # | PR | Estado |
 |---|---|---|
-| 1 | Integrantes en Equipo para todos: cuerpo técnico y jugadores con su mejor banda (D11, sin puntaje) | #79 |
-| 2 | Avisar antes de salir con cambios sin guardar (formularios y el marcador del partido) | |
+| 1 | Integrantes en Equipo para todos: cuerpo técnico y jugadores con su mejor banda (D11, sin puntaje) | #79 ✔ |
+| 2 | Avisar antes de salir con cambios sin guardar (formularios y el marcador del partido) | #80 |
 | 3 | El nombre del entrenador revisor en los bancos del examen (D10), cuando Kevin lo tenga | |
 
 ### Fase 8 · Contenido, psicometría y medición

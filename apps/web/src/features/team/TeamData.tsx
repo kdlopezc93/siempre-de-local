@@ -4,6 +4,7 @@ import { useId, useState, type FormEvent } from 'react';
 
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
+import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { SESSION_KEY } from '../auth/use-session';
 import { useUpdateTeam } from '../card/use-card';
 import { FORMAT_LABEL, formatsLabel } from '../shell/shell-nav';
@@ -83,6 +84,11 @@ function TeamDataForm({
   const nameId = useId();
   // El principal siempre entre los marcados.
   const principal = formats.includes(format) ? format : (formats[0] ?? format);
+  const guard = useUnsavedChanges(
+    name !== initial.name ||
+      principal !== initial.format ||
+      formats.join() !== initial.formats.join(),
+  );
 
   function toggle(f: MatchFormat) {
     setFormats((prev) =>
@@ -103,6 +109,7 @@ function TeamDataForm({
         onSuccess: () => {
           // El nombre y los formatos también salen en el encabezado (vienen de /me).
           void queryClient.invalidateQueries({ queryKey: SESSION_KEY });
+          guard.release();
           onDone();
         },
       },
@@ -119,6 +126,7 @@ function TeamDataForm({
 
   return (
     <form className={styles.form} onSubmit={submit} noValidate>
+      {guard.prompt}
       <label htmlFor={nameId} className={styles.label}>
         Nombre
       </label>

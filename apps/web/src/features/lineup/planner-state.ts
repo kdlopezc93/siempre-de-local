@@ -157,6 +157,24 @@ export function fromLineup(lineup: Lineup, currentPlayerIds: readonly string[]):
 }
 
 /** Lo armado, listo para guardar: la foto completa del cálculo y de lo tocado a mano. */
+/**
+ * Lo que el entrenador decidió en la pizarra (formación, modo, convocados, fijados y quién va
+ * dónde), sin los encajes: si los datos del equipo cambian por detrás, no es un cambio suyo.
+ * Sirve para saber si hay algo sin guardar.
+ */
+export function lineupSignature(state: PlannerState, result: LineupResult): string {
+  return JSON.stringify([
+    state.formationKey,
+    state.mode,
+    state.priority,
+    state.minKnowledgePct,
+    [...state.available].sort(),
+    state.pins,
+    result.assignments.map((a) => [a.slotId, a.playerId]),
+    result.bench,
+  ]);
+}
+
 export function toLineupInput(
   state: PlannerState,
   result: LineupResult,
