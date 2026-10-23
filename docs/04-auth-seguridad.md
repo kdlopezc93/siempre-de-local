@@ -125,3 +125,58 @@ Medidas:
 
 ### 5.1 Si en el futuro entran menores
 Se reactiva el diseño previo: año de nacimiento, flujo de **autorización del representante legal** (régimen reforzado para niños, niñas y adolescentes), cuentas sin email (usuario y contraseña creados por invitación) y bloqueo de sincronización sin autorización vigente. No es un cambio menor: implica activar un método de login adicional en Better Auth y nuevas tablas. Debe pasar por revisión legal antes.
+
+## 6. Terceros, dependencias y encabezados de seguridad
+
+Auditoría del 2026-10-22 (Fase 6, PR 12; `07` §4.8).
+
+### 6.1 Qué sale de la app
+
+- **La web no carga nada de terceros.**
+  - Fuentes (Barlow, Fontsource) e iconos (Phosphor) van empaquetados.
+  - No hay analítica, reporte de errores, mapas ni scripts externos.
+  - Los únicos enlaces a otros sitios son los que el usuario abre: las referencias de "En qué se basa el test" y compartir la invitación por WhatsApp (`wa.me`).
+- **El API habla con dos servicios:**
+  - **Postgres**;
+  - **Google**, solo al entrar. Scopes por defecto (`openid email profile`), y se comprobó en la base que:
+    - la foto de Google **no se guarda** (`user.image` en null por hook; 0 usuarios con imagen);
+    - los tokens de Google **no se guardan** (`access`, `refresh` e `id` en null; 0 cuentas con tokens).
+
+### 6.2 Inventario de lo que llega a producción
+
+| Dependencia | Para qué | Sale a la red | Datos que toca | Licencia |
+|---|---|---|---|---|
+| react, react-dom, react-router | Interfaz y rutas | No | Ninguno propio | MIT |
+| @tanstack/react-query | Caché de datos del API | No (usa el `fetch` de la app) | Respuestas del API, en memoria | MIT |
+| idb | Cola sin conexión (IndexedDB) | No | Tests pendientes de enviar, en el celular | ISC |
+| zod | Validar contratos | No | Lo que valida | MIT |
+| @phosphor-icons/react | Iconos SVG | No | Ninguno | MIT |
+| @fontsource/barlow, barlow-condensed | Fuentes empaquetadas | No | Ninguno | OFL-1.1 |
+| @nestjs/*, fastify, rxjs, reflect-metadata | Servidor del API | Escucha HTTP | Peticiones | MIT |
+| @nestjs/throttler | Límite de peticiones | No | IP en memoria | MIT |
+| better-auth | Sesiones y login con Google | Google (OAuth) | Nombre, correo, sesiones | MIT |
+| drizzle-orm, pg | Acceso a Postgres | Postgres | Toda la base | Apache-2.0, MIT |
+
+**Licencias de todo lo instalado** (731 paquetes, desarrollo incluido):
+- casi todo es MIT, Apache-2.0, ISC o BSD;
+- **ninguna GPL ni AGPL**;
+- las de condiciones (LGPL de `sharp-libvips`, MPL-2.0 de `lightningcss` e `ico-endec`, CC-BY de los datos de navegadores) son **solo de desarrollo**: generar iconos y compilar CSS.
+
+**`pnpm audit`:**
+- sin altas ni críticas;
+- una **moderada**: `esbuild` ≤ 0.24 que trae `better-auth` → `drizzle-kit` (GHSA-67mh-4wv8-2f99). Afecta al servidor de desarrollo de esbuild, que el API nunca levanta. Se revisa al actualizar `better-auth`.
+
+### 6.3 Encabezados
+
+- **Web:** CSP sin `unsafe-inline`, armada en `apps/web/vite.config.ts` (`contentSecurityPolicy`). El build la escribe en el `_headers` de Cloudflare Pages y `vite preview` la sirve igual, así que el **e2e la prueba**: falla si el navegador bloquea algo. Además van `nosniff`, `Referrer-Policy` y `Permissions-Policy` (sin cámara, micrófono ni ubicación).
+
+  `default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self' <origen del API>; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'`
+
+- **API:** `nosniff`, `Referrer-Policy: no-referrer` y `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'` (solo responde datos).
+
+### 6.4 Regla para lo que venga
+
+Nada nuevo que salga a la red o cargue algo de afuera (analítica, reporte de errores, mapas, fuentes o iconos de un CDN, el adaptador R2 de las fotos) entra sin:
+1. una fila en §6.2;
+2. su origen agregado a la CSP a propósito;
+3. revisar la política de datos (D7) si toca datos personales.

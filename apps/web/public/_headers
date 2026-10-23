@@ -1,5 +1,6 @@
-# Cloudflare Pages (docs/deploy.md). La CSP se agrega al tener el dominio del API.
+# Cloudflare Pages (docs/deploy.md). El build pone la CSP de vite.config.ts en su marcador.
 /*
+  Content-Security-Policy: __CSP__
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
