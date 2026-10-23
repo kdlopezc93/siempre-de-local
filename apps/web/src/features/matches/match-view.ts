@@ -1,4 +1,5 @@
 import type { Match } from '@sdl/contracts';
+import { POSITIONS } from '@sdl/domain';
 
 const WHEN = new Intl.DateTimeFormat('es-419', {
   weekday: 'short',
@@ -39,4 +40,10 @@ export function fromLocalInputs(date: string, time: string): string | null {
   const [h, min] = time.split(':').map(Number);
   const local = new Date(y!, m! - 1, d!, h!, min!);
   return Number.isNaN(local.getTime()) ? null : local.toISOString();
+}
+
+/** "Lateral por la izquierda", "Defensa central": el puesto en palabras (la banda es femenina). */
+export function slotName(slot: { position: keyof typeof POSITIONS; side?: string }): string {
+  const name = POSITIONS[slot.position].name;
+  return slot.side ? `${name} por la ${slot.side}` : name;
 }

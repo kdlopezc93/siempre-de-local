@@ -1,0 +1,58 @@
+.board {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+}
+
+.dot {
+  fill: var(--sdl-surface-selected);
+  stroke: var(--ring);
+  stroke-width: 1.2;
+}
+
+.portero {
+  --ring: var(--sdl-line-portero);
+}
+
+.defensa {
+  --ring: var(--sdl-line-defensa);
+}
+
+.medio {
+  --ring: var(--sdl-line-medio);
+}
+
+.ataque {
+  --ring: var(--sdl-line-ataque);
+}
+
+/* Tú: relleno ámbar, texto oscuro. */
+.me .dot {
+  fill: var(--sdl-primary);
+  stroke: var(--sdl-primary);
+}
+
+.code {
+  fill: var(--sdl-fg);
+  font-family: var(--sdl-font-display);
+  font-size: 4.2px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.me .code {
+  fill: var(--sdl-on-primary);
+}
+
+.name {
+  fill: var(--sdl-fg);
+  font-family: var(--sdl-font-body);
+  font-size: 3.6px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+.me .name {
+  fill: var(--sdl-primary);
+}

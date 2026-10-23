@@ -6,6 +6,7 @@ import {
   LineupListResponseSchema,
   LineupResponseSchema,
   MatchResponseSchema,
+  PublishedLineupResponseSchema,
   POLICY_VERSION,
   QuestionnaireResponseSchema,
   type LineupInput,
@@ -284,6 +285,39 @@ describe('planificador: señales y alineaciones guardadas', () => {
         (await call('GET', `/teams/${teamId}/lineups`, coach)).json(),
       );
       expect(list.items.find((l) => l.id === lineup.id)!.matchId).toBe(matchId);
+    });
+
+    it('el equipo ve la publicada: quién juega dónde, sin nada del encaje (D17)', async () => {
+      const matchId = await convocar();
+      const before = await call('GET', `/teams/${teamId}/matches/${matchId}/lineup`, players[0]!);
+      expect(before.statusCode).toBe(404);
+      expect(before.json()).toMatchObject({ error: { code: 'LINEUP_NOT_PUBLISHED' } });
+
+      const { lineup } = LineupResponseSchema.parse(
+        (
+          await call('POST', `/teams/${teamId}/lineups`, coach, {
+            ...(await build('vs Los Pibes')),
+            matchId,
+          })
+        ).json(),
+      );
+      await call('POST', `/teams/${teamId}/lineups/${lineup.id}/publish`, coach);
+
+      const res = await call('GET', `/teams/${teamId}/matches/${matchId}/lineup`, players[0]!);
+      expect(res.statusCode).toBe(200);
+      const published = PublishedLineupResponseSchema.parse(res.json());
+      expect(published).toMatchObject({ matchId, format: 'F11', formation: '1-4-3-3' });
+      expect(published.starters).toHaveLength(11);
+      const onPitch = published.starters.flatMap((s) => (s.player ? [s.player.displayName] : []));
+      expect(onPitch.length + published.bench.length).toBeGreaterThan(0);
+      // Nada del encaje: ni fit, ni breakdown, ni pesos, ni modo.
+      const raw = JSON.stringify(res.json());
+      for (const hidden of ['fit', 'breakdown', 'weights', 'mode', 'pinned']) {
+        expect(raw).not.toContain(`"${hidden}"`);
+      }
+      expect(
+        (await call('GET', `/teams/${teamId}/matches/${matchId}/lineup`, outsider)).statusCode,
+      ).toBe(403);
     });
 
     it('el formato tiene que ser el del partido; sin partido o cerrado no se publica', async () => {

@@ -355,7 +355,7 @@ Avisos: `NOT_ENOUGH_PLAYERS`, `PLAYER_WITHOUT_DATA` (va al final), `MIN_KNOWLEDG
 - **Abierto hasta la hora del partido** (`isMatchOpen`, D17): mientras está programado y no empezó, cada jugador responde **voy / no voy** y puede cambiar; el cuerpo técnico lo edita, lo cancela y publica o republica la alineación. Cancelado o empezado, queda fijo (409 `MATCH_CLOSED`).
 - **Respuestas:** las cuenta `replySummary` entre los **jugadores activos** (quien salió del equipo no cuenta). El equipo ve cuántos van, no van y faltan; **quién respondió qué** lo ven el cuerpo técnico y el admin del club, no los compañeros.
 - **Alineación del partido** (PR 3): el planificador abre con su formato y, convocados, los que dijeron **voy**; la alineación queda ligada al partido (`lineup.match_id`, del mismo formato: 422 `LINEUP_FORMAT_MISMATCH`). **Publicarla** la deja como la del partido; se **republica** (otra o la misma con cambios) hasta la hora del partido (409 `MATCH_CLOSED`). Solo se publica una ligada a un partido (422 `LINEUP_WITHOUT_MATCH`).
-- **Alineación publicada** (PR 4): la ve todo el equipo sin el desglose del encaje (D17).
+- **Alineación publicada** (PR 4): la ve todo el equipo en el partido, con la cancha, titulares y suplentes, y cada jugador ve dónde juega ("Eres titular: Lateral por la izquierda", "Vas al banco", "Esta vez no estás en la lista"). **Sin encaje, desglose ni pesos** (D17). En el inicio: "Ya está la alineación" hasta la hora del partido.
 - **Avisos** (D16): primero en "lo que toca" del inicio; push al final de la fase.
 
 ## Afirmaciones de la app (principio 8 de `07`)

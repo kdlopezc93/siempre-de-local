@@ -1,10 +1,12 @@
 import {
   MatchListResponseSchema,
   MatchResponseSchema,
+  PublishedLineupResponseSchema,
   type CreateMatchRequest,
   type MatchListResponse,
   type MatchReply,
   type MatchResponse,
+  type PublishedLineupResponse,
   type UpdateMatchRequest,
 } from '@sdl/contracts';
 
@@ -47,4 +49,11 @@ export function replyMatch(
     method: 'PUT',
     body: JSON.stringify({ reply }),
   });
+}
+
+export function fetchPublishedLineup(
+  teamId: string,
+  matchId: string,
+): Promise<PublishedLineupResponse> {
+  return apiRequest(`${base(teamId)}/${matchId}/lineup`, PublishedLineupResponseSchema);
 }

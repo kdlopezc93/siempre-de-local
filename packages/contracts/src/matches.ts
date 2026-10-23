@@ -67,3 +67,23 @@ export type Match = z.infer<typeof MatchSchema>;
 export type MatchRoster = z.infer<typeof MatchRosterSchema>;
 export type MatchResponse = z.infer<typeof MatchResponseSchema>;
 export type MatchListResponse = z.infer<typeof MatchListResponseSchema>;
+
+const PublishedPlayerSchema = z.object({
+  id: z.uuid(),
+  displayName: z.string(),
+  jerseyNumber: z.int().nullable(),
+});
+
+/**
+ * GET /teams/:teamId/matches/:matchId/lineup — la alineación publicada, para todo el equipo
+ * (D17): formación, titulares por puesto y suplentes. Nada del encaje ni del desglose.
+ */
+export const PublishedLineupResponseSchema = z.object({
+  matchId: z.uuid(),
+  format: MatchFormatSchema,
+  formation: z.string(),
+  publishedAt: z.iso.datetime(),
+  starters: z.array(z.object({ slotId: z.string(), player: PublishedPlayerSchema.nullable() })),
+  bench: z.array(PublishedPlayerSchema),
+});
+export type PublishedLineupResponse = z.infer<typeof PublishedLineupResponseSchema>;

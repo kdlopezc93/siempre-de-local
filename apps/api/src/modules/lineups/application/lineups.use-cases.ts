@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { Lineup, LineupInputSchema } from '@sdl/contracts';
+import type { Lineup, LineupInputSchema, PublishedLineupResponse } from '@sdl/contracts';
 import { findFormation, isMatchOpen } from '@sdl/domain';
 import type { z } from 'zod';
 
@@ -12,6 +12,8 @@ import {
   NotFoundError,
 } from '../../../shared/errors/application-errors.js';
 import {
+  PROFILES_QUERY,
+  type ProfilesQuery,
   TEAM_PLAYERS_QUERY,
   type TeamPlayersQuery,
 } from '../../squad/application/ports/squad.ports.js';
@@ -39,7 +41,46 @@ export class Lineups {
     @Inject(TEAM_PLAYERS_QUERY) private readonly players: TeamPlayersQuery,
     @Inject(MATCH_GATEWAY) private readonly matches: MatchGateway,
     @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+    @Inject(PROFILES_QUERY) private readonly profiles: ProfilesQuery,
   ) {}
+
+  /**
+   * La alineación publicada de un partido, para todo el equipo (D17): quién juega dónde y
+   * quién va al banco. Ni encaje, ni desglose, ni pesos.
+   */
+  async published(actor: Actor, teamId: string, matchId: string): Promise<PublishedLineupResponse> {
+    await this.authorize(actor, teamId, 'team.read');
+    const match = await this.matches.find(teamId, matchId);
+    if (!match) throw new NotFoundError('Partido no encontrado', 'MATCH_NOT_FOUND');
+    const lineup = match.lineupId ? await this.lineups.find(match.lineupId) : null;
+    if (!lineup || !match.publishedAt) {
+      throw new NotFoundError('Todavía no hay alineación publicada', 'LINEUP_NOT_PUBLISHED');
+    }
+    const roster = await this.players.activePlayers(teamId);
+    const profiles = await this.profiles.profilesOf(
+      roster.map((p) => ({ id: p.userId, name: p.name })),
+    );
+    const byId = new Map(
+      roster.map((p) => [
+        p.userId,
+        {
+          id: p.userId,
+          displayName: profiles.get(p.userId)?.displayName ?? p.name,
+          jerseyNumber: p.jerseyNumber,
+        },
+      ]),
+    );
+    // Quien ya no está en el equipo sale del listado (su puesto queda vacío).
+    const person = (id: string | null) => (id ? (byId.get(id) ?? null) : null);
+    return {
+      matchId,
+      format: lineup.format,
+      formation: lineup.formation,
+      publishedAt: match.publishedAt.toISOString(),
+      starters: lineup.assignments.map((a) => ({ slotId: a.slotId, player: person(a.playerId) })),
+      bench: lineup.bench.flatMap((id) => (byId.has(id) ? [byId.get(id)!] : [])),
+    };
+  }
 
   /**
    * Publica (o republica) la alineación de su partido para todo el equipo (D17): solo si está

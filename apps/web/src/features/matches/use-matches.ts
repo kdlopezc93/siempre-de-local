@@ -5,6 +5,7 @@ import {
   createMatch,
   fetchMatch,
   fetchMatches,
+  fetchPublishedLineup,
   replyMatch,
   updateMatch,
 } from '../../shared/api/matches';
@@ -49,3 +50,13 @@ export const useUpdateMatch = (teamId: string, matchId: string) =>
 
 export const useReplyMatch = (teamId: string, matchId: string) =>
   useMatchMutation(teamId, (reply: MatchReply) => replyMatch(teamId, matchId, reply));
+
+/** La alineación publicada (todo el equipo); solo se pide si el partido tiene una. */
+export function usePublishedLineup(teamId: string, matchId: string, publishedAt: string | null) {
+  return useQuery({
+    queryKey: [...matchesKey(teamId), matchId, 'lineup', publishedAt],
+    queryFn: () => fetchPublishedLineup(teamId, matchId),
+    enabled: publishedAt !== null,
+    networkMode: 'offlineFirst',
+  });
+}

@@ -210,6 +210,20 @@ export function matchTodos(input: {
       });
     }
   }
+  // Ya está la alineación (D17): el jugador la ve hasta la hora del partido.
+  if (player) {
+    for (const m of open.filter((x) => x.published)) {
+      todos.push({
+        id: `match-lineup-${m.id}`,
+        priority: 4,
+        who: 'player',
+        icon: 'lineup',
+        title: `Ya está la alineación: ${m.opponent}`,
+        detail: matchWhen(m.startsAt),
+        to: path(m),
+      });
+    }
+  }
   const next = open[0];
   if (staff && next && next.replies.pending > 0) {
     todos.push({
