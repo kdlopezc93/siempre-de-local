@@ -138,8 +138,8 @@ const NEW_ITEMS: Item[] = [
 ];
 
 /**
- * v3 (BORRADOR, Fase 8): las 31 de v2 (p28 en "ustedes") más nueve nuevas, 20 por intento.
- * No se publica hasta que Kevin la revise (`review`): la hoja está en `docs/test/`.
+ * v3 (Fase 8): las 31 de v2 (p28 en "ustedes") más nueve nuevas, 20 por intento. Revisada por
+ * Kevin el 2026-10-23 sin cambios; la hoja está en `docs/test/orientacion-v3.md`.
  */
 export const ORIENTATION_V3: OrientationContent = {
   label: 'v3',
@@ -149,5 +149,5 @@ export const ORIENTATION_V3: OrientationContent = {
     ...NEW_ITEMS,
   ],
   prepItems: {},
-  review: null,
+  review: { reviewedBy: 'Kevin Lopez', reviewedOn: '2026-10-23' },
 };
