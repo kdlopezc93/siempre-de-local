@@ -118,6 +118,7 @@ export class DrizzleTeamsRepository
           },
           club: { id: club.id, name: club.name },
           role: teamMembership.role,
+          jerseyNumber: teamMembership.jerseyNumber,
         })
         .from(teamMembership)
         .innerJoin(team, eq(teamMembership.teamId, team.id))
@@ -135,8 +136,15 @@ export class DrizzleTeamsRepository
     // Un equipo por entrada, con todos los roles de la persona en él.
     const teams = new Map<string, MeResponse['teams'][number]>();
     for (const row of teamRows) {
-      const entry = teams.get(row.team.id) ?? { team: row.team, club: row.club, roles: [] };
+      const entry = teams.get(row.team.id) ?? {
+        team: row.team,
+        club: row.club,
+        roles: [],
+        jerseyNumber: null,
+      };
       entry.roles.push(row.role);
+      // El dorsal es de la fila de jugador.
+      if (row.role === 'player') entry.jerseyNumber = row.jerseyNumber;
       teams.set(row.team.id, entry);
     }
     return { teams: [...teams.values()], clubs: clubRows };

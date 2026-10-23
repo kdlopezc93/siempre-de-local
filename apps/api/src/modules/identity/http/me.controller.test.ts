@@ -93,7 +93,7 @@ describe('/api/v1/me y consentimiento', () => {
     });
     await connection.db
       .insert(teamMembership)
-      .values({ teamId, userId: kevin.userId, role: 'player' });
+      .values({ teamId, userId: kevin.userId, role: 'player', jerseyNumber: 10 });
 
     const { teams, clubs } = await me(kevin);
     expect(teams).toEqual([
@@ -107,6 +107,7 @@ describe('/api/v1/me y consentimiento', () => {
         },
         club: { id: clubs[0]!.id, name: 'Los del Barrio' },
         roles: ['coach', 'player'],
+        jerseyNumber: 10,
       },
     ]);
     expect(clubs).toEqual([{ id: expect.any(String), name: 'Los del Barrio', role: 'owner' }]);

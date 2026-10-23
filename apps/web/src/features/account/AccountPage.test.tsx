@@ -25,7 +25,7 @@ describe('Tu cuenta', () => {
   it('tus equipos con tu rol y lo que permite, y el club que administras', () => {
     renderAccount();
     expect(screen.getByRole('heading', { level: 1, name: 'Kevin' })).toBeInTheDocument();
-    expect(screen.getByText('Entrenador y jugador')).toBeInTheDocument();
+    expect(screen.getByText('Entrenador y jugador, dorsal 10')).toBeInTheDocument();
     expect(
       screen.getByText(/^Valora, puntúa la tarjeta, arma alineaciones, invita jugadores/),
     ).toBeInTheDocument();

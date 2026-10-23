@@ -15,11 +15,13 @@ export const ME_TWO_TEAMS: Me = {
       team: { id: TEAM_A, name: 'Primer equipo', format: 'F11', formats: ['F11'], season: '2026' },
       club: CLUB,
       roles: ['coach', 'player'],
+      jerseyNumber: 10,
     },
     {
       team: { id: TEAM_B, name: 'Los del jueves', format: 'F8', formats: ['F8'], season: '2026' },
       club: CLUB,
       roles: ['player'],
+      jerseyNumber: null,
     },
   ],
   clubs: [{ id: CLUB.id, name: CLUB.name, role: 'owner' }],
