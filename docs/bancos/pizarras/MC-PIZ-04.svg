@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 78" width="400" height="312" font-family="Arial Narrow, Arial, sans-serif" font-weight="700">
+<defs><marker id="h" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto-start-reverse"><path d="M0,0 L6,3 L0,6 z" fill="#eef1ea"/></marker></defs>
+<rect x="0" y="0" width="100" height="78" fill="#13241b"/>
+<g fill="none" stroke="#3a6b52" stroke-width="0.8">
+<rect x="3" y="3" width="94" height="144"/><line x1="3" y1="75" x2="97" y2="75"/>
+<circle cx="50" cy="75" r="11"/><rect x="26" y="126" width="48" height="21"/>
+<rect x="38" y="140" width="24" height="7"/><rect x="26" y="3" width="48" height="21"/>
+<rect x="38" y="3" width="24" height="7"/></g>
+<line x1="80" y1="42" x2="86" y2="18" stroke="#eef1ea" stroke-width="0.7" stroke-linecap="round" stroke-dasharray="2.4 1.6" marker-end="url(#h)"/>
+<circle cx="50" cy="62" r="3.4" fill="#e8b84b" stroke="#e8b84b" stroke-width="0.9"/>
+<text x="50" y="63.3" font-size="3.6" text-anchor="middle" fill="#0b140f">8</text>
+<circle cx="80" cy="42" r="3.4" fill="#13241b" stroke="#eef1ea" stroke-width="0.9"/>
+<text x="80" y="43.3" font-size="3.6" text-anchor="middle" fill="#eef1ea">7</text>
+<circle cx="50" cy="28" r="3.4" fill="#13241b" stroke="#eef1ea" stroke-width="0.9"/>
+<text x="50" y="29.3" font-size="3.6" text-anchor="middle" fill="#eef1ea">9</text>
+<circle cx="32" cy="46" r="3.4" fill="#13241b" stroke="#eef1ea" stroke-width="0.9"/>
+<text x="32" y="47.3" font-size="3.6" text-anchor="middle" fill="#eef1ea">10</text>
+<circle cx="14" cy="66" r="3.4" fill="#13241b" stroke="#eef1ea" stroke-width="0.9"/>
+<text x="14" y="67.3" font-size="3.6" text-anchor="middle" fill="#eef1ea">3</text>
+<path d="M51.4,16.4 L56.6,21.6 M56.6,16.4 L51.4,21.6" stroke="#eef1ea" stroke-width="1" stroke-linecap="round"/>
+<path d="M37.4,36.4 L42.6,41.6 M42.6,36.4 L37.4,41.6" stroke="#eef1ea" stroke-width="1" stroke-linecap="round"/>
+<path d="M63.4,27.4 L68.6,32.6 M68.6,27.4 L63.4,32.6" stroke="#eef1ea" stroke-width="1" stroke-linecap="round"/>
+<path d="M71.4,47.4 L76.6,52.6 M76.6,47.4 L71.4,52.6" stroke="#eef1ea" stroke-width="1" stroke-linecap="round"/>
+<circle cx="53" cy="64" r="1.7" fill="#eef1ea"/>
+<circle cx="42" cy="24" r="5.5" fill="none" stroke="#e8b84b" stroke-width="0.7" stroke-dasharray="1.4 1"/>
+<text x="42" y="25.6" font-size="4.6" text-anchor="middle" fill="#e8b84b">A</text>
+<circle cx="86" cy="20" r="5.5" fill="#e8b84b" stroke="#e8b84b" stroke-width="0.7"/>
+<text x="86" y="21.6" font-size="4.6" text-anchor="middle" fill="#0b140f">B</text>
+<circle cx="22" cy="40" r="5.5" fill="none" stroke="#e8b84b" stroke-width="0.7" stroke-dasharray="1.4 1"/>
+<text x="22" y="41.6" font-size="4.6" text-anchor="middle" fill="#e8b84b">C</text>
+<circle cx="22" cy="72" r="5.5" fill="none" stroke="#e8b84b" stroke-width="0.7" stroke-dasharray="1.4 1"/>
+<text x="22" y="73.6" font-size="4.6" text-anchor="middle" fill="#e8b84b">D</text>
+</svg>

@@ -3,7 +3,11 @@ import { parseArgs } from 'node:util';
 
 import { lintBank } from '@sdl/domain';
 
-import { lintReport, reviewSheet } from '../modules/certification/application/bank-report.js';
+import {
+  boardImages,
+  lintReport,
+  reviewSheet,
+} from '../modules/certification/application/bank-report.js';
 import { CERT_BANKS } from '../modules/certification/infrastructure/seed/banks/index.js';
 import { bankConfig } from '../modules/certification/infrastructure/seed/publish-cert-bank.js';
 
@@ -29,6 +33,10 @@ for (const bank of CERT_BANKS) {
     mkdirSync(values.md, { recursive: true });
     const file = `${values.md}/${bank.position}-${bank.label}.md`;
     writeFileSync(file, reviewSheet(bank, issues));
+    for (const image of boardImages(bank)) {
+      mkdirSync(`${values.md}/pizarras`, { recursive: true });
+      writeFileSync(`${values.md}/${image.file}`, image.svg);
+    }
     console.log(`  Hoja de revisión: ${file}\n`);
   }
 }

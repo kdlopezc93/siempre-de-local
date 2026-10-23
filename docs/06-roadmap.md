@@ -164,8 +164,8 @@ Empezada el 2026-10-23 por lo que no necesita datos reales. Kevin eligió primer
 | 1 | Control de calidad del test (`pnpm quiz:lint`): estructura y cobertura por posición, en el banco y por intento | #81 ✔ |
 | 2 | v3 en borrador: ~9 preguntas nuevas para lateral, mediocentro y extremo, con su hoja de revisión para Kevin. No se publica sin `review` | #82 ✔ |
 | 3 | Publicar v3 después de la revisión (seed, tests) | #83 ✔ |
-| 4 | Preguntas tipo pizarra en el examen: formato, servido y pizarra en la web; se responde tocando en la cancha o en la lista (Kevin, 2026-10-23) | #84 |
-| 5 | Primeras preguntas de pizarra para DFC y MC (borradores, esperan revisor, D10), con la pizarra en la hoja de revisión | |
+| 4 | Preguntas tipo pizarra en el examen: formato, servido y pizarra en la web; se responde tocando en la cancha o en la lista (Kevin, 2026-10-23) | #84 ✔ |
+| 5 | Primeras preguntas de pizarra para DFC y MC (borradores, esperan revisor, D10), con la pizarra en la hoja de revisión | #85 |
 
 Después, en el orden que se decida: bancos de las otras posiciones (esperan revisor, D10) y la herramienta de análisis de preguntas. Con datos reales del equipo: afinar pesos y analizar las preguntas.
 
