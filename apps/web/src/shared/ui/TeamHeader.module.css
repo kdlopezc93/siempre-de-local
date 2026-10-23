@@ -1,14 +1,21 @@
+/* A lo ancho de la pantalla y fijo arriba; el contenido, en la columna de la app. */
 .header {
   position: sticky;
   top: 0;
   z-index: 10;
-  display: flex;
-  align-items: center;
-  min-height: calc(var(--sdl-header-height) + env(safe-area-inset-top));
-  margin-inline: calc(var(--sdl-gutter) * -1);
-  padding: env(safe-area-inset-top) var(--sdl-gutter) 0;
+  padding: env(safe-area-inset-top) max(var(--sdl-gutter), env(safe-area-inset-right)) 0
+    max(var(--sdl-gutter), env(safe-area-inset-left));
   border-bottom: var(--sdl-stroke) solid var(--sdl-border);
   background: var(--sdl-bg);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+  max-width: var(--sdl-content-max);
+  min-height: var(--sdl-header-height);
+  margin-inline: auto;
 }
 
 .team {
@@ -27,6 +34,16 @@
 
 button.team {
   cursor: pointer;
+}
+
+.account {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: var(--sdl-touch-min);
+  height: var(--sdl-touch-min);
+  margin-left: auto;
+  border-radius: 50%;
 }
 
 .text {

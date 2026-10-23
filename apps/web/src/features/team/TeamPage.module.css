@@ -1,0 +1,57 @@
+.screen {
+  gap: var(--sdl-space-6);
+}
+
+.title {
+  font-size: var(--sdl-text-display);
+  line-height: var(--sdl-leading-display);
+  letter-spacing: var(--sdl-tracking-display);
+  overflow-wrap: anywhere;
+}
+
+.muted {
+  margin-top: var(--sdl-space-1);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.sectionTitle {
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-body);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}
+
+.icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--sdl-surface);
+  color: var(--sdl-primary);
+}
+
+.sheetActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.error {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}

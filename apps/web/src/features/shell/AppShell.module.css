@@ -1,0 +1,21 @@
+.shell {
+  min-height: 100dvh;
+}
+
+/* Invisible hasta enfocarlo con teclado: evita recorrer el encabezado en cada pantalla. */
+.skip {
+  position: fixed;
+  top: var(--sdl-space-2);
+  left: var(--sdl-space-2);
+  z-index: 20;
+  padding: var(--sdl-space-2) var(--sdl-space-4);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-primary);
+  color: var(--sdl-on-primary);
+  font-weight: 600;
+  transform: translateY(-200%);
+}
+
+.skip:focus-visible {
+  transform: none;
+}

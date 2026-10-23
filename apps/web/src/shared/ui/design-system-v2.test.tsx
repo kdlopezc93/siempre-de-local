@@ -8,14 +8,14 @@ import { describe, expect, it } from 'vitest';
 
 import { BottomNav } from './BottomNav';
 import { Chips } from './Chips';
-import { teamInitials, TeamHeader } from './TeamHeader';
+import { initialsOf, TeamHeader } from './TeamHeader';
 import { lineOfPosition, Token } from './Token';
 
 describe('sistema de diseño v2', () => {
   it('iniciales del escudo y línea de cada posición', () => {
-    expect(teamInitials('Primer equipo')).toBe('PE');
-    expect(teamInitials('Los del jueves')).toBe('LJ');
-    expect(teamInitials('La 14')).toBe('L1');
+    expect(initialsOf('Primer equipo')).toBe('PE');
+    expect(initialsOf('Los del jueves')).toBe('LJ');
+    expect(initialsOf('La 14')).toBe('L1');
     expect(['POR', 'DFC', 'MC', 'DC'].map((p) => lineOfPosition(p as 'POR'))).toEqual([
       'portero',
       'defensa',
@@ -36,9 +36,10 @@ describe('sistema de diseño v2', () => {
       <MemoryRouter initialEntries={['/plantilla']}>
         <BottomNav
           items={[
-            { to: '/', label: 'Inicio', icon: House, end: true },
+            { to: '/', label: 'Inicio', icon: House },
             { to: '/plantilla', label: 'Plantilla', icon: UsersThree, badge: 12 },
           ]}
+          current="/plantilla"
         />
       </MemoryRouter>,
     );

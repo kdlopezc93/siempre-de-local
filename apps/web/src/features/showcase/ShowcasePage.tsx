@@ -12,7 +12,7 @@ import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
 import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 import { POSITIONS, positionAverages, type PositionCode } from '@sdl/domain';
 import { useMemo, useState } from 'react';
-import { Link, Navigate, Route, Routes, useParams } from 'react-router';
+import { Link, Navigate, Route, Routes, useLocation, useParams } from 'react-router';
 
 import { BottomNav } from '../../shared/ui/BottomNav';
 import { Button } from '../../shared/ui/Button';
@@ -42,10 +42,12 @@ const NAV = [
 export function ShowcasePage() {
   const [teamId, setTeamId] = useState(DEMO_TEAMS[0]!.id);
   const team = DEMO_TEAMS.find((t) => t.id === teamId)!;
+  const { pathname } = useLocation();
+  const current = NAV.find((n) => pathname.startsWith(n.to))?.to;
   return (
     <div className={styles.shell}>
+      <TeamHeader team={team} teams={DEMO_TEAMS} onSwitch={setTeamId} />
       <div className={styles.content}>
-        <TeamHeader team={team} teams={DEMO_TEAMS} onSwitch={setTeamId} />
         <Routes>
           <Route index element={<Navigate to="inicio" replace />} />
           <Route path="inicio" element={<Home />} />
@@ -56,7 +58,7 @@ export function ShowcasePage() {
           <Route path="equipo" element={<Team />} />
         </Routes>
       </div>
-      <BottomNav items={NAV} />
+      <BottomNav items={NAV} current={current} />
     </div>
   );
 }

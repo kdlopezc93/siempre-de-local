@@ -38,7 +38,7 @@ export function InvitePage({ teamId }: { teamId: string }) {
   if (team.isError || invitations.isError) {
     return (
       <Screen className={styles.screen}>
-        <BackLink />
+        <BackLink teamId={teamId} />
         <h1 className={styles.title}>Invita a tu equipo</h1>
         <p role="alert" className={styles.lead}>
           {forbidden
@@ -51,7 +51,7 @@ export function InvitePage({ teamId }: { teamId: string }) {
 
   return (
     <Screen className={styles.screen}>
-      <BackLink />
+      <BackLink teamId={teamId} />
       <header className={styles.header}>
         <h1 className={styles.title}>Invita a tu equipo</h1>
         <p className={styles.lead}>
@@ -85,10 +85,10 @@ export function InvitePage({ teamId }: { teamId: string }) {
   );
 }
 
-function BackLink() {
+function BackLink({ teamId }: { teamId: string }) {
   return (
-    <Link to="/" className={styles.back}>
-      Volver al inicio
+    <Link to={`/equipos/${teamId}/equipo`} className={styles.back}>
+      Equipo
     </Link>
   );
 }

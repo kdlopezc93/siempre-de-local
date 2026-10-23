@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router';
 
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
+import { LeadTask } from '../../shared/ui/TaskCard';
 import { useTeam } from '../team-admin/use-invitations';
 import { LineupBoard } from './LineupBoard';
 import styles from './PlannerPage.module.css';
@@ -19,10 +20,8 @@ export function SavedLineupsPage({ teamId }: { teamId: string }) {
   const lineups = useLineups(teamId);
   return (
     <Screen className={styles.screen}>
-      <Link to={`/equipos/${teamId}/planificador`} className={styles.back}>
-        Volver al planificador
-      </Link>
       <h1 className={styles.title}>Alineaciones</h1>
+      <LeadTask to={`/equipos/${teamId}/planificador`} title="Armar la alineación" />
       {lineups.isPending ? (
         <p className="sr-only" role="status">
           Cargando…

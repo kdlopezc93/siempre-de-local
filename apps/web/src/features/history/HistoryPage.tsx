@@ -21,9 +21,6 @@ export function HistoryPage({ me }: { me: Me }) {
 
   return (
     <Screen className={styles.screen}>
-      <Link to="/" className={styles.back}>
-        Volver al inicio
-      </Link>
       <h1 className={styles.title}>Tus tests</h1>
 
       {history.isPending && history.entries.length === 0 && (
