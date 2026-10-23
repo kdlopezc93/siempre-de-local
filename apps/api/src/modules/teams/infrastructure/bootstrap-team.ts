@@ -59,7 +59,13 @@ export async function bootstrapTeam(db: Database, input: BootstrapTeamInput) {
 
     await tx
       .insert(team)
-      .values({ clubId, name: input.teamName, format: input.format, season: input.season })
+      .values({
+        clubId,
+        name: input.teamName,
+        format: input.format,
+        formats: [input.format],
+        season: input.season,
+      })
       .onConflictDoNothing();
     const [{ teamId }] = (await tx
       .select({ teamId: team.id })

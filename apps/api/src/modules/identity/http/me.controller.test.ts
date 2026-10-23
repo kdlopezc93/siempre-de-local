@@ -98,7 +98,13 @@ describe('/api/v1/me y consentimiento', () => {
     const { teams, clubs } = await me(kevin);
     expect(teams).toEqual([
       {
-        team: { id: teamId, name: 'Primer equipo', format: 'F11', season: '2026' },
+        team: {
+          id: teamId,
+          name: 'Primer equipo',
+          format: 'F11',
+          formats: ['F11'],
+          season: '2026',
+        },
         club: { id: clubs[0]!.id, name: 'Los del Barrio' },
         roles: ['coach', 'player'],
       },

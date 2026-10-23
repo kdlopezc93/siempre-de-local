@@ -4,6 +4,7 @@ export interface TeamRecord {
   id: string;
   name: string;
   format: MatchFormat;
+  formats: MatchFormat[];
   season: string;
   club: { id: string; name: string };
   ratingsVisibleToPlayers: boolean;
@@ -11,7 +12,11 @@ export interface TeamRecord {
 
 export interface TeamsRepository {
   findById(teamId: string): Promise<TeamRecord | null>;
-  updateSettings(teamId: string, settings: { ratingsVisibleToPlayers: boolean }): Promise<void>;
+  /** Solo lo que cambia; `name-taken` si el club ya tiene otro equipo con ese nombre esta temporada. */
+  updateSettings(
+    teamId: string,
+    settings: Partial<Pick<TeamRecord, 'ratingsVisibleToPlayers' | 'name' | 'format' | 'formats'>>,
+  ): Promise<'ok' | 'name-taken'>;
   /** Cambia el dorsal del jugador activo; false si no es jugador activo del equipo. */
   setJerseyNumber(teamId: string, userId: string, jerseyNumber: number | null): Promise<boolean>;
 }

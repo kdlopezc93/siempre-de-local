@@ -50,7 +50,7 @@ export default async function globalSetup() {
   );
   const { rows } = await db.query<{ id: string }>(
     `with c as (insert into club (name, slug) values ('Los del Barrio', 'los-del-barrio') returning id)
-     insert into team (club_id, name, format, season) select id, 'Primer equipo', 'F11', '2026' from c
+     insert into team (club_id, name, format, formats, season) select id, 'Primer equipo', 'F11', '{F11}', '2026' from c
      returning id`,
   );
   const teamId = rows[0]!.id;

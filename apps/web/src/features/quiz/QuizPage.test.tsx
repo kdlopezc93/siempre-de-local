@@ -20,7 +20,7 @@ const me = (roles: ('player' | 'coach')[]): Me => ({
   consent: { policyVersion: 'x', acceptedAt: '2026-10-21T10:00:00.000Z' },
   teams: [
     {
-      team: { id: TEAM_ID, name: 'Primer equipo', format: 'F11', season: '2026' },
+      team: { id: TEAM_ID, name: 'Primer equipo', format: 'F11', formats: ['F11'], season: '2026' },
       club: { id: uuid(10), name: 'Los del Barrio' },
       roles,
     },

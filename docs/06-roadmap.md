@@ -172,7 +172,7 @@ Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no
 | D11 | ¿Los compañeros ven el conocimiento de otros? | Solo la banda, sin puntaje |
 | D12 | Formación por defecto para F8 y F11 en el planificador | **Decidido** (2026-10-22): F8 1-3-3-1 (más 1-2-4-1, 1-3-4, 1-2-3-2, del prototipo); F11 1-4-3-3 (más 1-4-4-2, 1-4-2-3-1, 1-3-5-2) |
 | D13 | Plazo por defecto para presentar una re-evaluación | 14 días; al vencer, C = 0 en el planificador hasta que presente |
-| D14 | Equipos que juegan varios formatos: qué formato usa cada cosa | Propuesta: el test, la valoración y la tarjeta usan el **principal**; el planificador deja elegir por partido entre los del equipo (ya lo hace). Decidir antes del PR 8 de la Fase 6 |
+| D14 | Equipos que juegan varios formatos: qué formato usa cada cosa | **Decidido** (2026-10-22, Kevin): el test, la valoración y la tarjeta usan el **principal** (`team.format`); el planificador elige por partido entre los formatos del equipo (`team.formats`) |
 | D15 | Dónde se guardan las fotos | Propuesta: Cloudflare R2 (junto con el hosting de D5), servidas por el mismo dominio. Exige actualizar la política de datos (D7). Decidir antes del PR 9 de la Fase 6 |
 
 ## Cómo trabajar con Claude en este proyecto

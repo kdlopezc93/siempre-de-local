@@ -11,7 +11,10 @@ export const TeamResponseSchema = z.object({
   team: z.object({
     id: z.uuid(),
     name: z.string(),
+    /** El formato principal (D14): el del test, la valoración y la tarjeta. */
     format: MatchFormatSchema,
+    /** Los formatos en que juega; el planificador elige entre estos por partido. */
+    formats: z.array(MatchFormatSchema).min(1),
     season: z.string(),
     club: z.object({ id: z.uuid(), name: z.string() }),
     /** ¿El jugador ve su tarjeta 0–99? (D8) */

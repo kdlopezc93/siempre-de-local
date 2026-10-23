@@ -87,6 +87,7 @@ export function PlannerPage({ teamId }: { teamId: string }) {
     <Planner
       teamId={teamId}
       teamName={team.data.team.name}
+      formats={team.data.team.formats}
       inputs={inputs.data}
       back={back}
       saved={saved.data ?? null}
@@ -97,16 +98,19 @@ export function PlannerPage({ teamId }: { teamId: string }) {
 function Planner({
   teamId,
   teamName,
+  formats,
   inputs,
   back,
   saved,
 }: {
   teamId: string;
   teamName: string;
+  formats: readonly MatchFormat[];
   inputs: LineupInputsResponse;
   back: React.ReactNode;
   saved: Lineup | null;
 }) {
+  const matchFormats = FORMATS.filter((f) => formats.includes(f.value));
   const p = usePlanner(
     inputs,
     saved
@@ -164,22 +168,25 @@ function Planner({
         </div>
       </details>
 
-      <fieldset className={styles.choices}>
-        <legend className={styles.legend}>Formato del partido</legend>
-        <div className={styles.chips}>
-          {FORMATS.map((f) => (
-            <label key={f.value} className={styles.chip}>
-              <input
-                type="radio"
-                name="format"
-                checked={state.format === f.value}
-                onChange={() => p.setFormat(f.value)}
-              />
-              <span>{f.label}</span>
-            </label>
-          ))}
-        </div>
-      </fieldset>
+      {/* Solo si el equipo juega más de un formato (D14); una guardada conserva el suyo. */}
+      {matchFormats.length > 1 && (
+        <fieldset className={styles.choices}>
+          <legend className={styles.legend}>Formato del partido</legend>
+          <div className={styles.chips}>
+            {matchFormats.map((f) => (
+              <label key={f.value} className={styles.chip}>
+                <input
+                  type="radio"
+                  name="format"
+                  checked={state.format === f.value}
+                  onChange={() => p.setFormat(f.value)}
+                />
+                <span>{f.label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
 
       <fieldset className={styles.choices}>
         <legend className={styles.legend}>Formación</legend>

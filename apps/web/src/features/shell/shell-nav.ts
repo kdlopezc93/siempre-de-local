@@ -91,3 +91,11 @@ export function rolesLabel(roles: readonly TeamRole[]): string {
 }
 
 export const FORMAT_LABEL: Record<MatchFormat, string> = { F11: 'Fútbol 11', F8: 'Fútbol 8' };
+
+/** "Fútbol 11" o, si juega los dos, "Fútbol 11 y 8" (el principal primero). */
+export function formatsLabel(formats: readonly MatchFormat[], principal: MatchFormat): string {
+  const others = formats.filter((f) => f !== principal).map((f) => f.slice(1));
+  return others.length
+    ? `${FORMAT_LABEL[principal]} y ${others.join(' y ')}`
+    : FORMAT_LABEL[principal];
+}
