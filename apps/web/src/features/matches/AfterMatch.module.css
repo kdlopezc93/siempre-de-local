@@ -327,3 +327,27 @@
     background: var(--sdl-surface-hover);
   }
 }
+
+/* Para el jugador (D18): la felicitación y su palabra, en ámbar. */
+.cheer {
+  color: var(--sdl-primary);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-xl);
+  font-weight: 700;
+}
+
+.mine {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-1);
+  padding-top: var(--sdl-space-3);
+  border-top: var(--sdl-stroke) solid var(--sdl-border);
+}
+
+.mineRating {
+  color: var(--sdl-primary);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-display);
+  font-weight: 700;
+  line-height: var(--sdl-leading-display);
+}

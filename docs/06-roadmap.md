@@ -140,9 +140,9 @@ Plan en PRs (2026-10-22, con D16 y D17 decididos):
 | 3 | La alineación del partido: el planificador abre con los que van; publicar y republicar | #72 ✔ |
 | 4 | La alineación publicada para todo el equipo, sin editar ni desglose | #73 ✔ |
 | 5 | Notificaciones push (Web Push, D16), con su fila en el inventario de terceros (`04` §6) | #74 ✔ |
-| 6 | Después del partido en el API: resultado, figura, evaluaciones de 1 a 5 y quién las ve (D18); política `borrador-3` | |
-| 7 | Cargar el resultado y evaluar en la app (cuerpo técnico): el partido jugado, "lo que toca", el ajuste en Equipo y la evaluación partido a partido en la ficha | #76 |
-| 8 | El jugador ve el resultado y la figura en el partido, y su evaluación (si el equipo la muestra) en el partido y en Mi juego | |
+| 6 | Después del partido en el API: resultado, figura, evaluaciones de 1 a 5 y quién las ve (D18); política `borrador-3` | #75 ✔ |
+| 7 | Cargar el resultado y evaluar en la app (cuerpo técnico): el partido jugado, "lo que toca", el ajuste en Equipo y la evaluación partido a partido en la ficha | #76 ✔ |
+| 8 | El jugador ve el resultado y la figura en el partido, y su evaluación (si el equipo la muestra) en el partido y en Mi juego; push de felicitación a la figura; política `borrador-4` | #77 |
 
 El punto 5 (después del partido) se sumó el 2026-10-23 como PR 6–8.
 

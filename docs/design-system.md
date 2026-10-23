@@ -186,6 +186,7 @@ La pizarra del planificador usa las mismas líneas (`PitchLines`) con los puesto
 
 - **El marcador es lo memorable:** cada equipo en su mitad, partida por la línea del medio (`--sdl-pitch-stroke`); los goles en `--sdl-text-number` con `tabular-nums`, y `−` / `+` redondos de 48 px debajo (con `touch-action: manipulation`, para que tocar rápido sume y no haga zoom). La figura del partido es una ficha ámbar (`Token tone="amber"`) y se elige en una hoja.
 - **Evaluar es una fila de cinco palabras** (Flojo · Regular · Bien · Muy bien · Figura) en una grilla de 5 columnas con 8 px entre botones; la elegida se rellena de ámbar (la palabra también lo dice, no solo el color). Se guarda al tocar, con "Guardando…" / "Guardada" por fila. La nota se abre aparte, y quitar una evaluación con nota pide confirmación.
+- **El jugador** ve el mismo marcador sin − / + (solo lectura), la figura y, en ámbar grande (`--sdl-text-display`), su palabra con "Es la mirada de tu cuerpo técnico."; si fue la figura, "¡Fuiste la figura del partido!". En Mi juego, "Tus últimos partidos" con la misma fila que la ficha.
 - En la lista de partidos, los jugados muestran el marcador ("2–1", y "2 a 1" para lectores de pantalla); en la ficha del jugador, "Últimos partidos" con la palabra en ámbar.
 
 ## 9.1 Movimiento con intención (Fase 2)

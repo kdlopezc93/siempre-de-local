@@ -12,7 +12,7 @@ import { initialsOf } from '../../shared/ui/TeamHeader';
 import { Token } from '../../shared/ui/Token';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import { usePublishLineup, useLineups } from '../lineup/use-lineups';
-import { AfterMatch } from './AfterMatch';
+import { AfterMatch, MatchResultView } from './AfterMatch';
 import { matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
 import styles from './Matches.module.css';
@@ -56,8 +56,10 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
     );
   }
   const { match, roster } = data.data;
-  // Ya jugado (D18): el cuerpo técnico carga el resultado y evalúa; las respuestas pasan atrás.
+  // Ya jugado (D18): el cuerpo técnico carga el resultado y evalúa; el resto lo ve. Las
+  // respuestas (voy / no voy) ya no hacen falta.
   const played = match.status === 'scheduled' && !match.open;
+  const teamName = membership?.team.name ?? 'Nosotros';
 
   return (
     <Screen className={styles.screen}>
@@ -75,35 +77,35 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         )}
       </header>
 
+      {played &&
+        (staff && roster ? (
+          <AfterMatch teamId={teamId} teamName={teamName} match={match} roster={roster} />
+        ) : (
+          <MatchResultView teamName={teamName} match={match} meId={me.user.id} />
+        ))}
+
       {match.published && (
         <PublishedSection teamId={teamId} match={match} meId={me.user.id} player={player} />
       )}
 
-      {staff && played && roster && (
-        <AfterMatch
-          teamId={teamId}
-          teamName={membership?.team.name ?? 'Nosotros'}
-          match={match}
-          roster={roster}
-        />
+      {!played && player && <ReplyButtons teamId={teamId} match={match} />}
+
+      {!played && (
+        <dl className={styles.counts}>
+          <div>
+            <dt>Van</dt>
+            <dd>{match.replies.yes}</dd>
+          </div>
+          <div>
+            <dt>No van</dt>
+            <dd>{match.replies.no}</dd>
+          </div>
+          <div>
+            <dt>Faltan</dt>
+            <dd>{match.replies.pending}</dd>
+          </div>
+        </dl>
       )}
-
-      {player && <ReplyButtons teamId={teamId} match={match} />}
-
-      <dl className={styles.counts}>
-        <div>
-          <dt>Van</dt>
-          <dd>{match.replies.yes}</dd>
-        </div>
-        <div>
-          <dt>No van</dt>
-          <dd>{match.replies.no}</dd>
-        </div>
-        <div>
-          <dt>Faltan</dt>
-          <dd>{match.replies.pending}</dd>
-        </div>
-      </dl>
 
       {staff && <MatchLineups teamId={teamId} match={match} />}
       {roster && !played && <Roster roster={roster} />}

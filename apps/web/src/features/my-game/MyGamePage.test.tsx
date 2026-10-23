@@ -142,4 +142,55 @@ describe('Mi juego (07 §4.3)', () => {
       await screen.findByText('En tu equipo la tarjeta la ve solo el cuerpo técnico.'),
     ).toBeInTheDocument();
   });
+
+  it('tus últimos partidos: el marcador, cómo jugaste y si fuiste la figura (D18)', async () => {
+    const played = (id: string, opponent: string, over: object) => ({
+      id,
+      format: 'F11',
+      startsAt: '2026-11-01T15:00:00.000Z',
+      place: 'La 14',
+      opponent,
+      status: 'scheduled',
+      open: false,
+      createdBy: null,
+      replies: { yes: 9, no: 0, pending: 0 },
+      myReply: 'yes',
+      published: null,
+      myRating: null,
+      ...over,
+    });
+    const result = (figure: string | null) => ({
+      goalsFor: 2,
+      goalsAgainst: 1,
+      figure: figure ? { id: figure, displayName: 'Kevin', jerseyNumber: 10 } : null,
+      at: '2026-11-01T18:00:00.000Z',
+    });
+    api({
+      [`GET /api/v1/teams/${TEAM_A}/matches`]: {
+        status: 200,
+        body: {
+          items: [
+            played('0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fa1', 'Los Pibes', {
+              result: result(ME_TWO_TEAMS.user.id),
+              myRating: 5,
+            }),
+            played('0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fa2', 'Veteranos', {
+              startsAt: '2026-10-25T15:00:00.000Z',
+              result: result(null),
+              myRating: 3,
+            }),
+            // Sin evaluación visible ni figura: no aparece.
+            played('0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fa3', 'Oculto', { result: result(null) }),
+          ],
+        },
+      },
+    });
+    renderPage();
+    const section = await screen.findByRole('region', { name: 'Tus últimos partidos' });
+    const rows = within(section).getAllByRole('link');
+    expect(rows.map((r) => r.textContent)).toEqual([
+      'Los Pibesdom, 1 nov, 2 a 1Figura del partido',
+      'Veteranosdom, 25 oct, 2 a 1Bien',
+    ]);
+  });
 });

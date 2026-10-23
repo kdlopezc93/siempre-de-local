@@ -59,6 +59,23 @@ describe('avisos en el service worker', () => {
     expect(calls[0]![1].data.url).toBe('/equipos/t/partidos/m');
   });
 
+  it('la figura del partido: la felicitación (D18)', async () => {
+    const { fire, showNotification } = loadWorker();
+    await fire(
+      'push',
+      push({
+        kind: 'match-figure',
+        opponent: 'Los Pibes',
+        startsAt: '2026-11-01T15:00:00.000Z',
+        url: '/equipos/t/partidos/m',
+      }),
+    );
+    expect(showNotification).toHaveBeenCalledWith(
+      '¡Fuiste la figura contra Los Pibes!',
+      expect.objectContaining({ body: 'Felicitaciones de tu cuerpo técnico.' }),
+    );
+  });
+
   it('ignora avisos que quieren llevar a otro sitio o que vienen rotos', async () => {
     const { fire, showNotification } = loadWorker();
     await fire(

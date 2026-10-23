@@ -21,11 +21,15 @@ self.addEventListener('push', (event) => {
   }
   if (!data || typeof data.url !== 'string' || !data.url.startsWith('/')) return;
   const when = data.startsAt ? WHEN.format(new Date(data.startsAt)) : '';
-  const title =
-    data.kind === 'lineup-published'
-      ? `Ya está la alineación: ${data.opponent}`
-      : `Te convocaron: ${data.opponent}`;
-  const body = data.kind === 'lineup-published' ? `${when}. Mira dónde juegas.` : `${when}. ¿Vas?`;
+  const { title, body } =
+    data.kind === 'match-figure'
+      ? {
+          title: `¡Fuiste la figura contra ${data.opponent}!`,
+          body: 'Felicitaciones de tu cuerpo técnico.',
+        }
+      : data.kind === 'lineup-published'
+        ? { title: `Ya está la alineación: ${data.opponent}`, body: `${when}. Mira dónde juegas.` }
+        : { title: `Te convocaron: ${data.opponent}`, body: `${when}. ¿Vas?` };
   event.waitUntil(
     self.registration.showNotification(title, {
       body,

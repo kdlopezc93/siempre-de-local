@@ -15,6 +15,7 @@ import { startMigratedPostgres } from '../../../test/postgres.js';
 import { seedUserWithSession, type SeededUser } from '../../../test/sessions.js';
 import { bootstrapTeam } from '../../teams/infrastructure/bootstrap-team.js';
 import { teamMembership } from '../../teams/infrastructure/schema.js';
+import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
 import { teamMatch } from '../infrastructure/schema.js';
 
 const inDays = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString();
@@ -188,9 +189,20 @@ describe('partidos: convocar y responder (Fase 7)', () => {
         })
       ).json(),
     ).toMatchObject({ error: { code: 'PLAYER_NOT_IN_TEAM' } });
+    const notify = vi.spyOn(app.get<Notifier>(NOTIFIER, { strict: false }), 'notifyUsers');
     const saved = MatchResponseSchema.parse(
       (await call('PUT', `/${match.id}/result`, coach, result)).json(),
     );
+    // La figura recibe la felicitación una vez; volver a guardar no la repite.
+    expect(notify).toHaveBeenCalledExactlyOnceWith([ana.userId], {
+      kind: 'match-figure',
+      opponent: 'Los Pibes',
+      startsAt: expect.any(String),
+      url: `/equipos/${teamId}/partidos/${match.id}`,
+    });
+    await call('PUT', `/${match.id}/result`, coach, result);
+    expect(notify).toHaveBeenCalledOnce();
+    notify.mockRestore();
     expect(saved.match.result).toMatchObject({
       goalsFor: 2,
       goalsAgainst: 1,

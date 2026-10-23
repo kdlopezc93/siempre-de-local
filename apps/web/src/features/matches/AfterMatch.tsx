@@ -8,7 +8,7 @@ import { Button } from '../../shared/ui/Button';
 import { Sheet } from '../../shared/ui/Sheet';
 import { initialsOf } from '../../shared/ui/TeamHeader';
 import { Token } from '../../shared/ui/Token';
-import { RATING_OPTIONS, type RatablePlayer, whoPlayed } from './after-match';
+import { RATING_OPTIONS, ratingLabel, type RatablePlayer, whoPlayed } from './after-match';
 import styles from './AfterMatch.module.css';
 import {
   useMatchRatings,
@@ -243,6 +243,7 @@ function ResultBoard({
   );
 }
 
+/** Los goles de un lado; con `onChange`, con − y + para cargarlos. */
 function Goals({
   side,
   value,
@@ -250,35 +251,94 @@ function Goals({
 }: {
   side: string;
   value: number;
-  onChange: (value: number) => void;
+  onChange?: (value: number) => void;
 }) {
   return (
     <div role="group" aria-label={`Goles de ${side}`} className={styles.goals}>
       <span className={styles.side}>{side}</span>
-      <output className={styles.number} aria-live="polite">
-        {value}
-      </output>
-      <div className={styles.steppers}>
-        <button
-          type="button"
-          className={styles.step}
-          aria-label={`Un gol menos para ${side}`}
-          disabled={value === 0}
-          onClick={() => onChange(value - 1)}
-        >
-          <Minus size={20} aria-hidden="true" />
-        </button>
-        <button
-          type="button"
-          className={styles.step}
-          aria-label={`Un gol más para ${side}`}
-          disabled={value === 99}
-          onClick={() => onChange(value + 1)}
-        >
-          <Plus size={20} aria-hidden="true" />
-        </button>
-      </div>
+      {onChange ? (
+        <output className={styles.number} aria-live="polite">
+          {value}
+        </output>
+      ) : (
+        <span className={styles.number}>{value}</span>
+      )}
+      {onChange && (
+        <div className={styles.steppers}>
+          <button
+            type="button"
+            className={styles.step}
+            aria-label={`Un gol menos para ${side}`}
+            disabled={value === 0}
+            onClick={() => onChange(value - 1)}
+          >
+            <Minus size={20} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className={styles.step}
+            aria-label={`Un gol más para ${side}`}
+            disabled={value === 99}
+            onClick={() => onChange(value + 1)}
+          >
+            <Plus size={20} aria-hidden="true" />
+          </button>
+        </div>
+      )}
     </div>
+  );
+}
+
+/**
+ * El resultado para todo el equipo (D18): el marcador, la figura y, al jugador, cómo jugó si
+ * el equipo lo muestra (sin la nota).
+ */
+export function MatchResultView({
+  teamName,
+  match,
+  meId,
+}: {
+  teamName: string;
+  match: Match;
+  meId: string;
+}) {
+  const result = match.result;
+  if (!result) {
+    return <p className={styles.muted}>Todavía no cargaron el resultado.</p>;
+  }
+  const mine = result.figure?.id === meId;
+  return (
+    <section aria-labelledby="resultado" className={styles.board}>
+      <h2 id="resultado" className={styles.sectionTitle}>
+        Resultado
+      </h2>
+      <div className={styles.score}>
+        <Goals side={teamName} value={result.goalsFor} />
+        <span className={styles.dash} aria-hidden="true">
+          –
+        </span>
+        <Goals side={match.opponent} value={result.goalsAgainst} />
+      </div>
+      {result.figure && (
+        <div className={styles.figure}>
+          <div className={styles.figureWho}>
+            <span className={styles.figureLabel}>Figura del partido</span>
+            <span className={styles.figureName}>
+              <Token text={tokenText(result.figure)} size="sm" tone="amber" />
+              {result.figure.displayName}
+            </span>
+          </div>
+        </div>
+      )}
+      {mine && <p className={styles.cheer}>¡Fuiste la figura del partido!</p>}
+      {match.myRating !== null && (
+        <div className={styles.mine}>
+          <span className={styles.figureLabel}>Cómo jugaste</span>
+          <span className={styles.mineRating}>{ratingLabel(match.myRating)}</span>
+          <span className={styles.muted}>Es la mirada de tu cuerpo técnico.</span>
+        </div>
+      )}
+    </section>
   );
 }
 

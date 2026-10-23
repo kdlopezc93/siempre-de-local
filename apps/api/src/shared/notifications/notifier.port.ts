@@ -3,7 +3,8 @@
  * avisa no sabe cómo llega. Un aviso que falla nunca hace fallar lo que lo causó.
  */
 export interface PushMessage {
-  kind: 'match-called' | 'lineup-published';
+  /** Convocatoria, alineación publicada o figura del partido (felicitación, D18). */
+  kind: 'match-called' | 'lineup-published' | 'match-figure';
   /** El rival: lo único del partido que viaja (la hora la formatea el celular). */
   opponent: string;
   startsAt: string;

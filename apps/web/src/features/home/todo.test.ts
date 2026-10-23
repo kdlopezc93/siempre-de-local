@@ -188,6 +188,41 @@ describe('lo que toca: partidos (D16)', () => {
     const now = new Date('2026-11-04T12:00:00.000Z');
     const staff = matchTodos({ teamId: 't1', matches, player: false, staff: true, now });
     expect(staff.map((t) => t.title)).toEqual(['¿Cómo salió contra Jugado?']);
-    expect(matchTodos({ teamId: 't1', matches, player: true, staff: false, now })).toEqual([]);
+    // Al jugador no le toca cargarlo; sí ve el que ya tiene resultado.
+    expect(
+      matchTodos({ teamId: 't1', matches, player: true, staff: false, now }).map((t) => t.title),
+    ).toEqual(['Con resultado: 2 a 1']);
+  });
+
+  it('al jugador, el resultado de los últimos 3 días; si fue la figura, arriba (D18)', () => {
+    const result = (figure: string | null) => ({
+      goalsFor: 2,
+      goalsAgainst: 1,
+      figure: figure ? { id: figure, displayName: 'Ana', jerseyNumber: 4 } : null,
+      at: '2026-11-02T18:00:00.000Z',
+    });
+    const played = { open: false };
+    const matches = [
+      m('Pibes', '2026-11-01T15:00:00.000Z', { ...played, result: result('yo'), myRating: 5 }),
+      m('Veteranos', '2026-11-02T15:00:00.000Z', { ...played, result: result(null), myRating: 3 }),
+      m('Viejo', '2026-10-20T15:00:00.000Z', {
+        ...played,
+        result: { ...result(null), at: '2026-10-20T18:00:00.000Z' },
+      }),
+    ];
+    const now = new Date('2026-11-03T12:00:00.000Z');
+    const todos = matchTodos({
+      teamId: 't1',
+      matches,
+      player: true,
+      staff: false,
+      meId: 'yo',
+      now,
+    });
+    expect(todos.map((t) => [t.title, t.detail])).toEqual([
+      ['¡Fuiste la figura contra Pibes!', '2 a 1. Felicitaciones.'],
+      ['Veteranos: 2 a 1', 'Mira cómo jugaste.'],
+    ]);
+    expect(arrange(todos).lead!.title).toBe('¡Fuiste la figura contra Pibes!');
   });
 });

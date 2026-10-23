@@ -70,7 +70,9 @@ export function useHomeTodos(me: Me, teamId: string | undefined, roles: readonly
     }
     if (staff && squad.data) todos.push(...staffTodos({ teamId, squad: squad.data.players }));
     if (matches.data)
-      todos.push(...matchTodos({ teamId, matches: matches.data.items, player, staff }));
+      todos.push(
+        ...matchTodos({ teamId, matches: matches.data.items, player, staff, meId: me.user.id }),
+      );
     if (staff && lineups.data) shortcut = lastLineup(teamId, lineups.data.items);
   }
   return { todos, shortcut, isPending, isError, staff, player };

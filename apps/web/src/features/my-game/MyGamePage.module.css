@@ -131,3 +131,48 @@
   align-items: center;
   gap: var(--sdl-space-4);
 }
+
+/* Tus últimos partidos (D18): rival, día y marcador; la palabra en ámbar a la derecha. */
+.matches {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.matches li {
+  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+}
+
+.matchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sdl-space-3);
+  min-height: 56px;
+  color: var(--sdl-fg);
+  text-decoration: none;
+}
+
+.matchWho {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.matchMeta {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-xs);
+  font-weight: 500;
+}
+
+.matchRating {
+  flex: none;
+  max-width: 50%;
+  color: var(--sdl-primary);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-lg);
+  font-weight: 700;
+  text-align: right;
+}

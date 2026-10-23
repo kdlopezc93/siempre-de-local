@@ -183,6 +183,15 @@ export class Matches {
       goalsAgainst: request.goalsAgainst,
       figure: request.figurePlayerId !== null,
     });
+    // La felicitación a la figura, una vez: corregir el marcador no la repite.
+    if (request.figurePlayerId && request.figurePlayerId !== record.figure?.id) {
+      await this.notifier.notifyUsers([request.figurePlayerId], {
+        kind: 'match-figure',
+        opponent: record.opponent,
+        startsAt: record.startsAt.toISOString(),
+        url: `/equipos/${teamId}/partidos/${matchId}`,
+      });
+    }
     return this.get(actor, teamId, matchId, now);
   }
 
