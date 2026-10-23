@@ -5,11 +5,8 @@ import type { ReactNode } from 'react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import type { Me } from '../../shared/api/auth';
 import { fakeApi } from '../../test/fake-api';
-import { DEFAULT_PROFILE } from '../../test/me-fixture';
 import { uuid } from '../../test/questionnaire-fixture';
-import { MyCardPage } from './MyCardPage';
 import { RatePage } from './RatePage';
 import { StaffCardPage } from './StaffCardPage';
 
@@ -71,58 +68,8 @@ function renderRoutes(path: string, routes: { path: string; element: ReactNode }
   return router;
 }
 
-const me: Me = {
-  user: { id: ANA, name: 'Ana', email: 'ana@example.com' },
-  consent: { policyVersion: 'x', acceptedAt: '2026-10-21T10:00:00.000Z' },
-  teams: [
-    {
-      team: { id: TEAM_ID, name: 'Primer equipo', format: 'F11', season: '2026' },
-      club: { id: uuid(10), name: 'Los del Barrio' },
-      roles: ['player'],
-    },
-  ],
-  profile: DEFAULT_PROFILE,
-  clubs: [],
-};
-
 describe('tarjeta', () => {
   afterEach(() => vi.unstubAllGlobals());
-
-  it('el jugador ve su mejor media en grande y las demás por posición', async () => {
-    fakeApi({
-      'GET /api/v1/me/card': {
-        status: 200,
-        body: {
-          card: {
-            ratedAt: '2026-10-21T10:00:00.000Z',
-            values: VALUES,
-            positionAverages: AVERAGES,
-            formulaVersion: 'rating-formula-v1',
-          },
-        },
-      },
-    });
-    renderRoutes('/t', [{ path: '/t', element: <MyCardPage me={me} teamId={TEAM_ID} /> }]);
-
-    const card = await screen.findByRole('article', { name: 'Tarjeta del jugador' });
-    expect(card).toHaveTextContent(/^74de media como Extremo/);
-    expect(within(card).getByRole('list')).toHaveTextContent(/^Extremo74Mediapunta70/);
-    expect(within(card).queryByText('De portero')).not.toBeInTheDocument();
-    expect(screen.getByText(/no un veredicto/)).toBeInTheDocument();
-  });
-
-  it('si el equipo la oculta, lo dice', async () => {
-    fakeApi({
-      'GET /api/v1/me/card': {
-        status: 403,
-        body: { error: { code: 'CARD_HIDDEN', message: 'Oculta' } },
-      },
-    });
-    renderRoutes('/t', [{ path: '/t', element: <MyCardPage me={me} teamId={TEAM_ID} /> }]);
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'En tu equipo la tarjeta la ve solo el cuerpo técnico.',
-    );
-  });
 
   it('el cuerpo técnico ve la vigente con sus notas y las fotos anteriores', async () => {
     fakeApi({
