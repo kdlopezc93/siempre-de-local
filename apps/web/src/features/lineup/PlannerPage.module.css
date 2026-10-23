@@ -372,3 +372,17 @@
     background: var(--sdl-surface-hover);
   }
 }
+
+.replyTag {
+  margin-left: auto;
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.publish {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-1);
+}

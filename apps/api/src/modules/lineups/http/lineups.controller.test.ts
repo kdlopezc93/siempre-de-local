@@ -5,6 +5,7 @@ import {
   LineupInputsResponseSchema,
   LineupListResponseSchema,
   LineupResponseSchema,
+  MatchResponseSchema,
   POLICY_VERSION,
   QuestionnaireResponseSchema,
   type LineupInput,
@@ -32,7 +33,7 @@ describe('planificador: señales y alineaciones guardadas', () => {
   let teamId: string;
 
   const call = (
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     path: string,
     who: SeededUser,
     payload?: object,
@@ -244,6 +245,95 @@ describe('planificador: señales y alineaciones guardadas', () => {
     expect(LineupResponseSchema.parse(res.json()).lineup).toMatchObject({
       format: 'F8',
       formation: '1-3-3-1',
+    });
+  });
+
+  describe('la alineación de un partido (Fase 7)', () => {
+    const convocar = async (format: 'F11' | 'F8' = 'F11') => {
+      const res = await call('POST', `/teams/${teamId}/matches`, coach, {
+        format,
+        startsAt: new Date(Date.now() + 3 * 86_400_000).toISOString(),
+        place: 'La 14',
+        opponent: 'Los Pibes',
+      });
+      return MatchResponseSchema.parse(res.json()).match.id;
+    };
+
+    it('se liga al partido, se publica y se republica; el equipo la ve como publicada', async () => {
+      const matchId = await convocar();
+      const saved = await call('POST', `/teams/${teamId}/lineups`, coach, {
+        ...(await build('vs Los Pibes')),
+        matchId,
+      });
+      expect(saved.statusCode).toBe(201);
+      const { lineup } = LineupResponseSchema.parse(saved.json());
+      expect(lineup.matchId).toBe(matchId);
+
+      expect(
+        (await call('POST', `/teams/${teamId}/lineups/${lineup.id}/publish`, coach)).statusCode,
+      ).toBe(204);
+      const first = MatchResponseSchema.parse(
+        (await call('GET', `/teams/${teamId}/matches/${matchId}`, coach)).json(),
+      );
+      expect(first.match.published).toMatchObject({ lineupId: lineup.id });
+      // Republicar (D17): sigue publicada, con la fecha nueva.
+      expect(
+        (await call('POST', `/teams/${teamId}/lineups/${lineup.id}/publish`, coach)).statusCode,
+      ).toBe(204);
+      const list = LineupListResponseSchema.parse(
+        (await call('GET', `/teams/${teamId}/lineups`, coach)).json(),
+      );
+      expect(list.items.find((l) => l.id === lineup.id)!.matchId).toBe(matchId);
+    });
+
+    it('el formato tiene que ser el del partido; sin partido o cerrado no se publica', async () => {
+      const matchId = await convocar();
+      const data = await inputs(coach);
+      const f8 = findFormation('1-3-3-1')!;
+      const result = solveLineup({
+        formation: f8,
+        players: data.players,
+        weights: MODE_WEIGHTS.balanced,
+      });
+      const mismatch = await call('POST', `/teams/${teamId}/lineups`, coach, {
+        ...(await build()),
+        formation: f8.key,
+        assignments: result.assignments.map((a) => ({ ...a, manual: false })),
+        bench: result.bench,
+        matchId,
+      });
+      expect(mismatch.json()).toMatchObject({ error: { code: 'LINEUP_FORMAT_MISMATCH' } });
+      expect(
+        (
+          await call('POST', `/teams/${teamId}/lineups`, coach, {
+            ...(await build()),
+            matchId: randomUUID(),
+          })
+        ).json(),
+      ).toMatchObject({ error: { code: 'MATCH_NOT_FOUND' } });
+
+      const loose = LineupResponseSchema.parse(
+        (await call('POST', `/teams/${teamId}/lineups`, coach, await build())).json(),
+      );
+      expect(
+        (await call('POST', `/teams/${teamId}/lineups/${loose.lineup.id}/publish`, coach)).json(),
+      ).toMatchObject({
+        error: { code: 'LINEUP_WITHOUT_MATCH' },
+      });
+
+      const linked = LineupResponseSchema.parse(
+        (
+          await call('POST', `/teams/${teamId}/lineups`, coach, { ...(await build()), matchId })
+        ).json(),
+      );
+      await call('PATCH', `/teams/${teamId}/matches/${matchId}`, coach, { status: 'cancelled' });
+      const closed = await call(
+        'POST',
+        `/teams/${teamId}/lineups/${linked.lineup.id}/publish`,
+        coach,
+      );
+      expect(closed.statusCode).toBe(409);
+      expect(closed.json()).toMatchObject({ error: { code: 'MATCH_CLOSED' } });
     });
   });
 });

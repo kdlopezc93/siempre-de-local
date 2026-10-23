@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  type AnyPgColumn,
   date,
   index,
   jsonb,
@@ -12,6 +13,7 @@ import {
 } from 'drizzle-orm/pg-core';
 
 import { matchFormat } from '../../../shared/db/enums.js';
+import { teamMatch } from '../../matches/infrastructure/schema.js';
 import { user } from '../../identity/infrastructure/schema.js';
 import { team } from '../../teams/infrastructure/schema.js';
 
@@ -35,6 +37,8 @@ export const lineup = pgTable(
     createdBy: uuid().references(() => user.id, { onDelete: 'set null' }),
     name: text().notNull(),
     matchDate: date(),
+    /** El partido (Fase 7). La referencia es perezosa: team_match también apunta a lineup. */
+    matchId: uuid().references((): AnyPgColumn => teamMatch.id, { onDelete: 'set null' }),
     format: matchFormat().notNull(),
     formation: text().notNull(),
     mode: lineupMode().notNull(),

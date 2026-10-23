@@ -269,7 +269,7 @@ Implementado en `apps/api/src/modules/assessments/infrastructure/schema.ts` (mig
 
 **match_reply** — `match_id (cascade), user_id (cascade), reply match_reply_value ('yes','no'), replied_at` · PK (match_id, user_id). Una por jugador; se reemplaza al cambiar.
 
-> **Implementado** (migración `0017_matches`, módulo `matches`, Fase 7). Reglas en `02` §13.
+> **Implementado** (migración `0017_matches`, módulo `matches`, Fase 7). Reglas en `02` §13. La alineación de un partido: `lineup.match_id` (set null; migración `0018_lineup_match`); la publicada es `team_match.lineup_id` + `published_at`.
 
 **lineup**
 | Columna | Tipo | Notas |

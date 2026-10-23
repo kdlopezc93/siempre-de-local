@@ -1,11 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { Lineup, LineupInputSchema } from '@sdl/contracts';
-import { findFormation } from '@sdl/domain';
+import { findFormation, isMatchOpen } from '@sdl/domain';
 import type { z } from 'zod';
 
 import { can, type Actor, type TeamPermission } from '../../../shared/authz/policy.js';
+import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
 import {
   BusinessRuleError,
+  ConflictError,
   ForbiddenError,
   NotFoundError,
 } from '../../../shared/errors/application-errors.js';
@@ -19,6 +21,7 @@ import {
   type TeamsRepository,
 } from '../../teams/application/ports/teams.repository.js';
 import { LINEUPS_REPOSITORY, type LineupsRepository } from './ports/lineups.repository.js';
+import { MATCH_GATEWAY, type MatchGateway } from './ports/match-gateway.port.js';
 
 type LineupInput = z.output<typeof LineupInputSchema>;
 
@@ -34,7 +37,34 @@ export class Lineups {
     @Inject(LINEUPS_REPOSITORY) private readonly lineups: LineupsRepository,
     @Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository,
     @Inject(TEAM_PLAYERS_QUERY) private readonly players: TeamPlayersQuery,
+    @Inject(MATCH_GATEWAY) private readonly matches: MatchGateway,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
   ) {}
+
+  /**
+   * Publica (o republica) la alineación de su partido para todo el equipo (D17): solo si está
+   * ligada a un partido y este sigue abierto (antes de la hora). Republicar actualiza la fecha.
+   */
+  async publish(actor: Actor, teamId: string, lineupId: string, now = new Date()) {
+    await this.authorize(actor, teamId, 'team.matches.write');
+    const found = await this.own(teamId, lineupId);
+    if (!found.matchId) {
+      throw new BusinessRuleError('Esta alineación no es de un partido.', 'LINEUP_WITHOUT_MATCH');
+    }
+    const match = await this.matches.find(teamId, found.matchId);
+    if (!match || !isMatchOpen(match, now)) {
+      throw new ConflictError('El partido ya empezó o fue cancelado.', 'MATCH_CLOSED');
+    }
+    await this.matches.publish(found.matchId, lineupId, now);
+    await this.audit.record({
+      actorUserId: actor.userId,
+      action: 'match.lineup_published',
+      entity: 'team_match',
+      entityId: found.matchId,
+      teamId,
+      meta: { lineupId },
+    });
+  }
 
   async create(actor: Actor, teamId: string, input: LineupInput): Promise<Lineup> {
     const team = await this.authorize(actor, teamId, 'team.lineups.write');
@@ -102,6 +132,16 @@ export class Lineups {
       const at = input.assignments.find((a) => a.slotId === pin.slotId);
       if (!at || at.playerId !== pin.playerId)
         throw invalid('Un jugador fijado no está en su puesto.');
+    }
+    if (input.matchId) {
+      const match = await this.matches.find(team.id, input.matchId);
+      if (!match) throw new BusinessRuleError('Ese partido no es del equipo.', 'MATCH_NOT_FOUND');
+      if (match.format !== formation.format) {
+        throw new BusinessRuleError(
+          'La formación no es del formato del partido.',
+          'LINEUP_FORMAT_MISMATCH',
+        );
+      }
     }
     return formation;
   }

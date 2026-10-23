@@ -20,10 +20,11 @@ export function useMatches(teamId: string, enabled = true) {
   });
 }
 
-export function useMatch(teamId: string, matchId: string) {
+export function useMatch(teamId: string, matchId: string | null) {
   return useQuery({
     queryKey: [...matchesKey(teamId), matchId],
-    queryFn: () => fetchMatch(teamId, matchId),
+    queryFn: () => fetchMatch(teamId, matchId!),
+    enabled: matchId !== null,
     networkMode: 'offlineFirst',
   });
 }

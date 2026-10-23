@@ -82,6 +82,14 @@ export class DrizzleMatchesRepository implements MatchesRepository {
     return result;
   }
 
+  /** MatchGateway (para alineaciones): marcarla publicada. */
+  async publish(matchId: string, lineupId: string, at: Date) {
+    await this.connection.db
+      .update(teamMatch)
+      .set({ lineupId, publishedAt: at })
+      .where(eq(teamMatch.id, matchId));
+  }
+
   async setReply(matchId: string, userId: string, reply: MatchReply) {
     await this.connection.db
       .insert(matchReply)

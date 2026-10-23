@@ -34,10 +34,11 @@ export class LineupsController {
   ): Promise<LineupListResponse> {
     const items = await this.lineups.list(actor, teamId);
     return {
-      items: items.map(({ id, name, matchDate, formation, createdBy, updatedAt }) => ({
+      items: items.map(({ id, name, matchDate, matchId, formation, createdBy, updatedAt }) => ({
         id,
         name,
         matchDate,
+        matchId,
         formation,
         createdBy,
         updatedAt,
@@ -82,5 +83,17 @@ export class LineupsController {
     @Param('lineupId') lineupId: string,
   ): Promise<void> {
     await this.lineups.remove(actor, teamId, parseInput(Uuid, lineupId));
+  }
+
+  /** Publicar (o republicar) la alineación de un partido para todo el equipo (D17). */
+  @Post(':lineupId/publish')
+  @Can('team.matches.write', { teamParam: 'teamId' })
+  @HttpCode(204)
+  async publish(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('lineupId') lineupId: string,
+  ): Promise<void> {
+    await this.lineups.publish(actor, teamId, parseInput(z.uuid(), lineupId));
   }
 }
