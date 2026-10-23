@@ -12,7 +12,7 @@ import { TeamHeader, type HeaderTeam } from '../../shared/ui/TeamHeader';
 import styles from './AppShell.module.css';
 import {
   activeTab,
-  FORMAT_LABEL,
+  formatsLabel,
   rolesLabel,
   switchTarget,
   tabsFor,
@@ -32,7 +32,7 @@ const toHeader = ({ team, club, roles }: Me['teams'][number]): HeaderTeam => ({
   id: team.id,
   name: team.name,
   club: club.name,
-  format: FORMAT_LABEL[team.format],
+  format: formatsLabel(team.formats, team.format),
   roles: rolesLabel(roles),
 });
 

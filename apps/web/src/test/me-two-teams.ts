@@ -12,12 +12,12 @@ export const ME_TWO_TEAMS: Me = {
   profile: DEFAULT_PROFILE,
   teams: [
     {
-      team: { id: TEAM_A, name: 'Primer equipo', format: 'F11', season: '2026' },
+      team: { id: TEAM_A, name: 'Primer equipo', format: 'F11', formats: ['F11'], season: '2026' },
       club: CLUB,
       roles: ['coach', 'player'],
     },
     {
-      team: { id: TEAM_B, name: 'Los del jueves', format: 'F8', season: '2026' },
+      team: { id: TEAM_B, name: 'Los del jueves', format: 'F8', formats: ['F8'], season: '2026' },
       club: CLUB,
       roles: ['player'],
     },

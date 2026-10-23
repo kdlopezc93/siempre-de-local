@@ -17,6 +17,7 @@ const TEAM = {
     id: TEAM_ID,
     name: 'Los de la cuadra',
     format: 'F8',
+    formats: ['F8'],
     season: '2026',
     club: { id: uuid(10), name: 'Los del Barrio' },
     ratingsVisibleToPlayers: true,

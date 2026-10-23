@@ -5,7 +5,7 @@ import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { createDb, type DbConnection } from '../../../shared/db/client.js';
-import { bootApp } from '../../../test/app.js';
+import { bootApp, TEST_ENV } from '../../../test/app.js';
 import { startMigratedPostgres } from '../../../test/postgres.js';
 import { seedUserWithSession, type SeededUser } from '../../../test/sessions.js';
 import { bootstrapTeam } from '../infrastructure/bootstrap-team.js';
@@ -78,12 +78,63 @@ describe('GET /api/v1/teams/:teamId', () => {
         id: teamId,
         name: 'Primer equipo',
         format: 'F11',
+        formats: ['F11'],
         season: '2026',
         club: { id: expect.any(String), name: 'Los del Barrio' },
         ratingsVisibleToPlayers: true,
       },
       myRoles: ['coach'],
     });
+  });
+
+  const patch = (id: string, who: SeededUser, body: object) =>
+    app.inject({
+      method: 'PATCH',
+      url: `/api/v1/teams/${id}`,
+      headers: { cookie: who.cookie, origin: TEST_ENV.WEB_ORIGIN },
+      payload: body,
+    });
+
+  it('datos del equipo: nombre y formatos en que juega, con el principal entre ellos (D14)', async () => {
+    const both = await patch(teamId, coach, { name: '  Primer equipo A ', formats: ['F11', 'F8'] });
+    expect(both.statusCode).toBe(200);
+    expect(TeamResponseSchema.parse(both.json()).team).toMatchObject({
+      name: 'Primer equipo A',
+      format: 'F11',
+      formats: ['F11', 'F8'],
+    });
+    expect((await get(teamId, coach)).json()).toMatchObject({
+      team: { name: 'Primer equipo A', formats: ['F11', 'F8'] },
+    });
+
+    // El principal tiene que ser uno de los que juega.
+    const orphan = await patch(teamId, coach, { formats: ['F8'] });
+    expect(orphan.statusCode).toBe(422);
+    expect(orphan.json()).toMatchObject({ error: { code: 'TEAM_FORMAT_NOT_PLAYED' } });
+    const switched = await patch(teamId, coach, { format: 'F8', formats: ['F8'] });
+    expect(switched.json()).toMatchObject({ team: { format: 'F8', formats: ['F8'] } });
+
+    // Lo deja como estaba para los demás tests.
+    await patch(teamId, coach, { name: 'Primer equipo', format: 'F11', formats: ['F11'] });
+  });
+
+  it('datos del equipo: nombre repetido en el club, vacío o sin permiso', async () => {
+    // Otro equipo del mismo club y temporada.
+    await bootstrapTeam(connection.db, {
+      clubName: 'Los del Barrio',
+      clubSlug: 'los-del-barrio',
+      format: 'F8',
+      teamName: 'Los del jueves',
+      season: '2026',
+      ownerEmail: 'owner@example.com',
+      coachEmail: 'coach@example.com',
+    });
+    const taken = await patch(teamId, coach, { name: 'Los del jueves' });
+    expect(taken.statusCode).toBe(409);
+    expect(taken.json()).toMatchObject({ error: { code: 'TEAM_NAME_TAKEN' } });
+    expect((await patch(teamId, coach, {})).statusCode).toBe(400);
+    expect((await patch(teamId, coach, { formats: ['F8', 'F8'] })).statusCode).toBe(400);
+    expect((await patch(teamId, player, { name: 'Otro' })).statusCode).toBe(403);
   });
 
   it('un jugador activo lo ve; uno que ya salió del equipo no', async () => {

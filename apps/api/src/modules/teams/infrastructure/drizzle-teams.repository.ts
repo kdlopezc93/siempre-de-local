@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { MeResponse } from '@sdl/contracts';
 import { and, asc, eq, isNull } from 'drizzle-orm';
+import { DatabaseError } from 'pg';
 
 import type { AuthorizationReader } from '../../../shared/authz/actor.port.js';
 import type { ClubRole, TeamRole } from '../../../shared/authz/policy.js';
@@ -11,6 +12,15 @@ import { user } from '../../identity/infrastructure/schema.js';
 import type { TeamPlayersQuery } from '../../squad/application/ports/squad.ports.js';
 import type { TeamRecord, TeamsRepository } from '../application/ports/teams.repository.js';
 import { club, clubMembership, team, teamMembership } from './schema.js';
+
+const UNIQUE_VIOLATION = '23505';
+
+/** Drizzle envuelve el error de Postgres en `cause`. */
+function isUniqueViolation(error: unknown): boolean {
+  const cause =
+    error instanceof Error && error.cause instanceof DatabaseError ? error.cause : error;
+  return cause instanceof DatabaseError && cause.code === UNIQUE_VIOLATION;
+}
 
 @Injectable()
 export class DrizzleTeamsRepository
@@ -24,6 +34,7 @@ export class DrizzleTeamsRepository
         id: team.id,
         name: team.name,
         format: team.format,
+        formats: team.formats,
         season: team.season,
         club: { id: club.id, name: club.name },
         ratingsVisibleToPlayers: team.ratingsVisibleToPlayers,
@@ -34,8 +45,17 @@ export class DrizzleTeamsRepository
     return row ?? null;
   }
 
-  async updateSettings(teamId: string, settings: { ratingsVisibleToPlayers: boolean }) {
-    await this.connection.db.update(team).set(settings).where(eq(team.id, teamId));
+  async updateSettings(
+    teamId: string,
+    settings: Partial<Pick<TeamRecord, 'ratingsVisibleToPlayers' | 'name' | 'format' | 'formats'>>,
+  ) {
+    try {
+      await this.connection.db.update(team).set(settings).where(eq(team.id, teamId));
+      return 'ok' as const;
+    } catch (error) {
+      if (isUniqueViolation(error)) return 'name-taken' as const;
+      throw error;
+    }
   }
 
   async setJerseyNumber(teamId: string, userId: string, jerseyNumber: number | null) {
@@ -89,7 +109,13 @@ export class DrizzleTeamsRepository
     const [teamRows, clubRows] = await Promise.all([
       db
         .select({
-          team: { id: team.id, name: team.name, format: team.format, season: team.season },
+          team: {
+            id: team.id,
+            name: team.name,
+            format: team.format,
+            formats: team.formats,
+            season: team.season,
+          },
           club: { id: club.id, name: club.name },
           role: teamMembership.role,
         })

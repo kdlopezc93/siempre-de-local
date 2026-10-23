@@ -58,6 +58,8 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 **club_membership** — `club_id, user_id, role club_role ('owner','admin')` · PK (club_id, user_id)
 
 **team**
+
+> `format` es el **formato principal** (D14): el del test, la valoración y la tarjeta. `formats match_format[]` son los formatos en que juega; el planificador elige entre ellos por partido. Restricción `team_format_in_formats`: el principal siempre está entre los formatos. Migración `0016_team_formats` (los equipos existentes quedan con `formats = {format}`).
 | Columna | Tipo | Notas |
 |---|---|---|
 | id | uuid PK | |

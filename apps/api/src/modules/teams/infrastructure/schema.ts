@@ -56,14 +56,20 @@ export const team = pgTable(
       .notNull()
       .references(() => club.id),
     name: text().notNull(),
+    /** El formato principal (D14): el del test, la valoración y la tarjeta. */
     format: matchFormat().notNull(),
+    /** Los formatos en que juega (el principal entre ellos); el planificador elige por partido. */
+    formats: matchFormat().array().notNull(),
     season: text().notNull(),
     /** ¿El jugador ve su tarjeta 0–99? (D8) */
     ratingsVisibleToPlayers: boolean().notNull().default(true),
     archivedAt: timestamp({ withTimezone: true }),
     createdAt: createdAt(),
   },
-  (t) => [unique().on(t.clubId, t.name, t.season)],
+  (t) => [
+    unique().on(t.clubId, t.name, t.season),
+    check('team_format_in_formats', sql`${t.format} = any(${t.formats})`),
+  ],
 );
 
 export const teamMembership = pgTable(

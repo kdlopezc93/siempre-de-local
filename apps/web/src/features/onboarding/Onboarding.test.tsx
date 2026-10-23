@@ -20,6 +20,7 @@ const TEAM = {
     id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f71',
     name: 'Primer equipo',
     format: 'F11',
+    formats: ['F11'],
     season: '2026',
   },
   club: { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f72', name: 'Los del Barrio' },

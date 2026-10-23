@@ -6,8 +6,9 @@ import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
 import type { Me } from '../../shared/api/auth';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
-import { FORMAT_LABEL } from '../shell/shell-nav';
+import { formatsLabel } from '../shell/shell-nav';
 import { CardVisibility } from './CardVisibility';
+import { TeamData } from './TeamData';
 import styles from './TeamPage.module.css';
 
 /**
@@ -27,13 +28,13 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
         <header>
           <h1 className={styles.title}>{membership.team.name}</h1>
           <p className={styles.muted}>
-            {membership.club.name}, {FORMAT_LABEL[membership.team.format]}, temporada{' '}
-            {membership.team.season}
+            {membership.club.name}, {formatsLabel(membership.team.formats, membership.team.format)}
           </p>
         </header>
       ) : (
         <h1 className={styles.title}>Equipo</h1>
       )}
+      <TeamData teamId={teamId} editable={coach || clubAdmin} />
       <ul className={styles.list}>
         {(coach || clubAdmin) && (
           <Item to={`/equipos/${teamId}/invitar`} icon={UserPlus} title="Invitar jugadores" />

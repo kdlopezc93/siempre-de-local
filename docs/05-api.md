@@ -36,7 +36,7 @@
 | POST | `/clubs` | platform admin |
 | GET / POST | `/clubs/:clubId/teams` | club admin |
 | GET | `/teams/:teamId` | miembro activo o admin del club. **Implementado:** `{ team: { id, name, format, season, club: { id, name } }, myRoles }` (`TeamResponseSchema`) |
-| PATCH | `/teams/:teamId` | **Implementado** para `{ ratingsVisibleToPlayers }` (permiso `team.settings.write`: coach y admin del club) |
+| PATCH | `/teams/:teamId` | **Implementado.** Solo lo que cambia: `{ ratingsVisibleToPlayers?, name? (2–60), format? (el principal), formats? (sin repetir) }` (permiso `team.settings.write`: coach y admin del club). 422 `TEAM_FORMAT_NOT_PLAYED` si el principal no está entre los formatos; 409 `TEAM_NAME_TAKEN` si el club ya tiene ese nombre en la temporada. Auditado (`team.settings_updated`). `GET /teams/:teamId` y `/me` devuelven también `formats` |
 | GET | `/teams/:teamId/members` | coach, assistant |
 | PATCH / DELETE | `/teams/:teamId/members/:userId` | según matriz. **PATCH implementado** para `{ jerseyNumber: 0–99 \| null }` (permiso `team.members.manage`: coach y admin del club; solo jugadores activos, si no 404 `PLAYER_NOT_IN_TEAM`). El dorsal **puede repetirse** dentro del equipo. 204; queda en `audit_log` (`team.member_updated`) |
 | POST | `/teams/:teamId/invitations` | Jugadores: coach o admin del club; cuerpo técnico: solo admin del club. `{ role='player', expiresInDays=7 (1–30), maxUses=30 (1–100) }` → 201 `{ invitation, code, joinUrl }`. Devuelve el código **una sola vez** |

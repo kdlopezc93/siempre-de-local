@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { PositionCodeSchema } from './orientation.js';
+import { MatchFormatSchema } from './teams.js';
 
 const OUTFIELD = ['PAC', 'SHO', 'PAS', 'DRI', 'DEF', 'PHY'] as const;
 const GOALKEEPER = ['GK_DIV', 'GK_HAN', 'GK_KIC', 'GK_REF', 'GK_SPD', 'GK_POS'] as const;
@@ -78,7 +79,22 @@ export const RatingAttributesResponseSchema = z.object({
 });
 
 /** PATCH /api/v1/teams/:teamId — ajustes del equipo (coach, admin del club). */
-export const UpdateTeamRequestSchema = z.object({ ratingsVisibleToPlayers: z.boolean() });
+/**
+ * PATCH /api/v1/teams/:teamId — los datos y ajustes del equipo (coach y admin del club). Solo
+ * lo que cambia. `format` es el principal (D14) y tiene que estar entre `formats`.
+ */
+export const UpdateTeamRequestSchema = z
+  .object({
+    ratingsVisibleToPlayers: z.boolean(),
+    name: z.string().trim().min(2).max(60),
+    format: MatchFormatSchema,
+    formats: z
+      .array(MatchFormatSchema)
+      .min(1)
+      .refine((f) => new Set(f).size === f.length, 'Formatos repetidos'),
+  })
+  .partial()
+  .refine((patch) => Object.keys(patch).length > 0, 'Nada que cambiar');
 
 export type RatingAttributeCode = z.infer<typeof RatingAttributeCodeSchema>;
 export type RatingValues = z.infer<typeof RatingValuesSchema>;

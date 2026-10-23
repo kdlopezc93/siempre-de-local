@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { activeTab, rolesLabel, switchTarget, tabsFor, teamFromPath } from './shell-nav';
+import {
+  activeTab,
+  formatsLabel,
+  rolesLabel,
+  switchTarget,
+  tabsFor,
+  teamFromPath,
+} from './shell-nav';
 
 const ids = (roles: Parameters<typeof tabsFor>[1]) => tabsFor('t1', roles).map((t) => t.id);
 
@@ -41,5 +48,10 @@ describe('navegación por rol (07 §4.2)', () => {
     expect(teamFromPath('/conocimiento')).toBeNull();
     expect(rolesLabel(['coach', 'player'])).toBe('Entrenador y jugador');
     expect(rolesLabel(['player'])).toBe('Jugador');
+  });
+
+  it('los formatos en palabras, el principal primero', () => {
+    expect(formatsLabel(['F11'], 'F11')).toBe('Fútbol 11');
+    expect(formatsLabel(['F11', 'F8'], 'F8')).toBe('Fútbol 8 y 11');
   });
 });

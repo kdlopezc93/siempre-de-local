@@ -14,6 +14,7 @@ const TEAM = {
     id: TEAM_ID,
     name: 'Los de la cuadra',
     format: 'F8',
+    formats: ['F8'],
     season: '2026',
     club: { id: uuid(10), name: 'Los del Barrio' },
     ratingsVisibleToPlayers: true,
@@ -41,11 +42,15 @@ const PLAYERS = [
   player(14, 'Brayan', 'MC', { rating: { MC: 50 } }),
 ];
 
-function renderPlanner(players = PLAYERS, format: 'F8' | 'F11' = 'F8') {
+function renderPlanner(
+  players = PLAYERS,
+  format: 'F8' | 'F11' = 'F8',
+  formats: ('F8' | 'F11')[] = [format],
+) {
   fakeApi({
     [`GET /api/v1/teams/${TEAM_ID}`]: {
       status: 200,
-      body: { ...TEAM, team: { ...TEAM.team, format } },
+      body: { ...TEAM, team: { ...TEAM.team, format, formats } },
     },
     [`GET /api/v1/teams/${TEAM_ID}/lineup-inputs`]: { status: 200, body: { format, players } },
   });
@@ -118,12 +123,18 @@ describe('planificador', () => {
     expect(slot(/^Portero: (?!Julio)/)).toBeInTheDocument();
   });
 
-  it('un equipo de F11 arma un partido de F8: el pivote juega de mediocentro', async () => {
+  it('con un solo formato no hay que elegirlo (D14)', async () => {
+    renderPlanner();
+    expect(await screen.findByRole('group', { name: 'Alineación 1-3-3-1' })).toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: 'Fútbol 11' })).toBeNull();
+  });
+
+  it('un equipo de F11 que también juega F8 arma un partido de F8: el pivote juega de mediocentro', async () => {
     const players = [
       ...PLAYERS.filter((p) => p.displayName !== 'Julián' && p.displayName !== 'Brayan'),
       player(6, 'Felipe', 'MCD', { rating: { MCD: 85, MC: 78 } }),
     ];
-    renderPlanner(players, 'F11');
+    renderPlanner(players, 'F11', ['F11', 'F8']);
     expect(await screen.findByRole('group', { name: 'Alineación 1-4-3-3' })).toBeInTheDocument();
     expect(slot(/^Pivote: Felipe/)).toBeInTheDocument();
 

@@ -26,7 +26,7 @@ describe('TeamPage', () => {
   it('el equipo, invitar e informe para quien corresponde', () => {
     renderTeam(TEAM_A);
     expect(screen.getByRole('heading', { level: 1, name: 'Primer equipo' })).toBeInTheDocument();
-    expect(screen.getByText('Los del Barrio, Fútbol 11, temporada 2026')).toBeInTheDocument();
+    expect(screen.getByText('Los del Barrio, Fútbol 11')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Invitar jugadores' })).toHaveAttribute(
       'href',
       `/equipos/${TEAM_A}/invitar`,
@@ -47,6 +47,7 @@ describe('TeamPage', () => {
         id: TEAM_A,
         name: 'Primer equipo',
         format: 'F11',
+        formats: ['F11'],
         season: '2026',
         club: { id: ME_TWO_TEAMS.clubs[0]!.id, name: 'Los del Barrio' },
         ratingsVisibleToPlayers: visible,
@@ -68,5 +69,81 @@ describe('TeamPage', () => {
     await vi.waitFor(() => expect(toggle).not.toBeChecked());
     expect(patch).toEqual({ ratingsVisibleToPlayers: false });
     expect(screen.getByText('Solo el cuerpo técnico la ve.')).toBeInTheDocument();
+  });
+
+  it('datos del equipo: el coach cambia el nombre y marca que juega los dos formatos (D14)', async () => {
+    const team = (over: object = {}) => ({
+      team: {
+        id: TEAM_A,
+        name: 'Primer equipo',
+        format: 'F11',
+        formats: ['F11'],
+        season: '2026',
+        club: { id: ME_TWO_TEAMS.clubs[0]!.id, name: 'Los del Barrio' },
+        ratingsVisibleToPlayers: true,
+        ...over,
+      },
+      myRoles: ['coach', 'player'],
+    });
+    let patch: unknown;
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}`]: { status: 200, body: team() },
+      [`PATCH /api/v1/teams/${TEAM_A}`]: (init) => {
+        patch = JSON.parse(init.body as string);
+        return {
+          status: 200,
+          body: team({ name: 'Los Pibes', formats: ['F11', 'F8'], format: 'F8' }),
+        };
+      },
+      'GET /api/v1/me': { status: 200, body: ME_TWO_TEAMS },
+    });
+    renderTeam(TEAM_A);
+
+    const data = await screen.findByRole('region', { name: 'Datos del equipo' });
+    expect(data).toHaveTextContent('JuegaFútbol 11');
+    await userEvent.click(screen.getByRole('button', { name: 'Editar' }));
+    const name = screen.getByRole('textbox', { name: 'Nombre' });
+    await userEvent.clear(name);
+    await userEvent.type(name, 'Los Pibes');
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Fútbol 8' }));
+    // Con los dos marcados, se elige el principal.
+    await userEvent.click(screen.getByRole('radio', { name: 'Fútbol 8' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+
+    await vi.waitFor(() =>
+      expect(patch).toEqual({ name: 'Los Pibes', formats: ['F11', 'F8'], format: 'F8' }),
+    );
+    expect(await screen.findByText('Fútbol 8 y 11')).toBeInTheDocument();
+  });
+
+  it('datos del equipo: el asistente los ve sin editar', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_B}`]: {
+        status: 200,
+        body: {
+          team: {
+            id: TEAM_B,
+            name: 'Los del jueves',
+            format: 'F8',
+            formats: ['F8'],
+            season: '2026',
+            club: { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f99', name: 'Otro club' },
+            ratingsVisibleToPlayers: true,
+          },
+          myRoles: ['player'],
+        },
+      },
+    });
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <MemoryRouter>
+          <TeamPage me={{ ...ME_TWO_TEAMS, clubs: [] }} teamId={TEAM_B} />
+        </MemoryRouter>
+      </QueryClientProvider>,
+    );
+    expect(await screen.findByRole('region', { name: 'Datos del equipo' })).toHaveTextContent(
+      'NombreLos del jueves',
+    );
+    expect(screen.queryByRole('button', { name: 'Editar' })).toBeNull();
   });
 });
