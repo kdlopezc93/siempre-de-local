@@ -124,6 +124,8 @@ export async function publishCertBank(
           difficulty: item.difficulty,
           text: item.text,
           explanation: item.explanation,
+          // Pizarra (Fase 8): la jugada y un punto por opción, en el mismo orden que las opciones.
+          ...(item.board ? { kind: 'pitch_situation' as const, diagram: item.board } : {}),
           sort,
         })
         .returning({ id: certItem.id });

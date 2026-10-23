@@ -52,7 +52,12 @@ const item = (n: number, answer: string | null = null) => ({
   id: uuid(60 + n),
   area: AREAS[n % 2]!,
   text: `Pregunta ${n + 1}`,
-  options: [0, 1, 2, 3].map((o) => ({ id: uuid(100 + n * 4 + o), label: `Opción ${o + 1}` })),
+  board: null,
+  options: [0, 1, 2, 3].map((o) => ({
+    id: uuid(100 + n * 4 + o),
+    label: `Opción ${o + 1}`,
+    spot: null,
+  })),
   answerOptionId: answer,
 });
 const inProgress = (over: object = {}) => ({
@@ -246,6 +251,50 @@ describe('examen de conocimiento', () => {
     expect(areas).toHaveTextContent('Marcaje1/1');
     expect(areas).toHaveTextContent('Juego aéreo0/1');
     expect(screen.getByText(/desde el 21 de noviembre/)).toBeInTheDocument();
+  });
+
+  it('pizarra (Fase 8): la jugada dibujada y las opciones con letra; tocar en la cancha responde', async () => {
+    const spots = [
+      { x: 20, y: 110 },
+      { x: 45, y: 100 },
+      { x: 75, y: 112 },
+      { x: 50, y: 138 },
+    ];
+    const board = item(0);
+    const boarded = {
+      ...board,
+      text: '¿Dónde te paras?',
+      board: {
+        view: 'own-half',
+        pieces: [
+          { side: 'own', x: 50, y: 120, label: '4', you: true },
+          { side: 'rival', x: 60, y: 95, label: '9' },
+        ],
+        ball: { x: 30, y: 90 },
+        arrows: [{ kind: 'pass', from: { x: 30, y: 90 }, to: { x: 60, y: 95 } }],
+      },
+      options: board.options.map((o, i) => ({ ...o, spot: spots[i] })),
+    };
+    const answers: unknown[] = [];
+    fakeApi({
+      [`GET /api/v1/cert-exams/${EXAM_ID}`]: {
+        status: 200,
+        body: inProgress({ items: [boarded, item(1)] }),
+      },
+      [`PUT /api/v1/cert-exams/${EXAM_ID}/answers/${uuid(60)}`]: (init) => {
+        answers.push(JSON.parse(init.body as string));
+        return { status: 204 };
+      },
+    });
+    renderRoutes(`/conocimiento/examen/${EXAM_ID}`);
+
+    expect(
+      await screen.findByRole('img', { name: /Pizarra de la jugada: 1 de tu equipo, 1 rivales/ }),
+    ).toBeInTheDocument();
+    // La opción escrita lleva la misma letra que su punto en la cancha.
+    expect(screen.getByRole('button', { name: 'Opción 3' })).toHaveTextContent('COpción 3');
+    await userEvent.click(screen.getByRole('button', { name: 'Opción B: Opción 2' }));
+    expect(answers).toEqual([{ optionId: uuid(101) }]);
   });
 
   it('al acabarse el tiempo pide el examen de nuevo y muestra el cierre', async () => {

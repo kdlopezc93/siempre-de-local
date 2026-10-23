@@ -467,3 +467,23 @@
     animation: none;
   }
 }
+
+/* Letra de la opción en preguntas de pizarra (la misma que en la cancha). */
+.letter {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px dashed var(--sdl-primary);
+  border-radius: 50%;
+  color: var(--sdl-primary);
+  font-family: var(--sdl-font-display);
+  font-weight: 700;
+}
+
+.option[aria-pressed='true'] .letter {
+  border-style: solid;
+  background: var(--sdl-primary);
+  color: var(--sdl-on-primary);
+}

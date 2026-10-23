@@ -183,6 +183,12 @@ Del lado del cuerpo técnico (perfil del jugador, sección "Conocimiento"): el m
 
 La pizarra del planificador usa las mismas líneas (`PitchLines`) con los puestos de la formación: dorsal (o iniciales) en el círculo y el nombre debajo; **el aro dice qué tan bien encaja** (verde ≥ 65%, ámbar ≥ 40%, rojo debajo) y un punto ámbar marca lo **fijado**. Cada puesto es un botón (rol, teclado, foco visible) con área táctil de ~60 px. Se toca un puesto y después otro (o un suplente y después un puesto); lo movido queda fijado y el resto se reacomoda. Debajo, el encaje medio por línea; al elegir un puesto, su desglose (cuerpo técnico, tarjeta, conocimiento, test) con barras de tiza y "sin dato" cuando falta.
 
+## 9.0.4 Pizarra del examen (`features/knowledge/ExamBoard`, Fase 8)
+
+- La jugada en **tiza** sobre el verde de la app, con las mismas líneas (`PitchLines`): los tuyos con **O**, los rivales con **X** (la forma lo dice, no solo el color), "tú" relleno de ámbar, el balón y flechas (pase continuo, desmarque a trazos, conducción punteada).
+- Los **puntos de respuesta** son botones de 44 px sobre la cancha: anillo ámbar punteado y transparente (no tapa a los jugadores), letra con contorno de cancha; elegido, relleno de ámbar. La opción escrita abajo lleva la misma letra; tocar cualquiera de las dos responde.
+- Para lectores de pantalla, la cancha se resume ("2 de tu equipo, 3 rivales y el balón") y cada punto se llama "Opción B: …". Muestra en `/muestra/pizarra` (solo desarrollo).
+
 ## 9.0.3 Después del partido (`features/matches/AfterMatch`, D18)
 
 - **El marcador es lo memorable:** cada equipo en su mitad, partida por la línea del medio (`--sdl-pitch-stroke`); los goles en `--sdl-text-number` con `tabular-nums`, y `−` / `+` redondos de 48 px debajo (con `touch-action: manipulation`, para que tocar rápido sume y no haga zoom). La figura del partido es una ficha ámbar (`Token tone="amber"`) y se elige en una hoja.

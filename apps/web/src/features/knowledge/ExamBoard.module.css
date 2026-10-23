@@ -1,0 +1,129 @@
+/* La pizarra del examen (Fase 8): tiza sobre el verde de la app; lo tocable, en ámbar. */
+
+.figure {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin: 0;
+}
+
+.board {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+  overflow: hidden;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface);
+}
+
+.svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.own circle {
+  fill: var(--sdl-surface);
+  stroke: var(--sdl-chalk-stroke);
+  stroke-width: 0.9;
+}
+
+.you circle {
+  fill: var(--sdl-primary);
+  stroke: var(--sdl-primary);
+  stroke-width: 0.9;
+}
+
+.rival path {
+  fill: none;
+  stroke: var(--sdl-chalk-stroke);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.label {
+  fill: var(--sdl-fg);
+  font-family: var(--sdl-font-display);
+  font-size: 3.6px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.you .label {
+  fill: var(--sdl-on-primary);
+}
+
+.rivalLabel {
+  fill: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-display);
+  font-size: 3.6px;
+  font-weight: 700;
+}
+
+.ball {
+  fill: var(--sdl-chalk-stroke);
+}
+
+.arrow {
+  stroke: var(--sdl-chalk-stroke);
+  stroke-width: 0.7;
+  stroke-linecap: round;
+}
+
+.arrowHead {
+  fill: var(--sdl-chalk-stroke);
+}
+
+/* Los puntos de respuesta: 44 px, centrados en su lugar de la cancha. */
+.spot {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 2px dashed var(--sdl-primary);
+  border-radius: 50%;
+  /* Transparente: no tapa a los jugadores de abajo; la letra lleva contorno de cancha. */
+  background: transparent;
+  color: var(--sdl-primary);
+  text-shadow:
+    0 0 3px var(--sdl-surface),
+    0 0 2px var(--sdl-surface);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-lg);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transform: translate(-50%, -50%);
+  transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
+}
+
+.spot:active:not(:disabled) {
+  transform: translate(-50%, -50%) scale(0.92);
+}
+
+.spot[aria-pressed='true'] {
+  border-style: solid;
+  background: var(--sdl-primary);
+  color: var(--sdl-on-primary);
+  text-shadow: none;
+}
+
+.spot:disabled {
+  cursor: default;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sdl-space-3);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-xs);
+  font-weight: 600;
+}
+
+.legendYou {
+  color: var(--sdl-primary);
+}

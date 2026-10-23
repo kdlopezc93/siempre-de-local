@@ -341,6 +341,7 @@ export class CertExams {
         id: i.itemId,
         area: i.area,
         text: i.text,
+        board: i.board,
         options: i.options,
         answerOptionId: i.answerOptionId,
       })),
