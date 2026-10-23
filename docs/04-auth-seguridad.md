@@ -117,7 +117,10 @@ Medidas:
 1. **Política de tratamiento** versionada, aceptada al entrar (`data_consent`), que explique para qué se usan los datos: orientación de posición, examen de conocimiento, tarjeta y alineaciones dentro del equipo. Texto: `docs/legal/politica-tratamiento-datos.md` (**borrador `2026-10-borrador`, pendiente de revisión legal, D7**). Unirse a un equipo exige haberla aceptado (`CONSENT_REQUIRED`).
 2. **Minimización:** nombre visible, email (viene de Google), foto de perfil de Google **no** se guarda, datos del test, exámenes, tarjeta y valoraciones. Nada de documento de identidad, dirección ni fecha de nacimiento.
 3. **La tarjeta 0–99 y las notas del entrenador son datos personales evaluativos:** solo los ve el cuerpo técnico (y el propio jugador si el equipo lo permite). Nunca públicos.
-4. **Derechos del titular desde la app:** exportar (`GET /me/export`) y solicitar borrado.
+4. **Derechos del titular desde la app** (Fase 6, PR 10):
+   - **Conocer:** "Descargar mis datos" (`GET /me/export`): un JSON con su cuenta, perfil, aceptaciones de la política, membresías, resultados de tests y exámenes (nunca las respuestas correctas), y lo que el cuerpo técnico registró sobre él (tarjetas y valoraciones, **con sus notas**: son datos sobre él). Revisar con la versión legal de la política (D7).
+   - **Suprimir:** "Eliminar mi cuenta" (`DELETE /me`, escribiendo ELIMINAR). Borra en el momento la fila del usuario. En cascada se va todo lo suyo: perfil, tests, exámenes, tarjetas y valoraciones sobre él, membresías, sesiones y consentimientos. Lo que hizo sobre otros queda sin autor (`set null`). No se permite si es el único dueño o admin de un club (409 `LAST_CLUB_ADMIN`). Queda en `audit_log` `account.deleted`, sin datos personales.
+   - **Página pública `/tus-datos`** (sin sesión): qué se guarda y cómo eliminarlo. Enlazada desde la pantalla de entrar y desde Tu cuenta. Es la URL de eliminación de datos que pide Google para el inicio de sesión.
 5. **No es un veredicto:** la app lo dice en resultados, tarjeta y puntaje de conocimiento, y el entrenador lo ve al consultarlos.
 
 ### 5.1 Si en el futuro entran menores

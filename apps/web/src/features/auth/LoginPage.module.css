@@ -70,3 +70,13 @@
     transform: translateY(10px);
   }
 }
+
+.dataLink {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  min-height: var(--sdl-touch-min);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  text-underline-offset: 4px;
+}

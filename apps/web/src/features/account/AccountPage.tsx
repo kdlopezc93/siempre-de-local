@@ -1,8 +1,10 @@
 import type { TeamRole } from '@sdl/contracts';
 import { NotePencil } from '@phosphor-icons/react/dist/csr/NotePencil';
-import { useState } from 'react';
+import { useId, useState } from 'react';
+import { Link, useNavigate } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
+import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
@@ -12,6 +14,7 @@ import { Token } from '../../shared/ui/Token';
 import { useSignOut, useSignOutEverywhere } from '../auth/use-session';
 import { rolesLabel } from '../shell/shell-nav';
 import styles from './AccountPage.module.css';
+import { useDeleteAccount, useDownloadMyData } from './use-account';
 
 const CLUB_ROLE = { owner: 'Dueño', admin: 'Administrador' } as const;
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
@@ -96,6 +99,7 @@ export function AccountPage({ me }: { me: Me }) {
       </section>
 
       <SignOut />
+      <YourData />
     </Screen>
   );
 }
@@ -131,5 +135,85 @@ function SignOut() {
         </div>
       </Sheet>
     </>
+  );
+}
+
+/** Tus datos (07 §4.5): descargarlos y eliminar tu cuenta, separado de lo demás. */
+function YourData() {
+  const download = useDownloadMyData();
+  const remove = useDeleteAccount();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [typed, setTyped] = useState('');
+  const confirmId = useId();
+  const ready = typed.trim().toUpperCase() === 'ELIMINAR';
+
+  return (
+    <section aria-labelledby="tus-datos" className={styles.section}>
+      <h2 id="tus-datos" className={styles.sectionTitle}>
+        Tus datos
+      </h2>
+      <Button variant="secondary" busy={download.isPending} onClick={() => download.mutate()}>
+        {download.isPending ? 'Preparando…' : 'Descargar mis datos'}
+      </Button>
+      {download.isError && (
+        <p role="alert" className={styles.error}>
+          No pudimos preparar el archivo. Revisa tu conexión e intenta de nuevo.
+        </p>
+      )}
+      <Link to="/tus-datos" className={styles.quiet}>
+        Qué guardamos y cómo se elimina
+      </Link>
+      <button type="button" className={styles.dangerLink} onClick={() => setOpen(true)}>
+        Eliminar mi cuenta
+      </button>
+      <Sheet open={open} onClose={() => setOpen(false)} title="¿Eliminar tu cuenta?">
+        <form
+          className={styles.sheetActions}
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (!ready) return;
+            remove.mutate(undefined, {
+              onSuccess: () => void navigate('/tus-datos?cuenta=eliminada', { replace: true }),
+            });
+          }}
+        >
+          <p>
+            Se borran tu perfil, tus tests, tus exámenes, tu tarjeta, lo que el cuerpo técnico
+            registró sobre ti y tu lugar en tus equipos. No se puede deshacer.
+          </p>
+          <p className={styles.muted}>
+            Lo que hiciste sobre otros (valoraciones, alineaciones) queda en su equipo, sin tu
+            nombre. Si quieres una copia, descárgala antes.
+          </p>
+          <label htmlFor={confirmId} className={styles.label}>
+            Escribe ELIMINAR para confirmar
+          </label>
+          <input
+            id={confirmId}
+            name="confirmation"
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            className={styles.input}
+            value={typed}
+            onChange={(e) => setTyped(e.target.value)}
+          />
+          {remove.isError && (
+            <p role="alert" className={styles.error}>
+              {remove.error instanceof ApiError && remove.error.status < 500
+                ? remove.error.message
+                : 'No pudimos eliminar tu cuenta. Revisa tu conexión e intenta de nuevo.'}
+            </p>
+          )}
+          <Button type="submit" variant="danger" disabled={!ready} busy={remove.isPending}>
+            Eliminar mi cuenta
+          </Button>
+          <Button variant="ghost" disabled={remove.isPending} onClick={() => setOpen(false)}>
+            No, volver
+          </Button>
+        </form>
+      </Sheet>
+    </section>
   );
 }

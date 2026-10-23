@@ -151,7 +151,7 @@ Hoy la web no carga nada de terceros: las fuentes van empaquetadas (Fontsource),
 | 6 | **Ficha del jugador** para el cuerpo técnico: une perfil, tarjeta, valorar y conocimiento | H7 |
 | 7 | **Mi juego:** tarjeta, posición, conocimiento, historial y editar perfil en una pestaña; el test deja de ser un enlace suelto | H4, H9, H10 |
 | 8 | **Equipo:** datos del equipo (nombre, formatos en que juega, principal; §4.6, con migración), integrantes, invitar, informe y cuenta | H2, H8 |
-| 9 | **Fotos** del jugador y del equipo (§4.7): subida con recorte, reducción y sin metadatos, almacenamiento, política actualizada | — |
+| 9 | **Fotos** del jugador y del equipo (§4.7): subida con recorte, reducción y sin metadatos, almacenamiento, política actualizada. **Pospuesto** por costos (R2): hecho en #65, en borrador, para retomar | — |
 | 10 | **Tus datos:** página pública `/tus-datos`, enlaces "Eliminar mis datos", eliminar mi cuenta y descargar mis datos (§4.5) | Principio 9 |
 | 11 | **Dieta de texto y afirmaciones** en toda la app y en "En qué se basa": explicaciones en hojas "¿Por qué?", y cada afirmación respaldada, suavizada o quitada (principio 8) | H11 |
 | 12 | **Auditoría final:** `web-design-guidelines` y `vercel-react-best-practices`; **terceros** (§4.8: inventario, `pnpm audit`, CSP); contraste de nuevo sobre las pantallas reales; prueba completa por rol en el celular | — |

@@ -116,7 +116,7 @@ Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no
 | 6 | Ficha del jugador para el cuerpo técnico | |
 | 7 | Mi juego: tarjeta, posición, conocimiento, historial y perfil | |
 | 8 | Equipo: datos del equipo (nombre, formatos en que juega), integrantes, invitar, informe y cuenta | |
-| 9 | Fotos del jugador y del equipo | |
+| 9 | Fotos del jugador y del equipo | **Pospuesto** (2026-10-22, costos de R2): hecho en #65, en borrador |
 | 10 | Tus datos: página pública, "Eliminar mis datos", eliminar mi cuenta y descargar mis datos | |
 | 11 | Dieta de texto y afirmaciones respaldadas | |
 | 12 | Auditoría final: diseño, rendimiento, terceros (inventario, `pnpm audit`, CSP) y contraste | |

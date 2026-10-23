@@ -38,6 +38,7 @@ const screens = {
   myGame: () => import('../my-game/MyGamePage'),
   team: () => import('../team/TeamPage'),
   account: () => import('../account/AccountPage'),
+  myData: () => import('../my-data/MyDataPage'),
 };
 
 const JoinPage = lazy(() => screens.join().then((m) => ({ default: m.JoinPage })));
@@ -69,6 +70,7 @@ const RatePage = lazy(() => screens.rate().then((m) => ({ default: m.RatePage })
 const MyGamePage = lazy(() => screens.myGame().then((m) => ({ default: m.MyGamePage })));
 const TeamPage = lazy(() => screens.team().then((m) => ({ default: m.TeamPage })));
 const AccountPage = lazy(() => screens.account().then((m) => ({ default: m.AccountPage })));
+const MyDataPage = lazy(() => screens.myData().then((m) => ({ default: m.MyDataPage })));
 
 /** Precarga las pantallas que se usan desde el inicio cuando el navegador está libre. */
 function usePreloadScreens() {
@@ -288,4 +290,14 @@ export function TeamRoute() {
 /** "/cuenta" — tú: perfil, tus equipos y roles, cerrar sesión. */
 export function AccountRoute() {
   return <ShellRoute>{(me) => <AccountPage me={me} />}</ShellRoute>;
+}
+
+/** "/tus-datos" — pública, con o sin sesión (Google la pide para el inicio de sesión). */
+export function MyDataRoute() {
+  const session = useSession();
+  return (
+    <Suspense fallback={<SessionPending />}>
+      <MyDataPage signedIn={!!session.data} />
+    </Suspense>
+  );
 }

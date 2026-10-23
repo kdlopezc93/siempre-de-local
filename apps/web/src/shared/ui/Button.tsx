@@ -2,7 +2,7 @@ import type { ComponentProps } from 'react';
 
 import styles from './Button.module.css';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 /** ComponentProps incluye `ref` (React 19 lo pasa como prop): permite mover el foco. */
 interface ButtonProps extends ComponentProps<'button'> {

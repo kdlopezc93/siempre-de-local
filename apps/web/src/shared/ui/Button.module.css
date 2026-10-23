@@ -68,3 +68,9 @@
     color: var(--sdl-fg);
   }
 }
+
+/* Irreversible (eliminar la cuenta): rojo con texto oscuro (5,2:1, medido). */
+.danger {
+  background: var(--sdl-danger);
+  color: var(--sdl-on-primary);
+}
