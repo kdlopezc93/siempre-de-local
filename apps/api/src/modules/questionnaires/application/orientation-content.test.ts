@@ -20,21 +20,17 @@ describe('contenido v1 del test de orientación', () => {
     expect(validateOrientationContent(ORIENTATION_V2)).toEqual([]);
   });
 
-  it('v3 (borrador): las 31 más nueve, cubre todas las posiciones y no se publica sin revisión', () => {
+  it('v3: las 31 más nueve, cubre todas las posiciones, revisada; un borrador no se publica', () => {
     expect(ORIENTATION_V3.positionItems).toHaveLength(40);
     expect(ORIENTATION_V3.positionItems.slice(0, 31).map((i) => i.code)).toEqual(
       ORIENTATION_V1.positionItems.map((i) => i.code),
     );
     // Sin avisos: cada posición con 11 o más que apuntan a ella, y 4 o más por intento.
     expect(lintOrientation(ORIENTATION_V3)).toEqual([]);
-    expect(validateOrientationContent(ORIENTATION_V3)).toEqual([
+    expect(validateOrientationContent(ORIENTATION_V3)).toEqual([]);
+    expect(validateOrientationContent({ ...ORIENTATION_V3, review: null })).toEqual([
       'Es un borrador: falta la revisión (review) antes de publicarla',
     ]);
-    const reviewed = {
-      ...ORIENTATION_V3,
-      review: { reviewedBy: 'Kevin', reviewedOn: '2026-10-24' },
-    };
-    expect(validateOrientationContent(reviewed)).toEqual([]);
     expect(JSON.stringify(ORIENTATION_V3)).not.toMatch(/vosotros/i);
   });
 

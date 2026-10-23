@@ -1,6 +1,6 @@
 # Test de orientación v3: hoja de revisión
 
-> **Borrador.** No se publica hasta que la revises.
+> Revisada por Kevin Lopez el 2026-10-23.
 
 40 preguntas (v2 tenía 31); cada intento sirve 20 al azar.
 

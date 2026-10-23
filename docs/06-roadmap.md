@@ -162,8 +162,8 @@ Empezada el 2026-10-23 por lo que no necesita datos reales. Kevin eligió primer
 | # | PR | Estado |
 |---|---|---|
 | 1 | Control de calidad del test (`pnpm quiz:lint`): estructura y cobertura por posición, en el banco y por intento | #81 ✔ |
-| 2 | v3 en borrador: ~9 preguntas nuevas para lateral, mediocentro y extremo, con su hoja de revisión para Kevin. No se publica sin `review` | #82 |
-| 3 | Publicar v3 después de la revisión (seed, tests) | |
+| 2 | v3 en borrador: ~9 preguntas nuevas para lateral, mediocentro y extremo, con su hoja de revisión para Kevin. No se publica sin `review` | #82 ✔ |
+| 3 | Publicar v3 después de la revisión (seed, tests) | #83 |
 
 Después, en el orden que se decida: preguntas tipo pizarra en el examen, bancos de las otras posiciones (esperan revisor, D10) y la herramienta de análisis de preguntas. Con datos reales del equipo: afinar pesos y analizar las preguntas.
 
