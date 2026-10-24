@@ -13,7 +13,14 @@ export interface PublishedBank {
   label: string;
   config: ExamConfig;
   areas: Area[];
-  items: { id: string; area: string; difficulty: Difficulty; optionIds: string[] }[];
+  /** `board`: pregunta de pizarra; la selección pone al menos una si hay (02 §6.3). */
+  items: {
+    id: string;
+    area: string;
+    difficulty: Difficulty;
+    board: boolean;
+    optionIds: string[];
+  }[];
 }
 
 export interface StoredExam {

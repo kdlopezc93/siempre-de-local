@@ -168,7 +168,7 @@ Empezada el 2026-10-23 por lo que no necesita datos reales. Kevin eligió primer
 | 5 | Primeras preguntas de pizarra para DFC y MC (borradores, esperan revisor, D10), con la pizarra en la hoja de revisión | #85 ✔ |
 | 6 | Bancos de las demás posiciones, uno por PR (borradores, esperan revisor, D10): Lateral (64, con 4 de pizarra), y después Delantero centro, Extremo, Pivote, Mediapunta y Portero | #86 ✔ (Lateral), #87 ✔ (Delantero centro), #88 ✔ (Extremo), #89 ✔ (Pivote), #90 ✔ (Mediapunta), #91 ✔ (Portero); auditorías externas aplicadas en cada uno |
 | 7 | Publicar los bancos con el visto bueno de Kevin (D10, 2026-10-23): DFC v2 y MC v2 (reemplazan a v1), Lateral, Delantero centro, Extremo, Pivote, Mediapunta y Portero v1 | #92 |
-| 8 | Armado del examen de 20: al menos una de pizarra cuando el banco las tiene, y la mezcla de dificultades que piden las auditorías | |
+| 8 | Armado del examen de 20: al menos una de pizarra cuando el banco las tiene. La mezcla 6 · 8 · 6 que pedían las auditorías se evaluó y no se cambia (02 §6.3) | #93 |
 
 Después, en el orden que se decida: la herramienta de análisis de preguntas. Con datos reales del equipo: afinar pesos y analizar las preguntas.
 

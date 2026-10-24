@@ -279,4 +279,22 @@ describe('examen de conocimiento', () => {
     });
     expect(res.statusCode).toBe(403);
   });
+
+  it('con una sola de pizarra en el banco, el examen la trae (02 §6.3)', async () => {
+    const bank = certBankFixture(40, { position: 'EXT' });
+    const [first, ...rest] = bank.items;
+    const board = {
+      view: 'full' as const,
+      pieces: [{ side: 'own' as const, x: 50, y: 75, label: '7' }],
+      spots: [
+        { x: 20, y: 40 },
+        { x: 45, y: 40 },
+        { x: 70, y: 40 },
+        { x: 50, y: 110 },
+      ],
+    };
+    await publishCertBank(connection.db, { ...bank, items: [{ ...first!, board }, ...rest] });
+    const exam = ExamInProgressSchema.parse((await start(caro, 'EXT')).json());
+    expect(exam.items.filter((item) => item.board)).toHaveLength(1);
+  });
 });
