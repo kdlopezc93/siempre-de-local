@@ -179,6 +179,16 @@ Después, en el orden que se decida: la herramienta de análisis de preguntas. C
 - Usar las evaluaciones de los partidos (D18) en las valoraciones, el planificador y la validación, cuando haya temporada suficiente.
 - **Pruebas de campo** (sprint, conos, tiro, pase, resistencia): protocolo, marcas de referencia, conversión a 0–99.
 
+### A futuro (pedidos de Kevin, 2026-10-24)
+Anotados para cuando toque, sin orden ni fase todavía. Cada uno pide decidir el alcance antes de escribir código.
+
+| Tema | Qué es | Qué hay hoy |
+|---|---|---|
+| Quitar jugadores del equipo | El entrenador saca a alguien de la plantilla (se fue, no viene más). La fila queda con `left_at` para el historial; sus datos siguen siendo suyos | La matriz de permisos ya lo contempla (`team.members.manage`, 04 §2.2), pero no hay endpoint ni pantalla |
+| Pedir unirse a un equipo | Un jugador busca el equipo por nombre o por quien lo creó y pide entrar; el cuerpo técnico acepta o rechaza. Convive con la invitación por código | Solo se entra con invitación (código o enlace) |
+| Módulo de equipos | Crear clubes y equipos desde la app (quién puede, límites), editar sus datos y **gestionar los roles** (subir a asistente, pasar el mando de entrenador, varios equipos por club) | Los equipos se crean con `admin:bootstrap-team` y los roles se cambian a mano en la base |
+| Monetizar | Definir cómo se sostiene la app (hosting, dominio, almacenamiento de fotos) sin perder el tono de barrio. Opciones a evaluar: plan gratis por equipo con extras de pago (fotos, más de un equipo, pruebas de campo); plan por club o liga; patrocinio de comercios del barrio en la página del equipo; donaciones o aporte voluntario | Nada todavía. Depende de tener equipos usándola (staging, D5) y de la política de datos (D7) |
+
 ## Pendientes heredados del prototipo → dónde quedan
 
 | Pendiente (traspaso §6) | Destino |
