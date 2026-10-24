@@ -1,6 +1,6 @@
 # Banco de Defensa central (v1)
 
-Revisado por Entrenador revisor (nombre pendiente) el 2026-10-22.
+Revisado por Kevin Lopez el 2026-10-22.
 
 60 preguntas. Cada examen toma 20, de todas las áreas y de las tres dificultades.
 

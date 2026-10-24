@@ -3,8 +3,8 @@ import { qb, qLook } from './authoring.js';
 import { DFC_V1 } from './dfc-v1.bank.js';
 
 /**
- * Defensa central, v2 (BORRADOR, Fase 8): las 60 de v1 más las primeras preguntas de pizarra.
- * Se publica cuando las revise el entrenador revisor (D10). Coordenadas de la cancha de
+ * Defensa central, v2 (Fase 8): las 60 de v1 más las primeras preguntas de pizarra.
+ * Lo revisó Kevin (D10, 2026-10-23). Coordenadas de la cancha de
  * siempre (100×150, tu arco abajo); "tú" es el 4 o el 2, según la jugada.
  */
 const BOARD_ITEMS = [
@@ -126,6 +126,6 @@ const BOARD_ITEMS = [
 export const DFC_V2: CertBankContent = {
   ...DFC_V1,
   label: 'v2',
-  review: null,
+  review: { by: 'Kevin Lopez', on: '2026-10-23' },
   items: [...DFC_V1.items, ...BOARD_ITEMS],
 };

@@ -2,16 +2,16 @@ import type { CertBankContent } from '../../../application/cert-bank.js';
 import { q, qb } from './authoring.js';
 
 /**
- * Lateral, v1 (BORRADOR, Fase 8). Lo redactó Claude a partir de los principios de la posición
+ * Lateral, v1 (Fase 8). Lo redactó Claude a partir de los principios de la posición
  * y de lo aprendido en la auditoría de DFC y MC v1 (distractores plausibles, sin absolutos que
  * delaten, la correcta no siempre la más larga, contexto explícito cuando hay matices). Nivel:
  * fútbol amateur, no profesional. 10 por área (3 fáciles, 5 medias y 2 difíciles) más 4 de
- * pizarra. Se publica cuando lo revisen Kevin y el entrenador revisor (D10).
+ * pizarra. Lo revisó Kevin (D10, 2026-10-23).
  */
 export const LAT_V1: CertBankContent = {
   position: 'LAT',
   label: 'v1',
-  review: null,
+  review: { by: 'Kevin Lopez', on: '2026-10-23' },
   areas: [
     { code: 'uno', name: 'Uno contra uno' },
     { code: 'cierres', name: 'Cierres y vigilancias' },

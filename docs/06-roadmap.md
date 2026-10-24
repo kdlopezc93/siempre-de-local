@@ -154,7 +154,7 @@ Elegidos por Kevin el 2026-10-23, antes del staging o la Fase 8: cosas chicas qu
 |---|---|---|
 | 1 | Integrantes en Equipo para todos: cuerpo técnico y jugadores con su mejor banda (D11, sin puntaje) | #79 ✔ |
 | 2 | Avisar antes de salir con cambios sin guardar (formularios y el marcador del partido) | #80 |
-| 3 | El nombre del entrenador revisor en los bancos del examen (D10), cuando Kevin lo tenga | |
+| 3 | El nombre del revisor en los bancos del examen (D10): Kevin dio el visto bueno a todos y figura él (2026-10-23); si después revisa otro entrenador, se cambia `review` | #92 |
 
 ### Fase 8 · Contenido, psicometría y medición
 Empezada el 2026-10-23 por lo que no necesita datos reales. Kevin eligió primero el test de orientación a ~40 preguntas (las revisa él; no depende del entrenador revisor de D10).
@@ -167,6 +167,8 @@ Empezada el 2026-10-23 por lo que no necesita datos reales. Kevin eligió primer
 | 4 | Preguntas tipo pizarra en el examen: formato, servido y pizarra en la web; se responde tocando en la cancha o en la lista (Kevin, 2026-10-23) | #84 ✔ |
 | 5 | Primeras preguntas de pizarra para DFC y MC (borradores, esperan revisor, D10), con la pizarra en la hoja de revisión | #85 ✔ |
 | 6 | Bancos de las demás posiciones, uno por PR (borradores, esperan revisor, D10): Lateral (64, con 4 de pizarra), y después Delantero centro, Extremo, Pivote, Mediapunta y Portero | #86 ✔ (Lateral), #87 ✔ (Delantero centro), #88 ✔ (Extremo), #89 ✔ (Pivote), #90 ✔ (Mediapunta), #91 ✔ (Portero); auditorías externas aplicadas en cada uno |
+| 7 | Publicar los bancos con el visto bueno de Kevin (D10, 2026-10-23): DFC v2 y MC v2 (reemplazan a v1), Lateral, Delantero centro, Extremo, Pivote, Mediapunta y Portero v1 | #92 |
+| 8 | Armado del examen de 20: al menos una de pizarra cuando el banco las tiene, y la mezcla de dificultades que piden las auditorías | |
 
 Después, en el orden que se decida: la herramienta de análisis de preguntas. Con datos reales del equipo: afinar pesos y analizar las preguntas.
 

@@ -3,8 +3,8 @@ import { qb, qLook } from './authoring.js';
 import { MC_V1 } from './mc-v1.bank.js';
 
 /**
- * Mediocentro, v2 (BORRADOR, Fase 8): las 60 de v1 más las primeras preguntas de pizarra.
- * Se publica cuando las revise el entrenador revisor (D10). "Tú" eres el 8.
+ * Mediocentro, v2 (Fase 8): las 60 de v1 más las primeras preguntas de pizarra.
+ * Lo revisó Kevin (D10, 2026-10-23). "Tú" eres el 8.
  */
 const BOARD_ITEMS = [
   qb(
@@ -127,6 +127,6 @@ const BOARD_ITEMS = [
 export const MC_V2: CertBankContent = {
   ...MC_V1,
   label: 'v2',
-  review: null,
+  review: { by: 'Kevin Lopez', on: '2026-10-23' },
   items: [...MC_V1.items, ...BOARD_ITEMS],
 };

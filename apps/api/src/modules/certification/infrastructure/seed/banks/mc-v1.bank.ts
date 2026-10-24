@@ -12,7 +12,7 @@ export const MC_V1: CertBankContent = {
   label: 'v1',
   // Revisado por un entrenador el 2026-10-22 (D10), además de la auditoría psicométrica
   // (docs/bancos/revisiones/). Su nombre se completa cuando llegue.
-  review: { by: 'Entrenador revisor (nombre pendiente)', on: '2026-10-22' },
+  review: { by: 'Kevin Lopez', on: '2026-10-22' },
   areas: [
     { code: 'recepcion', name: 'Recepción y perfil' },
     { code: 'pase', name: 'Pase y circulación' },

@@ -2,16 +2,16 @@ import type { CertBankContent } from '../../../application/cert-bank.js';
 import { q, qb } from './authoring.js';
 
 /**
- * Extremo, v1 (BORRADOR, Fase 8). Lo redactó Claude a partir de los principios de la posición
+ * Extremo, v1 (Fase 8). Lo redactó Claude a partir de los principios de la posición
  * y de las auditorías de DFC, MC, LAT y DC (distractores que un jugador de verdad elegiría, sin
  * absolutos que delaten, la correcta ni sistemáticamente la más larga ni la más corta, contexto
  * explícito cuando hay matices). Nivel: fútbol amateur. 10 por área (3 fáciles, 5 medias y
- * 2 difíciles) más 4 de pizarra. Se publica cuando lo revisen Kevin y el entrenador revisor (D10).
+ * 2 difíciles) más 4 de pizarra. Lo revisó Kevin (D10, 2026-10-23).
  */
 export const EXT_V1: CertBankContent = {
   position: 'EXT',
   label: 'v1',
-  review: null,
+  review: { by: 'Kevin Lopez', on: '2026-10-23' },
   areas: [
     { code: 'uno', name: 'Uno contra uno' },
     { code: 'desmarques', name: 'Desmarques y amplitud' },
