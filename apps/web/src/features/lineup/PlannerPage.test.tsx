@@ -167,6 +167,7 @@ describe('planificador', () => {
       displayName: p.displayName,
       jerseyNumber: p.jerseyNumber,
       reply: i === PLAYERS.length - 1 ? 'no' : 'yes',
+      canRate: true,
     }));
     let saved: { matchId: string; name: string } | undefined;
     let published = false;

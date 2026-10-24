@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { can, type Actor, type ClubRole, type TeamPermission, type TeamRole } from './policy.js';
+import {
+  can,
+  canRate,
+  type Actor,
+  type ClubRole,
+  type TeamPermission,
+  type TeamRole,
+} from './policy.js';
 
 const SCOPE = { teamId: 'team-1', clubId: 'club-1' };
 
@@ -57,5 +64,40 @@ describe('can — matriz de permisos (04 §2.2)', () => {
 
   it('el admin de plataforma no tiene acceso implícito (soporte llega con audit_log)', () => {
     expect(can({ ...actor(), platformAdmin: true }, 'team.read', SCOPE)).toBe(false);
+  });
+});
+
+describe('canRate — quién valora a quién (04 §2.2)', () => {
+  const as = (userId: string, roles: TeamRole[]): Actor => ({
+    userId,
+    platformAdmin: false,
+    clubs: new Map(),
+    teams: new Map([['team-1', roles]]),
+  });
+  const coach = as('coach', ['coach', 'player']);
+  const assistant = as('asis', ['assistant', 'player']);
+  const player = { userId: 'jug', roles: ['player'] as TeamRole[] };
+  const otherAssistant = { userId: 'asis-2', roles: ['assistant', 'player'] as TeamRole[] };
+  const otherCoach = { userId: 'coach-2', roles: ['coach', 'player'] as TeamRole[] };
+
+  it('el entrenador valora a jugadores y asistentes, pero no a sí mismo ni a otro entrenador', () => {
+    expect(canRate(coach, 'team-1', player)).toBe(true);
+    expect(canRate(coach, 'team-1', otherAssistant)).toBe(true);
+    expect(canRate(coach, 'team-1', { userId: 'coach', roles: ['coach', 'player'] })).toBe(false);
+    expect(canRate(coach, 'team-1', otherCoach)).toBe(false);
+  });
+
+  it('el asistente valora solo a quien no es del cuerpo técnico', () => {
+    expect(canRate(assistant, 'team-1', player)).toBe(true);
+    expect(canRate(assistant, 'team-1', otherAssistant)).toBe(false);
+    expect(canRate(assistant, 'team-1', otherCoach)).toBe(false);
+    expect(canRate(assistant, 'team-1', { userId: 'asis', roles: ['assistant', 'player'] })).toBe(
+      false,
+    );
+  });
+
+  it('un jugador o alguien de otro equipo no valora', () => {
+    expect(canRate(as('x', ['player']), 'team-1', player)).toBe(false);
+    expect(canRate(coach, 'team-2', player)).toBe(false);
   });
 });

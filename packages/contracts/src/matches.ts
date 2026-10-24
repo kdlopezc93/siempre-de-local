@@ -76,6 +76,8 @@ export const MatchRosterSchema = z.array(
     displayName: z.string(),
     jerseyNumber: z.int().nullable(),
     reply: MatchReplySchema.nullable(),
+    /** Si quien pregunta puede evaluarlo después del partido (04 §2.2). */
+    canRate: z.boolean(),
   }),
 );
 

@@ -35,18 +35,21 @@ const ROSTER = [
     displayName: 'Ana',
     jerseyNumber: 4,
     reply: 'yes',
+    canRate: true,
   },
   {
     playerId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fb2',
     displayName: 'Beto',
     jerseyNumber: 9,
     reply: 'no',
+    canRate: true,
   },
   {
     playerId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fb3',
     displayName: 'Ciro',
     jerseyNumber: null,
     reply: null,
+    canRate: true,
   },
 ];
 
@@ -399,6 +402,27 @@ describe('partidos en la app (Fase 7)', () => {
     expect(
       within(ratings).getByRole('button', { name: 'Agregar a otro que jugó' }),
     ).toBeInTheDocument();
+  });
+
+  it('a quien no evalúa (del cuerpo técnico) lo muestra sin las cinco palabras (04 §2.2)', async () => {
+    const played = match({ open: false, startsAt: future(-1) });
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: { match: played, roster: [{ ...ROSTER[0]!, canRate: false }] },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/lineups`]: { status: 200, body: { items: [] } },
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}/ratings`]: { status: 200, body: { items: [] } },
+    });
+    renderAt('/p', [
+      { path: '/p', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+
+    const ratings = await screen.findByRole('region', { name: 'Cómo jugó cada uno' });
+    expect(
+      await within(ratings).findByText('A los del cuerpo técnico los valora el entrenador.'),
+    ).toBeInTheDocument();
+    expect(within(ratings).queryByRole('button', { name: 'Muy bien' })).not.toBeInTheDocument();
   });
 
   it('el jugador ve el resultado, la figura y cómo jugó; ya no se responde (D18)', async () => {

@@ -58,3 +58,49 @@ export function can(actor: Actor, permission: TeamPermission, scope: TeamScope):
   if (roles.some((role) => (rule.roles as readonly TeamRole[]).includes(role))) return true;
   return rule.clubAdmin && actor.clubs.has(scope.clubId);
 }
+
+/** A quién se valora: su id y sus roles activos en el equipo. */
+export interface RatingTarget {
+  userId: string;
+  roles: readonly TeamRole[];
+}
+
+/**
+ * Quién valora a quién (tarjeta 0–99, valoración del cuerpo técnico y evaluación del partido;
+ * 04 §2.2). Nadie se valora a sí mismo; el entrenador valora a asistentes y jugadores; el
+ * asistente, solo a quien no es del cuerpo técnico; al entrenador no lo valora nadie del
+ * equipo. Quien no es del cuerpo técnico no valora (eso ya lo dice `can`).
+ */
+export function canRate(actor: Actor, teamId: string, target: RatingTarget): boolean {
+  if (actor.userId === target.userId) return false;
+  if (target.roles.includes('coach')) return false;
+  const mine = actor.teams.get(teamId) ?? [];
+  if (mine.includes('coach')) return true;
+  if (mine.includes('assistant')) return !target.roles.includes('assistant');
+  return false;
+}
+
+/** Por qué no puede valorarlo, en el tono de la app (para el error del API). */
+export function cannotRateMessage(actor: Actor, targetUserId: string): string {
+  return actor.userId === targetUserId
+    ? 'No puedes valorarte a ti mismo.'
+    : 'A los del cuerpo técnico los valora el entrenador.';
+}
+
+/**
+ * `canRate` para una lista de jugadores del equipo, con su cuerpo técnico activo
+ * (`activeStaff`: una fila por persona y rol).
+ */
+export function ratableBy(
+  actor: Actor,
+  teamId: string,
+  staff: readonly { userId: string; role: 'coach' | 'assistant' }[],
+): (playerId: string) => boolean {
+  return (playerId) => {
+    const roles: TeamRole[] = [
+      'player',
+      ...staff.filter((m) => m.userId === playerId).map((m) => m.role),
+    ];
+    return canRate(actor, teamId, { userId: playerId, roles });
+  };
+}

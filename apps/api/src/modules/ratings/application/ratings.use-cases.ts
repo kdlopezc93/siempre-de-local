@@ -22,7 +22,13 @@ import {
   AUTHORIZATION_READER,
   type AuthorizationReader,
 } from '../../../shared/authz/actor.port.js';
-import { can, type Actor, type TeamPermission } from '../../../shared/authz/policy.js';
+import {
+  can,
+  cannotRateMessage,
+  canRate,
+  type Actor,
+  type TeamPermission,
+} from '../../../shared/authz/policy.js';
 import {
   BusinessRuleError,
   ForbiddenError,
@@ -72,7 +78,11 @@ export class PlayerRatings {
     request: z.output<typeof CreateRatingRequestSchema>,
   ): Promise<PlayerRating> {
     await this.authorize(actor, teamId, 'team.ratings.write');
-    await this.assertPlayer(teamId, playerId);
+    const roles = await this.assertPlayer(teamId, playerId);
+    const target = { userId: playerId, roles };
+    if (!canRate(actor, teamId, target)) {
+      throw new ForbiddenError(cannotRateMessage(actor, target.userId), 'CANNOT_RATE_PLAYER');
+    }
     // Los de portero que no vinieron no se guardan.
     const values = Object.fromEntries(
       Object.entries(request.values).filter(([, value]) => value !== undefined),
@@ -112,9 +122,11 @@ export class PlayerRatings {
 
   private async assertPlayer(teamId: string, playerId: string) {
     const player = await this.memberships.loadMemberships(playerId);
-    if (!player.teams.get(teamId)?.includes('player')) {
+    const roles = player.teams.get(teamId) ?? [];
+    if (!roles.includes('player')) {
       throw new NotFoundError('Ese jugador no está en el equipo', 'PLAYER_NOT_IN_TEAM');
     }
+    return roles;
   }
 
   private async authorize(actor: Actor, teamId: string, permission: TeamPermission) {

@@ -6,7 +6,7 @@ import {
   AUTHORIZATION_READER,
   type AuthorizationReader,
 } from '../../../shared/authz/actor.port.js';
-import { can, type Actor } from '../../../shared/authz/policy.js';
+import { can, type Actor, ratableBy } from '../../../shared/authz/policy.js';
 import { ForbiddenError, NotFoundError } from '../../../shared/errors/application-errors.js';
 import {
   ASSESSMENTS_REPOSITORY,
@@ -26,7 +26,7 @@ import {
   TEAM_PLAYERS_QUERY,
   type TeamPlayersQuery,
 } from './ports/squad.ports.js';
-import { assessesIn, testView } from './staff-view.js';
+import { testView } from './staff-view.js';
 
 @Injectable()
 export class GetSquad {
@@ -48,15 +48,16 @@ export class GetSquad {
     }
 
     const players = await this.players.activePlayers(teamId);
-    const [profiles, results, latest, assessedByMe, cards, knowledge] = await Promise.all([
+    const [profiles, results, latest, assessedByMe, cards, knowledge, staff] = await Promise.all([
       this.profiles.profilesOf(players.map((p) => ({ id: p.userId, name: p.name }))),
       this.results.latestByTeam(teamId),
       this.assessments.latestByTeam(teamId),
       this.assessments.assessedBy(actor.userId, teamId),
       this.ratings.latestByTeam(teamId),
       this.knowledge.summaryOf(players.map((p) => p.userId)),
+      this.players.activeStaff(teamId),
     ]);
-    const assesses = assessesIn(actor, teamId);
+    const ratable = ratableBy(actor, teamId, staff);
 
     return {
       players: players
@@ -65,7 +66,8 @@ export class GetSquad {
           const result = results.get(player.userId);
           const mine = assessedByMe.has(player.userId);
           const card = cards.get(player.userId);
-          const test = testView(result, assesses && !mine);
+          const canRate = ratable(player.userId);
+          const test = testView(result, canRate && !mine);
           return {
             userId: player.userId,
             displayName: profile.displayName,
@@ -74,6 +76,7 @@ export class GetSquad {
             test,
             latestAssessment: latest.get(player.userId) ?? null,
             assessedByMe: mine,
+            canRate,
             knowledge: knowledge.get(player.userId) ?? [],
             card: card
               ? {

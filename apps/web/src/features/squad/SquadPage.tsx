@@ -261,7 +261,7 @@ function PlayerRow({
       meta={[positionLabel(player), ...notes].join(', ')}
       trailing={
         <>
-          {!player.assessedByMe && (
+          {player.canRate && !player.assessedByMe && (
             <span className={styles.flag}>
               <Warning size={16} weight="fill" aria-hidden="true" />
               Valorar

@@ -182,4 +182,37 @@ describe('tarjeta 0–99', () => {
     const res = await call('GET', `/me/card?teamId=${teamId}`, coach);
     expect(res.statusCode).toBe(404);
   });
+
+  it('quién valora a quién: nadie a sí mismo y al cuerpo técnico solo el entrenador (04 §2.2)', async () => {
+    // El entrenador y la asistente también juegan.
+    await connection.db.insert(teamMembership).values([
+      { teamId, userId: coach.userId, role: 'player' },
+      { teamId, userId: assistant.userId, role: 'player' },
+    ]);
+    const code = async (res: Awaited<ReturnType<typeof rate>>) => {
+      expect(res.statusCode).toBe(403);
+      return ErrorBodySchema.parse(res.json()).error;
+    };
+
+    expect((await rate(coach, OUTFIELD, assistant.userId)).statusCode).toBe(201);
+    expect(await code(await rate(assistant, OUTFIELD, coach.userId))).toEqual({
+      code: 'CANNOT_RATE_PLAYER',
+      message: 'A los del cuerpo técnico los valora el entrenador.',
+    });
+    expect((await code(await rate(assistant, OUTFIELD, assistant.userId))).message).toBe(
+      'No puedes valorarte a ti mismo.',
+    );
+    expect((await code(await rate(coach, OUTFIELD, coach.userId))).code).toBe('CANNOT_RATE_PLAYER');
+
+    // La plantilla dice a quién puede valorar cada uno.
+    const squad = SquadResponseSchema.parse(
+      (await call('GET', `/teams/${teamId}/squad`, assistant)).json(),
+    );
+    const canRate = Object.fromEntries(squad.players.map((p) => [p.userId, p.canRate]));
+    expect(canRate).toEqual({
+      [player.userId]: true,
+      [coach.userId]: false,
+      [assistant.userId]: false,
+    });
+  });
 });

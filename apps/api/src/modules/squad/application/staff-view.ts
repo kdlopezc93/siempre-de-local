@@ -8,8 +8,9 @@ export function assessesIn(actor: Actor, teamId: string): boolean {
 }
 
 /**
- * Qué ve del test quien pregunta. Quien valora no lo ve hasta haber valorado al jugador:
- * así su primera valoración es a ciegas (06 · Fase 3).
+ * Qué ve del test quien pregunta. Quien puede valorarlo no lo ve hasta haberlo valorado:
+ * así su primera valoración es a ciegas (06 · Fase 3). A quien no puede valorar (él mismo,
+ * otro del cuerpo técnico) lo ve sin más.
  */
 export function testView(result: LatestResult | undefined, hidden: boolean) {
   if (!result) return { status: 'none' as const };

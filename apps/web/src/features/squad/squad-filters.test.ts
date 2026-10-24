@@ -12,6 +12,7 @@ const player = (over: Partial<SquadPlayer>): SquadPlayer => ({
   test: { status: 'none' },
   latestAssessment: null,
   assessedByMe: true,
+  canRate: true,
   knowledge: [],
   card: { ratedAt: '2026-10-01T00:00:00.000Z', positionAverages: {} },
   ...over,
@@ -77,6 +78,12 @@ describe('filtros de la plantilla', () => {
     expect(names('por-valorar,sin-test')).toEqual(['Beto', 'Ana Álvarez']);
     expect(names('por-valorar,medio')).toEqual(['Beto']);
     expect(names('por-valorar,defensa')).toEqual([]);
+  });
+
+  it('por valorar: solo a quienes puede valorar quien mira', () => {
+    const pending = player({ assessedByMe: false });
+    const staff = player({ assessedByMe: false, canRate: false });
+    expect(filterSquad([pending, staff], '', parseFilters('por-valorar'))).toEqual([pending]);
   });
 
   it('conteos por filtro', () => {

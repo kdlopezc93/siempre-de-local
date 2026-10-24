@@ -33,6 +33,11 @@ export const SquadResponseSchema = z.object({
       latestAssessment: AssessmentSchema.nullable(),
       /** Si quien pregunta ya lo valoró alguna vez. */
       assessedByMe: z.boolean(),
+      /**
+       * Si quien pregunta puede valorarlo (04 §2.2): nadie a sí mismo y a los del cuerpo
+       * técnico solo el entrenador. Si no puede, su test se ve sin más.
+       */
+      canRate: z.boolean(),
       /** Mejor puntaje de conocimiento por posición, y si tiene una re-evaluación abierta. */
       knowledge: z.array(
         z.object({
@@ -81,6 +86,8 @@ export const PlayerProfileResponseSchema = z.object({
   /** Todas las valoraciones del cuerpo técnico, de la más reciente a la más antigua. */
   assessments: z.array(AssessmentSchema),
   assessedByMe: z.boolean(),
+  /** Si quien pregunta puede valorarlo y puntuar su tarjeta (04 §2.2). */
+  canRate: z.boolean(),
   /** La foto vigente de la tarjeta, o null. */
   card: PlayerRatingSchema.nullable(),
   /** Cuántas fotos tiene en total (las anteriores se ven en …/ratings). */

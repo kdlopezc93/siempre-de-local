@@ -17,6 +17,8 @@ import { Screen } from '../../shared/ui/Screen';
 import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { useBackTo } from '../squad/back';
 import { useSquad } from '../squad/use-squad';
+import { whyCannotRate } from '../squad/who-rates';
+import { useSession } from '../auth/use-session';
 import { useTeam } from '../team-admin/use-invitations';
 import { rankedAverages } from './card-view';
 import styles from './RatePage.module.css';
@@ -29,6 +31,7 @@ const START = 60;
 export function RatePage({ teamId, playerId }: { teamId: string; playerId: string }) {
   const team = useTeam(teamId);
   const squad = useSquad(teamId);
+  const session = useSession();
   const history = useRatingHistory(teamId, playerId);
 
   const cardPath = useBackTo(`/equipos/${teamId}/plantilla/${playerId}/tarjeta`);
@@ -49,6 +52,16 @@ export function RatePage({ teamId, playerId }: { teamId: string; playerId: strin
           {cardPath.endsWith('/tarjeta') ? 'Volver a la tarjeta' : 'Volver a la ficha'}
         </Link>
         <p role="alert">Ese jugador no está en la plantilla.</p>
+      </Screen>
+    );
+  }
+  if (!player.canRate) {
+    return (
+      <Screen className={styles.screen}>
+        <Link to={cardPath} className={styles.back}>
+          {cardPath.endsWith('/tarjeta') ? 'Volver a la tarjeta' : 'Volver a la ficha'}
+        </Link>
+        <p role="alert">{whyCannotRate(playerId, session.data?.user.id)}</p>
       </Screen>
     );
   }

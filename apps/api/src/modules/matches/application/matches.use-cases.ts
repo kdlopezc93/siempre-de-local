@@ -16,7 +16,13 @@ import { hasMatchStarted, isMatchOpen, replySummary } from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
 import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
-import { can, type Actor, type TeamPermission } from '../../../shared/authz/policy.js';
+import {
+  can,
+  cannotRateMessage,
+  ratableBy,
+  type Actor,
+  type TeamPermission,
+} from '../../../shared/authz/policy.js';
 import {
   BusinessRuleError,
   ConflictError,
@@ -88,16 +94,20 @@ export class Matches {
     if (!can(actor, 'team.results.read', { teamId, clubId: team.club.id })) {
       return { match: match!, roster: null };
     }
-    const replies = (await this.matches.replies([matchId])).get(matchId)!;
-    const profiles = await this.profiles.profilesOf(
-      players.map((p) => ({ id: p.userId, name: p.name })),
-    );
+    const [allReplies, profiles, staff] = await Promise.all([
+      this.matches.replies([matchId]),
+      this.profiles.profilesOf(players.map((p) => ({ id: p.userId, name: p.name }))),
+      this.players.activeStaff(teamId),
+    ]);
+    const replies = allReplies.get(matchId)!;
+    const ratable = ratableBy(actor, teamId, staff);
     const roster = players
       .map((p) => ({
         playerId: p.userId,
         displayName: profiles.get(p.userId)?.displayName ?? p.name,
         jerseyNumber: p.jerseyNumber,
         reply: replies.get(p.userId) ?? null,
+        canRate: ratable(p.userId),
       }))
       .sort(byJerseyThenName);
     return { match: match!, roster };
@@ -234,6 +244,7 @@ export class Matches {
     const record = await this.findOr404(teamId, matchId);
     this.requireStarted(record, now);
     await this.requirePlayer(teamId, playerId);
+    await this.requireRatable(actor, teamId, playerId);
     await this.matches.setRating(matchId, playerId, {
       rating: request.rating as MatchRatingValue,
       note: request.note ?? null,
@@ -252,6 +263,7 @@ export class Matches {
   ): Promise<MatchRatingsResponse> {
     await this.authorize(actor, teamId, 'team.ratings.write');
     await this.findOr404(teamId, matchId);
+    await this.requireRatable(actor, teamId, playerId);
     await this.matches.deleteRating(matchId, playerId);
     await this.record(actor, teamId, matchId, 'match.player_unrated', { playerId });
     return this.ratings(actor, teamId, matchId);
@@ -340,6 +352,14 @@ export class Matches {
     const players = await this.players.activePlayers(teamId);
     if (!players.some((p) => p.userId === playerId)) {
       throw new BusinessRuleError('No es jugador de este equipo.', 'PLAYER_NOT_IN_TEAM');
+    }
+  }
+
+  /** Quién valora a quién (04 §2.2): con sus roles de hoy en el equipo. */
+  private async requireRatable(actor: Actor, teamId: string, playerId: string) {
+    const staff = await this.players.activeStaff(teamId);
+    if (!ratableBy(actor, teamId, staff)(playerId)) {
+      throw new ForbiddenError(cannotRateMessage(actor, playerId), 'CANNOT_RATE_PLAYER');
     }
   }
 

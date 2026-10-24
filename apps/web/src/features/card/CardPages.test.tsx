@@ -37,6 +37,7 @@ const SQUAD = {
       test: { status: 'none' },
       latestAssessment: null,
       assessedByMe: false,
+      canRate: true,
       knowledge: [],
       card: null,
     },

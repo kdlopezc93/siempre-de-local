@@ -104,7 +104,7 @@ export function staffTodos(input: { teamId: string; squad: SquadResponse['player
   const { teamId, squad } = input;
   const squadPath = `/equipos/${teamId}/plantilla`;
   const todos: Todo[] = [];
-  const unassessed = squad.filter((p) => !p.assessedByMe).length;
+  const unassessed = squad.filter((p) => p.canRate && !p.assessedByMe).length;
   if (unassessed) {
     todos.push({
       id: 'assess',
