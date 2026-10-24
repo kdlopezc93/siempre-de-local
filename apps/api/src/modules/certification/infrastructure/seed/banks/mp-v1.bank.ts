@@ -2,17 +2,17 @@ import type { CertBankContent } from '../../../application/cert-bank.js';
 import { q, qb } from './authoring.js';
 
 /**
- * Mediapunta, v1 (BORRADOR, Fase 8). Lo redactó Claude a partir de los principios de la
+ * Mediapunta, v1 (Fase 8). Lo redactó Claude a partir de los principios de la
  * posición y de las auditorías de los bancos anteriores (distractores que un jugador de verdad
  * elegiría, sin absolutos que delaten, la correcta ni sistemáticamente la más larga ni la más
  * corta). El mediapunta juega entre las líneas del rival, detrás del 9: recibe de cara, da el
  * último pase y llega al área. Nivel: fútbol amateur. 10 por área (3 fáciles, 5 medias y
- * 2 difíciles) más 4 de pizarra. Se publica cuando lo revisen Kevin y el entrenador revisor (D10).
+ * 2 difíciles) más 4 de pizarra. Lo revisó Kevin (D10, 2026-10-23).
  */
 export const MP_V1: CertBankContent = {
   position: 'MP',
   label: 'v1',
-  review: null,
+  review: { by: 'Kevin Lopez', on: '2026-10-23' },
   areas: [
     { code: 'entrelineas', name: 'Recepción entre líneas' },
     { code: 'ultimopase', name: 'Último pase' },

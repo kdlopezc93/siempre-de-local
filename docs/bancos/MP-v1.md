@@ -1,6 +1,6 @@
 # Banco de Mediapunta (v1)
 
-**Borrador sin revisar.** Marca lo que cambiarías al lado de cada pregunta: la respuesta correcta, una opción que también podría valer, una explicación floja o una pregunta que sobra.
+Revisado por Kevin Lopez el 2026-10-23.
 
 64 preguntas. Cada examen toma 20, de todas las áreas y de las tres dificultades.
 
