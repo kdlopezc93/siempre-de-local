@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import {
   boolean,
   check,
+  date,
   index,
   pgEnum,
   pgTable,
@@ -88,6 +89,12 @@ export const teamMembership = pgTable(
     joinedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     /** Salida del equipo; la fila se conserva para el historial. */
     leftAt: timestamp({ withTimezone: true }),
+    /**
+     * Lesionado (solo en la fila de jugador): desde cuándo lo marcó el cuerpo técnico y,
+     * opcional, cuándo se espera que vuelva. Sin nota: no se guarda qué tiene (dato de salud).
+     */
+    injuredAt: timestamp({ withTimezone: true }),
+    injuryReturnOn: date({ mode: 'string' }),
   },
   (t) => [primaryKey({ columns: [t.teamId, t.userId, t.role] }), index().on(t.userId)],
 );

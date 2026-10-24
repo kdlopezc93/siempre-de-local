@@ -172,10 +172,17 @@ function Squad() {
           <li key={p.n}>
             <Row
               to={`${BASE}/plantilla/${p.n}`}
-              leading={<Token text={String(p.n)} line={lineOfPosition(p.pos)} />}
+              leading={
+                <Token
+                  text={String(p.n)}
+                  line={lineOfPosition(p.pos)}
+                  injured={p.n === DEMO_INJURED}
+                />
+              }
               title={p.name}
               meta={
                 <>
+                  {p.n === DEMO_INJURED && 'Lesionado, vuelve el 15 nov, '}
                   {POSITIONS[p.pos].name}
                   {!p.tested && ', sin test'}
                 </>
@@ -435,6 +442,9 @@ function Icon({ glyph: Glyph }: { glyph: typeof House }) {
     </span>
   );
 }
+
+/** En la plantilla de muestra, el 9 está lesionado (2026-10-24). */
+const DEMO_INJURED = 9;
 
 /** Preguntas tipo pizarra del examen (Fase 8), para ver cómo se ven antes de escribir bancos. */
 const BOARD_SAMPLES = [

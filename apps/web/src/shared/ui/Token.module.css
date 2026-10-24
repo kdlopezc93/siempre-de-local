@@ -17,6 +17,27 @@
   user-select: none;
 }
 
+/* Lesionado: crucecita de botiquín en la esquina, sin tapar el dorsal. */
+.token[data-injured] {
+  position: relative;
+}
+
+.token[data-injured]::after {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: var(--badge);
+  height: var(--badge);
+  border-radius: 50%;
+  /* El borde oscuro la separa del aro, que en los delanteros también es coral. */
+  box-shadow: 0 0 0 2px var(--sdl-bg);
+  background:
+    linear-gradient(var(--sdl-bg), var(--sdl-bg)) center / 58% 18% no-repeat,
+    linear-gradient(var(--sdl-bg), var(--sdl-bg)) center / 18% 58% no-repeat,
+    var(--sdl-injured);
+  content: '';
+}
+
 .token[data-line='portero'] {
   --ring: var(--sdl-line-portero);
 }
@@ -40,24 +61,28 @@
 }
 
 .sm {
+  --badge: 14px;
   --size: 32px;
   --font: 15px;
   --ring-width: 2px;
 }
 
 .md {
+  --badge: 18px;
   --size: 44px;
   --font: 20px;
   --ring-width: 3px;
 }
 
 .lg {
+  --badge: 22px;
   --size: 64px;
   --font: 28px;
   --ring-width: 3px;
 }
 
 .xl {
+  --badge: 28px;
   --size: 96px;
   --font: 44px;
   --ring-width: 4px;

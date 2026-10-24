@@ -30,6 +30,7 @@ const player = (n: number, name: string, primary: string) => ({
   displayName: name,
   jerseyNumber: n,
   preferredPositions: [],
+  injured: false,
   assessment: { primary, secondary: [] },
   rating: { [primary]: 80 },
 });

@@ -12,7 +12,7 @@ const match = (id: string, startsAt: string, open: boolean): Match => ({
   status: open ? 'scheduled' : 'cancelled',
   open,
   createdBy: null,
-  replies: { yes: 0, no: 0, pending: 0 },
+  replies: { yes: 0, no: 0, pending: 0, injured: 0 },
   myReply: null,
   published: null,
   result: null,

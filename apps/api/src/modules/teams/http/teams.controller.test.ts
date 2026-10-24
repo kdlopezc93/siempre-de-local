@@ -1,6 +1,13 @@
 import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
-import { ErrorBodySchema, TeamResponseSchema } from '@sdl/contracts';
+import {
+  ErrorBodySchema,
+  MeResponseSchema,
+  POLICY_VERSION,
+  SquadResponseSchema,
+  TeamMembersResponseSchema,
+  TeamResponseSchema,
+} from '@sdl/contracts';
 import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
@@ -163,6 +170,54 @@ describe('GET /api/v1/teams/:teamId', () => {
 
   it('sin sesión → 401 antes de mirar permisos', async () => {
     expect((await get(teamId)).statusCode).toBe(401);
+  });
+
+  it('lesionados: el cuerpo técnico marca y desmarca; el jugador y los compañeros lo ven', async () => {
+    const call = (
+      method: 'GET' | 'PUT' | 'DELETE' | 'POST',
+      path: string,
+      who: SeededUser,
+      payload?: object,
+    ) =>
+      app.inject({
+        method,
+        url: `/api/v1${path}`,
+        headers: { cookie: who.cookie, origin: TEST_ENV.WEB_ORIGIN },
+        ...(payload ? { payload } : {}),
+      });
+    for (const who of [coach, player]) {
+      await call('POST', '/me/consent', who, { policyVersion: POLICY_VERSION, ageConfirmed: true });
+    }
+    const injury = `/teams/${teamId}/players/${player.userId}/injury`;
+
+    expect((await call('PUT', injury, player, { returnOn: null })).statusCode).toBe(403);
+    expect(
+      (
+        await call('PUT', `/teams/${teamId}/players/${outsider.userId}/injury`, coach, {
+          returnOn: null,
+        })
+      ).statusCode,
+    ).toBe(404);
+    expect((await call('PUT', injury, coach, { returnOn: 'mañana' })).statusCode).toBe(400);
+    expect((await call('PUT', injury, coach, { returnOn: '2026-11-15' })).statusCode).toBe(204);
+
+    const squad = SquadResponseSchema.parse(
+      (await call('GET', `/teams/${teamId}/squad`, coach)).json(),
+    );
+    expect(squad.players.find((p) => p.userId === player.userId)?.injury).toEqual({
+      since: expect.any(String),
+      returnOn: '2026-11-15',
+    });
+    const me = MeResponseSchema.parse((await call('GET', '/me', player)).json());
+    expect(me.teams.find((t) => t.team.id === teamId)?.injury?.returnOn).toBe('2026-11-15');
+    const members = TeamMembersResponseSchema.parse(
+      (await call('GET', `/teams/${teamId}/members`, player)).json(),
+    );
+    expect(members.players.find((p) => p.userId === player.userId)?.injured).toBe(true);
+
+    expect((await call('DELETE', injury, coach)).statusCode).toBe(204);
+    const after = MeResponseSchema.parse((await call('GET', '/me', player)).json());
+    expect(after.teams.find((t) => t.team.id === teamId)?.injury).toBeNull();
   });
 
   it('el script de alta es idempotente', async () => {

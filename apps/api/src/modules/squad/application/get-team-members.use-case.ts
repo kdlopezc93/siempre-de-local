@@ -59,6 +59,7 @@ export class GetTeamMembers {
           userId: p.userId,
           displayName: nameOf(p),
           jerseyNumber: p.jerseyNumber,
+          injured: p.injuredAt !== null,
           bestBand: bestBandForTeammates(knowledge.get(p.userId) ?? []),
         }))
         .sort((a, b) => (a.jerseyNumber ?? 1000) - (b.jerseyNumber ?? 1000) || byName(a, b)),

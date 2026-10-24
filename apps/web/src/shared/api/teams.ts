@@ -12,6 +12,7 @@ import {
   type InvitationListResponse,
   type InvitationPreviewResponse,
   type TeamResponse,
+  type SetInjuryRequest,
   type UpdateMemberRequest,
 } from '@sdl/contracts';
 
@@ -71,4 +72,17 @@ export async function updateMember(
     method: 'PATCH',
     body: JSON.stringify(patch),
   });
+}
+
+/** Marcar como lesionado (cuerpo técnico), con la vuelta estimada opcional; null: volvió. */
+export async function setInjury(
+  teamId: string,
+  userId: string,
+  request: SetInjuryRequest | null,
+): Promise<void> {
+  const path = `/api/v1/teams/${teamId}/players/${userId}/injury`;
+  await apiFetch(
+    path,
+    request ? { method: 'PUT', body: JSON.stringify(request) } : { method: 'DELETE' },
+  );
 }

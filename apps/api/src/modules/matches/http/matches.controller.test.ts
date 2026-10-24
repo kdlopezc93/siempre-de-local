@@ -109,7 +109,7 @@ describe('partidos: convocar y responder (Fase 7)', () => {
     await call('PUT', `/${match.id}/reply`, beto, { reply: 'yes' });
 
     const seen = MatchResponseSchema.parse((await call('GET', `/${match.id}`, coach)).json());
-    expect(seen.match.replies).toEqual({ yes: 2, no: 0, pending: 0 });
+    expect(seen.match.replies).toEqual({ yes: 2, no: 0, pending: 0, injured: 0 });
     expect(seen.roster!.map((r) => r.reply)).toEqual(['yes', 'yes']);
 
     const list = MatchListResponseSchema.parse((await call('GET', '', ana)).json());

@@ -1,5 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { TeamResponse, UpdateMemberRequest, UpdateTeamRequest } from '@sdl/contracts';
+import type {
+  SetInjuryRequest,
+  TeamResponse,
+  UpdateMemberRequest,
+  UpdateTeamRequest,
+} from '@sdl/contracts';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
 import {
@@ -104,6 +109,45 @@ export class UpdateMember {
       entityId: userId,
       teamId: team.id,
       meta: { ...patch },
+    });
+  }
+}
+
+/**
+ * Marcar o desmarcar a un jugador como lesionado (2026-10-24): el cuerpo técnico. Mientras lo
+ * esté, el planificador no lo sugiere y la convocatoria no lo cuenta como pendiente. No se
+ * guarda qué tiene; el registro de auditoría tampoco lo dice.
+ */
+@Injectable()
+export class SetInjury {
+  constructor(
+    @Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+  ) {}
+
+  async execute(
+    actor: Actor,
+    teamId: string,
+    userId: string,
+    request: SetInjuryRequest | null,
+    now = new Date(),
+  ): Promise<void> {
+    const team = await this.teams.findById(teamId);
+    if (!team) throw new NotFoundError('Equipo no encontrado');
+    if (!can(actor, 'team.injuries.write', { teamId: team.id, clubId: team.club.id })) {
+      throw new ForbiddenError('No tienes permiso para esto');
+    }
+    const injury = request ? { injuredAt: now, returnOn: request.returnOn } : null;
+    if (!(await this.teams.setInjury(team.id, userId, injury))) {
+      throw new NotFoundError('Ese jugador no está en el equipo', 'PLAYER_NOT_IN_TEAM');
+    }
+    await this.audit.record({
+      actorUserId: actor.userId,
+      action: request ? 'player.injury_marked' : 'player.injury_cleared',
+      entity: 'team_membership',
+      entityId: userId,
+      teamId: team.id,
+      meta: {},
     });
   }
 }

@@ -76,6 +76,30 @@ export class DrizzleTeamsRepository
     return updated.length > 0;
   }
 
+  async setInjury(
+    teamId: string,
+    userId: string,
+    injury: { injuredAt: Date; returnOn: string | null } | null,
+  ) {
+    const updated = await this.connection.db
+      .update(teamMembership)
+      .set(
+        injury
+          ? { injuredAt: injury.injuredAt, injuryReturnOn: injury.returnOn }
+          : { injuredAt: null, injuryReturnOn: null },
+      )
+      .where(
+        and(
+          eq(teamMembership.teamId, teamId),
+          eq(teamMembership.userId, userId),
+          eq(teamMembership.role, 'player'),
+          isNull(teamMembership.leftAt),
+        ),
+      )
+      .returning({ userId: teamMembership.userId });
+    return updated.length > 0;
+  }
+
   async findTeamClubId(teamId: string): Promise<string | null> {
     const [row] = await this.connection.db
       .select({ clubId: team.clubId })
@@ -121,6 +145,8 @@ export class DrizzleTeamsRepository
           club: { id: club.id, name: club.name },
           role: teamMembership.role,
           jerseyNumber: teamMembership.jerseyNumber,
+          injuredAt: teamMembership.injuredAt,
+          injuryReturnOn: teamMembership.injuryReturnOn,
         })
         .from(teamMembership)
         .innerJoin(team, eq(teamMembership.teamId, team.id))
@@ -143,10 +169,14 @@ export class DrizzleTeamsRepository
         club: row.club,
         roles: [],
         jerseyNumber: null,
+        injury: null,
       };
       entry.roles.push(row.role);
-      // El dorsal es de la fila de jugador.
-      if (row.role === 'player') entry.jerseyNumber = row.jerseyNumber;
+      // El dorsal y la lesión son de la fila de jugador.
+      if (row.role === 'player') {
+        entry.jerseyNumber = row.jerseyNumber;
+        entry.injury = injuryOf(row);
+      }
       teams.set(row.team.id, entry);
     }
     return { teams: [...teams.values()], clubs: clubRows };
@@ -173,6 +203,8 @@ export class DrizzleTeamsRepository
         userId: teamMembership.userId,
         name: user.name,
         jerseyNumber: teamMembership.jerseyNumber,
+        injuredAt: teamMembership.injuredAt,
+        injuryReturnOn: teamMembership.injuryReturnOn,
       })
       .from(teamMembership)
       .innerJoin(user, eq(teamMembership.userId, user.id))
@@ -184,4 +216,11 @@ export class DrizzleTeamsRepository
         ),
       );
   }
+}
+
+/** La lesión de una fila de jugador, como la ve la app. */
+function injuryOf(row: { injuredAt: Date | null; injuryReturnOn: string | null }) {
+  return row.injuredAt
+    ? { since: row.injuredAt.toISOString(), returnOn: row.injuryReturnOn }
+    : null;
 }

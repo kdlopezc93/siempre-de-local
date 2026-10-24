@@ -78,9 +78,28 @@ describe('lo que toca al cuerpo técnico', () => {
     latestAssessment: null,
     assessedByMe: true,
     canRate: true,
+    injury: null,
     knowledge: [],
     card: { ratedAt: '2026-10-01T00:00:00Z', positionAverages: {} },
     ...over,
+  });
+
+  it('el lesionado cuya vuelta ya llegó: preguntar si volvió', () => {
+    const injured = (returnOn: string | null) =>
+      player({ injury: { since: '2026-10-24T12:00:00.000Z', returnOn } });
+    const asks = (returnOn: string | null) =>
+      staffTodos({ teamId: 't1', squad: [injured(returnOn)], today: '2026-11-15' }).filter(
+        (t) => t.icon === 'injury',
+      );
+    expect(asks(null)).toEqual([]);
+    expect(asks('2026-11-16')).toEqual([]);
+    expect(asks('2026-11-15')).toEqual([
+      expect.objectContaining({
+        title: '¿Ya volvió Ana?',
+        detail: 'Su vuelta estaba para el 15 nov',
+        to: '/equipos/t1/plantilla/0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f90',
+      }),
+    ]);
   });
 
   it('valorar primero (a ciegas), y los conteos de lo que falta', () => {
@@ -147,7 +166,7 @@ describe('lo que toca: partidos (D16)', () => {
     status: 'scheduled' as const,
     open: true,
     createdBy: null,
-    replies: { yes: 1, no: 0, pending: 3 },
+    replies: { yes: 1, no: 0, pending: 3, injured: 0 },
     myReply: null,
     published: null,
     result: null,
@@ -162,7 +181,7 @@ describe('lo que toca: partidos (D16)', () => {
       m('Cancelado', '2026-11-02T15:00:00.000Z', { open: false, status: 'cancelled' }),
       m('Publicado', '2026-11-03T15:00:00.000Z', {
         myReply: 'yes',
-        replies: { yes: 1, no: 0, pending: 0 },
+        replies: { yes: 1, no: 0, pending: 0, injured: 0 },
         published: { lineupId: 'l1', at: '2026-10-30T15:00:00.000Z' },
       }),
     ];
@@ -176,7 +195,7 @@ describe('lo que toca: partidos (D16)', () => {
   });
 
   it('después del partido: al cuerpo técnico, los de la última semana sin resultado (D18)', () => {
-    const played = { open: false, replies: { yes: 9, no: 0, pending: 0 } };
+    const played = { open: false, replies: { yes: 9, no: 0, pending: 0, injured: 0 } };
     const matches = [
       m('Jugado', '2026-11-01T15:00:00.000Z', played),
       m('Con resultado', '2026-11-02T15:00:00.000Z', {

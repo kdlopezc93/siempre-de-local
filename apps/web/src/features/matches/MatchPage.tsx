@@ -104,6 +104,12 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
             <dt>Faltan</dt>
             <dd>{match.replies.pending}</dd>
           </div>
+          {match.replies.injured > 0 && (
+            <div>
+              <dt>Lesionados</dt>
+              <dd>{match.replies.injured}</dd>
+            </div>
+          )}
         </dl>
       )}
 
@@ -149,17 +155,19 @@ function ReplyButtons({ teamId, match }: { teamId: string; match: Match }) {
   );
 }
 
-const GROUPS = [
-  { reply: 'yes', title: 'Van' },
-  { reply: 'no', title: 'No van' },
-  { reply: null, title: 'Faltan' },
-] as const;
+/** Quién va, quién no, quién falta y los lesionados que no respondieron (no "faltan"). */
+const GROUPS: { title: string; has: (p: MatchRoster[number]) => boolean }[] = [
+  { title: 'Van', has: (p) => p.reply === 'yes' },
+  { title: 'No van', has: (p) => p.reply === 'no' },
+  { title: 'Faltan', has: (p) => p.reply === null && !p.injured },
+  { title: 'Lesionados', has: (p) => p.reply === null && p.injured },
+];
 
 function Roster({ roster }: { roster: MatchRoster }) {
   return (
     <>
-      {GROUPS.map(({ reply, title }) => {
-        const people = roster.filter((p) => p.reply === reply);
+      {GROUPS.map(({ title, has }) => {
+        const people = roster.filter(has);
         if (people.length === 0) return null;
         return (
           <section key={title} aria-label={title} className={styles.section}>
@@ -174,8 +182,12 @@ function Roster({ roster }: { roster: MatchRoster }) {
                       p.jerseyNumber !== null ? String(p.jerseyNumber) : initialsOf(p.displayName)
                     }
                     size="sm"
+                    injured={p.injured}
                   />
-                  <span>{p.displayName}</span>
+                  <span>
+                    {p.displayName}
+                    {p.injured && <span className="sr-only">, lesionado</span>}
+                  </span>
                 </li>
               ))}
             </ul>

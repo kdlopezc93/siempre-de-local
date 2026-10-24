@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { ConsentSchema } from './consent.js';
 import { ProfileSchema } from './profile.js';
-import { MatchFormatSchema, TeamRoleSchema } from './teams.js';
+import { InjurySchema, MatchFormatSchema, TeamRoleSchema } from './teams.js';
 
 export const ClubRoleSchema = z.enum(['owner', 'admin']);
 
@@ -32,6 +32,8 @@ export const MeResponseSchema = z.object({
       roles: z.array(TeamRoleSchema),
       /** Tu dorsal en ese equipo (lo pone el entrenador), o null. */
       jerseyNumber: z.int().nullable(),
+      /** Si el cuerpo técnico te marcó como lesionado en ese equipo, o null. */
+      injury: InjurySchema.nullable(),
     }),
   ),
   clubs: z.array(z.object({ id: z.uuid(), name: z.string(), role: ClubRoleSchema })),

@@ -22,3 +22,10 @@ export function testView(result: LatestResult | undefined, hidden: boolean) {
     podium: result.podium,
   };
 }
+
+/** La lesión de un jugador (2026-10-24), como la ve el cuerpo técnico. */
+export function injuryView(player: { injuredAt: Date | null; injuryReturnOn: string | null }) {
+  return player.injuredAt
+    ? { since: player.injuredAt.toISOString(), returnOn: player.injuryReturnOn }
+    : null;
+}

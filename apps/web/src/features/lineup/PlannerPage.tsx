@@ -29,7 +29,7 @@ import styles from './PlannerPage.module.css';
 import { fromLineup, fromMatch, lineupSignature, toLineupInput } from './planner-state';
 import { SlotBreakdown } from './SlotBreakdown';
 import { useLineup, usePublishLineup, useSaveLineup } from './use-lineups';
-import { useLineupInputs, usePlanner } from './use-planner';
+import { healthyIds, useLineupInputs, usePlanner } from './use-planner';
 
 const FORMATS: { value: MatchFormat; label: string }[] = [
   { value: 'F11', label: 'Fútbol 11' },
@@ -139,7 +139,11 @@ function Planner({
   const ids = inputs.players.map((x) => x.playerId);
   const p = usePlanner(
     inputs,
-    saved ? fromLineup(saved, ids) : match ? fromMatch(match.match, match.roster, ids) : undefined,
+    saved
+      ? fromLineup(saved, ids)
+      : match
+        ? fromMatch(match.match, match.roster, healthyIds(inputs))
+        : undefined,
   );
   const replies = new Map(match?.roster?.map((r) => [r.playerId, r.reply]));
   const { state, formation, result } = p;
@@ -188,6 +192,7 @@ function Planner({
                     )}
                     {x.displayName}
                   </span>
+                  {x.injured && <span className={styles.injuredTag}>Lesionado</span>}
                   {match?.roster && (
                     <span className={styles.replyTag}>
                       {REPLY_LABEL[replies.get(x.playerId) ?? 'pending']}

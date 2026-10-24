@@ -373,6 +373,18 @@ Avisos: `NOT_ENOUGH_PLAYERS`, `PLAYER_WITHOUT_DATA` (va al final), `MIN_KNOWLEDG
   - **El jugador** (PR 8) ve en el partido el marcador, la figura y su palabra (si el equipo lo muestra); en Mi juego, "Tus últimos partidos" (los que tienen su evaluación o en los que fue la figura); en el inicio, el resultado de los últimos 3 días, y la felicitación arriba si fue la figura.
   - **Todavía no alimenta** el planificador ni la validación: eso cambia la puntuación y espera datos reales (Fase 8). Mientras, el cuerpo técnico ve la evaluación partido a partido en la ficha del jugador.
 
+## 14. Lesionados (2026-10-24)
+
+- **Quién:** el cuerpo técnico (coach y assistant, `team.injuries.write`) marca a un jugador como lesionado y lo desmarca cuando vuelve. El jugador no se marca solo.
+- **Qué se guarda:** desde cuándo (lo pone el servidor) y, opcional, la **vuelta estimada**. **No se guarda qué tiene**: es dato de salud y no hace falta para armar el equipo. El registro de auditoría dice que se marcó o desmarcó, sin más.
+- **Mientras está marcado:**
+  - El **planificador** no lo convoca solo (ni al abrir ni con "Convocar a todos"); se puede sumar a mano por si juega unos minutos.
+  - En la **convocatoria**, si no respondió, no cuenta como pendiente: va en "Lesionados" (`replies.injured`). Si respondió, cuenta su respuesta.
+  - Los **compañeros** ven la marca en Integrantes, sin la fecha.
+  - El **propio jugador** lo ve en su inicio, con la vuelta estimada.
+- **Al llegar la vuelta estimada** no se desmarca solo: el inicio del cuerpo técnico pregunta "¿Ya volvió?" hasta que alguien lo desmarque o cambie la fecha.
+- En las listas, la ficha lleva una crucecita coral en la esquina y la palabra "Lesionado" (nunca solo el color).
+
 ## Afirmaciones de la app (principio 8 de `07`)
 
 Revisadas el 2026-10-22 (Fase 6, PR 11). La app no promete lo que no mide:

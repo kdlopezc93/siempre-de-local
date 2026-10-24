@@ -5,6 +5,7 @@ import { KnowledgeBandSchema, PlayerKnowledgeSchema } from './certification.js';
 import { PositionCodeSchema } from './orientation.js';
 import { ProfileSchema } from './profile.js';
 import { PlayerRatingSchema } from './ratings.js';
+import { InjurySchema } from './teams.js';
 
 /**
  * GET /api/v1/teams/:teamId/squad — la plantilla para el cuerpo técnico. El test de cada
@@ -38,6 +39,8 @@ export const SquadResponseSchema = z.object({
        * técnico solo el entrenador. Si no puede, su test se ve sin más.
        */
       canRate: z.boolean(),
+      /** Lesionado (lo marca el cuerpo técnico), o null. */
+      injury: InjurySchema.nullable(),
       /** Mejor puntaje de conocimiento por posición, y si tiene una re-evaluación abierta. */
       knowledge: z.array(
         z.object({
@@ -88,6 +91,7 @@ export const PlayerProfileResponseSchema = z.object({
   assessedByMe: z.boolean(),
   /** Si quien pregunta puede valorarlo y puntuar su tarjeta (04 §2.2). */
   canRate: z.boolean(),
+  injury: InjurySchema.nullable(),
   /** La foto vigente de la tarjeta, o null. */
   card: PlayerRatingSchema.nullable(),
   /** Cuántas fotos tiene en total (las anteriores se ven en …/ratings). */
@@ -116,6 +120,8 @@ export const TeamMembersResponseSchema = z.object({
       userId: z.uuid(),
       displayName: z.string(),
       jerseyNumber: z.int().nullable(),
+      /** Lesionado: los compañeros ven la marca, sin la fecha. */
+      injured: z.boolean(),
       bestBand: z
         .object({
           position: PositionCodeSchema,

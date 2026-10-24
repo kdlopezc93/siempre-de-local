@@ -27,6 +27,7 @@ const player = (n: number, name: string, primary: string, extra: object = {}) =>
   displayName: name,
   jerseyNumber: n,
   preferredPositions: [],
+  injured: false,
   assessment: { primary, secondary: [] },
   rating: { [primary]: 80 },
   ...extra,
@@ -124,6 +125,21 @@ describe('planificador', () => {
     expect(slot(/^Portero: (?!Julio)/)).toBeInTheDocument();
   });
 
+  it('el lesionado no entra solo en la convocatoria; se puede sumar a mano', async () => {
+    renderPlanner([...PLAYERS.slice(0, 8), player(14, 'Brayan', 'MC', { injured: true })]);
+    await screen.findByRole('group', { name: 'Alineación 1-3-3-1' });
+    expect(screen.getByText('Convocatoria: 8 de 9')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByText('Convocatoria: 8 de 9'));
+    const brayan = screen.getByRole('checkbox', { name: /Brayan/ });
+    expect(brayan).not.toBeChecked();
+    expect(brayan.closest('label')).toHaveTextContent('Lesionado');
+    await userEvent.click(screen.getByRole('button', { name: 'Convocar a todos' }));
+    expect(screen.getByText('Convocatoria: 8 de 9')).toBeInTheDocument();
+    await userEvent.click(brayan);
+    expect(screen.getByText('Convocatoria: 9 de 9')).toBeInTheDocument();
+  });
+
   it('con un solo formato no hay que elegirlo (D14)', async () => {
     renderPlanner();
     expect(await screen.findByRole('group', { name: 'Alineación 1-3-3-1' })).toBeInTheDocument();
@@ -156,7 +172,7 @@ describe('planificador', () => {
       status: 'scheduled',
       open: true,
       createdBy: null,
-      replies: { yes: 8, no: 1, pending: 0 },
+      replies: { yes: 8, no: 1, pending: 0, injured: 0 },
       myReply: null,
       published: null,
       result: null,
@@ -168,6 +184,7 @@ describe('planificador', () => {
       jerseyNumber: p.jerseyNumber,
       reply: i === PLAYERS.length - 1 ? 'no' : 'yes',
       canRate: true,
+      injured: false,
     }));
     let saved: { matchId: string; name: string } | undefined;
     let published = false;

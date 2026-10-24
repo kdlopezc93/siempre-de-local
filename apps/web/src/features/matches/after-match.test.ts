@@ -4,10 +4,38 @@ import { describe, expect, it } from 'vitest';
 import { RATING_OPTIONS, whoPlayed } from './after-match';
 
 const roster: MatchRoster = [
-  { playerId: 'a', displayName: 'Ana', jerseyNumber: 4, reply: 'yes', canRate: true },
-  { playerId: 'b', displayName: 'Beto', jerseyNumber: 9, reply: 'no', canRate: true },
-  { playerId: 'c', displayName: 'Ciro', jerseyNumber: null, reply: 'yes', canRate: true },
-  { playerId: 'd', displayName: 'Dani', jerseyNumber: 2, reply: null, canRate: true },
+  {
+    playerId: 'a',
+    displayName: 'Ana',
+    jerseyNumber: 4,
+    reply: 'yes',
+    canRate: true,
+    injured: false,
+  },
+  {
+    playerId: 'b',
+    displayName: 'Beto',
+    jerseyNumber: 9,
+    reply: 'no',
+    canRate: true,
+    injured: false,
+  },
+  {
+    playerId: 'c',
+    displayName: 'Ciro',
+    jerseyNumber: null,
+    reply: 'yes',
+    canRate: true,
+    injured: false,
+  },
+  {
+    playerId: 'd',
+    displayName: 'Dani',
+    jerseyNumber: 2,
+    reply: null,
+    canRate: true,
+    injured: false,
+  },
 ];
 const none = new Set<string>();
 

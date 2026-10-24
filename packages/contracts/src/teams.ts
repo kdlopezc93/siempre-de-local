@@ -37,3 +37,20 @@ export const UpdateMemberRequestSchema = z.object({
 });
 
 export type UpdateMemberRequest = z.infer<typeof UpdateMemberRequestSchema>;
+
+/**
+ * Lesionado (2026-10-24): lo marca el cuerpo técnico, con una vuelta estimada opcional. No se
+ * guarda qué tiene. `since` lo pone el servidor.
+ */
+export const InjurySchema = z.object({
+  since: z.iso.datetime(),
+  returnOn: z.iso.date().nullable(),
+});
+
+/** PUT /api/v1/teams/:teamId/players/:userId/injury (DELETE: volvió). */
+export const SetInjuryRequestSchema = z.object({
+  returnOn: z.iso.date().nullable(),
+});
+
+export type Injury = z.infer<typeof InjurySchema>;
+export type SetInjuryRequest = z.infer<typeof SetInjuryRequestSchema>;

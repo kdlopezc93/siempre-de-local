@@ -108,6 +108,7 @@ describe('/api/v1/me y consentimiento', () => {
         club: { id: clubs[0]!.id, name: 'Los del Barrio' },
         roles: ['coach', 'player'],
         jerseyNumber: 10,
+        injury: null,
       },
     ]);
     expect(clubs).toEqual([{ id: expect.any(String), name: 'Los del Barrio', role: 'owner' }]);

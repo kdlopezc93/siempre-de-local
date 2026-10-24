@@ -22,7 +22,7 @@ const match = (over: object = {}) => ({
   status: 'scheduled',
   open: true,
   createdBy: { id: ME_TWO_TEAMS.user.id, name: 'Kevin' },
-  replies: { yes: 3, no: 1, pending: 2 },
+  replies: { yes: 3, no: 1, pending: 2, injured: 0 },
   myReply: null,
   published: null,
   result: null,
@@ -36,6 +36,7 @@ const ROSTER = [
     jerseyNumber: 4,
     reply: 'yes',
     canRate: true,
+    injured: false,
   },
   {
     playerId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fb2',
@@ -43,6 +44,7 @@ const ROSTER = [
     jerseyNumber: 9,
     reply: 'no',
     canRate: true,
+    injured: false,
   },
   {
     playerId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fb3',
@@ -50,6 +52,7 @@ const ROSTER = [
     jerseyNumber: null,
     reply: null,
     canRate: true,
+    injured: false,
   },
 ];
 
@@ -119,7 +122,7 @@ describe('partidos en la app (Fase 7)', () => {
         return {
           status: 200,
           body: {
-            match: match({ myReply: 'yes', replies: { yes: 4, no: 1, pending: 1 } }),
+            match: match({ myReply: 'yes', replies: { yes: 4, no: 1, pending: 1, injured: 0 } }),
             roster: null,
           },
         };
@@ -138,6 +141,26 @@ describe('partidos en la app (Fase 7)', () => {
     expect(screen.getByText('Puedes cambiarla hasta la hora del partido.')).toBeInTheDocument();
     // Los compañeros no ven quién respondió qué.
     expect(screen.queryByRole('region', { name: 'Van' })).toBeNull();
+  });
+
+  it('el lesionado que no respondió no "falta": va en su grupo, con la marca', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: {
+          match: match({ replies: { yes: 1, no: 1, pending: 0, injured: 1 } }),
+          roster: ROSTER.map((p) => (p.reply === null ? { ...p, injured: true } : p)),
+        },
+      },
+    });
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+    expect(await screen.findByRole('region', { name: 'Lesionados' })).toHaveTextContent(
+      'Ciro, lesionado',
+    );
+    expect(screen.queryByRole('region', { name: 'Faltan' })).not.toBeInTheDocument();
+    expect(screen.getByText('Lesionados', { selector: 'dt' })).toBeInTheDocument();
   });
 
   it('el cuerpo técnico ve quién va y puede cancelar', async () => {

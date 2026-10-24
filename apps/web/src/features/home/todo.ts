@@ -7,8 +7,10 @@ import type {
 import { POSITIONS } from '@sdl/domain';
 
 import { matchWhen } from '../matches/match-view';
+import { returnDay, returnOverdue, todayIso } from '../squad/injury';
 
-export type TodoIcon = 'exam' | 'test' | 'assess' | 'card' | 'review' | 'lineup' | 'match';
+export type TodoIcon =
+  'exam' | 'test' | 'assess' | 'card' | 'review' | 'lineup' | 'match' | 'injury';
 
 export interface Todo {
   id: string;
@@ -100,10 +102,28 @@ export function playerTodos(input: {
  * Lo que le toca al cuerpo técnico: valorar (primero, y a ciegas), quién falta de test o
  * de tarjeta y las re-evaluaciones vencidas.
  */
-export function staffTodos(input: { teamId: string; squad: SquadResponse['players'] }): Todo[] {
-  const { teamId, squad } = input;
+export function staffTodos(input: {
+  teamId: string;
+  squad: SquadResponse['players'];
+  today?: string;
+}): Todo[] {
+  const { teamId, squad, today = todayIso() } = input;
   const squadPath = `/equipos/${teamId}/plantilla`;
   const todos: Todo[] = [];
+  // Lesionados cuya vuelta estimada ya llegó: confirmar si volvió (no se desmarca solo).
+  for (const p of squad) {
+    if (!p.injury?.returnOn || !returnOverdue(p.injury, today)) continue;
+    todos.push({
+      id: `injury-${p.userId}`,
+      priority: 2,
+      who: 'staff',
+      icon: 'injury',
+      title: `¿Ya volvió ${p.displayName}?`,
+      short: `¿Volvió ${p.displayName}?`,
+      detail: `Su vuelta estaba para el ${returnDay(p.injury.returnOn)}`,
+      to: `${squadPath}/${p.userId}`,
+    });
+  }
   const unassessed = squad.filter((p) => p.canRate && !p.assessedByMe).length;
   if (unassessed) {
     todos.push({

@@ -26,7 +26,7 @@ import {
   TEAM_PLAYERS_QUERY,
   type TeamPlayersQuery,
 } from './ports/squad.ports.js';
-import { testView } from './staff-view.js';
+import { injuryView, testView } from './staff-view.js';
 
 @Injectable()
 export class GetSquad {
@@ -77,6 +77,7 @@ export class GetSquad {
             latestAssessment: latest.get(player.userId) ?? null,
             assessedByMe: mine,
             canRate,
+            injury: injuryView(player),
             knowledge: knowledge.get(player.userId) ?? [],
             card: card
               ? {

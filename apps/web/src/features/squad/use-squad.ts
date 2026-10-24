@@ -1,9 +1,9 @@
-import type { CreateAssessmentRequest } from '@sdl/contracts';
+import type { CreateAssessmentRequest, SetInjuryRequest } from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { createAssessment, fetchPlayerProfile, fetchSquad } from '../../shared/api/squad';
 import { downloadTeamExport } from '../../shared/api/team-data';
-import { updateMember } from '../../shared/api/teams';
+import { setInjury, updateMember } from '../../shared/api/teams';
 import { saveFile } from '../../shared/save-file';
 
 const squadKey = (teamId: string) => ['team', teamId, 'squad'] as const;
@@ -42,6 +42,19 @@ export function useSetJersey(teamId: string, playerId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (jerseyNumber: number | null) => updateMember(teamId, playerId, { jerseyNumber }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team', teamId] }),
+  });
+}
+
+/**
+ * Marcar o desmarcar un lesionado: cambia la plantilla, el planificador, Integrantes y la
+ * convocatoria, así que se refresca todo lo del equipo.
+ */
+export function useSetInjury(teamId: string, playerId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (request: SetInjuryRequest | null) => setInjury(teamId, playerId, request),
+    // Los partidos también cuelgan de ['team', teamId].
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team', teamId] }),
   });
 }

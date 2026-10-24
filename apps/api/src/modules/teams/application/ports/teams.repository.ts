@@ -25,6 +25,12 @@ export interface TeamsRepository {
   updateSettings(teamId: string, settings: TeamSettings): Promise<'ok' | 'name-taken'>;
   /** Cambia el dorsal del jugador activo; false si no es jugador activo del equipo. */
   setJerseyNumber(teamId: string, userId: string, jerseyNumber: number | null): Promise<boolean>;
+  /** Marca (o desmarca, con null) al jugador activo como lesionado; false si no es jugador. */
+  setInjury(
+    teamId: string,
+    userId: string,
+    injury: { injuredAt: Date; returnOn: string | null } | null,
+  ): Promise<boolean>;
 }
 
 export const TEAMS_REPOSITORY = Symbol('TEAMS_REPOSITORY');

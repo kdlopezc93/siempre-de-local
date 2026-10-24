@@ -57,13 +57,18 @@ export function TeamMembers({ teamId, opensSheet }: { teamId: string; opensSheet
                     p.jerseyNumber !== null ? String(p.jerseyNumber) : initialsOf(p.displayName)
                   }
                   size="sm"
+                  injured={p.injured}
                 />
               }
               title={p.displayName}
               meta={
-                p.bestBand
-                  ? `${BAND_LABELS[p.bestBand.band]} en ${POSITIONS[p.bestBand.position].name}`
-                  : undefined
+                [
+                  p.injured && 'Lesionado',
+                  p.bestBand &&
+                    `${BAND_LABELS[p.bestBand.band]} en ${POSITIONS[p.bestBand.position].name}`,
+                ]
+                  .filter(Boolean)
+                  .join(', ') || undefined
               }
             />
           </li>

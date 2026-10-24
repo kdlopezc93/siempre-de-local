@@ -55,7 +55,8 @@ export const MatchSchema = z.object({
   open: z.boolean(),
   createdBy: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   /** Cuántos van, no van y faltan, entre los jugadores activos. */
-  replies: z.object({ yes: z.int(), no: z.int(), pending: z.int() }),
+  /** `injured`: lesionados que no respondieron (no cuentan como pendientes). */
+  replies: z.object({ yes: z.int(), no: z.int(), pending: z.int(), injured: z.int() }),
   /** Tu respuesta, si eres jugador del equipo. */
   myReply: MatchReplySchema.nullable(),
   /** La alineación publicada (PR 3), o null. */
@@ -78,6 +79,8 @@ export const MatchRosterSchema = z.array(
     reply: MatchReplySchema.nullable(),
     /** Si quien pregunta puede evaluarlo después del partido (04 §2.2). */
     canRate: z.boolean(),
+    /** Lesionado: no cuenta como pendiente de responder. */
+    injured: z.boolean(),
   }),
 );
 
