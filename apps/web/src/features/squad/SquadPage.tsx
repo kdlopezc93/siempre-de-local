@@ -30,6 +30,7 @@ import {
   type SquadFilter,
 } from './squad-filters';
 import styles from './SquadPage.module.css';
+import { injuryText, todayIso } from './injury';
 import { useExportTeam, useSquad } from './use-squad';
 
 type View = 'lista' | 'pizarra';
@@ -255,10 +256,18 @@ function PlayerRow({
               : initialsOf(player.displayName)
           }
           line={lineOf(player)}
+          injured={player.injury !== null}
         />
       }
       title={player.displayName}
-      meta={[positionLabel(player), ...notes].join(', ')}
+      // Lesionado va primero: en 360 px la línea se corta por el final.
+      meta={[
+        player.injury && injuryText(player.injury, todayIso()),
+        positionLabel(player),
+        ...notes,
+      ]
+        .filter(Boolean)
+        .join(', ')}
       trailing={
         <>
           {player.canRate && !player.assessedByMe && (

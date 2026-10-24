@@ -26,7 +26,7 @@ import {
   TEAM_PLAYERS_QUERY,
   type TeamPlayersQuery,
 } from './ports/squad.ports.js';
-import { testView } from './staff-view.js';
+import { injuryView, testView } from './staff-view.js';
 
 /** Todo lo de un jugador del equipo en una pantalla, para el cuerpo técnico. */
 @Injectable()
@@ -71,6 +71,7 @@ export class GetPlayerProfile {
       assessments,
       assessedByMe: mine,
       canRate,
+      injury: injuryView(player),
       card: ratings[0] ? toPlayerRating(ratings[0]) : null,
       cardCount: ratings.length,
       knowledge,

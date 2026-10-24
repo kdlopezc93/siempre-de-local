@@ -26,6 +26,8 @@ export const LineupInputsResponseSchema = z.object({
       displayName: z.string(),
       jerseyNumber: z.int().nullable(),
       preferredPositions: z.array(PositionCodeSchema),
+      /** Lesionado: el planificador no lo convoca solo (se puede sumar a mano). */
+      injured: z.boolean(),
     }),
   ),
 });

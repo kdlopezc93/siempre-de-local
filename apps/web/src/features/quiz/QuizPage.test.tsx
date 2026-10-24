@@ -24,6 +24,7 @@ const me = (roles: ('player' | 'coach')[]): Me => ({
       club: { id: uuid(10), name: 'Los del Barrio' },
       roles,
       jerseyNumber: null,
+      injury: null,
     },
   ],
   profile: DEFAULT_PROFILE,

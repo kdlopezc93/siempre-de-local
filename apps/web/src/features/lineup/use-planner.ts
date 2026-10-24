@@ -18,15 +18,17 @@ export function useLineupInputs(teamId: string) {
   });
 }
 
+/**
+ * Los que el planificador convoca solo: todos menos los lesionados (2026-10-24), que igual se
+ * pueden sumar a mano.
+ */
+export const healthyIds = (inputs: LineupInputsResponse) =>
+  inputs.players.filter((p) => !p.injured).map((p) => p.playerId);
+
 /** El planificador: decisiones del entrenador → alineación calculada en el celular. */
 export function usePlanner(inputs: LineupInputsResponse, initial?: planner.PlannerState) {
   const [state, setState] = useState(
-    () =>
-      initial ??
-      planner.initialState(
-        inputs.format,
-        inputs.players.map((p) => p.playerId),
-      ),
+    () => initial ?? planner.initialState(inputs.format, healthyIds(inputs)),
   );
   const formation = findFormation(state.formationKey)!;
 
@@ -61,13 +63,7 @@ export function usePlanner(inputs: LineupInputsResponse, initial?: planner.Plann
     setMinKnowledge: (minKnowledgePct: number | null) =>
       setState((s) => ({ ...s, minKnowledgePct })),
     toggleAvailable: (id: string) => setState((s) => planner.toggleAvailable(s, id)),
-    callAll: () =>
-      setState((s) =>
-        planner.setAllAvailable(
-          s,
-          inputs.players.map((p) => p.playerId),
-        ),
-      ),
+    callAll: () => setState((s) => planner.setAllAvailable(s, healthyIds(inputs))),
     tapSlot: (slotId: string) => setState((s) => planner.tapSlot(s, slotId, occupant)),
     tapBench: (id: string) => setState((s) => planner.tapBench(s, id)),
     unpin: (slotId: string) => setState((s) => planner.unpin(s, slotId)),

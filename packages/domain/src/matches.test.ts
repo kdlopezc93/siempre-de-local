@@ -25,6 +25,14 @@ describe('partidos (Fase 7)', () => {
       yes: ['ana'],
       no: ['beto'],
       pending: ['ciro'],
+      injured: [],
+    });
+    // Un lesionado que no respondió no queda pendiente; si respondió, cuenta su respuesta.
+    expect(replySummary(['ana', 'beto', 'ciro'], replies, new Set(['ana', 'ciro']))).toEqual({
+      yes: ['ana'],
+      no: ['beto'],
+      pending: [],
+      injured: ['ciro'],
     });
   });
 

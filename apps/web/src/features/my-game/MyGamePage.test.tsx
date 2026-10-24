@@ -153,7 +153,7 @@ describe('Mi juego (07 §4.3)', () => {
       status: 'scheduled',
       open: false,
       createdBy: null,
-      replies: { yes: 9, no: 0, pending: 0 },
+      replies: { yes: 9, no: 0, pending: 0, injured: 0 },
       myReply: 'yes',
       published: null,
       myRating: null,

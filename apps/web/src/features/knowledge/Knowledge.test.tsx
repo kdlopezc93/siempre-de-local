@@ -23,6 +23,7 @@ const me: Me = {
       club: { id: uuid(10), name: 'Los del Barrio' },
       roles: ['player'],
       jerseyNumber: null,
+      injury: null,
     },
   ],
   profile: DEFAULT_PROFILE,

@@ -64,6 +64,7 @@ const PROFILE = {
   assessments: [assessment('DFC', false, 32), assessment('LAT', true, 31)],
   assessedByMe: true,
   canRate: true,
+  injury: null,
   card: null,
   cardCount: 0,
   knowledge: { positions: [], exams: [] },
@@ -204,6 +205,7 @@ describe('PlayerProfilePage', () => {
               latestAssessment: null,
               assessedByMe: true,
               canRate: true,
+              injury: null,
               knowledge: [],
               card: null,
             },
@@ -224,6 +226,48 @@ describe('PlayerProfilePage', () => {
     await vi.waitFor(() =>
       expect(router.state.location.pathname).toBe(`/equipos/${TEAM_ID}/plantilla/${ANA}`),
     );
+  });
+
+  it('lesionado: el cuerpo técnico lo marca con la vuelta y lo desmarca cuando vuelve', async () => {
+    const calls: { method: string; body: unknown }[] = [];
+    const injury = (init: RequestInit) => {
+      calls.push({
+        method: init.method ?? 'GET',
+        body: init.body ? JSON.parse(init.body as string) : null,
+      });
+      return { status: 204 };
+    };
+    fakeApi({
+      ...routes(PROFILE),
+      [`PUT /api/v1/teams/${TEAM_ID}/players/${ANA}/injury`]: injury,
+    });
+    renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Marcar lesionado' }));
+    await userEvent.type(screen.getByLabelText('¿Cuándo vuelve más o menos?'), '2026-11-15');
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    await vi.waitFor(() =>
+      expect(calls).toEqual([{ method: 'PUT', body: { returnOn: '2026-11-15' } }]),
+    );
+  });
+
+  it('lesionado: se ve hasta cuándo y "Ya volvió" lo desmarca', async () => {
+    let cleared = false;
+    fakeApi({
+      ...routes({
+        ...PROFILE,
+        injury: { since: '2026-10-24T12:00:00.000Z', returnOn: '2099-11-15' },
+      }),
+      [`DELETE /api/v1/teams/${TEAM_ID}/players/${ANA}/injury`]: () => {
+        cleared = true;
+        return { status: 204 };
+      },
+    });
+    renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
+
+    expect(await screen.findByText('Lesionado, vuelve el 15 nov')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Ya volvió' }));
+    await vi.waitFor(() => expect(cleared).toBe(true));
   });
 
   it('el coach pone el dorsal: valida 0–99 y guarda', async () => {
@@ -271,6 +315,7 @@ describe('PlayerProfilePage', () => {
       latestAssessment: null,
       assessedByMe: false,
       canRate: true,
+      injury: null,
       knowledge: [],
       card: null,
     });

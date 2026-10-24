@@ -58,6 +58,8 @@
   --sdl-line-defensa: var(--sdl-color-blue);
   --sdl-line-medio: var(--sdl-color-green);
   --sdl-line-ataque: var(--sdl-color-coral);
+  /* Lesionado: la crucecita de la ficha (2026-10-24). */
+  --sdl-injured: var(--sdl-color-coral);
 
   /* Tipografía (§4) */
   --sdl-font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;

@@ -13,15 +13,25 @@ export function isMatchOpen(match: { status: MatchStatus; startsAt: Date }, now:
   return match.status === 'scheduled' && now < match.startsAt;
 }
 
-/** Quién va, quién no y quién todavía no respondió, entre los jugadores activos del equipo. */
+/**
+ * Quién va, quién no, quién todavía no respondió y los lesionados que no respondieron, entre
+ * los jugadores activos del equipo.
+ */
 export function replySummary(
   playerIds: readonly string[],
   replies: ReadonlyMap<string, MatchReply>,
-): { yes: string[]; no: string[]; pending: string[] } {
-  const summary = { yes: [] as string[], no: [] as string[], pending: [] as string[] };
+  injured: ReadonlySet<string> = new Set(),
+): { yes: string[]; no: string[]; pending: string[]; injured: string[] } {
+  const summary = {
+    yes: [] as string[],
+    no: [] as string[],
+    pending: [] as string[],
+    injured: [] as string[],
+  };
   for (const id of playerIds) {
     const reply = replies.get(id);
-    summary[reply ?? 'pending'].push(id);
+    // Un lesionado que no respondió no queda pendiente: se cuenta aparte (2026-10-24).
+    summary[reply ?? (injured.has(id) ? 'injured' : 'pending')].push(id);
   }
   return summary;
 }

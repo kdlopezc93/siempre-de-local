@@ -20,6 +20,8 @@ import { usePlayerMatchRatings } from '../matches/use-matches';
 import { useSession } from '../auth/use-session';
 import { useTeam } from '../team-admin/use-invitations';
 import styles from './PlayerProfilePage.module.css';
+import { InjuryControl } from './InjuryControl';
+import { injuryText, todayIso } from './injury';
 import { KnowledgeSection } from './KnowledgeSection';
 import { agreement, bestKnowledge, jerseyHolders, sheetPosition } from './profile-view';
 import { usePlayerProfile, useSetJersey, useSquad } from './use-squad';
@@ -104,6 +106,7 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
           }
           line={position ? lineOfPosition(position) : null}
           size="xl"
+          injured={data.injury !== null}
           {...(player.jerseyNumber !== null ? { label: `Dorsal ${player.jerseyNumber}` } : {})}
         />
         <div className={styles.heroText}>
@@ -121,6 +124,11 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
       </header>
       {managesMembers && (
         <JerseyEditor teamId={teamId} playerId={playerId} current={player.jerseyNumber} />
+      )}
+      {rates ? (
+        <InjuryControl teamId={teamId} playerId={playerId} injury={data.injury} />
+      ) : (
+        data.injury && <p className={styles.injuryText}>{injuryText(data.injury, todayIso())}</p>
       )}
 
       <dl className={styles.stats}>

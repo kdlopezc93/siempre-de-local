@@ -12,6 +12,7 @@ const player = (over: Partial<SquadPlayer>): SquadPlayer => ({
   latestAssessment: null,
   assessedByMe: false,
   canRate: true,
+  injury: null,
   knowledge: [],
   card: null,
   ...over,

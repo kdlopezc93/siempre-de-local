@@ -3,9 +3,16 @@ import type { PlayerKnowledge, Profile, SquadPlayer } from '@sdl/contracts';
 
 /** Jugadores activos del equipo (lo implementa teams). */
 export interface TeamPlayersQuery {
-  activePlayers(
-    teamId: string,
-  ): Promise<{ userId: string; name: string; jerseyNumber: number | null }[]>;
+  activePlayers(teamId: string): Promise<
+    {
+      userId: string;
+      name: string;
+      jerseyNumber: number | null;
+      /** Lesionado desde (null si no lo está) y vuelta estimada (YYYY-MM-DD). */
+      injuredAt: Date | null;
+      injuryReturnOn: string | null;
+    }[]
+  >;
   /** El cuerpo técnico activo: una fila por persona y rol. */
   activeStaff(
     teamId: string,

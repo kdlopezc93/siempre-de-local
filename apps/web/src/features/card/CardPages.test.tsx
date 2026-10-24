@@ -38,6 +38,7 @@ const SQUAD = {
       latestAssessment: null,
       assessedByMe: false,
       canRate: true,
+      injury: null,
       knowledge: [],
       card: null,
     },

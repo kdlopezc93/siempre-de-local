@@ -71,14 +71,14 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 | match_ratings_visible_to_players | boolean default true | ¿el jugador ve su evaluación de cada partido? (D18) |
 | archived_at | timestamptz null | |
 
-**team_membership** — `team_id, user_id, role team_role ('coach','assistant','player'), jersey_number smallint null, joined_at, left_at` · PK (team_id, user_id, role)
+**team_membership** — `team_id, user_id, role team_role ('coach','assistant','player'), jersey_number smallint null, joined_at, left_at, injured_at timestamptz null, injury_return_on date null` · PK (team_id, user_id, role)
 
 **invitation** — `id, team_id, role, code_hash unique, created_by null, expires_at, max_uses, used_count, revoked_at, created_at` · check `0 ≤ used_count ≤ max_uses`
 - `code_hash` = SHA-256 del código normalizado (10 caracteres de un alfabeto sin 0/O/1/I/L, ~50 bits); el código en claro no se guarda.
 - `created_by` queda en null si se borra la cuenta de quien la creó.
 - Aceptar gasta un uso con un `UPDATE … WHERE used_count < max_uses` condicionado, dentro de la misma transacción que crea o reactiva la membresía.
 
-Implementado en `apps/api/src/modules/teams/infrastructure/schema.ts`, migraciones `0002_teams` y `0003_invitations`. Además: `team` es único por `(club_id, name, season)`; `club_membership` y `team_membership` tienen índice por `user_id` y se borran en cascada con el usuario. Un miembro que sale del equipo conserva su fila con `left_at` y deja de contar para los permisos. `jersey_number` (0–99) lo pone el cuerpo técnico y **no es único**: dos jugadores pueden compartir camiseta (decidido el 2026-10-22).
+Implementado en `apps/api/src/modules/teams/infrastructure/schema.ts`, migraciones `0002_teams` y `0003_invitations`. Además: `team` es único por `(club_id, name, season)`; `club_membership` y `team_membership` tienen índice por `user_id` y se borran en cascada con el usuario. Un miembro que sale del equipo conserva su fila con `left_at` y deja de contar para los permisos. `jersey_number` (0–99) lo pone el cuerpo técnico y **no es único**: dos jugadores pueden compartir camiseta (decidido el 2026-10-22). `injured_at` / `injury_return_on` (migración `0021_injuries`, 2026-10-24): lesionado desde y vuelta estimada, solo en la fila de jugador; sin nota de qué tiene (02 §14).
 
 ## 4. Perfil del jugador
 

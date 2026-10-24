@@ -78,6 +78,7 @@ export class GetLineupInputs {
             displayName: profile.displayName,
             jerseyNumber: player.jerseyNumber,
             preferredPositions: profile.preferredPositions,
+            injured: player.injuredAt !== null,
             ...(result && !hidden
               ? { affinity: Object.fromEntries(result.ranking.map((r) => [r.pos, r.pct])) }
               : {}),

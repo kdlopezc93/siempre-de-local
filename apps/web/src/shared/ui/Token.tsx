@@ -18,6 +18,7 @@ export function Token({
   line = null,
   size = 'md',
   tone = 'board',
+  injured = false,
   label,
 }: {
   text: string;
@@ -25,12 +26,15 @@ export function Token({
   size?: 'sm' | 'md' | 'lg' | 'xl';
   /** `amber`: el equipo o lo elegido, rellena de ámbar. */
   tone?: 'board' | 'amber';
+  /** Lesionado: una crucecita de botiquín en la esquina (quien la usa también lo dice en texto). */
+  injured?: boolean;
   label?: string;
 }) {
   return (
     <span
       className={[styles.token, styles[size], styles[tone]].join(' ')}
       data-line={line ?? undefined}
+      data-injured={injured || undefined}
       {...(label ? { role: 'img', 'aria-label': label } : { 'aria-hidden': true })}
     >
       {text}

@@ -3,6 +3,7 @@ import { Brain } from '@phosphor-icons/react/dist/csr/Brain';
 import { CalendarCheck } from '@phosphor-icons/react/dist/csr/CalendarCheck';
 import { CheckCircle } from '@phosphor-icons/react/dist/csr/CheckCircle';
 import { ClipboardText } from '@phosphor-icons/react/dist/csr/ClipboardText';
+import { FirstAid } from '@phosphor-icons/react/dist/csr/FirstAid';
 import { IdentificationCard } from '@phosphor-icons/react/dist/csr/IdentificationCard';
 import { SoccerBall } from '@phosphor-icons/react/dist/csr/SoccerBall';
 import { Strategy } from '@phosphor-icons/react/dist/csr/Strategy';
@@ -12,6 +13,7 @@ import type { Me } from '../../shared/api/auth';
 import { Screen } from '../../shared/ui/Screen';
 import { LeadTask, TaskRow } from '../../shared/ui/TaskCard';
 import { useActiveTeam } from '../shell/use-active-team';
+import { myInjuryText, todayIso } from '../squad/injury';
 import styles from './HomePage.module.css';
 import type { Todo, TodoIcon } from './todo';
 import { arrange } from './todo';
@@ -25,6 +27,7 @@ const ICONS: Record<TodoIcon, Icon> = {
   review: Warning,
   lineup: Strategy,
   match: CalendarCheck,
+  injury: FirstAid,
 };
 
 /**
@@ -47,6 +50,12 @@ export function HomePage({ me }: { me: Me }) {
   return (
     <Screen className={styles.screen}>
       <h1 className={styles.title}>Hola, {firstName}</h1>
+      {active?.injury && (
+        <p className={styles.injury}>
+          <FirstAid size={20} weight="fill" aria-hidden="true" />
+          {myInjuryText(active.injury, todayIso())}
+        </p>
+      )}
       {!active ? (
         <p className={styles.muted}>
           Todavía no tienes un rol en ningún equipo. Cuando te inviten, aparece aquí.

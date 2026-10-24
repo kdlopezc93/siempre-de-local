@@ -36,3 +36,13 @@
 .muted {
   color: var(--sdl-fg-muted);
 }
+
+/* Lesionado (2026-10-24): se lo dice al propio jugador, arriba de lo que le toca. */
+.injury {
+  display: flex;
+  gap: var(--sdl-space-2);
+  align-items: center;
+  margin: 0;
+  color: var(--sdl-injured);
+  font-weight: 600;
+}

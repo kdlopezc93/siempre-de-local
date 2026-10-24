@@ -108,6 +108,7 @@ export class Matches {
         jerseyNumber: p.jerseyNumber,
         reply: replies.get(p.userId) ?? null,
         canRate: ratable(p.userId),
+        injured: p.injuredAt !== null,
       }))
       .sort(byJerseyThenName);
     return { match: match!, roster };
@@ -294,10 +295,11 @@ export class Matches {
       this.profilesOf(records.flatMap((m) => (m.figure ? [m.figure] : []))),
     ]);
     const playerIds = players.map((p) => p.userId);
+    const injured = new Set(players.filter((p) => p.injuredAt !== null).map((p) => p.userId));
     const jersey = new Map(players.map((p) => [p.userId, p.jerseyNumber]));
     return records.map((m) => {
       const matchReplies = replies.get(m.id)!;
-      const summary = replySummary(playerIds, matchReplies);
+      const summary = replySummary(playerIds, matchReplies, injured);
       return {
         id: m.id,
         format: m.format,
@@ -311,6 +313,7 @@ export class Matches {
           yes: summary.yes.length,
           no: summary.no.length,
           pending: summary.pending.length,
+          injured: summary.injured.length,
         },
         myReply: matchReplies.get(actor.userId) ?? null,
         published:

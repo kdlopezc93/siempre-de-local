@@ -39,6 +39,8 @@ const TEAM_PERMISSIONS = {
   'team.lineups.write': { roles: STAFF, clubAdmin: false },
   /** Convocar, editar o cancelar partidos (Fase 7). */
   'team.matches.write': { roles: STAFF, clubAdmin: false },
+  /** Marcar o desmarcar lesionados (2026-10-24). */
+  'team.injuries.write': { roles: STAFF, clubAdmin: false },
   'team.attempts.void': { roles: ['coach'], clubAdmin: true },
   'team.reevaluations.request': { roles: ['coach'], clubAdmin: true },
   'team.players.invite': { roles: ['coach'], clubAdmin: true },

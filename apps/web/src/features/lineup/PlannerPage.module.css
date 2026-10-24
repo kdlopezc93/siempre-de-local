@@ -381,6 +381,19 @@
   white-space: nowrap;
 }
 
+/* Lesionado (2026-10-24): no entra solo en la convocatoria, se suma a mano. */
+.injuredTag {
+  margin-left: auto;
+  color: var(--sdl-injured);
+  font-size: var(--sdl-text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.injuredTag + .replyTag {
+  margin-left: var(--sdl-space-2);
+}
+
 .publish {
   display: flex;
   flex-direction: column;
