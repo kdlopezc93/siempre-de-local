@@ -31,10 +31,10 @@ export const POR_V1: CertBankContent = {
       'En la línea imaginaria entre el balón y el centro del arco',
       [
         'Pegado a un palo, para cubrir bien ese lado',
-        'Sobre la línea, en el centro, sin mirar dónde está el balón',
+        'Sobre la línea, en el centro del arco',
         'Bien adelante, en el punto de penal',
       ],
-      'Entre el balón y el centro del arco cubres lo mismo de cada lado. Pegado a un palo le regalas el otro; muy adelante, te pueden picar.',
+      'Entre el balón y el centro del arco cubres lo mismo de cada lado. Pegado a un palo le regalas el otro; sobre la línea le dejas mucho arco, y muy adelante te pueden picar.',
     ),
     q(
       'POR-POS-02',
@@ -47,20 +47,20 @@ export const POR_V1: CertBankContent = {
         'Pegado al primer palo, por si patean',
         'En el área chica, detrás de mis centrales',
       ],
-      'Con el balón lejos no hay remate posible: adelantado cubres el pase largo a la espalda de tu defensa, que es el peligro real.',
+      'Con el balón lejos, el remate directo es muy difícil: adelantado cubres el pase largo a la espalda de tu defensa, que es el peligro real.',
     ),
     q(
       'POR-POS-03',
       'posicion',
       1,
       'El rival se prepara para patear. ¿Cómo te paras?',
-      'Quieto y en la punta de los pies',
+      'Equilibrado, con el peso hacia adelante',
       [
         'Saltando en el lugar para estar activo',
         'Con los pies juntos para que no pase entre las piernas',
         'Moviéndome hacia el lado donde creo que va a patear',
       ],
-      'Quieto y en la punta de los pies puedes salir hacia cualquier lado en el momento del remate. Si estás en el aire o adivinando, el remate te agarra a destiempo.',
+      'Equilibrado y con el peso hacia adelante puedes salir hacia cualquier lado en el momento del remate. Si estás en el aire o adivinando, el remate te agarra a destiempo.',
     ),
     q(
       'POR-POS-04',
@@ -73,7 +73,7 @@ export const POR_V1: CertBankContent = {
         'El centro del arco',
         'Me quedo en el centro, mirando el pase atrás',
       ],
-      'Desde un ángulo cerrado, el remate al primer palo es el que no puede entrar: si lo cubres, el delantero solo tiene un hueco chico al segundo o el pase atrás.',
+      'Desde un ángulo cerrado, el primer palo es el hueco que no te pueden encontrar: si lo cubres sin quedar pegado, el delantero solo tiene un hueco chico al segundo o el pase atrás.',
     ),
     q(
       'POR-POS-05',
@@ -106,7 +106,7 @@ export const POR_V1: CertBankContent = {
       'posicion',
       2,
       'Tu defensa está muy adelantada, cerca de la mitad de la cancha. ¿Dónde te ubicas?',
-      'Fuera del área chica',
+      'Adelantado, cerca del borde del área',
       [
         'Sobre la línea, que es mi lugar',
         'En el punto de penal, quieto',
@@ -125,7 +125,7 @@ export const POR_V1: CertBankContent = {
         'Me quedo pegado a un palo',
         'Me quedo en el centro del arco, sin moverme',
       ],
-      'De espaldas todavía no remata: ajustas tu posición a lo que puede hacer al girar o al pase que puede dar. Salir a buscarlo deja el arco vacío.',
+      'De espaldas todavía no remata: ajustas tu posición a lo que puede hacer al girar o al pase que puede dar. Salir a buscarlo suele dejar el arco vacío.',
     ),
     q(
       'POR-POS-09',
@@ -144,14 +144,14 @@ export const POR_V1: CertBankContent = {
       'POR-POS-10',
       'posicion',
       3,
-      'Atajaste un remate pero dejaste el rebote y un rival va a patear de nuevo. ¿Qué haces?',
-      'Me paro de frente al remate',
+      'Atajaste un remate, el rebote quedó a unos metros y un rival corre a buscarlo. ¿Qué haces?',
+      'Me levanto rápido y me pongo de frente a él',
       [
         'Me quedo en el suelo para tapar más espacio',
         'Me tiro hacia el balón aunque llegue tarde',
         'Me quedo de rodillas para tapar abajo',
       ],
-      'Si llegas al balón, lo atrapas o despejas. Si no, levantarte y pararte de frente al remate te da opciones; en el suelo te superan con una picada.',
+      'Si llegas al balón, lo atrapas o despejas. Si no, tienes un segundo: levantarte y ponerte de frente te da opciones; en el suelo o de rodillas te superan con una picada.',
     ),
 
     // ── Mano a mano ───────────────────────────────────────────────────
@@ -166,14 +166,14 @@ export const POR_V1: CertBankContent = {
         'Quedarme sobre la línea esperando',
         'Salir corriendo para llegar antes que él',
       ],
-      'En el mano a mano, el que decide primero pierde: te acercas para achicar el arco y esperas que él muestre su intención.',
+      'En el mano a mano, si te tiras antes decide él: te acercas para achicar el arco y esperas que él muestre su intención.',
     ),
     q(
       'POR-UNO-02',
       'unouno',
       1,
-      'El delantero se adelanta el balón de más en el mano a mano. ¿Qué haces?',
-      'Salgo a ganarlo',
+      'En el mano a mano, el delantero se adelanta el balón y queda más cerca de ti que de él. ¿Qué haces?',
+      'Salgo decidido a ganarlo',
       [
         'Me quedo esperando que remate',
         'Retrocedo hacia la línea',
@@ -192,14 +192,14 @@ export const POR_V1: CertBankContent = {
         'De rodillas, para tapar el piso',
         'De costado, para tapar un lado',
       ],
-      'Cerca, la mayoría de los remates van bajos: estar bajo y con las manos a los costados te deja cubrir los dos lados rápido.',
+      'De cerca, los remates bajos son los más difíciles de tapar: bajo y con las manos abiertas delante del cuerpo cubres los dos lados rápido.',
     ),
     q(
       'POR-UNO-04',
       'unouno',
       2,
       'El delantero levanta la cabeza para picarla. ¿Qué haces?',
-      'Me quedo de pie, sin tirarme',
+      'Me quedo de pie, listo para saltar',
       [
         'Me tiro al suelo para tapar el remate',
         'Salgo corriendo hacia él',
@@ -212,7 +212,7 @@ export const POR_V1: CertBankContent = {
       'unouno',
       2,
       'El delantero entra en diagonal desde la banda, con su pierna buena hacia el arco. ¿Qué cubres?',
-      'El primer palo, y lo empujo hacia afuera',
+      'Tapo el primer palo',
       ['El segundo palo, por el remate cruzado', 'El centro del arco', 'Me tiro hacia la banda'],
       'Si tapas el primer palo, lo obligas a abrirse o a cruzar con poco ángulo. Si te vas al segundo, el primer palo queda libre.',
     ),
@@ -227,7 +227,7 @@ export const POR_V1: CertBankContent = {
         'Lo dejo pasar y vuelvo al arco',
         'Me tiro hacia el balón con los pies',
       ],
-      'Si lo acompañas, al eludirte se aleja del arco y pierde ángulo. Entrarle a las piernas es penal y expulsión.',
+      'Si lo acompañas, al eludirte se aleja del arco y pierde ángulo. Entrarle a las piernas es penal, y puede ser tarjeta.',
     ),
     q(
       'POR-UNO-07',
@@ -249,7 +249,7 @@ export const POR_V1: CertBankContent = {
       'Saliste lejos del área y el delantero llega primero. ¿Qué haces?',
       'Retrocedo hacia el arco',
       ['Le hago falta para frenarlo', 'Sigo hacia él para trabarlo', 'Me quedo donde estoy'],
-      'Si llegó primero, ya no lo ganas: volver hacia el arco te deja tapar algo. Hacerle falta fuera del área es tarjeta y, si era clara ocasión, roja.',
+      'Si llegó primero, ya no lo ganas: volver hacia el arco te deja tapar algo. Hacerle falta fuera del área es tiro libre y tarjeta; si le cortas una ocasión clara de gol, puede ser roja.',
     ),
     q(
       'POR-UNO-09',
@@ -265,7 +265,7 @@ export const POR_V1: CertBankContent = {
       'unouno',
       3,
       'En un mano a mano el delantero te amaga patear. ¿Qué haces?',
-      'No me tiro hasta que patee de verdad',
+      'Aguanto parado hasta que patee',
       [
         'Me tiro hacia el lado del amague',
         'Me tiro al medio para tapar más',
@@ -295,7 +295,7 @@ export const POR_V1: CertBankContent = {
       'Sales a un centro. ¿Qué avisas?',
       '"¡Mía!", fuerte, antes de salir',
       [
-        'Me quedo callado para no distraerlos',
+        'No aviso: con salir ya se entiende',
         'El nombre de un defensor',
         '"¡Fuera!" mientras salto',
       ],
@@ -309,7 +309,7 @@ export const POR_V1: CertBankContent = {
       'Lo despejo con los puños, lejos',
       [
         'Intento atraparlo igual',
-        'Lo toco suave hacia un costado',
+        'Lo dejo picar para atraparlo después',
         'Me quedo en el arco a mitad de camino',
       ],
       'Con mucha gente y sin seguridad, el puño lo aleja del área. Intentar atraparlo y que se te caiga deja el balón a un rival en el área chica.',
@@ -319,7 +319,7 @@ export const POR_V1: CertBankContent = {
       'aereo',
       2,
       'Hay un córner en contra. ¿Dónde te ubicas?',
-      'En el centro del arco',
+      'En el centro del arco, un paso adelante',
       ['Pegado al primer palo', 'Pegado al segundo palo', 'Fuera del área chica'],
       'Desde el centro del arco y un poco adelantado llegas a los dos palos y sales a los centros. Pegado a un palo, el otro queda lejos.',
     ),
@@ -395,7 +395,7 @@ export const POR_V1: CertBankContent = {
         'Me quedo sobre la línea para no arriesgar',
         'Atrapo y retengo el balón aunque me rodeen',
       ],
-      'Con el área llena, un error es gol: sales solo a lo seguro y despejas lejos, sin arriesgar el atrape.',
+      'Con el área llena, un error es gol: sales solo al balón que ganas claro, y si hay mucho tráfico lo despejas en vez de arriesgar el atrape.',
     ),
 
     // ── Juego con los pies ────────────────────────────────────────────
@@ -405,23 +405,27 @@ export const POR_V1: CertBankContent = {
       1,
       'Un defensor te pasa el balón hacia atrás. ¿Qué haces?',
       'Controlo hacia un lado libre y juego',
-      ['La agarro con las manos', 'La pateo fuerte sin mirar', 'Espero que se detenga sola'],
+      [
+        'La agarro con las manos',
+        'La pateo larga de primera',
+        'Se la devuelvo de primera al mismo defensor',
+      ],
       'El pase atrás de un compañero no se puede agarrar con las manos. Controlar hacia un espacio libre te da tiempo para jugar.',
     ),
     q(
       'POR-PIE-02',
       'pies',
       1,
-      'Te pasan el balón atrás y un delantero viene a presionarte. ¿Qué haces?',
-      'Juego rápido o la saco lejos',
+      'Te pasan el balón atrás, un delantero viene a presionarte y tienes un compañero libre a un costado. ¿Qué haces?',
+      'Juego rápido al libre',
       ['Intento gambetearlo', 'La controlo con calma', 'La agarro con las manos'],
-      'Con presión, cada toque de más es un riesgo cerca de tu arco. Lo seguro es jugar rápido al libre o alejarla.',
+      'Con presión, cada toque de más es un riesgo cerca de tu arco. Con un compañero libre, jugar rápido saca la presión sin perder el balón.',
     ),
     q(
       'POR-PIE-03',
       'pies',
       1,
-      'Un pase largo del rival pasa a tu defensa y llega fuera del área. ¿Qué haces si llegas primero?',
+      'Un pase largo del rival pasa a tu defensa y llega fuera del área, con el delantero encima. ¿Qué haces si llegas primero?',
       'Lo despejo con el pie, lejos',
       ['Lo agarro con las manos', 'Lo controlo y salgo jugando', 'Lo dejo pasar'],
       'Fuera del área no puedes usar las manos. Si llegas primero, lo más seguro es despejarlo lejos.',
@@ -443,7 +447,7 @@ export const POR_V1: CertBankContent = {
       'POR-PIE-05',
       'pies',
       2,
-      'Recibes y el lateral está libre pero lejos. ¿Qué pase le das?',
+      'Recibes y el lateral está libre pero lejos, con un rival que puede llegar a cortar. ¿Qué pase le das?',
       'Uno firme, que llegue rápido',
       [
         'Uno bombeado, para pasar por encima',
@@ -456,14 +460,14 @@ export const POR_V1: CertBankContent = {
       'POR-PIE-06',
       'pies',
       2,
-      'Recibes un pase atrás y tu pierna mala queda del lado del balón. ¿Qué haces?',
-      'Juego con la mala si es simple',
+      'Te pasan el balón atrás por tu pierna mala, con un delantero cerca, y el pase al central es corto y fácil. ¿Qué haces?',
+      'Juego con la mala al central',
       [
         'La acomodo a la buena aunque me presionen',
         'La pateo con la buena de cualquier forma',
         'La agarro con las manos',
       ],
-      'Cerca del arco, la decisión depende del tiempo: si la jugada es simple, la mala alcanza; si tienes tiempo, la acomodas. Arriesgar con presión es lo peligroso.',
+      'Con el delantero cerca no hay tiempo de acomodarla: si el pase es corto y fácil, la mala alcanza. Acomodarla a la buena con presión es lo peligroso.',
     ),
     q(
       'POR-PIE-07',
@@ -473,7 +477,7 @@ export const POR_V1: CertBankContent = {
       'La saco lejos, hacia una banda',
       [
         'Intento el pase igual',
-        'La retengo para ganar una falta',
+        'La paro y espero a que se abra un pase',
         'La saco hacia el centro de la cancha',
       ],
       'Sin pase seguro, alejarla es lo correcto. Hacia la banda, si sale, es un lateral lejos de tu arco; al centro puede volver rápido.',
@@ -483,7 +487,7 @@ export const POR_V1: CertBankContent = {
       'pies',
       2,
       'Tu equipo presiona arriba y el rival juega largo a la espalda de tu defensa. ¿Dónde te conviene estar?',
-      'Adelantado, fuera del área chica',
+      'Adelantado, para barrer detrás de la defensa',
       ['Sobre la línea, que es mi lugar', 'En el punto de penal', 'Pegado al primer palo'],
       'Si tu equipo presiona arriba, la defensa está alta: el arquero adelantado llega a los balones largos antes que el delantero.',
     ),
@@ -509,7 +513,7 @@ export const POR_V1: CertBankContent = {
       [
         'Salgo jugando corto para mantener la posesión',
         'Intento eludir al delantero',
-        'La retengo hasta que me presione',
+        'Se la devuelvo al defensor que me la dio',
       ],
       'Con el resultado a favor, un error con los pies cerca del arco es gol. Lo seguro es alejarla.',
     ),
@@ -521,7 +525,7 @@ export const POR_V1: CertBankContent = {
       1,
       'Atrapas el balón y el rival está desordenado. ¿Qué haces?',
       'Saco rápido a un compañero libre',
-      ['Espero a que se ordene mi equipo', 'La retengo para descansar', 'Saco largo sin mirar'],
+      ['Espero a que se ordene mi equipo', 'La retengo para descansar', 'Saco largo al 9, de una'],
       'Un rival desordenado es una oportunidad: el saque rápido a un compañero libre puede ser un contragolpe.',
     ),
     q(
@@ -530,7 +534,11 @@ export const POR_V1: CertBankContent = {
       1,
       'Vas a sacar con la mano a un compañero cercano. ¿Cómo lo haces?',
       'Rodando o a media altura, a sus pies',
-      ['Alto, para que lo baje con el pecho', 'Lo más fuerte posible', 'Picando delante de él'],
+      [
+        'Alto, para que lo baje con el pecho',
+        'Bombeado, por encima de los rivales',
+        'Picando delante de él',
+      ],
       'Rodando o a media altura, tu compañero controla fácil. Alto o picando, le cuesta y el rival llega.',
     ),
     q(
@@ -539,7 +547,11 @@ export const POR_V1: CertBankContent = {
       1,
       '¿Cuándo conviene sacar largo?',
       'Cuando no hay salida corta',
-      ['Cada vez, para alejar el balón', 'Cuando estoy cansado', 'Cuando mi equipo pide calma'],
+      [
+        'Cada vez, para alejar el balón',
+        'Cuando tengo el viento a favor',
+        'Cuando mi equipo pide calma',
+      ],
       'El saque largo sirve cuando no hay salida corta segura. Hacerlo cada vez regala el balón a menudo.',
     ),
     q(
@@ -550,7 +562,7 @@ export const POR_V1: CertBankContent = {
       'Hacia una banda',
       [
         'Al centro de la cancha',
-        'Lo más lejos posible, sin mirar',
+        'Lo más lejos posible, al área rival',
         'Hacia donde está el defensor más alto',
       ],
       'Hacia una banda, si se pierde, el rival está lejos de tu arco y tu compañero puede ganarlo. Al centro, si lo ganan, atacan de frente.',
@@ -561,7 +573,11 @@ export const POR_V1: CertBankContent = {
       2,
       'Saque de arco: el rival presiona alto con todos. ¿Qué haces?',
       'Saco largo, a la espalda de su presión',
-      ['Salgo jugando corto igual', 'Le paso al central presionado', 'Retengo el balón esperando'],
+      [
+        'Salgo jugando corto igual',
+        'Le paso al central presionado',
+        'Saco corto al lateral, pegado a la banda',
+      ],
       'Si presionan con todos, detrás de ellos hay espacio: el saque largo bien dado deja a tu equipo con ventaja.',
     ),
     q(
@@ -578,10 +594,10 @@ export const POR_V1: CertBankContent = {
       'saques',
       2,
       'Van perdiendo y quedan pocos minutos. ¿Cómo sacas?',
-      'Rápido, sin perder tiempo',
+      'Rápido, al compañero mejor ubicado',
       [
         'Despacio, para ordenar al equipo',
-        'Largo cada vez, sin mirar',
+        'Largo al área rival, de una',
         'Corto, para asegurar el balón',
       ],
       'Perdiendo, cada segundo cuenta: sacar rápido le da más tiempo al equipo para atacar.',
@@ -600,13 +616,13 @@ export const POR_V1: CertBankContent = {
       'saques',
       3,
       'Van ganando, último minuto, y atrapas el balón. ¿Qué haces?',
-      'Saco tranquilo a una zona segura',
+      'Me tomo mi tiempo y saco a un compañero libre',
       [
         'Saco rápido para un contragolpe',
         'Me quedo con el balón todo lo que pueda',
         'Saco largo al área rival',
       ],
-      'Con el resultado a favor, no hace falta apurarse, pero retenerlo de más es tiro libre en contra. Sacar a una zona segura gasta el tiempo sin riesgo.',
+      'Con el resultado a favor no hace falta apurarse, pero tenerlo más de seis segundos en las manos es tiro libre indirecto en contra. Sacar a un compañero libre gasta el tiempo sin riesgo.',
     ),
     q(
       'POR-SAQ-10',
@@ -619,7 +635,7 @@ export const POR_V1: CertBankContent = {
         'Un saque a la mitad de la cancha',
         'Esperar a que se ordene mi equipo',
       ],
-      'Con la línea alta, su espalda está libre: un saque largo bien dirigido deja a tu delantero solo.',
+      'Con la línea alta, su espalda está libre: un saque largo bien dirigido puede dejar a tu delantero solo.',
     ),
 
     // ── Organización y comunicación ───────────────────────────────────
@@ -630,7 +646,7 @@ export const POR_V1: CertBankContent = {
       'Hay un tiro libre cerca del área. ¿Quién arma la barrera?',
       'Yo, porque veo el arco y el balón',
       ['El capitán del equipo', 'El defensor más alto', 'El que esté más cerca del balón'],
-      'El arquero es el único que ve a la vez el balón y su arco: por eso decide dónde va la barrera y cuántos van.',
+      'El arquero es el que mejor ve a la vez el balón y su arco: por eso decide dónde va la barrera y cuántos van.',
     ),
     q(
       'POR-ORG-02',
@@ -646,8 +662,12 @@ export const POR_V1: CertBankContent = {
       'organizacion',
       1,
       'Ves a un rival libre en el área antes de un centro. ¿Qué haces?',
-      'Aviso fuerte a un defensor',
-      ['Me callo para no desconcentrarlos', 'Salgo yo a marcarlo', 'Espero que lo vean ellos'],
+      'Le aviso al defensor más cercano a él',
+      [
+        'Les grito que marquen, sin decir a quién',
+        'Salgo yo a marcarlo',
+        'Espero que lo vean ellos',
+      ],
       'Desde el arco ves lo que tus defensores no ven: avisar a tiempo evita que un rival quede solo.',
     ),
     q(
@@ -656,7 +676,7 @@ export const POR_V1: CertBankContent = {
       2,
       'Tu defensa se queda atrás cuando el balón va hacia arriba. ¿Qué haces?',
       'Les pido que suban',
-      ['Me quedo callado', 'Salgo a buscar el balón', 'Les pido que bajen más'],
+      ['Salgo yo a ocupar ese espacio', 'Salgo a buscar el balón', 'Les pido que bajen más'],
       'Si la defensa no sube con el balón, queda espacio entre líneas para el rival. El arquero ve toda la línea y la ordena.',
     ),
     q(
@@ -682,12 +702,8 @@ export const POR_V1: CertBankContent = {
       'organizacion',
       2,
       'Un compañero te va a pasar el balón atrás. ¿Qué le dices?',
-      'Le aviso si puede dármela',
-      [
-        'Me quedo callado, que decida él',
-        'Le pido que me la pase fuerte',
-        'Le pido que la retenga',
-      ],
+      'Le aviso si estoy libre o presionado',
+      ['Le pido que me la tire alta', 'Le pido que me la pase fuerte', 'Le pido que la retenga'],
       'El compañero de espaldas no ve tu situación: tu aviso le dice si el pase atrás es seguro o si tiene que alejarla.',
     ),
     q(
@@ -698,7 +714,7 @@ export const POR_V1: CertBankContent = {
       'Aviso a quién tiene que tomar cada uno',
       [
         'Salgo de mi arco a frenar',
-        'Me quedo callado esperando',
+        'Me adelanto para achicar el espacio',
         'Les pido que vuelvan, sin decir a quién',
       ],
       'En el desorden, una orden clara vale mucho: decir quién toma a quién organiza la defensa en segundos.',
@@ -708,13 +724,13 @@ export const POR_V1: CertBankContent = {
       'organizacion',
       3,
       'Van ganando y el equipo está nervioso, perdiendo balones. ¿Qué haces?',
-      'Calmo el juego y ordeno',
+      'Aseguro los saques y ordeno al equipo',
       [
         'Saco rápido cada vez',
         'Les pido que ataquen para hacer otro',
-        'Me callo, cada uno sabe lo suyo',
+        'Les pido que la saquen lejos',
       ],
-      'El arquero ve todo y puede marcar el ritmo: calmar el juego y ordenar al equipo ayuda a cerrar el partido.',
+      'El arquero ve todo y puede marcar el ritmo: asegurar los saques y ordenar al equipo ayuda a cerrar el partido.',
     ),
     q(
       'POR-ORG-10',
@@ -727,7 +743,7 @@ export const POR_V1: CertBankContent = {
         'Una barrera de cinco',
         'Que marquen solo a los más altos',
       ],
-      'En un tiro libre lejano, la línea alta deja a los cabeceadores en fuera de juego o lejos del arco; metida en el área chica, cabecean cerca.',
+      'En un tiro libre lejano, la línea alta aleja a los cabeceadores del arco y puede dejarlos en fuera de juego; metida en el área chica, cabecean cerca.',
     ),
 
     // ── Pizarra (Fase 8) ──────────────────────────────────────────────
