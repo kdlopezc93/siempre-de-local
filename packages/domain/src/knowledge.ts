@@ -31,6 +31,8 @@ export interface BankItem {
   id: string;
   area: string;
   difficulty: Difficulty;
+  /** Pregunta de pizarra (`pitch_situation`). */
+  board?: boolean;
 }
 
 /** Cuántos ítems de cada dificultad: redondeo que reparte el sobrante a las de más peso. */
@@ -64,6 +66,9 @@ function shuffle<T>(items: readonly T[], rng: () => number): T[] {
  * 2. **Todas las áreas:** al menos uno de cada área (si el examen da para tantas).
  * 3. **Mezcla de dificultad** según `difficultyMix`; si una dificultad no alcanza, se
  *    completa con las otras.
+ * 4. **Al menos una de pizarra** si el banco las tiene (Fase 8): va primero y cuenta como la
+ *    de su área. Si el jugador ya las vio todas, se repite una antes que dejar el examen sin
+ *    pizarra.
  * Devuelve los ítems en orden aleatorio.
  */
 export function selectExamItems<T extends BankItem>(
@@ -94,9 +99,19 @@ export function selectExamItems<T extends BankItem>(
     quotas[item.difficulty]--;
   };
 
+  // 0. Una de pizarra, si hay: no vista y con cupo de dificultad, si se puede.
+  const boards = ranked.filter((item) => item.board);
+  const board =
+    boards.find((item) => unseen(item) && quotas[item.difficulty] > 0) ??
+    boards.find(unseen) ??
+    boards[0];
+  if (board && n > 0) take(board);
+
   // 1. Un ítem por área, prefiriendo no vistos y dificultades con cupo.
   const areas = shuffle([...new Set(bank.map((item) => item.area))], rng).slice(0, n);
   for (const area of areas) {
+    if (chosen.length >= n) break;
+    if (chosen.some((item) => item.area === area)) continue;
     const candidates = ranked.filter((item) => item.area === area);
     const pick =
       candidates.find((item) => unseen(item) && quotas[item.difficulty] > 0) ??

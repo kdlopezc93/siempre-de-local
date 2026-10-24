@@ -115,7 +115,7 @@ Medir con más rigor el conocimiento táctico de un jugador sobre **una posició
 | Parámetro | Valor inicial |
 |---|---|
 | Ítems por examen | 20 |
-| Selección | **Estratificada** (todas las áreas, ~30% fácil · 50% media · 20% difícil) y **priorizando ítems que el jugador no haya visto** en sus intentos anteriores |
+| Selección | **Estratificada** (todas las áreas, ~30% fácil · 50% media · 20% difícil), **priorizando ítems que el jugador no haya visto** en sus intentos anteriores y con **al menos una de pizarra** si el banco las tiene (Fase 8; si ya las vio todas, se repite una) |
 | Tiempo máximo | 20 min, controlado por el servidor |
 | Resultado | Puntaje `pct` (aciertos / 20). Sin umbral de aprobado |
 | **Frecuencia** | **1 intento por posición cada 30 días**, cuente como cuente el resultado |
@@ -123,6 +123,7 @@ Medir con más rigor el conocimiento táctico de un jugador sobre **una posició
 | Qué puntaje cuenta | El **mejor** intento válido de esa posición |
 | Exámenes activos simultáneos | 1 por jugador (posiciones distintas pueden presentarse el mismo mes, de una en una) |
 
+- **La mezcla de dificultad se queda en 30 · 50 · 20** (6 · 10 · 4), aunque las auditorías de los bancos (2026-10-23) proponían 6 · 8 · 6. Los bancos tienen 12 difíciles (2 por área): con 6 por examen, el tercer intento ya repite difíciles, y con 4 aguanta tres sin repetir. Además, la mezcla se guarda con cada versión del banco: cambiarla en una versión nueva haría que un mismo puntaje no valga lo mismo de una versión a otra. Se revisa con el análisis de preguntas, cuando haya intentos reales que digan qué tan difícil es cada una.
 - **Por qué el mejor y no el último:** repetir es para mejorar, así que un mal día no debe borrar lo que ya demostró. Contar el mejor sería peligroso si se pudiera repetir sin límite (insistir hasta tener suerte); con un intento al mes ese abuso desaparece: como mucho son 12 intentos al año por posición.
 - **La espera de 30 días es la única barrera**, y aplica igual a quien sacó 40% que a quien sacó 95%: a este último simplemente no le hace falta volver.
 - Se puede examinar de **cualquier posición**; la app sugiere la ganadora del test y las preferidas, y cuando el mes se cumple avisa a quien tiene un puntaje bajo que ya puede volver a intentarlo.

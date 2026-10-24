@@ -64,6 +64,43 @@ describe('selección del examen', () => {
     expect(selectExamItems(easyOnly, new Set(), cfg, seededRandom(3))).toHaveLength(20);
   });
 
+  describe('pizarra', () => {
+    // Como los bancos de la Fase 8: 60 de texto más 4 de pizarra de dificultad media.
+    const WITH_BOARDS: BankItem[] = [
+      ...BANK,
+      ...AREAS.slice(0, 4).map((area, i) => ({
+        id: `piz-${i}`,
+        area,
+        difficulty: 2 as const,
+        board: true,
+      })),
+    ];
+    const boardsIn = (items: BankItem[]) => items.filter((i) => i.board).length;
+
+    it('trae al menos una sin perder áreas ni la mezcla de dificultad', () => {
+      for (let seed = 1; seed <= 100; seed++) {
+        const items = selectExamItems(WITH_BOARDS, new Set(), cfg, seededRandom(seed));
+        expect(items).toHaveLength(20);
+        expect(boardsIn(items)).toBeGreaterThanOrEqual(1);
+        expect(new Set(items.map((i) => i.area))).toEqual(new Set(AREAS));
+        const count = (d: Difficulty) => items.filter((i) => i.difficulty === d).length;
+        expect([count(1), count(2), count(3)]).toEqual([6, 10, 4]);
+      }
+    });
+
+    it('prefiere una no vista y, si las vio todas, repite una', () => {
+      const seen = new Set(['piz-0', 'piz-1', 'piz-2']);
+      const fresh = selectExamItems(WITH_BOARDS, seen, cfg, seededRandom(5));
+      expect(fresh.some((i) => i.id === 'piz-3')).toBe(true);
+      seen.add('piz-3');
+      expect(boardsIn(selectExamItems(WITH_BOARDS, seen, cfg, seededRandom(5)))).toBe(1);
+    });
+
+    it('sin pizarras en el banco, nada cambia', () => {
+      expect(boardsIn(selectExamItems(BANK, new Set(), cfg, seededRandom(8)))).toBe(0);
+    });
+  });
+
   it('es reproducible con la misma semilla', () => {
     const a = selectExamItems(BANK, new Set(), cfg, seededRandom(42)).map((i) => i.id);
     const b = selectExamItems(BANK, new Set(), cfg, seededRandom(42)).map((i) => i.id);

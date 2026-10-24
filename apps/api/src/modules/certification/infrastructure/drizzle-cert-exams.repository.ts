@@ -68,7 +68,12 @@ export class DrizzleCertExamsRepository implements CertExamsRepository {
     const bank = (await this.publishedBanks()).find((b) => b.position === position);
     if (!bank) return null;
     const items = await this.connection.db
-      .select({ id: certItem.id, area: certArea.code, difficulty: certItem.difficulty })
+      .select({
+        id: certItem.id,
+        area: certArea.code,
+        difficulty: certItem.difficulty,
+        kind: certItem.kind,
+      })
       .from(certItem)
       .innerJoin(certArea, eq(certItem.areaId, certArea.id))
       .where(eq(certItem.bankVersionId, bank.id));
@@ -88,9 +93,10 @@ export class DrizzleCertExamsRepository implements CertExamsRepository {
     for (const o of options) optionIds.set(o.itemId, [...(optionIds.get(o.itemId) ?? []), o.id]);
     return {
       ...bank,
-      items: items.map((i) => ({
+      items: items.map(({ kind, ...i }) => ({
         ...i,
         difficulty: i.difficulty as Difficulty,
+        board: kind === 'pitch_situation',
         optionIds: optionIds.get(i.id) ?? [],
       })),
     };
