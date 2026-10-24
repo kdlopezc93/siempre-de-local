@@ -487,6 +487,27 @@ const BOARD_SAMPLES = [
       { label: 'Atrás, al lateral', spot: { x: 22, y: 72 } },
     ],
   },
+  {
+    text: 'Recibes de espaldas en la banda con el 2 encima. ¿Qué haces?',
+    board: {
+      view: 'rival-half' as const,
+      pieces: [
+        { side: 'own' as const, x: 86, y: 44, label: '7', you: true, facing: 180 },
+        { side: 'rival' as const, x: 86, y: 31, label: '2', facing: 180 },
+        { side: 'own' as const, x: 66, y: 62, label: '8', facing: 20 },
+        { side: 'own' as const, x: 46, y: 36, label: '10', facing: 60 },
+        { side: 'rival' as const, x: 58, y: 46, label: '6', facing: 135 },
+        { side: 'rival' as const, x: 70, y: 22, label: '4' },
+      ],
+      ball: { x: 80.5, y: 43 },
+    },
+    options: [
+      { label: 'Descargo al 8, que llega de frente', spot: { x: 76, y: 66 } },
+      { label: 'Giro hacia adentro y encaro', spot: { x: 74, y: 34 } },
+      { label: 'Taco al 10, entre líneas', spot: { x: 38, y: 26 } },
+      { label: 'La protejo y espero una falta', spot: { x: 90, y: 60 } },
+    ],
+  },
 ];
 
 function BoardSamples() {

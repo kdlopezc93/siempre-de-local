@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { boardIssues, type ExamBoard } from './exam-board.js';
+import { boardIssues, facingWords, visorPath, type ExamBoard } from './exam-board.js';
 
 const BOARD: ExamBoard = {
   view: 'own-half',
@@ -70,5 +70,39 @@ describe('pizarra del examen (Fase 8)', () => {
       'El punto de respuesta 2 tapa a un jugador o al balón (mínimo 10).',
       'El punto de respuesta 3 tapa a un jugador o al balón (mínimo 10).',
     ]);
+  });
+
+  describe('hacia dónde mira', () => {
+    it('va de 0 a 359 grados', () => {
+      const withFacing = (facing: number): ExamBoard => ({
+        ...BOARD,
+        pieces: [{ side: 'own', x: 50, y: 120, facing }],
+      });
+      expect(boardIssues(withFacing(0), 4)).toEqual([]);
+      expect(boardIssues(withFacing(359), 4)).toEqual([]);
+      expect(boardIssues(withFacing(360), 4)).toEqual([
+        'Hacia dónde mira va de 0 a 359 grados (360).',
+      ]);
+      expect(boardIssues(withFacing(Number.NaN), 4)).toHaveLength(1);
+    });
+
+    it('en palabras, en ocho direcciones y según el arco que ataca cada uno', () => {
+      expect(facingWords(0, 'own')).toBe('de cara al arco rival');
+      expect(facingWords(180, 'own')).toBe('de espaldas al arco rival');
+      expect(facingWords(200, 'own')).toBe('de espaldas al arco rival');
+      expect(facingWords(350, 'own')).toBe('de cara al arco rival');
+      expect(facingWords(0, 'rival')).toBe('de espaldas a tu arco');
+      expect(facingWords(180, 'rival')).toBe('de cara a tu arco');
+      expect(facingWords(90, 'rival')).toBe('mirando a la banda derecha');
+      expect(facingWords(315, 'own')).toBe('perfilado hacia el arco rival y la banda izquierda');
+    });
+
+    it('la visera es un arco del lado hacia donde mira', () => {
+      // Mirando al arco rival (arriba): los dos extremos quedan por encima de la ficha.
+      const up = visorPath({ x: 50, y: 100 }, 0);
+      const ys = [...up.matchAll(/[\d.]+,([\d.]+)/g)].map((m) => Number(m[1]));
+      expect(ys.filter((_, i) => i !== 1).every((y) => y < 100)).toBe(true);
+      expect(visorPath({ x: 50, y: 100 }, 180)).toBe('M54.59,103.21 A5.6,5.6 0 0 1 45.41,103.21');
+    });
   });
 });

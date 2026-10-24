@@ -243,7 +243,7 @@ describe('examen de conocimiento', () => {
         ...item,
         board: {
           view: 'own-half' as const,
-          pieces: [{ side: 'rival' as const, x: 60, y: 95, label: '9' }],
+          pieces: [{ side: 'rival' as const, x: 60, y: 95, label: '9', facing: 180 }],
           ball: { x: 30, y: 90 },
           spots: SPOTS,
         },
@@ -257,7 +257,7 @@ describe('examen de conocimiento', () => {
     for (const item of exam.items) {
       expect(item.board).toEqual({
         view: 'own-half',
-        pieces: [{ side: 'rival', x: 60, y: 95, label: '9' }],
+        pieces: [{ side: 'rival', x: 60, y: 95, label: '9', facing: 180 }],
         ball: { x: 30, y: 90 },
       });
       for (const option of item.options) expect(option.spot).toEqual(authored.get(option.label));

@@ -267,8 +267,8 @@ describe('examen de conocimiento', () => {
       board: {
         view: 'own-half',
         pieces: [
-          { side: 'own', x: 50, y: 120, label: '4', you: true },
-          { side: 'rival', x: 60, y: 95, label: '9' },
+          { side: 'own', x: 50, y: 120, label: '4', you: true, facing: 0 },
+          { side: 'rival', x: 60, y: 95, label: '9', facing: 0 },
         ],
         ball: { x: 30, y: 90 },
         arrows: [{ kind: 'pass', from: { x: 30, y: 90 }, to: { x: 60, y: 95 } }],
@@ -289,8 +289,11 @@ describe('examen de conocimiento', () => {
     renderRoutes(`/conocimiento/examen/${EXAM_ID}`);
 
     expect(
-      await screen.findByRole('img', { name: /Pizarra de la jugada: 1 de tu equipo, 1 rivales/ }),
+      await screen.findByRole('img', {
+        name: 'Pizarra de la jugada: 1 de tu equipo, 1 rivales y el balón. Tú (4), de cara al arco rival. El rival 9, de espaldas a tu arco.',
+      }),
     ).toBeInTheDocument();
+    expect(screen.getByText('◠ hacia dónde mira')).toBeInTheDocument();
     // La opción escrita lleva la misma letra que su punto en la cancha.
     expect(screen.getByRole('button', { name: 'Opción 3' })).toHaveTextContent('COpción 3');
     await userEvent.click(screen.getByRole('button', { name: 'Opción B: Opción 2' }));
