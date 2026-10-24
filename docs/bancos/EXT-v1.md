@@ -21,32 +21,32 @@ Recibes en la banda con el lateral rival a tres metros, de frente. ¿Qué haces 
 
 El lateral rival es lento pero te espera bien parado. ¿Qué te conviene?
 
-- [ ] Muchas gambetas en el lugar hasta que se equivoque
-- [ ] Un pase atrás, porque está bien parado
+- [ ] Amagar varias veces en el lugar hasta desacomodarlo
+- [ ] Esperar a que llegue un compañero para hacer la pared
 - [ ] Ir directo contra él para ganarle de cuerpo
 - [x] **Un cambio de ritmo fuerte para sacarle ventaja**
 
-> Si es lento, tu arma es la velocidad: un cambio de ritmo lo deja atrás. Muchas gambetas en el lugar le dan tiempo de reacomodarse y que llegue la ayuda.
+> Si es lento, tu arma es la velocidad: un cambio de ritmo lo deja atrás. Amagar en el lugar le da tiempo de reacomodarse, y esperar la pared deja que llegue su ayuda.
 
 ### EXT-UNO-03 · fácil
 
 Encaras y el lateral se tira al piso a quitarte el balón. ¿Qué haces?
 
 - [x] **Le paso el balón por un costado y sigo**
-- [ ] Freno de golpe y espero que se levante
-- [ ] Salto la entrada y pido falta
+- [ ] Freno de golpe para que se pase de largo
+- [ ] La protejo con el cuerpo y aguanto el contacto
 - [ ] La toco atrás a mi lateral
 
-> Si se tira, ya está en el suelo: un toque al costado lo deja afuera de la jugada. Frenar o esperar le da tiempo para levantarse.
+> Si se tira, ya está en el suelo: un toque al costado lo deja afuera de la jugada. Si frenas o aguantas el contacto, le das tiempo de levantarse o de llevarse el balón con la pierna.
 
 ### EXT-UNO-04 · media
 
-El lateral rival te cierra siempre por fuera y te deja el camino hacia adentro. ¿Qué haces?
+El lateral rival te cierra por fuera y te deja el camino hacia adentro. ¿Qué haces?
 
-- [ ] Insisto por fuera, que es donde mejor centro
+- [ ] Insisto por fuera con un cambio de ritmo
 - [x] **Me meto hacia adentro, donde me deja el espacio**
 - [ ] Freno y espero que cambie de perfil
-- [ ] Le pido el balón al lateral para que suba él
+- [ ] La toco atrás y probamos por el otro lado
 
 > Un defensor que cierra un lado te está mostrando el otro. Insistir donde te espera es pelear su duelo; meterte hacia adentro te abre el pase o el remate.
 
@@ -59,40 +59,40 @@ Encaras y llega un segundo rival a cerrarte: quedas uno contra dos. ¿Qué haces
 - [x] **Suelto el balón al compañero que quedó libre**
 - [ ] Me la llevo hacia la raya para escapar
 
-> Si vienen dos a ti, alguien de tu equipo quedó libre: soltarla a tiempo es aprovechar esa ventaja. Contra dos, la gambeta casi siempre termina en pérdida.
+> Si vienen dos a ti, alguien de tu equipo quedó libre: soltarla a tiempo es aprovechar esa ventaja. Contra dos, la gambeta suele terminar en pérdida.
 
 ### EXT-UNO-06 · media
 
 Recibes de espaldas en la banda con el lateral pegado. ¿Qué buscas?
 
 - [ ] Girar enseguida para encararlo antes de que llegue la ayuda
-- [ ] Tirar un taco hacia el centro
+- [ ] Un taco de primera hacia el volante
 - [ ] Devolverla larga al central
 - [x] **Protegerla y descargar al que llega de frente**
 
-> De espaldas y con marca encima, el giro casi siempre se pierde. Proteger y descargar de cara mantiene el balón y te deja moverte para la devolución.
+> De espaldas y con marca encima, el giro suele perderse, y el taco sin mirar es una lotería. Proteger y descargar de cara mantiene el balón y te deja moverte para la devolución.
 
 ### EXT-UNO-07 · media
 
 Le ganaste al lateral y entras al área por la banda. El central sale a cerrarte. ¿Qué haces?
 
-- [x] **Miro el área antes de decidir**
+- [x] **Levanto la cabeza y busco al que quedó libre**
 - [ ] Intento gambetear también al central
-- [ ] Freno y espero que suba el equipo
-- [ ] Pateo fuerte al arco desde donde esté
+- [ ] Freno y la toco atrás al volante
+- [ ] Remato al primer palo antes de que me cierre
 
-> Si el central sale a la banda, deja libre su zona: ahí suele haber un compañero. Mirar antes de decidir convierte tu gambeta en una ocasión.
+> Si el central sale a la banda, deja libre su zona: ahí suele haber un compañero. Si levantas la cabeza antes de decidir, tu gambeta se convierte en una ocasión. Rematar al primer palo es justo lo que el central viene a tapar.
 
 ### EXT-UNO-08 · media
 
 ¿Cuándo es mejor momento para encarar?
 
 - [ ] Cada vez que recibo, para desgastarlo
-- [x] **Con espacio y sin ayudas cerca**
+- [x] **Cuando tengo espacio y su ayuda está lejos**
 - [ ] Cuando el equipo va perdiendo y hace falta
-- [ ] Cuando el lateral viene corriendo hacia mí
+- [ ] Apenas recibo, sin mirar dónde está su ayuda
 
-> El uno contra uno rinde con espacio y sin ayudas cerca. Encarar cada vez que recibes, o con el defensor lanzado hacia ti, suele terminar en pérdida.
+> El uno contra uno rinde con espacio y sin ayudas cerca. Encarar cada vez que recibes, o sin mirar dónde está su ayuda, suele terminar en un dos contra uno y en pérdida.
 
 ### EXT-UNO-09 · difícil
 
@@ -100,10 +100,10 @@ El lateral rival te anticipa cada vez que te la pasan al pie. ¿Qué cambias?
 
 - [ ] Bajo más a recibir, para alejarme de él
 - [ ] Pido que me la pasen más fuerte
-- [x] **Pido el balón al espacio, a su espalda**
-- [ ] Me quedo quieto para que me la den al pie
+- [x] **Amago bajar y pico a su espalda**
+- [ ] La pido al pie y la toco de primera
 
-> Si te anticipa al pie, está jugando adelantado: su espalda queda libre. Pedirla al espacio usa su agresividad en su contra.
+> Si te anticipa al pie, sale a buscarte apenas bajas: el amago lo hace salir y su espalda queda libre. Así usas su agresividad en su contra.
 
 ### EXT-UNO-10 · difícil
 
@@ -111,7 +111,7 @@ Van ganando 1-0, quedan pocos minutos y recibes en la banda rival con el lateral
 
 - [ ] Lo encaro para buscar el segundo gol
 - [ ] Centro al área por si alguien llega
-- [x] **Lo protejo cerca de la esquina**
+- [x] **Me la llevo a la esquina y la protejo**
 - [ ] Pateo de lejos para terminar la jugada
 
 > Con el resultado a favor y poco tiempo, perderla en la banda rival es darle un contragolpe. Conservarla lejos de tu arco gasta minutos sin riesgo.
@@ -146,7 +146,7 @@ Tu lateral sube por fuera para desdoblar. ¿Qué haces?
 
 - [ ] Sigo pegado a la raya, delante de él
 - [ ] Bajo a mi campo para cubrirlo
-- [x] **Me meto un poco hacia adentro**
+- [x] **Me meto hacia adentro y le dejo la banda**
 - [ ] Voy al área a esperar el centro
 
 > Si los dos ocupan la raya, se estorban. Meterte un poco hacia adentro le deja la banda y te pone entre líneas para recibir.
@@ -178,11 +178,11 @@ Juegas a pierna cambiada (eres zurdo por la derecha). Tu volante tiene el balón
 El balón está en la banda contraria. ¿Dónde te ubicas?
 
 - [ ] Pegado a mi raya, bien abierto
-- [x] **En el segundo palo, listo para llegar**
+- [x] **Cerrado, para llegar al segundo palo**
 - [ ] Bajo al medio a ayudar
 - [ ] Voy a la banda contraria a acompañar la jugada
 
-> Con el balón del otro lado, tu zona es el segundo palo: el centro que viene desde la otra banda suele terminar ahí.
+> Con el balón del otro lado, te cierras para llegar al segundo palo: el centro que viene desde la otra banda suele terminar ahí, y llegando en carrera le ganas al lateral.
 
 ### EXT-DES-07 · media
 
@@ -200,9 +200,9 @@ Tu equipo sale jugando desde atrás y el rival presiona. ¿Qué haces?
 El rival defiende muy cerrado, con todos en su área. ¿Qué te pide el equipo?
 
 - [ ] Meterme al centro para sumar gente
-- [ ] Patear de lejos cada vez que puedo
+- [ ] Patear de lejos para que salgan
 - [ ] Bajar a armar el juego
-- [x] **Mucha amplitud, para estirar la defensa**
+- [x] **Bien abierto, para estirar la defensa**
 
 > Contra un bloque cerrado, el espacio está en las bandas: si estás bien abierto, los defensores se separan y aparecen huecos por dentro.
 
@@ -211,8 +211,8 @@ El rival defiende muy cerrado, con todos en su área. ¿Qué te pide el equipo?
 El lateral rival te sigue a todos lados, aunque bajes a tu campo. ¿Qué haces?
 
 - [x] **Lo arrastro lejos de su zona**
-- [ ] Me quedo quieto para que se canse
-- [ ] Bajo más todavía, a la línea de mis centrales
+- [ ] Me quedo en mi lugar para no desordenar al equipo
+- [ ] Pido que me la tiren larga para ganarle en velocidad
 - [ ] Me voy al otro lado de la cancha
 
 > Si el lateral te sigue, cada metro que bajas es un metro libre a su espalda: tu lateral o el 9 pueden atacarlo.
@@ -247,7 +247,7 @@ El 9 baja a recibir y el central rival lo sigue. ¿Adónde te desmarcas?
 
 Llegas a la línea de fondo con el balón. ¿Qué miras antes de centrar?
 
-- [ ] Solo al arquero
+- [ ] Dónde está parado el arquero
 - [ ] Que el lateral no me tape el centro
 - [x] **Quién llega al área y dónde**
 - [ ] El arco, por si puedo patear
@@ -274,7 +274,7 @@ No hay ningún compañero en el área cuando llegas al fondo. ¿Qué haces?
 - [ ] Pateo al arco sin ángulo
 - [ ] Encaro al lateral otra vez
 
-> Un centro sin nadie adentro casi siempre es del rival. Tocar atrás conserva el balón hasta que el equipo llegue.
+> Un centro sin nadie adentro suele terminar en balón del rival. Tocar atrás conserva el balón hasta que el equipo llegue.
 
 ### EXT-CEN-04 · media
 
@@ -305,7 +305,7 @@ Recibes a 25 metros del arco, por dentro, y el 9 pica a la espalda del central. 
 - [ ] Pateo de lejos, que tengo el arco de frente
 - [ ] Me la llevo hacia la banda para centrar
 - [ ] La toco al volante para que arme
-- [x] **Le doy el pase al espacio**
+- [x] **Le filtro el pase a la espalda del central**
 
 > El pase a la espalda deja al 9 solo frente al arco: es la ocasión más clara. Un remate de 25 metros o volver a la banda la desperdician.
 
@@ -347,7 +347,7 @@ Llegas al fondo: el 9 está marcado al primer palo, el otro extremo llega libre 
 Van perdiendo y el rival se encierra. Tus centros salen todos despejados por el central alto. ¿Qué cambias?
 
 - [ ] Sigo centrando alto, que alguno va a llegar
-- [ ] Centro todavía más fuerte
+- [ ] Centro más fuerte, para que no llegue a cabecear
 - [x] **Busco pases atrás y centros rasos**
 - [ ] Pateo de lejos en vez de centrar
 
@@ -395,22 +395,22 @@ Te metes desde la banda y quedas de frente al arco, a pierna cambiada. ¿Adónde
 Tu compañero patea y el arquero da rebote hacia tu lado. ¿Qué haces?
 
 - [ ] Me quedo abierto en la banda
-- [ ] Vuelvo a mi campo por si contraatacan
-- [ ] Espero que la recoja otro
+- [ ] Me quedo en la puerta del área por si sale rechazada
+- [ ] Me freno a ver si entra
 - [x] **Sigo la jugada hacia el arco**
 
-> Muchos goles de extremo salen de llegar al rebote: el que sigue la jugada llega primero.
+> Muchos goles de extremo salen de llegar al rebote: el que sigue la jugada hacia el arco llega primero. Desde la puerta del área llegas tarde si el rebote queda cerca.
 
 ### EXT-FIN-04 · media
 
-Quedas mano a mano con el arquero, entrando en diagonal desde la banda. ¿Qué haces?
+Quedas mano a mano entrando en diagonal desde la banda, y el arquero se queda parado en su línea. ¿Qué haces?
 
-- [x] **Lo miro y defino según cómo sale**
-- [ ] Pateo fuerte al primer palo, apenas entro
+- [x] **Me acerco y la cruzo lejos de él**
+- [ ] Pateo fuerte apenas entro, desde lejos
+- [ ] La pico por encima de él
 - [ ] Intento eludirlo por fuera, hacia la raya
-- [ ] Freno y espero que llegue el 9
 
-> Mano a mano, el arquero decide si no miras. Mirarlo te dice si conviene cruzarla, picarla o eludirlo.
+> Si el arquero no sale, cada paso que das le achica el arco: de cerca la cruzas lejos de su alcance. Desde lejos tiene tiempo de reaccionar, picarla sin que haya salido se la deja en las manos, y eludirlo hacia la raya te deja sin ángulo.
 
 ### EXT-FIN-05 · media
 
@@ -430,7 +430,7 @@ Juegas a pierna natural (diestro por la derecha) y te meten un pase cruzado al �
 - [ ] Controlo y me la acomodo a la izquierda
 - [ ] Centro atrás para el 9
 - [x] **Le pego de primera al segundo palo**
-- [ ] Pateo fuerte al primer palo, cruzado al revés
+- [ ] Pateo fuerte de primera al primer palo
 
 > Con el pase cruzado, el balón ya viene hacia tu pierna buena: de primera y al segundo palo usas su velocidad. Acomodarla cuesta el tiempo que no tienes.
 
@@ -443,18 +443,18 @@ Te llega un balón largo que pica delante del arquero. ¿Qué haces?
 - [ ] Freno para no chocar con el arquero
 - [x] **Llego antes y la toco suave**
 
-> Con el arquero saliendo, ganar el balón antes es todo: un toque suave lo supera. Esperar o pegarle fuerte con el arquero encima casi nunca sale.
+> Con el arquero saliendo, ganar el balón antes es todo: un toque suave lo supera. Esperar le da tiempo, y pegarle fuerte con el arquero encima suele terminar en su cuerpo.
 
 ### EXT-FIN-08 · media
 
-Ves que el 9 está mejor ubicado que tú dentro del área. ¿Qué haces?
+Entras al área con poco ángulo y ves al 9 solo en el punto de penal. ¿Qué haces?
 
-- [x] **Se la doy al 9**
+- [x] **Se la doy al 9 en el punto de penal**
 - [ ] Pateo igual, desde donde estoy
 - [ ] Gambeteo para mejorar mi ángulo
 - [ ] La aguanto esperando que llegue más gente
 
-> El gol es del equipo: si el 9 tiene una ocasión más clara, el pase vale más que tu remate difícil.
+> El gol es del equipo: con poco ángulo tu remate es difícil, y el 9 solo en el punto de penal tiene la ocasión más clara. Gambetear para mejorar el ángulo le da tiempo a la defensa de cerrarlo.
 
 ### EXT-FIN-09 · difícil
 
@@ -622,7 +622,7 @@ Pierden el balón y el rival que la recoge está cerca de ti. ¿Qué haces?
 
 - [x] **Lo presiono enseguida**
 - [ ] Vuelvo a mi posición
-- [ ] Espero que se equivoque
+- [ ] Retrocedo unos pasos y lo espero
 - [ ] Me tiro al suelo a robarla
 
 > Recién perdida, el rival todavía no está ordenado: el más cercano presiona al instante y puede recuperarla.
@@ -667,7 +667,7 @@ Pierden el balón y estás arriba, lejos de tu lateral. ¿Qué haces?
 - [x] **Vuelvo a mi banda por el camino más corto**
 - [ ] Me quedo arriba por si la recuperan
 - [ ] Presiono al rival más cercano, tenga o no el balón
-- [ ] Troto hacia el medio esperando
+- [ ] Vuelvo trotando, al ritmo del equipo
 
 > Tu banda queda libre para su contragolpe: volver rápido cierra ese espacio y le da ayuda a tu lateral.
 
@@ -676,7 +676,7 @@ Pierden el balón y estás arriba, lejos de tu lateral. ¿Qué haces?
 Recuperan el balón, pero el rival ya está ordenado atrás. ¿Qué haces?
 
 - [ ] Encaro igual en velocidad
-- [x] **Juego simple y armamos el ataque**
+- [x] **Aseguro el pase y armamos el ataque**
 - [ ] Pido un pelotazo a la espalda
 - [ ] Pateo de lejos
 
