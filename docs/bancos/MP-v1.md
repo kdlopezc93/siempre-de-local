@@ -23,8 +23,8 @@ Vas a recibir entre líneas. ¿Qué haces antes de que te llegue el balón?
 
 - [x] **Miro dónde están los rivales y el 9**
 - [ ] Miro solo el balón para controlarlo bien
-- [ ] Corro hacia el balón con la cabeza baja
-- [ ] Me quedo quieto esperándolo
+- [ ] Me acerco al balón para que no me lo anticipen
+- [ ] Miro al compañero que me la va a pasar
 
 > Entre líneas el tiempo es poco: si ya miraste, sabes si girar, tocar de primera o filtrar. Si solo miras el balón, lo decides tarde.
 
@@ -34,14 +34,14 @@ Vas a recibir entre líneas. ¿Qué haces antes de que te llegue el balón?
 
 - [ ] De espaldas al arco, mirando al pasador para no perderla
 - [x] **Perfilado, para girar con el primer control**
-- [ ] De frente al pasador, con los pies juntos
-- [ ] Corriendo hacia mi propio arco
+- [ ] De frente al pasador, para asegurar el control
+- [ ] De costado, mirando hacia la banda
 
 > Perfilado puedes girar con el primer toque y quedar de cara a la defensa. De espaldas, cualquier volante que vuelva te encierra.
 
 ### MP-ENT-04 · media
 
-Recibes entre líneas y el central rival sale fuerte a presionarte. ¿Qué haces?
+Recibes entre líneas, el central rival sale fuerte a presionarte y el 9 arranca hacia el hueco que deja. ¿Qué haces?
 
 - [ ] Me giro para encararlo y ganarle en velocidad
 - [ ] La protejo y espero apoyo
@@ -63,12 +63,12 @@ El pivote rival te sigue a todas partes. ¿Qué haces?
 
 ### MP-ENT-06 · media
 
-Recibes entre líneas, giras y quedas de cara a la defensa. ¿Qué buscas primero?
+Recibes entre líneas, giras y quedas de cara a la defensa. El 9 pica a la espalda de los centrales. ¿Qué haces?
 
-- [x] **El pase a la espalda de la defensa**
-- [ ] Conducir hasta el área para patear más cerca
-- [ ] Patear desde donde estoy
-- [ ] Abrir a la banda
+- [x] **Le doy el pase a la espalda**
+- [ ] Conduzco hasta el área para patear más cerca
+- [ ] Pateo desde donde estoy
+- [ ] La abro a la banda
 
 > De cara a la defensa, el pase a la espalda es el más dañino: deja a un compañero solo frente al arco. Si no está, buscas la siguiente opción.
 
@@ -85,25 +85,25 @@ El rival cierra mucho el centro y no te llega el balón entre líneas. ¿Qué ha
 
 ### MP-ENT-08 · media
 
-Te dan un pase entre líneas, pero viene fuerte y con un rival cerca. ¿Qué haces?
+Te dan un pase entre líneas que viene fuerte, con un rival encima, y tienes a un volante libre de frente. ¿Qué haces?
 
 - [ ] Lo controlo con calma y después decido
 - [ ] Intento girar con el balón
-- [x] **Descargo de primera**
+- [x] **Descargo de primera al volante**
 - [ ] Lo dejo pasar por si llega otro
 
 > Un pase fuerte con un rival cerca no da tiempo de controlar y girar: la descarga de primera mantiene el balón y la jugada.
 
 ### MP-ENT-09 · difícil
 
-Recibes entre líneas y ves que el volante rival vuelve rápido a cerrarte. ¿Qué haces?
+Recibes entre líneas perfilado y con espacio para girar, pero el volante rival vuelve rápido a cerrarte. ¿Qué haces?
 
 - [ ] Espero que llegue para gambetearlo
 - [ ] Freno el balón y lo protejo
 - [ ] La devuelvo hacia atrás
-- [x] **Decido antes de que llegue: giro o pared**
+- [x] **Giro con el primer control, antes de que llegue**
 
-> Entre líneas el espacio dura un segundo: decidir antes de que te cierren es lo que hace útil la recepción.
+> Perfilado y con espacio, girar con el primer control te deja de cara antes de que te cierre. Si esperas o la proteges, el espacio desaparece y solo te queda jugar atrás.
 
 ### MP-ENT-10 · difícil
 
@@ -133,7 +133,7 @@ Tu volante tiene el balón. ¿Dónde te ofreces?
 
 ### MP-ULT-01 · fácil
 
-El 9 pica a la espalda del central y tú tienes el balón de cara. ¿Qué haces?
+El 9 pica a la espalda del central, habilitado, y tú tienes el balón de cara. ¿Qué haces?
 
 - [ ] Le doy el pase al pie
 - [x] **Le doy el pase al espacio**
@@ -144,7 +144,7 @@ El 9 pica a la espalda del central y tú tienes el balón de cara. ¿Qué haces?
 
 ### MP-ULT-02 · fácil
 
-Hay dos compañeros libres: uno en la banda y otro en el área. ¿A quién se la das?
+Hay dos compañeros libres: uno en la banda y otro en el área, con la línea de pase limpia. ¿A quién se la das?
 
 - [ ] Al de la banda, que es más seguro
 - [ ] Me la quedo y sigo yo
@@ -159,10 +159,10 @@ Hay dos compañeros libres: uno en la banda y otro en el área. ¿A quién se la
 
 - [ ] Fuerte, para que no la corten
 - [ ] Suave, para que el compañero la controle sin problema
-- [ ] Lo más fuerte posible
-- [x] **La justa para que llegue antes que el arquero**
+- [ ] Bombeado, para que pase por encima
+- [x] **La justa para dejarla en su carrera**
 
-> Fuerte se va al arquero o afuera; suave la cortan los defensores. La fuerza justa la deja en la carrera de tu compañero.
+> Fuerte se va al arquero o afuera; suave la cortan los defensores, y bombeado tarda y llegan a cerrar. La fuerza justa la deja en la carrera de tu compañero.
 
 ### MP-ULT-04 · media
 
@@ -170,8 +170,8 @@ Tu compañero pica en diagonal a la espalda del lateral. ¿Adónde va el pase?
 
 - [x] **Delante de él, en su carrera**
 - [ ] A sus pies, donde está ahora
-- [ ] Detrás de él, para que frene
-- [ ] Al arco, por si llega
+- [ ] Por dentro, hacia el punto de penal
+- [ ] Largo, para que corra a buscarla
 
 > El pase en profundidad se da donde va a estar, no donde está: delante de su carrera lo recibe sin frenar.
 
@@ -179,7 +179,7 @@ Tu compañero pica en diagonal a la espalda del lateral. ¿Adónde va el pase?
 
 Ves el pase filtrado, pero hay riesgo de que lo corten y el rival contragolpee. Van empatados al principio del partido. ¿Qué haces?
 
-- [ ] Lo intento cada vez, es mi trabajo
+- [ ] Lo intento igual: si sale, es gol
 - [x] **Lo intento si está claramente libre**
 - [ ] No lo intento, es muy arriesgado
 - [ ] Lo intento solo si vamos perdiendo, para no arriesgar
@@ -193,7 +193,7 @@ El extremo encara por fuera y el 9 está marcado en el área. ¿Qué movimiento 
 - [ ] Me meto al área chica con el 9
 - [ ] Voy a la banda a ayudar al extremo
 - [x] **Me ofrezco para el pase atrás**
-- [ ] Me quedo lejos, en el medio
+- [ ] Me quedo en el medio por si la pierden
 
 > Si el 9 está marcado, la puerta del área es la zona del pase atrás: desde ahí llegas de frente y remates cómodo.
 
@@ -221,7 +221,7 @@ Tu 9 es lento pero gana todo de cabeza. ¿Qué último pase le conviene?
 
 ### MP-ULT-09 · difícil
 
-El rival defiende con la línea muy adelantada y presiona alto. ¿Qué pase te conviene buscar?
+El rival defiende con la línea muy adelantada y recibes de cara, con tiempo. ¿Qué pase te conviene buscar?
 
 - [ ] Pases cortos entre líneas
 - [x] **El pase a la espalda de la línea**
@@ -236,8 +236,8 @@ El rival defiende con todos atrás y la línea muy baja. ¿Qué pase te conviene
 
 - [ ] Pases a la espalda de la línea
 - [x] **Pases cortos y rápidos**
-- [ ] Pelotazos al área
-- [ ] Remates de lejos cada vez
+- [ ] Centros altos al área
+- [ ] Remates de lejos, para que salgan
 
 > Con la línea baja, a su espalda no hay espacio. El hueco se abre con pases cortos y rápidos que muevan a los defensores.
 
@@ -269,11 +269,11 @@ Tu equipo va a centrar desde la banda. ¿Dónde llegas?
 
 ### MP-LLE-02 · fácil
 
-Recibes de frente en la puerta del área, con espacio. ¿Qué haces?
+Recibes de frente en la puerta del área, con espacio y el arco a la vista. ¿Qué haces?
 
 - [ ] Me la acomodo para la mejor pierna
 - [ ] Busco un pase más
-- [x] **Pateo**
+- [x] **Remato al arco**
 - [ ] Conduzco hasta el área chica
 
 > De frente y con espacio cerca del área, el remate es la mejor ocasión. Cada toque de más deja cerrar a los defensores.
@@ -309,7 +309,7 @@ Pateas desde fuera del área y el arquero está bien ubicado al centro. ¿Adónd
 - [ ] Arriba, al medio del arco
 - [ ] Al cuerpo, por si da rebote
 
-> Desde lejos, el remate abajo y junto al palo es el más difícil: el arquero tiene que tirarse lejos. Al medio la ataja sin moverse.
+> Desde lejos, el remate abajo y junto al palo suele ser el más difícil: el arquero tiene que tirarse lejos. Al medio la ataja sin moverse.
 
 ### MP-LLE-06 · media
 
@@ -324,14 +324,14 @@ El 9 arrastra a los centrales hacia el primer palo. ¿Qué haces?
 
 ### MP-LLE-07 · media
 
-Quedas mano a mano con el arquero. ¿Qué haces?
+Quedas mano a mano y el arquero sale rápido y se tira al piso antes de tiempo. ¿Qué haces?
 
-- [ ] Pateo fuerte enseguida
-- [ ] Intento gambetearlo
+- [ ] Pateo fuerte, antes de que llegue
+- [ ] La toco al palo, rasa
 - [ ] Espero a que llegue un compañero
-- [x] **Lo miro y decido según cómo sale**
+- [x] **Se la pico por encima**
 
-> Si no miras, decide el arquero. Mirarlo te dice si cruzarla, picarla o eludirlo.
+> Si el arquero se tira antes de tiempo, tapa todo lo raso: la picada le pasa por encima. Fuerte o rasa le pega en el cuerpo, y esperar le da tiempo a la defensa.
 
 ### MP-LLE-08 · media
 
@@ -346,25 +346,25 @@ Hay un rebote en la puerta del área y llegas a la vez que un defensor. ¿Qué h
 
 ### MP-LLE-09 · difícil
 
-El rival marca bien al 9 en el área y tú llegas de segunda línea sin marca. ¿Qué te pide el equipo?
+El rival marca bien al 9 en el área, tú llegas de segunda línea sin marca y el extremo va a centrar. ¿Qué haces?
 
-- [ ] Quedarme atrás para el contragolpe
-- [x] **Llegar al área en el momento justo**
-- [ ] Pedir que el 9 baje a recibir
-- [ ] Ir a la banda a centrar
+- [ ] Me quedo atrás para el contragolpe
+- [x] **Entro al área justo cuando sale el centro**
+- [ ] Le pido al 9 que baje a recibir
+- [ ] Me voy a la banda a ayudar al extremo
 
 > Si el 9 está marcado y tú no, tu llegada es la ocasión: aparecer en el momento justo te deja solo.
 
 ### MP-LLE-10 · difícil
 
-Llegas al área de segunda línea y el defensor te ve. ¿Qué haces?
+Llegas al área de segunda línea y el defensor te ve y corre a tu lado. ¿Qué haces?
 
 - [ ] Sigo corriendo derecho para llegar antes que él
-- [x] **Freno o cambio de dirección**
+- [x] **Freno de golpe para separarme**
 - [ ] Me quedo afuera del área
 - [ ] Pido el balón al pie
 
-> Si el defensor ya te ve, un frenazo o un cambio de dirección te separa: así recibes libre.
+> Si el defensor corre a tu lado, un frenazo lo deja seguir de largo: el pase atrás te encuentra libre. Seguir derecho es llevarlo pegado.
 
 ### MP-PIZ-03 · media
 
@@ -383,7 +383,7 @@ El extremo va a centrar y el 9 arrastra a los centrales al primer palo. ¿Adónd
 
 ### MP-ASO-01 · fácil
 
-Un compañero te pasa el balón y sigue corriendo. ¿Qué haces?
+Un compañero te pasa el balón y sigue corriendo al espacio, a la espalda de su marca. ¿Qué haces?
 
 - [ ] Me la quedo y conduzco
 - [ ] La paso atrás
@@ -399,7 +399,7 @@ Das un pase y quedas libre. ¿Qué haces?
 - [x] **Me vuelvo a ofrecer**
 - [ ] Me quedo en el lugar del pase
 - [ ] Vuelvo a mi campo
-- [ ] Me pego a un rival
+- [ ] Bajo a ayudar en la salida
 
 > Dar el pase no termina tu jugada: moverte le da al compañero otra opción.
 
@@ -453,10 +453,10 @@ Los volantes rivales te marcan muy de cerca. ¿Qué cambias?
 
 - [ ] Intento gambetear más
 - [x] **Juego a uno o dos toques**
-- [ ] Dejo de pedir el balón
-- [ ] Me alejo del juego
+- [ ] Bajo a recibir más atrás, lejos de ellos
+- [ ] Me abro a la banda para recibir solo
 
-> Con marca encima, tocar rápido mueve el balón antes de que lleguen. Gambetear o esconderte le quita al equipo su enlace.
+> Con marca encima, tocar rápido mueve el balón antes de que lleguen. Gambetear con marca encima suele terminar en pérdida, y alejarte le quita al equipo su enlace por dentro.
 
 ### MP-ASO-08 · media
 
@@ -484,9 +484,9 @@ El 9, el extremo y tú están en la misma zona. ¿Qué haces?
 
 El rival marca hombre a hombre en el medio. ¿Qué aprovechas?
 
-- [ ] Que voy a recibir libre cada vez
-- [ ] Que el rival se cansa antes
-- [ ] Que puedo quedarme quieto
+- [ ] Que puedo recibir de espaldas y girar fácil
+- [ ] Que su pivote no puede salir a presionar
+- [ ] Que me conviene quedarme en una zona fija
 - [x] **Que mi movimiento arrastra a mi marca**
 
 > Con marca hombre a hombre, cada vez que te mueves te sigue un rival: así abres espacios para tus compañeros.
@@ -495,11 +495,11 @@ El rival marca hombre a hombre en el medio. ¿Qué aprovechas?
 
 ### MP-PRE-01 · fácil
 
-Tu equipo presiona arriba. ¿A quién vigilas normalmente?
+Tu equipo presiona arriba y el 9 va al central que tiene el balón. ¿A quién vigilas?
 
 - [ ] Al arquero rival
 - [ ] A un lateral rival
-- [ ] Al que tenga el balón
+- [ ] Al otro central
 - [x] **Al pivote rival**
 
 > Con el equipo presionando, el mediapunta tapa al pivote rival: si él recibe libre, la presión entera queda superada.
@@ -520,7 +520,7 @@ Pierden el balón cerca del área rival. ¿Qué haces?
 Tu equipo defiende atrás. ¿Dónde te ubicas?
 
 - [ ] Arriba con el 9, listo para el contragolpe
-- [x] **Delante de mis volantes**
+- [x] **Entre el 9 y mis volantes, tapando el medio**
 - [ ] Dentro de mi área
 - [ ] En una banda
 
@@ -528,7 +528,7 @@ Tu equipo defiende atrás. ¿Dónde te ubicas?
 
 ### MP-PRE-04 · media
 
-El central rival tiene el balón y el pivote rival se ofrece. ¿Qué haces?
+El central rival tiene el balón, tu 9 sale a presionarlo y el pivote rival se ofrece. ¿Qué haces?
 
 - [ ] Voy también al central
 - [ ] Me alejo hacia la banda
@@ -542,11 +542,11 @@ El central rival tiene el balón y el pivote rival se ofrece. ¿Qué haces?
 El pivote rival recibe de espaldas. ¿Qué haces?
 
 - [ ] Lo dejo y vuelvo
-- [ ] Le entro por detrás
+- [ ] Me pego mucho para robarla
 - [ ] Espero a que gire
 - [x] **Lo presiono para que no gire**
 
-> De espaldas no es peligroso si no gira: presionarlo lo obliga a jugar hacia atrás. Entrar por detrás es falta.
+> De espaldas no es peligroso si no gira: presionarlo lo obliga a jugar hacia atrás. Pegarte mucho para robarla suele terminar en falta o en que te gire.
 
 ### MP-PRE-06 · media
 
@@ -564,9 +564,9 @@ El rival te supera en la presión con un pase al pivote. ¿Qué haces?
 Van ganando, quedan quince minutos y estás cansado. ¿Cómo presionas?
 
 - [ ] A todo, como al principio
-- [x] **Elijo los momentos**
+- [x] **Elijo cuándo saltar**
 - [ ] Dejo de presionar
-- [ ] Solo al arquero
+- [ ] Le dejo la presión al 9
 
 > Cansado, presionar todo te deja sin piernas. Elegir los momentos (un mal control, un pase atrás) rinde más con menos.
 
@@ -586,15 +586,15 @@ El rival saca del arco corto. ¿Qué haces?
 El rival sale con tres atrás y su pivote bajo entre ellos. ¿Qué haces?
 
 - [ ] Voy al pivote solo, lejos del 9
-- [ ] Me quedo atrás esperando
+- [ ] Me quedo delante de mis volantes
 - [ ] Marco a uno solo de los centrales
 - [x] **Me paro entre dos de ellos, junto al 9**
 
-> Si el pivote baja entre los centrales, son cuatro contra dos: parados entre ellos, tú y el 9 cierran los pases y los obligan a ir por fuera.
+> Si el pivote baja entre los centrales, salen con cuatro y tú y el 9 son dos: parados entre ellos, cada uno tapa dos pases y los obligan a ir por fuera.
 
 ### MP-PRE-10 · difícil
 
-Tu equipo recupera y el rival contraataca rápido. ¿Qué haces?
+Tu equipo pierde el balón y el rival contraataca rápido por el centro. ¿Qué haces?
 
 - [ ] Me quedo arriba
 - [ ] Corro al balón por el camino más corto
@@ -636,7 +636,7 @@ Tu equipo pierde muchos balones seguidos. ¿Qué haces cuando recibes?
 - [ ] Busco la jugada difícil para cambiar el partido
 - [x] **Juego simple para asegurar el balón**
 - [ ] Pateo de lejos
-- [ ] Me la quedo
+- [ ] La protejo hasta que llegue un apoyo
 
 > Cuando el equipo pierde muchos balones, asegurar la posesión calma el partido y lo ordena.
 
@@ -644,12 +644,12 @@ Tu equipo pierde muchos balones seguidos. ¿Qué haces cuando recibes?
 
 El rival defiende muy cerrado. ¿Qué te pide el equipo?
 
-- [ ] Pases arriesgados cada vez
-- [ ] Remates de lejos cada vez
-- [x] **Paciencia con el balón**
-- [ ] Pelotazos al área
+- [ ] Pases filtrados apenas recibo
+- [ ] Remates de lejos, para que salgan
+- [x] **Mover el balón de lado a lado**
+- [ ] Centros altos al área
 
-> Contra un bloque cerrado, apurarse es perder el balón: la paciencia mueve al rival hasta que aparece el hueco.
+> Contra un bloque cerrado, apurarse es perder el balón: moverlo de lado a lado hace correr al rival hasta que aparece el hueco.
 
 ### MP-LEC-04 · media
 
@@ -712,8 +712,8 @@ El rival hace muchas faltas para cortar tu juego. ¿Qué haces?
 
 - [x] **Toco más rápido**
 - [ ] Busco más las faltas
-- [ ] Dejo de pedir el balón
-- [ ] Me alejo del juego
+- [ ] Bajo a recibir más atrás
+- [ ] Les respondo con más fuerza
 
 > Si cortan con faltas, tocar rápido no les da tiempo: el balón se mueve antes del contacto.
 
