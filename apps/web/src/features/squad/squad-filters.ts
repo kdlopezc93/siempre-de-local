@@ -38,7 +38,7 @@ export function parseFilters(raw: string | null): Set<SquadFilter> {
 export const serializeFilters = (filters: ReadonlySet<SquadFilter>) => [...filters].join(',');
 
 const STATUS: Record<StatusFilter, (p: SquadPlayer) => boolean> = {
-  'por-valorar': (p) => !p.assessedByMe,
+  'por-valorar': (p) => p.canRate && !p.assessedByMe,
   're-evaluacion': (p) => p.knowledge.some((k) => k.review === 'expired'),
   'sin-tarjeta': (p) => !p.card,
   'sin-test': (p) => p.test.status === 'none',

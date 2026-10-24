@@ -77,6 +77,7 @@ describe('lo que toca al cuerpo técnico', () => {
     test: { status: 'none' as const },
     latestAssessment: null,
     assessedByMe: true,
+    canRate: true,
     knowledge: [],
     card: { ratedAt: '2026-10-01T00:00:00Z', positionAverages: {} },
     ...over,

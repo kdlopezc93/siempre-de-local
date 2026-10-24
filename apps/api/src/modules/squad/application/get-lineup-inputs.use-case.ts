@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { LineupInputsResponse } from '@sdl/contracts';
 import { positionAverages, type PositionCode } from '@sdl/domain';
 
-import { can, type Actor } from '../../../shared/authz/policy.js';
+import { can, type Actor, ratableBy } from '../../../shared/authz/policy.js';
 import { ForbiddenError, NotFoundError } from '../../../shared/errors/application-errors.js';
 import {
   ASSESSMENTS_REPOSITORY,
@@ -26,7 +26,6 @@ import {
   TEAM_PLAYERS_QUERY,
   type TeamPlayersQuery,
 } from './ports/squad.ports.js';
-import { assessesIn } from './staff-view.js';
 
 /**
  * Las señales de cada jugador para armar en el celular (02 §9.1). Misma regla a ciegas que
@@ -53,15 +52,16 @@ export class GetLineupInputs {
 
     const players = await this.players.activePlayers(teamId);
     const ids = players.map((p) => p.userId);
-    const [profiles, results, latest, assessedByMe, cards, knowledge] = await Promise.all([
+    const [profiles, results, latest, assessedByMe, cards, knowledge, staff] = await Promise.all([
       this.profiles.profilesOf(players.map((p) => ({ id: p.userId, name: p.name }))),
       this.results.latestByTeam(teamId),
       this.assessments.latestByTeam(teamId),
       this.assessments.assessedBy(actor.userId, teamId),
       this.ratings.latestByTeam(teamId),
       this.knowledge.summaryOf(ids),
+      this.players.activeStaff(teamId),
     ]);
-    const assesses = assessesIn(actor, teamId);
+    const ratable = ratableBy(actor, teamId, staff);
 
     return {
       format: team.format,
@@ -72,7 +72,7 @@ export class GetLineupInputs {
           const assessment = latest.get(player.userId);
           const card = cards.get(player.userId);
           const known = (knowledge.get(player.userId) ?? []).filter((k) => k.pct !== null);
-          const hidden = assesses && !assessedByMe.has(player.userId);
+          const hidden = ratable(player.userId) && !assessedByMe.has(player.userId);
           return {
             playerId: player.userId,
             displayName: profile.displayName,

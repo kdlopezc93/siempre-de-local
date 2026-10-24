@@ -9,6 +9,8 @@ import { Sheet } from '../../shared/ui/Sheet';
 import { initialsOf } from '../../shared/ui/TeamHeader';
 import { Token } from '../../shared/ui/Token';
 import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
+import { whyCannotRate } from '../squad/who-rates';
+import { useSession } from '../auth/use-session';
 import { RATING_OPTIONS, ratingLabel, type RatablePlayer, whoPlayed } from './after-match';
 import styles from './AfterMatch.module.css';
 import {
@@ -56,6 +58,7 @@ export function AfterMatch({
     });
   }, []);
   const guard = useUnsavedChanges(unsaved.size > 0);
+  const myUserId = useSession().data?.user.id;
   const { played, others } = whoPlayed({
     roster,
     lineup: lineup.data ?? null,
@@ -100,6 +103,16 @@ export function AfterMatch({
         <ul className={styles.players}>
           {played.map((p) => {
             const current = byPlayer.get(p.playerId);
+            if (!p.canRate) {
+              return (
+                <FixedRow
+                  key={p.playerId}
+                  player={p}
+                  rating={(current?.rating as MatchRatingValue | undefined) ?? null}
+                  why={whyCannotRate(p.playerId, myUserId)}
+                />
+              );
+            }
             return (
               <RatingRow
                 report={report}
@@ -376,6 +389,28 @@ export function MatchResultView({
         </div>
       )}
     </section>
+  );
+}
+
+/** Alguien a quien no evalúas tú (tú mismo u otro del cuerpo técnico): cómo le fue y por qué. */
+function FixedRow({
+  player,
+  rating,
+  why,
+}: {
+  player: RatablePlayer;
+  rating: MatchRatingValue | null;
+  why: string;
+}) {
+  return (
+    <li className={styles.player}>
+      <div className={styles.playerHead}>
+        <Token text={tokenText(player)} size="sm" />
+        <span className={styles.playerName}>{player.displayName}</span>
+        {rating !== null && <span className={styles.rowStatus}>{ratingLabel(rating)}</span>}
+      </div>
+      <p className={styles.muted}>{why}</p>
+    </li>
   );
 }
 

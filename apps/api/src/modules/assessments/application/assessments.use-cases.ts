@@ -6,7 +6,13 @@ import {
   AUTHORIZATION_READER,
   type AuthorizationReader,
 } from '../../../shared/authz/actor.port.js';
-import { can, type Actor, type TeamPermission } from '../../../shared/authz/policy.js';
+import {
+  can,
+  cannotRateMessage,
+  canRate,
+  type Actor,
+  type TeamPermission,
+} from '../../../shared/authz/policy.js';
 import { ForbiddenError, NotFoundError } from '../../../shared/errors/application-errors.js';
 import {
   ASSESSMENTS_REPOSITORY,
@@ -27,8 +33,13 @@ export class CoachAssessments {
   ): Promise<Assessment> {
     await this.authorize(actor, teamId, 'team.assessments.write');
     const player = await this.memberships.loadMemberships(request.playerId);
-    if (!player.teams.get(teamId)?.includes('player')) {
+    const roles = player.teams.get(teamId) ?? [];
+    if (!roles.includes('player')) {
       throw new NotFoundError('Ese jugador no está en el equipo', 'PLAYER_NOT_IN_TEAM');
+    }
+    const target = { userId: request.playerId, roles };
+    if (!canRate(actor, teamId, target)) {
+      throw new ForbiddenError(cannotRateMessage(actor, target.userId), 'CANNOT_RATE_PLAYER');
     }
     // A ciegas = su primera valoración de este jugador: hasta hacerla, la app no le
     // mostró el test (GetSquad). Las siguientes ya se hacen con el test a la vista.

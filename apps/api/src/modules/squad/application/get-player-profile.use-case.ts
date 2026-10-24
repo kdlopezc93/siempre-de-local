@@ -5,7 +5,7 @@ import {
   AUTHORIZATION_READER,
   type AuthorizationReader,
 } from '../../../shared/authz/actor.port.js';
-import { can, type Actor } from '../../../shared/authz/policy.js';
+import { can, type Actor, ratableBy } from '../../../shared/authz/policy.js';
 import { ForbiddenError, NotFoundError } from '../../../shared/errors/application-errors.js';
 import {
   ASSESSMENTS_REPOSITORY,
@@ -26,7 +26,7 @@ import {
   TEAM_PLAYERS_QUERY,
   type TeamPlayersQuery,
 } from './ports/squad.ports.js';
-import { assessesIn, testView } from './staff-view.js';
+import { testView } from './staff-view.js';
 
 /** Todo lo de un jugador del equipo en una pantalla, para el cuerpo técnico. */
 @Injectable()
@@ -50,23 +50,27 @@ export class GetPlayerProfile {
     const player = (await this.players.activePlayers(teamId)).find((p) => p.userId === playerId);
     if (!player) throw new NotFoundError('Ese jugador no está en el equipo', 'PLAYER_NOT_IN_TEAM');
 
-    const [profiles, results, assessments, assessedByMe, ratings, knowledge] = await Promise.all([
-      this.profiles.profilesOf([{ id: player.userId, name: player.name }]),
-      this.results.latestByTeam(teamId),
-      this.assessments.listByTeam(teamId, playerId),
-      this.assessments.assessedBy(actor.userId, teamId),
-      this.ratings.listByPlayer(teamId, playerId),
-      this.knowledge.ofPlayer(playerId),
-    ]);
+    const [profiles, results, assessments, assessedByMe, ratings, knowledge, staff] =
+      await Promise.all([
+        this.profiles.profilesOf([{ id: player.userId, name: player.name }]),
+        this.results.latestByTeam(teamId),
+        this.assessments.listByTeam(teamId, playerId),
+        this.assessments.assessedBy(actor.userId, teamId),
+        this.ratings.listByPlayer(teamId, playerId),
+        this.knowledge.ofPlayer(playerId),
+        this.players.activeStaff(teamId),
+      ]);
     const result = results.get(playerId);
     const mine = assessedByMe.has(playerId);
-    const view = testView(result, assessesIn(actor, teamId) && !mine);
+    const canRate = ratableBy(actor, teamId, staff)(playerId);
+    const view = testView(result, canRate && !mine);
 
     return {
       player: { ...profiles.get(playerId)!, userId: playerId, jerseyNumber: player.jerseyNumber },
       test: view.status === 'visible' ? { ...view, ranking: result!.ranking } : view,
       assessments,
       assessedByMe: mine,
+      canRate,
       card: ratings[0] ? toPlayerRating(ratings[0]) : null,
       cardCount: ratings.length,
       knowledge,

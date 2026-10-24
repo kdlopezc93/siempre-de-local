@@ -17,11 +17,13 @@ import { PlayerCard } from '../card/PlayerCard';
 import { ratingLabel } from '../matches/after-match';
 import { matchDay } from '../matches/match-view';
 import { usePlayerMatchRatings } from '../matches/use-matches';
+import { useSession } from '../auth/use-session';
 import { useTeam } from '../team-admin/use-invitations';
 import styles from './PlayerProfilePage.module.css';
 import { KnowledgeSection } from './KnowledgeSection';
 import { agreement, bestKnowledge, jerseyHolders, sheetPosition } from './profile-view';
 import { usePlayerProfile, useSetJersey, useSquad } from './use-squad';
+import { whyCannotRate } from './who-rates';
 
 const FOOT = { left: 'Zurdo', right: 'Diestro', both: 'Ambidiestro' } as const;
 const name = (pos: PositionCode) => POSITIONS[pos].name;
@@ -47,6 +49,7 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
   const profile = usePlayerProfile(teamId, playerId);
   // En paralelo con la ficha, no después (se muestra en el resumen).
   const matchRatings = usePlayerMatchRatings(teamId, playerId);
+  const session = useSession();
   const [params, setParams] = useSearchParams();
   const section = sectionFrom(params.get('ver'));
 
@@ -146,7 +149,10 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
         </div>
       </dl>
 
-      {rates && (
+      {rates && !data.canRate && (
+        <p className={styles.muted}>{whyCannotRate(playerId, session.data?.user.id)}</p>
+      )}
+      {rates && data.canRate && (
         <div className={styles.actions}>
           <Link to={`${here}/valorar`} state={{ back: here }} className={styles.primaryLink}>
             {data.assessedByMe ? 'Volver a valorar' : 'Valorar'}

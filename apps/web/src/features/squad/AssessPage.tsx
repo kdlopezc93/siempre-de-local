@@ -7,10 +7,12 @@ import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
 import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
+import { useSession } from '../auth/use-session';
 import { useTeam } from '../team-admin/use-invitations';
 import { useBackTo } from './back';
 import styles from './AssessPage.module.css';
 import { useCreateAssessment, useSquad } from './use-squad';
+import { whyCannotRate } from './who-rates';
 
 const CONFIDENCE = [
   { value: 1, label: 'Muy poca' },
@@ -24,6 +26,7 @@ const CONFIDENCE = [
 export function AssessPage({ teamId, playerId }: { teamId: string; playerId: string }) {
   const team = useTeam(teamId);
   const squad = useSquad(teamId);
+  const session = useSession();
   const create = useCreateAssessment(teamId);
   const navigate = useNavigate();
   const back = useBackTo(`/equipos/${teamId}/plantilla`);
@@ -53,6 +56,14 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
       <Screen className={styles.screen}>
         <BackLink to={back} />
         <p role="alert">Ese jugador no está en la plantilla.</p>
+      </Screen>
+    );
+  }
+  if (!player.canRate) {
+    return (
+      <Screen className={styles.screen}>
+        <BackLink to={back} />
+        <p role="alert">{whyCannotRate(playerId, session.data?.user.id)}</p>
       </Screen>
     );
   }

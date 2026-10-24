@@ -6,7 +6,7 @@ import {
   MatchResponseSchema,
   PlayerMatchRatingsResponseSchema,
 } from '@sdl/contracts';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { createDb, type DbConnection } from '../../../shared/db/client.js';
@@ -247,6 +247,20 @@ describe('partidos: convocar y responder (Fase 7)', () => {
     // Al final no jugó: se le quita.
     const removed = await call('DELETE', `/${match.id}/ratings/${beto.userId}`, coach);
     expect(MatchRatingsResponseSchema.parse(removed.json()).items).toHaveLength(1);
+
+    // Quién valora a quién (04 §2.2): el entrenador que también juega no se evalúa a sí mismo.
+    await connection.db
+      .insert(teamMembership)
+      .values({ teamId, userId: coach.userId, role: 'player', jerseyNumber: 10 });
+    const self = await call('PUT', `/${match.id}/ratings/${coach.userId}`, coach, { rating: 5 });
+    expect(self.statusCode).toBe(403);
+    expect(self.json()).toMatchObject({ error: { code: 'CANNOT_RATE_PLAYER' } });
+    const { roster } = MatchResponseSchema.parse((await call('GET', `/${match.id}`, coach)).json());
+    expect(roster?.find((p) => p.playerId === coach.userId)?.canRate).toBe(false);
+    expect(roster?.find((p) => p.playerId === ana.userId)?.canRate).toBe(true);
+    await connection.db
+      .delete(teamMembership)
+      .where(and(eq(teamMembership.userId, coach.userId), eq(teamMembership.role, 'player')));
 
     // Partido a partido, en la ficha del jugador (cuerpo técnico).
     const history = await call(

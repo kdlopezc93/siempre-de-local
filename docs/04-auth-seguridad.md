@@ -81,6 +81,8 @@ Los admins de club se crean por script al inicio; ellos crean equipos e invitan 
 
 \* Acceso de soporte solo con registro en `audit_log`.
 
+**Quién valora a quién** (tarjeta 0–99, valoración de posición y evaluación del partido; Kevin, 2026-10-24): nadie se valora a sí mismo; el **coach** valora a asistentes y jugadores; el **assistant**, solo a quien no es del cuerpo técnico; al coach no lo valora nadie del equipo. Importa porque alguien del cuerpo técnico puede ser también jugador del equipo. Lo decide `canRate` en `shared/authz/policy.ts` (403 `CANNOT_RATE_PLAYER`), y el API lo dice por jugador (`canRate`) en la plantilla, la ficha y la lista del partido. A quien no puede valorar, su test se le muestra sin más: no hay valoración a ciegas que cuidar.
+
 Decisiones de producto: ver D1, D2 y D8 en `06`.
 
 **Cuidado con el revisor de bancos:** un entrenador que revisa un banco conoce las respuestas. No debe examinarse de esa posición mientras sea revisor, y sus jugadores no deben tener acceso a él. Se registra en `audit_log`.

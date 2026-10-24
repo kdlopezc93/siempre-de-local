@@ -19,6 +19,8 @@ export interface RatablePlayer {
   playerId: string;
   displayName: string;
   jerseyNumber: number | null;
+  /** Si quien mira puede evaluarlo (04 §2.2); si no, la fila solo muestra cómo le fue. */
+  canRate: boolean;
 }
 
 const byJerseyThenName = (a: RatablePlayer, b: RatablePlayer) =>
@@ -52,6 +54,7 @@ export function whoPlayed(input: {
       playerId: p.playerId,
       displayName: p.displayName,
       jerseyNumber: p.jerseyNumber,
+      canRate: p.canRate,
     };
     if (inLineup.has(p.playerId) || rated.has(p.playerId) || added.has(p.playerId)) {
       played.push(entry);
@@ -66,6 +69,8 @@ export function whoPlayed(input: {
         playerId: r.playerId,
         displayName: r.displayName,
         jerseyNumber: r.jerseyNumber,
+        // Ya no está en el equipo: el API igual decide si se le puede quitar.
+        canRate: true,
       });
     }
   }

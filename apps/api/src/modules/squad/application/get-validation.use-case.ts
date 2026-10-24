@@ -13,7 +13,7 @@ import {
   AUTHORIZATION_READER,
   type AuthorizationReader,
 } from '../../../shared/authz/actor.port.js';
-import { can, type Actor } from '../../../shared/authz/policy.js';
+import { can, type Actor, ratableBy } from '../../../shared/authz/policy.js';
 import { ForbiddenError, NotFoundError } from '../../../shared/errors/application-errors.js';
 import {
   ASSESSMENTS_REPOSITORY,
@@ -31,7 +31,6 @@ import {
   TEAM_PLAYERS_QUERY,
   type TeamPlayersQuery,
 } from './ports/squad.ports.js';
-import { assessesIn } from './staff-view.js';
 
 /** Validación interna (02 §11): test vs. valoraciones a ciegas, y conocimiento vs. tarjeta. */
 @Injectable()
@@ -53,15 +52,18 @@ export class GetValidation {
     }
     const ids = (await this.players.activePlayers(teamId)).map((p) => p.userId);
     const active = new Set(ids);
-    const [results, assessments, assessedByMe, cards, knowledge] = await Promise.all([
+    const [results, assessments, assessedByMe, cards, knowledge, staff] = await Promise.all([
       this.results.latestByTeam(teamId),
       this.assessments.listByTeam(teamId),
       this.assessments.assessedBy(actor.userId, teamId),
       this.ratings.latestByTeam(teamId),
       this.knowledge.summaryOf(ids),
+      this.players.activeStaff(teamId),
     ]);
-    // Quien valora solo ve aquí a los jugadores que ya valoró (cuyo test ya puede ver).
-    const visible = (playerId: string) => !assessesIn(actor, teamId) || assessedByMe.has(playerId);
+    // Quien valora solo ve aquí a los jugadores que ya valoró (cuyo test ya puede ver); los
+    // que no puede valorar (él mismo, otro del cuerpo técnico) no destapan nada.
+    const ratable = ratableBy(actor, teamId, staff);
+    const visible = (playerId: string) => !ratable(playerId) || assessedByMe.has(playerId);
 
     const pairs: BlindPair[] = assessments
       .filter((a) => a.blind && active.has(a.playerId) && visible(a.playerId))
