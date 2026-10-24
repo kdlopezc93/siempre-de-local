@@ -1,5 +1,5 @@
 import type { ExamBoardView } from '@sdl/contracts';
-import { BOARD_VIEWBOX } from '@sdl/domain';
+import { BOARD_VIEWBOX, facingWords, visorPath } from '@sdl/domain';
 import { useId } from 'react';
 
 import { PitchLines } from '../../shared/ui/PitchLines';
@@ -16,7 +16,8 @@ const ARROW_DASH = { pass: undefined, run: '2.4 1.6', dribble: '0.6 1.4' } as co
 
 /**
  * La jugada en tiza (Fase 8): los tuyos con O, los rivales con X, el balón y las flechas
- * (pase continuo, desmarque a trazos, conducción punteada). Los puntos de respuesta son
+ * (pase continuo, desmarque a trazos, conducción punteada). Una visera de tiza junto a la
+ * ficha dice hacia dónde mira; para el lector de pantalla va en palabras. Los puntos de respuesta son
  * botones de verdad sobre la cancha; tocar uno es lo mismo que tocar su opción escrita.
  */
 export function ExamBoard({
@@ -36,6 +37,18 @@ export function ExamBoard({
   const [vx, vy, vw, vh] = BOARD_VIEWBOX[board.view];
   const own = board.pieces.filter((p) => p.side === 'own').length;
   const rivals = board.pieces.length - own;
+  const facings = board.pieces.flatMap((p) => {
+    if (p.facing === undefined) return [];
+    const who = p.you
+      ? `Tú${p.label ? ` (${p.label})` : ''}`
+      : p.side === 'own'
+        ? `Tu compañero${p.label ? ` ${p.label}` : ''}`
+        : `${p.label ? `El rival ${p.label}` : 'Un rival'}`;
+    return [`${who}, ${facingWords(p.facing, p.side)}`];
+  });
+  const description =
+    `Pizarra de la jugada: ${own} de tu equipo, ${rivals} rivales${board.ball ? ' y el balón' : ''}.` +
+    (facings.length ? ` ${facings.join('. ')}.` : '');
 
   return (
     <figure className={styles.figure}>
@@ -44,7 +57,7 @@ export function ExamBoard({
           viewBox={`${vx} ${vy} ${vw} ${vh}`}
           className={styles.svg}
           role="img"
-          aria-label={`Pizarra de la jugada: ${own} de tu equipo, ${rivals} rivales${board.ball ? ' y el balón' : ''}.`}
+          aria-label={description}
         >
           <defs>
             <marker
@@ -72,6 +85,16 @@ export function ExamBoard({
               markerEnd={`url(#${markerId})`}
             />
           ))}
+          {board.pieces.map(
+            (p, i) =>
+              p.facing !== undefined && (
+                <path
+                  key={`v${i}`}
+                  d={visorPath(p, p.facing)}
+                  className={p.you ? styles.visorYou : styles.visor}
+                />
+              ),
+          )}
           {board.pieces.map((p, i) =>
             p.side === 'own' ? (
               <g key={i} className={p.you ? styles.you : styles.own}>
@@ -125,6 +148,7 @@ export function ExamBoard({
         <span>X rivales</span>
         {board.pieces.some((p) => p.you) && <span className={styles.legendYou}>● tú</span>}
         {board.ball && <span>• balón</span>}
+        {facings.length > 0 && <span>◠ hacia dónde mira</span>}
       </figcaption>
     </figure>
   );

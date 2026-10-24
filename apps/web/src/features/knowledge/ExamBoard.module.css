@@ -61,6 +61,19 @@
   font-weight: 700;
 }
 
+/* Hacia dónde mira: un arco de tiza del lado al que mira (la visera). */
+.visor,
+.visorYou {
+  fill: none;
+  stroke: var(--sdl-chalk-stroke);
+  stroke-width: 1;
+  stroke-linecap: round;
+}
+
+.visorYou {
+  stroke: var(--sdl-primary);
+}
+
 .ball {
   fill: var(--sdl-chalk-stroke);
 }

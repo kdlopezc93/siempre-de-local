@@ -1,4 +1,4 @@
-import { BOARD_VIEWBOX, type ExamBoard } from '@sdl/domain';
+import { BOARD_VIEWBOX, visorPath, type ExamBoard } from '@sdl/domain';
 
 /**
  * La pizarra de una pregunta como SVG suelto, para la hoja de revisión (Fase 8): los mismos
@@ -39,6 +39,11 @@ export function boardSvg(
     );
   }
   for (const p of board.pieces) {
+    if (p.facing !== undefined) {
+      out.push(
+        `<path d="${visorPath(p, p.facing)}" fill="none" stroke="${p.you ? AMBER : CHALK}" stroke-width="1" stroke-linecap="round"/>`,
+      );
+    }
     if (p.side === 'own') {
       const fill = p.you ? AMBER : BG;
       out.push(

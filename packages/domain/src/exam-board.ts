@@ -14,8 +14,17 @@ export type BoardView = 'full' | 'own-half' | 'rival-half';
 export interface ExamBoard {
   /** Qué parte de la cancha se ve: entera, tu mitad (con tu arco) o la del rival. */
   view: BoardView;
-  /** Los tuyos (O) y los rivales (X); `you` es el jugador que responde (uno como mucho). */
-  pieces: readonly (BoardPoint & { side: 'own' | 'rival'; label?: string; you?: boolean })[];
+  /**
+   * Los tuyos (O) y los rivales (X); `you` es el jugador que responde (uno como mucho).
+   * `facing`: hacia dónde mira, en grados (0 = hacia el arco rival, 90 = a la derecha, 180 =
+   * de espaldas al arco rival); se dibuja como una visera de tiza. Sin `facing`, no se dibuja.
+   */
+  pieces: readonly (BoardPoint & {
+    side: 'own' | 'rival';
+    label?: string;
+    you?: boolean;
+    facing?: number;
+  })[];
   ball?: BoardPoint;
   /** Pase (línea continua), desmarque (punteada) o conducción (ondulada). */
   arrows?: readonly { kind: 'pass' | 'run' | 'dribble'; from: BoardPoint; to: BoardPoint }[];
@@ -40,6 +49,47 @@ export const MIN_SPOT_DISTANCE = 15;
 export const MIN_SPOT_TO_PIECE = 10;
 /** Ni queda cortado por el borde de la vista. */
 const SPOT_INSET = 6;
+
+/** Radio de la visera y cuánto abre (grados a cada lado de hacia dónde mira). */
+const VISOR_RADIUS = 5.6;
+const VISOR_HALF_ANGLE = 55;
+
+/**
+ * La visera de una ficha: un arco de tiza del lado hacia donde mira, como `d` de un `<path>`
+ * de SVG. La usan la app y la hoja de revisión, así se ven iguales.
+ */
+export function visorPath(piece: BoardPoint, facing: number): string {
+  const at = (deg: number) => {
+    const rad = (deg * Math.PI) / 180;
+    const x = piece.x + Math.sin(rad) * VISOR_RADIUS;
+    const y = piece.y - Math.cos(rad) * VISOR_RADIUS;
+    return `${+x.toFixed(2)},${+y.toFixed(2)}`;
+  };
+  const r = VISOR_RADIUS;
+  return `M${at(facing - VISOR_HALF_ANGLE)} A${r},${r} 0 0 1 ${at(facing + VISOR_HALF_ANGLE)}`;
+}
+
+/**
+ * Hacia dónde mira, en palabras (para lectores de pantalla), en ocho direcciones. "De cara" y
+ * "de espaldas" van según el arco que ataca cada uno: los tuyos atacan el de arriba (el rival)
+ * y los rivales, el de abajo (el tuyo). Las bandas se nombran como las ves en la pizarra.
+ */
+export function facingWords(facing: number, side: 'own' | 'rival'): string {
+  const sector = Math.round((((facing % 360) + 360) % 360) / 45) % 8;
+  const up = side === 'own' ? 'de cara al arco rival' : 'de espaldas a tu arco';
+  const down = side === 'own' ? 'de espaldas al arco rival' : 'de cara a tu arco';
+  const words = [
+    up,
+    'perfilado hacia el arco rival y la banda derecha',
+    'mirando a la banda derecha',
+    'perfilado hacia tu arco y la banda derecha',
+    down,
+    'perfilado hacia tu arco y la banda izquierda',
+    'mirando a la banda izquierda',
+    'perfilado hacia el arco rival y la banda izquierda',
+  ];
+  return words[sector]!;
+}
 
 const MAX_PIECES = 22;
 const MAX_LABEL = 3;
@@ -66,6 +116,12 @@ export function boardIssues(board: ExamBoard, optionCount: number): string[] {
       problems.push(`Un jugador queda fuera de la vista (${piece.x}, ${piece.y}).`);
     if (piece.label !== undefined && (!piece.label.trim() || piece.label.length > MAX_LABEL)) {
       problems.push(`La etiqueta "${piece.label}" va de 1 a ${MAX_LABEL} caracteres.`);
+    }
+    if (
+      piece.facing !== undefined &&
+      !(Number.isFinite(piece.facing) && piece.facing >= 0 && piece.facing < 360)
+    ) {
+      problems.push(`Hacia dónde mira va de 0 a 359 grados (${piece.facing}).`);
     }
   }
   if (board.ball && !inView(board.ball)) problems.push('El balón queda fuera de la vista.');

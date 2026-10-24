@@ -70,6 +70,8 @@ export const ExamBoardSchema = z.object({
       side: z.enum(['own', 'rival']),
       label: z.string().max(3).optional(),
       you: z.boolean().optional(),
+      /** Hacia dónde mira, en grados (0 = hacia el arco rival); se dibuja como visera. */
+      facing: z.number().min(0).lt(360).optional(),
     }),
   ),
   ball: BoardPointSchema.optional(),
