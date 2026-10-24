@@ -166,7 +166,7 @@ Empezada el 2026-10-23 por lo que no necesita datos reales. Kevin eligió primer
 | 3 | Publicar v3 después de la revisión (seed, tests) | #83 ✔ |
 | 4 | Preguntas tipo pizarra en el examen: formato, servido y pizarra en la web; se responde tocando en la cancha o en la lista (Kevin, 2026-10-23) | #84 ✔ |
 | 5 | Primeras preguntas de pizarra para DFC y MC (borradores, esperan revisor, D10), con la pizarra en la hoja de revisión | #85 ✔ |
-| 6 | Bancos de las demás posiciones, uno por PR (borradores, esperan revisor, D10): Lateral (64, con 4 de pizarra), y después Delantero centro, Extremo, Pivote, Mediapunta y Portero | #86 ✔ (Lateral), #87 ✔ (Delantero centro), #88 (Extremo), #89 (Pivote), #90 (Mediapunta) |
+| 6 | Bancos de las demás posiciones, uno por PR (borradores, esperan revisor, D10): Lateral (64, con 4 de pizarra), y después Delantero centro, Extremo, Pivote, Mediapunta y Portero | #86 ✔ (Lateral), #87 ✔ (Delantero centro), #88 ✔ (Extremo), #89 ✔ (Pivote), #90 ✔ (Mediapunta), #91 ✔ (Portero); auditorías externas aplicadas en cada uno |
 
 Después, en el orden que se decida: la herramienta de análisis de preguntas. Con datos reales del equipo: afinar pesos y analizar las preguntas.
 
