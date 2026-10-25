@@ -171,6 +171,7 @@ describe('planificador', () => {
       opponent: 'Los Pibes',
       status: 'scheduled',
       open: true,
+      editable: true,
       createdBy: null,
       replies: { yes: 8, no: 1, pending: 0, injured: 0 },
       myReply: null,

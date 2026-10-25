@@ -1,4 +1,5 @@
 import type { Match } from '@sdl/contracts';
+import { matchTally } from '@sdl/domain';
 import { CalendarBlank } from '@phosphor-icons/react/dist/csr/CalendarBlank';
 import { Strategy } from '@phosphor-icons/react/dist/csr/Strategy';
 
@@ -90,6 +91,7 @@ function MatchList({
           </ul>
         )}
       </section>
+      <Tally items={items} />
       {past.length > 0 && (
         <details className={styles.past}>
           <summary>Anteriores ({past.length})</summary>
@@ -103,6 +105,36 @@ function MatchList({
         </details>
       )}
     </>
+  );
+}
+
+/** El balance: ganados, empatados y perdidos entre los jugados, y cuántos se cancelaron. */
+function Tally({ items }: { items: Match[] }) {
+  const tally = matchTally(items);
+  if (tally.played + tally.cancelled === 0) return null;
+  const tiles = [
+    ['Ganados', tally.won],
+    ['Empatados', tally.drawn],
+    ['Perdidos', tally.lost],
+    ['Cancelados', tally.cancelled],
+  ] as const;
+  return (
+    <section aria-labelledby="balance" className={styles.section}>
+      <h2 id="balance" className={styles.sectionTitle}>
+        Balance{' '}
+        <span className={styles.muted}>
+          ({tally.played} {tally.played === 1 ? 'jugado' : 'jugados'})
+        </span>
+      </h2>
+      <dl className={`${styles.counts} ${styles.tally}`}>
+        {tiles.map(([label, value]) => (
+          <div key={label}>
+            <dt>{label}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
   );
 }
 

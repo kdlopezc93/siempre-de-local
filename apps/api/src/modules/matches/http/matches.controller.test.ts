@@ -89,6 +89,7 @@ describe('partidos: convocar y responder (Fase 7)', () => {
       opponent: 'Los Pibes',
       status: 'scheduled',
       open: true,
+      editable: true,
       replies: { yes: 0, no: 0, pending: 2 },
       createdBy: { name: 'coach' },
       published: null,
@@ -138,26 +139,79 @@ describe('partidos: convocar y responder (Fase 7)', () => {
     expect((await call('GET', `/${match.id}`, outsider)).statusCode).toBe(403);
   });
 
-  it('cancelado o ya empezado, queda fijo (D17)', async () => {
+  it('cancelado, queda fijo; empezado, ya no se responde (D17)', async () => {
     const { match } = MatchResponseSchema.parse((await convocar()).json());
     const cancelled = await call('PATCH', `/${match.id}`, coach, { status: 'cancelled' });
     expect(MatchResponseSchema.parse(cancelled.json()).match).toMatchObject({
       status: 'cancelled',
       open: false,
+      editable: false,
     });
     const late = await call('PUT', `/${match.id}/reply`, ana, { reply: 'yes' });
     expect(late.statusCode).toBe(409);
     expect(late.json()).toMatchObject({ error: { code: 'MATCH_CLOSED' } });
 
+    expect((await call('PATCH', `/${match.id}`, coach, { place: 'Otra' })).json()).toMatchObject({
+      error: { code: 'MATCH_CLOSED' },
+    });
+
+    // Uno por jugar no se pasa al pasado.
     const { match: other } = MatchResponseSchema.parse((await convocar()).json());
+    expect(
+      (await call('PATCH', `/${other.id}`, coach, { startsAt: inDays(-1) })).json(),
+    ).toMatchObject({ error: { code: 'MATCH_IN_PAST' } });
     // El partido empezó (se mueve la hora en la base: el API no deja ponerla en el pasado).
     await connection.db
       .update(teamMatch)
       .set({ startsAt: new Date(Date.now() - 60_000) })
       .where(eq(teamMatch.id, other.id));
-    expect((await call('PATCH', `/${other.id}`, coach, { place: 'Otra' })).json()).toMatchObject({
-      error: { code: 'MATCH_CLOSED' },
+    const started = await call('PUT', `/${other.id}/reply`, ana, { reply: 'yes' });
+    expect(started.json()).toMatchObject({ error: { code: 'MATCH_CLOSED' } });
+  });
+
+  it('hasta cargar el resultado, el cuerpo técnico lo corrige o lo cancela aunque ya pasó la hora', async () => {
+    const started = async () => {
+      const { match } = MatchResponseSchema.parse((await convocar()).json());
+      await connection.db
+        .update(teamMatch)
+        .set({ startsAt: new Date(Date.now() - 3_600_000) })
+        .where(eq(teamMatch.id, match.id));
+      return match.id;
+    };
+
+    // Se guardó a la 1:30 a. m. en vez de p. m.: se corrige a otra hora pasada o a una futura.
+    const wrongTime = await started();
+    const earlier = await call('PATCH', `/${wrongTime}`, coach, { startsAt: inDays(-1) });
+    expect(MatchResponseSchema.parse(earlier.json()).match).toMatchObject({
+      open: false,
+      editable: true,
     });
+    const later = await call('PATCH', `/${wrongTime}`, coach, { startsAt: inDays(1) });
+    // A futuro se vuelve a abrir para responder.
+    expect(MatchResponseSchema.parse(later.json()).match).toMatchObject({
+      open: true,
+      editable: true,
+    });
+    expect((await call('PATCH', `/${wrongTime}`, ana, { place: 'Otra' })).statusCode).toBe(403);
+
+    // Se cayó: se cancela aunque ya pasó la hora, y queda cancelado.
+    const fell = await started();
+    const cancelled = await call('PATCH', `/${fell}`, coach, { status: 'cancelled' });
+    expect(MatchResponseSchema.parse(cancelled.json()).match).toMatchObject({
+      status: 'cancelled',
+      editable: false,
+    });
+
+    // Con resultado, queda en la historia: se corrige el resultado, no el partido.
+    const played = await started();
+    await call('PUT', `/${played}/result`, coach, {
+      goalsFor: 1,
+      goalsAgainst: 0,
+      figurePlayerId: null,
+    });
+    const closed = await call('PATCH', `/${played}`, coach, { status: 'cancelled' });
+    expect(closed.statusCode).toBe(409);
+    expect(closed.json()).toMatchObject({ error: { code: 'MATCH_CLOSED' } });
   });
 
   it('después del partido: resultado, figura y evaluaciones (D18)', async () => {

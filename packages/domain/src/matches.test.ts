@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { hasMatchStarted, isMatchOpen, MATCH_RATING_LABELS, replySummary } from './matches.js';
+import {
+  hasMatchStarted,
+  isMatchEditable,
+  isMatchOpen,
+  MATCH_RATING_LABELS,
+  matchTally,
+  replySummary,
+} from './matches.js';
 
 describe('partidos (Fase 7)', () => {
   const startsAt = new Date('2026-11-01T15:00:00Z');
@@ -44,6 +51,31 @@ describe('partidos (Fase 7)', () => {
     expect(
       hasMatchStarted({ status: 'cancelled', startsAt }, new Date('2026-11-05T12:00:00Z')),
     ).toBe(false);
+  });
+
+  it('se corrige o se cancela hasta que tenga resultado, aunque ya haya pasado la hora', () => {
+    expect(isMatchEditable({ status: 'scheduled', hasResult: false })).toBe(true);
+    expect(isMatchEditable({ status: 'scheduled', hasResult: true })).toBe(false);
+    expect(isMatchEditable({ status: 'cancelled', hasResult: false })).toBe(false);
+  });
+
+  it('el balance: ganados, empatados y perdidos entre los jugados; los cancelados aparte', () => {
+    const played = (goalsFor: number, goalsAgainst: number) => ({
+      status: 'scheduled' as const,
+      result: { goalsFor, goalsAgainst },
+    });
+    expect(
+      matchTally([
+        played(3, 1),
+        played(2, 2),
+        played(0, 1),
+        played(1, 0),
+        { status: 'cancelled', result: null },
+        // Programado sin resultado (por jugar o falta cargarlo): no cuenta.
+        { status: 'scheduled', result: null },
+      ]),
+    ).toEqual({ played: 4, won: 2, drawn: 1, lost: 1, cancelled: 1 });
+    expect(matchTally([])).toEqual({ played: 0, won: 0, drawn: 0, lost: 0, cancelled: 0 });
   });
 
   it('la escala de la evaluación va de Flojo a Figura', () => {

@@ -14,6 +14,15 @@ export function isMatchOpen(match: { status: MatchStatus; startsAt: Date }, now:
 }
 
 /**
+ * El cuerpo técnico corrige (fecha, hora, lugar, rival, formato) o cancela el partido mientras
+ * esté programado y no tenga resultado, aunque ya haya pasado la hora (2026-10-25: se guardó a
+ * la 1:30 a. m. en vez de p. m. y no había cómo arreglarlo). Con resultado, queda en la historia.
+ */
+export function isMatchEditable(match: { status: MatchStatus; hasResult: boolean }): boolean {
+  return match.status === 'scheduled' && !match.hasResult;
+}
+
+/**
  * Quién va, quién no, quién todavía no respondió y los lesionados que no respondieron, entre
  * los jugadores activos del equipo.
  */
@@ -56,3 +65,25 @@ export const MATCH_RATING_LABELS: Readonly<Record<MatchRating, string>> = {
   4: 'Muy bien',
   5: 'Figura',
 };
+
+/**
+ * El balance del equipo (2026-10-25): los jugados son los que tienen resultado, y los
+ * cancelados se cuentan aparte para saber cuántos se nos han caído.
+ */
+export function matchTally(
+  matches: readonly {
+    status: MatchStatus;
+    result: { goalsFor: number; goalsAgainst: number } | null;
+  }[],
+): { played: number; won: number; drawn: number; lost: number; cancelled: number } {
+  const tally = { played: 0, won: 0, drawn: 0, lost: 0, cancelled: 0 };
+  for (const m of matches) {
+    if (m.status === 'cancelled') tally.cancelled++;
+    else if (m.result) {
+      tally.played++;
+      const diff = m.result.goalsFor - m.result.goalsAgainst;
+      tally[diff > 0 ? 'won' : diff < 0 ? 'lost' : 'drawn']++;
+    }
+  }
+  return tally;
+}

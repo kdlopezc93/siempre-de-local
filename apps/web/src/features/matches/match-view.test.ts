@@ -11,6 +11,7 @@ const match = (id: string, startsAt: string, open: boolean): Match => ({
   opponent: id,
   status: open ? 'scheduled' : 'cancelled',
   open,
+  editable: open,
   createdBy: null,
   replies: { yes: 0, no: 0, pending: 0, injured: 0 },
   myReply: null,
