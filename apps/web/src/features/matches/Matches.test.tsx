@@ -500,7 +500,7 @@ describe('partidos en la app (Fase 7)', () => {
     ).toBeInTheDocument();
   });
 
-  it('a quien no evalúa (del cuerpo técnico) lo muestra sin las cinco palabras (04 §2.2)', async () => {
+  it('a quien no evalúa (otro asistente) lo muestra sin las cinco palabras (04 §2.2)', async () => {
     const played = match({ open: false, startsAt: future(-1) });
     fakeApi({
       [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
@@ -516,7 +516,7 @@ describe('partidos en la app (Fase 7)', () => {
 
     const ratings = await screen.findByRole('region', { name: 'Cómo jugó cada uno' });
     expect(
-      await within(ratings).findByText('A los del cuerpo técnico los valora el entrenador.'),
+      await within(ratings).findByText('A los asistentes los valora el entrenador.'),
     ).toBeInTheDocument();
     expect(within(ratings).queryByRole('button', { name: 'Muy bien' })).not.toBeInTheDocument();
   });
