@@ -21,6 +21,7 @@ const match = (over: object = {}) => ({
   opponent: 'Los Pibes',
   status: 'scheduled',
   open: true,
+  editable: true,
   createdBy: { id: ME_TWO_TEAMS.user.id, name: 'Kevin' },
   replies: { yes: 3, no: 1, pending: 2, injured: 0 },
   myReply: null,
@@ -89,6 +90,7 @@ describe('partidos en la app (Fase 7)', () => {
               id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fa2',
               opponent: 'Veteranos',
               open: false,
+              editable: false,
               status: 'cancelled',
               startsAt: future(-10),
             }),
@@ -108,6 +110,74 @@ describe('partidos en la app (Fase 7)', () => {
     );
     expect(screen.getByText('Anteriores (1)')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Alineaciones guardadas' })).toBeInTheDocument();
+    // El balance cuenta los cancelados aparte.
+    const balance = screen.getByRole('region', { name: /Balance/ });
+    expect(balance).toHaveTextContent('0 jugados');
+    expect(within(balance).getByText('Cancelados').nextElementSibling).toHaveTextContent('1');
+  });
+
+  it('ya pasó la hora y no tiene resultado: el cuerpo técnico corrige la hora o lo cancela', async () => {
+    const wrong = match({ open: false, startsAt: future(-1) });
+    let patch: { startsAt: string } | undefined;
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: { match: wrong, roster: ROSTER },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/lineups`]: { status: 200, body: { items: [] } },
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}/ratings`]: { status: 200, body: { items: [] } },
+      [`PATCH /api/v1/teams/${TEAM_A}/matches/${M1}`]: (init) => {
+        patch = JSON.parse(init.body as string);
+        return { status: 200, body: { match: wrong, roster: ROSTER } };
+      },
+    });
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+    expect(await screen.findByRole('link', { name: 'Editar el partido' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancelar el partido' })).toBeInTheDocument();
+
+    // Se guardó a la madrugada: se corrige a otra hora del mismo día, aunque ya pasó.
+    renderAt('/e', [
+      {
+        path: '/e',
+        element: <MatchFormPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} />,
+      },
+    ]);
+    const hour = await screen.findByLabelText('Hora');
+    await userEvent.clear(hour);
+    await userEvent.type(hour, '13:30');
+    // La hora en palabras, para no confundir a. m. con p. m.
+    expect(screen.getByText(/^Queda para el .*1:30.*p\.\s?m\./)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+    await vi.waitFor(() => expect(patch).toBeDefined());
+    const sent = new Date(patch!.startsAt);
+    expect([sent.getHours(), sent.getMinutes()]).toEqual([13, 30]);
+  });
+
+  it('con resultado, ya no se edita ni se cancela', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: {
+          match: match({
+            open: false,
+            editable: false,
+            startsAt: future(-1),
+            result: { goalsFor: 1, goalsAgainst: 0, figure: null, at: future(0) },
+          }),
+          roster: ROSTER,
+        },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/lineups`]: { status: 200, body: { items: [] } },
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}/ratings`]: { status: 200, body: { items: [] } },
+    });
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+    expect(await screen.findByRole('region', { name: 'Resultado' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Editar el partido' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Cancelar el partido' })).toBeNull();
   });
 
   it('el jugador responde voy / no voy desde el partido', async () => {
@@ -174,7 +244,10 @@ describe('partidos en la app (Fase 7)', () => {
         patch = JSON.parse(init.body as string);
         return {
           status: 200,
-          body: { match: match({ status: 'cancelled', open: false }), roster: ROSTER },
+          body: {
+            match: match({ status: 'cancelled', open: false, editable: false }),
+            roster: ROSTER,
+          },
         };
       },
     });
@@ -455,6 +528,7 @@ describe('partidos en la app (Fase 7)', () => {
         body: {
           match: match({
             open: false,
+            editable: false,
             startsAt: future(-1),
             myReply: 'yes',
             result: {

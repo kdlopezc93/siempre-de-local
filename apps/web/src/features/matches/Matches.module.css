@@ -165,6 +165,15 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* El balance: las casillas de "Van / No van" en 2 × 2 ("Cancelados" no cabe en cuatro a 360 px). */
+.tally {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.tally dd {
+  font-size: var(--sdl-text-xl);
+}
+
 .people {
   display: flex;
   flex-direction: column;

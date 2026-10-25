@@ -15,7 +15,10 @@ export const CreateMatchRequestSchema = z.object({
   opponent: Text,
 });
 
-/** PATCH /teams/:teamId/matches/:matchId — solo lo que cambia; `cancelled` lo cancela. */
+/**
+ * PATCH /teams/:teamId/matches/:matchId — solo lo que cambia; `cancelled` lo cancela. Mientras no
+ * tenga resultado, aunque ya haya pasado la hora (`editable`).
+ */
 export const UpdateMatchRequestSchema = CreateMatchRequestSchema.extend({
   status: z.literal('cancelled'),
 })
@@ -51,8 +54,10 @@ export const MatchSchema = z.object({
   place: z.string(),
   opponent: z.string(),
   status: MatchStatusSchema,
-  /** Se puede responder, editar y (re)publicar: programado y antes de la hora (D17). */
+  /** Se puede responder y (re)publicar: programado y antes de la hora (D17). */
   open: z.boolean(),
+  /** El cuerpo técnico lo corrige o lo cancela: programado y sin resultado, aunque ya sea la hora. */
+  editable: z.boolean(),
   createdBy: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   /** Cuántos van, no van y faltan, entre los jugadores activos. */
   /** `injured`: lesionados que no respondieron (no cuentan como pendientes). */

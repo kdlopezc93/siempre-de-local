@@ -12,7 +12,7 @@ import type {
   Profile,
   UpdateMatchRequest,
 } from '@sdl/contracts';
-import { hasMatchStarted, isMatchOpen, replySummary } from '@sdl/domain';
+import { hasMatchStarted, isMatchEditable, isMatchOpen, replySummary } from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
 import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
@@ -46,6 +46,8 @@ import {
   type MatchRecord,
 } from './ports/matches.repository.js';
 
+const toEditable = (m: MatchRecord) => ({ status: m.status, hasResult: m.resultAt !== null });
+
 type TeamPlayer = Awaited<ReturnType<TeamPlayersQuery['activePlayers']>>[number];
 
 const byJerseyThenName = (
@@ -56,8 +58,8 @@ const byJerseyThenName = (
   a.displayName.localeCompare(b.displayName, 'es');
 
 /**
- * Partidos (Fase 7): el cuerpo técnico convoca, edita o cancela; cada jugador responde voy /
- * no voy hasta la hora del partido (D17); el equipo lo ve. Después del partido, el resultado y
+ * Partidos (Fase 7): el cuerpo técnico convoca, edita o cancela (hasta cargar el resultado);
+ * cada jugador responde voy / no voy hasta la hora del partido (D17); el equipo lo ve. Después del partido, el resultado y
  * las evaluaciones (D18). El reloj se inyecta (`now`).
  */
 @Injectable()
@@ -142,10 +144,11 @@ export class Matches {
   ) {
     const team = await this.authorize(actor, teamId, 'team.matches.write');
     const record = await this.findOr404(teamId, matchId);
-    this.requireOpen(record, now);
+    this.requireEditable(record);
     if (patch.format) this.requirePlayedFormat(team, patch.format);
     const startsAt = patch.startsAt ? new Date(patch.startsAt) : undefined;
-    if (startsAt && startsAt <= now) {
+    // Uno por jugar no se pasa al pasado; uno que ya pasó sí se corrige a otra hora pasada.
+    if (startsAt && startsAt <= now && isMatchOpen(record, now)) {
       throw new BusinessRuleError('El partido tiene que ser más adelante.', 'MATCH_IN_PAST');
     }
     const changes = Object.fromEntries(
@@ -308,6 +311,7 @@ export class Matches {
         opponent: m.opponent,
         status: m.status,
         open: isMatchOpen(m, now),
+        editable: isMatchEditable(toEditable(m)),
         createdBy: m.createdBy,
         replies: {
           yes: summary.yes.length,
@@ -398,6 +402,17 @@ export class Matches {
     const record = await this.matches.find(teamId, matchId);
     if (!record) throw new NotFoundError('Partido no encontrado', 'MATCH_NOT_FOUND');
     return record;
+  }
+
+  private requireEditable(record: MatchRecord) {
+    if (!isMatchEditable(toEditable(record))) {
+      throw new ConflictError(
+        record.status === 'cancelled'
+          ? 'El partido fue cancelado.'
+          : 'El partido ya tiene resultado: corrige el resultado, no el partido.',
+        'MATCH_CLOSED',
+      );
+    }
   }
 
   private requireOpen(record: MatchRecord, now: Date) {

@@ -115,7 +115,8 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
 
       {staff && <MatchLineups teamId={teamId} match={match} />}
       {roster && !played && <Roster roster={roster} />}
-      {staff && match.open && <StaffActions teamId={teamId} match={match} />}
+      {/* Hasta cargar el resultado, aunque ya pasó la hora: corregir la hora o cancelarlo. */}
+      {staff && match.editable && <StaffActions teamId={teamId} match={match} />}
     </Screen>
   );
 }
@@ -211,7 +212,10 @@ function StaffActions({ teamId, match }: { teamId: string; match: Match }) {
       </button>
       <Sheet open={confirm} onClose={() => setConfirm(false)} title="¿Cancelar el partido?">
         <div className={styles.sheetActions}>
-          <p>El equipo lo verá cancelado y ya no se podrá responder ni editar.</p>
+          <p>
+            El equipo lo verá cancelado y ya no se podrá responder ni editar. Queda en la cuenta de
+            partidos cancelados.
+          </p>
           {update.isError && (
             <p role="alert" className={styles.error}>
               No pudimos cancelarlo. Revisa tu conexión e intenta de nuevo.

@@ -165,6 +165,7 @@ describe('lo que toca: partidos (D16)', () => {
     opponent: id,
     status: 'scheduled' as const,
     open: true,
+    editable: true,
     createdBy: null,
     replies: { yes: 1, no: 0, pending: 3, injured: 0 },
     myReply: null,
@@ -178,7 +179,11 @@ describe('lo que toca: partidos (D16)', () => {
     const matches = [
       m('Pibes', '2026-11-01T15:00:00.000Z'),
       m('Veteranos', '2026-11-08T15:00:00.000Z', { myReply: 'yes' }),
-      m('Cancelado', '2026-11-02T15:00:00.000Z', { open: false, status: 'cancelled' }),
+      m('Cancelado', '2026-11-02T15:00:00.000Z', {
+        open: false,
+        editable: false,
+        status: 'cancelled',
+      }),
       m('Publicado', '2026-11-03T15:00:00.000Z', {
         myReply: 'yes',
         replies: { yes: 1, no: 0, pending: 0, injured: 0 },

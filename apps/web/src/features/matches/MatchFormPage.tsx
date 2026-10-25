@@ -9,7 +9,7 @@ import { Screen } from '../../shared/ui/Screen';
 import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { Segmented } from '../../shared/ui/Segmented';
 import { FORMAT_LABEL } from '../shell/shell-nav';
-import { fromLocalInputs, toLocalInputs } from './match-view';
+import { fromLocalInputs, matchWhen, toLocalInputs } from './match-view';
 import styles from './Matches.module.css';
 import { useCreateMatch, useMatch, useUpdateMatch } from './use-matches';
 
@@ -61,6 +61,8 @@ function EditMatch({
       teamId={teamId}
       matchId={matchId}
       formats={formats}
+      // Ya pasó la hora (sin resultado): se corrige también a otra hora pasada.
+      started={!match.open}
       initial={{
         format: match.format,
         ...toLocalInputs(match.startsAt),
@@ -78,11 +80,13 @@ function MatchForm({
   matchId,
   formats,
   initial,
+  started = false,
 }: {
   teamId: string;
   matchId?: string;
   formats: MatchFormat[];
   initial: Draft;
+  started?: boolean;
 }) {
   const navigate = useNavigate();
   const create = useCreateMatch(teamId);
@@ -93,7 +97,7 @@ function MatchForm({
   const guard = useUnsavedChanges(
     (Object.keys(initial) as (keyof Draft)[]).some((key) => draft[key] !== initial[key]),
   );
-  const ids = { date: useId(), time: useId(), place: useId(), opponent: useId() };
+  const ids = { date: useId(), time: useId(), when: useId(), place: useId(), opponent: useId() };
   const set = (key: keyof Draft) => (e: { target: { value: string } }) =>
     setDraft((d) => ({ ...d, [key]: e.target.value }));
 
@@ -101,7 +105,7 @@ function MatchForm({
     event.preventDefault();
     const startsAt = fromLocalInputs(draft.date, draft.time);
     if (!startsAt) return setInvalid('Pon la fecha y la hora del partido.');
-    if (new Date(startsAt) <= new Date())
+    if (!started && new Date(startsAt) <= new Date())
       return setInvalid('El partido tiene que ser más adelante.');
     if (!draft.opponent.trim()) return setInvalid('Escribe contra quién juegan.');
     if (!draft.place.trim()) return setInvalid('Escribe dónde juegan.');
@@ -119,6 +123,9 @@ function MatchForm({
       },
     });
   }
+
+  // La hora en palabras, para que no se cuele un a. m. por un p. m. (2026-10-25).
+  const when = fromLocalInputs(draft.date, draft.time);
 
   const error =
     invalid ??
@@ -161,6 +168,7 @@ function MatchForm({
               id={ids.date}
               name="date"
               type="date"
+              aria-describedby={ids.when}
               className={styles.input}
               value={draft.date}
               onChange={set('date')}
@@ -174,12 +182,16 @@ function MatchForm({
               id={ids.time}
               name="time"
               type="time"
+              aria-describedby={ids.when}
               className={styles.input}
               value={draft.time}
               onChange={set('time')}
             />
           </div>
         </div>
+        <p id={ids.when} className={styles.muted} aria-live="polite">
+          {when && `Queda para el ${matchWhen(when)}.`}
+        </p>
         <label htmlFor={ids.place} className={styles.label}>
           Lugar
         </label>
