@@ -81,17 +81,17 @@ describe('canRate — quién valora a quién (04 §2.2)', () => {
   const otherAssistant = { userId: 'asis-2', roles: ['assistant', 'player'] as TeamRole[] };
   const otherCoach = { userId: 'coach-2', roles: ['coach', 'player'] as TeamRole[] };
 
-  it('el entrenador valora a jugadores y asistentes, pero no a sí mismo ni a otro entrenador', () => {
+  it('el entrenador valora a todos los demás, pero no a sí mismo', () => {
     expect(canRate(coach, 'team-1', player)).toBe(true);
     expect(canRate(coach, 'team-1', otherAssistant)).toBe(true);
+    expect(canRate(coach, 'team-1', otherCoach)).toBe(true);
     expect(canRate(coach, 'team-1', { userId: 'coach', roles: ['coach', 'player'] })).toBe(false);
-    expect(canRate(coach, 'team-1', otherCoach)).toBe(false);
   });
 
-  it('el asistente valora solo a quien no es del cuerpo técnico', () => {
+  it('el asistente valora a jugadores y al entrenador que juega, no a otros asistentes', () => {
     expect(canRate(assistant, 'team-1', player)).toBe(true);
+    expect(canRate(assistant, 'team-1', otherCoach)).toBe(true);
     expect(canRate(assistant, 'team-1', otherAssistant)).toBe(false);
-    expect(canRate(assistant, 'team-1', otherCoach)).toBe(false);
     expect(canRate(assistant, 'team-1', { userId: 'asis', roles: ['assistant', 'player'] })).toBe(
       false,
     );

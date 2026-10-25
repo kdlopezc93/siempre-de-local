@@ -183,7 +183,7 @@ describe('tarjeta 0–99', () => {
     expect(res.statusCode).toBe(404);
   });
 
-  it('quién valora a quién: nadie a sí mismo y al cuerpo técnico solo el entrenador (04 §2.2)', async () => {
+  it('quién valora a quién: nadie a sí mismo; al entrenador que juega, la asistente (04 §2.2)', async () => {
     // El entrenador y la asistente también juegan.
     await connection.db.insert(teamMembership).values([
       { teamId, userId: coach.userId, role: 'player' },
@@ -195,10 +195,8 @@ describe('tarjeta 0–99', () => {
     };
 
     expect((await rate(coach, OUTFIELD, assistant.userId)).statusCode).toBe(201);
-    expect(await code(await rate(assistant, OUTFIELD, coach.userId))).toEqual({
-      code: 'CANNOT_RATE_PLAYER',
-      message: 'A los del cuerpo técnico los valora el entrenador.',
-    });
+    // Al entrenador que también juega lo valora la asistente (2026-10-25).
+    expect((await rate(assistant, OUTFIELD, coach.userId)).statusCode).toBe(201);
     expect((await code(await rate(assistant, OUTFIELD, assistant.userId))).message).toBe(
       'No puedes valorarte a ti mismo.',
     );
@@ -211,7 +209,7 @@ describe('tarjeta 0–99', () => {
     const canRate = Object.fromEntries(squad.players.map((p) => [p.userId, p.canRate]));
     expect(canRate).toEqual({
       [player.userId]: true,
-      [coach.userId]: false,
+      [coach.userId]: true,
       [assistant.userId]: false,
     });
   });

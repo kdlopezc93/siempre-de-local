@@ -175,7 +175,7 @@ describe('PlayerProfilePage', () => {
     expect(screen.getByRole('link', { name: 'Valorar' })).toBeInTheDocument();
   });
 
-  it('a quien no puede valorar (del cuerpo técnico) no le ofrece valorar ni puntuar', async () => {
+  it('a quien no puede valorar (otro asistente) no le ofrece valorar ni puntuar', async () => {
     fakeApi({
       ...routes({ ...PROFILE, canRate: false }),
       [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: { ...TEAM, myRoles: ['assistant'] } },
@@ -183,7 +183,7 @@ describe('PlayerProfilePage', () => {
     renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
 
     expect(
-      await screen.findByText('A los del cuerpo técnico los valora el entrenador.'),
+      await screen.findByText('A los asistentes los valora el entrenador.'),
     ).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /valorar/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: /Puntuar/ })).not.toBeInTheDocument();

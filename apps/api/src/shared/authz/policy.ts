@@ -69,16 +69,18 @@ export interface RatingTarget {
 
 /**
  * Quién valora a quién (tarjeta 0–99, valoración del cuerpo técnico y evaluación del partido;
- * 04 §2.2). Nadie se valora a sí mismo; el entrenador valora a asistentes y jugadores; el
- * asistente, solo a quien no es del cuerpo técnico; al entrenador no lo valora nadie del
- * equipo. Quien no es del cuerpo técnico no valora (eso ya lo dice `can`).
+ * 04 §2.2). Nadie se valora a sí mismo; el entrenador valora a todos los demás; el asistente, a
+ * todos menos a otros asistentes. Al entrenador que también juega lo valoran los asistentes
+ * (2026-10-25: si no, nadie lo valoraba). Quien no es del cuerpo técnico no valora (eso ya lo
+ * dice `can`).
  */
 export function canRate(actor: Actor, teamId: string, target: RatingTarget): boolean {
   if (actor.userId === target.userId) return false;
-  if (target.roles.includes('coach')) return false;
   const mine = actor.teams.get(teamId) ?? [];
   if (mine.includes('coach')) return true;
-  if (mine.includes('assistant')) return !target.roles.includes('assistant');
+  if (mine.includes('assistant')) {
+    return target.roles.includes('coach') || !target.roles.includes('assistant');
+  }
   return false;
 }
 
@@ -86,7 +88,7 @@ export function canRate(actor: Actor, teamId: string, target: RatingTarget): boo
 export function cannotRateMessage(actor: Actor, targetUserId: string): string {
   return actor.userId === targetUserId
     ? 'No puedes valorarte a ti mismo.'
-    : 'A los del cuerpo técnico los valora el entrenador.';
+    : 'A los asistentes los valora el entrenador.';
 }
 
 /**
