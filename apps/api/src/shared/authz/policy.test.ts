@@ -33,6 +33,7 @@ const MATRIX: [TeamPermission, boolean, boolean, boolean, boolean][] = [
   ['team.assessments.write', false, true, true, false],
   ['team.lineups.write', false, true, true, false],
   ['team.injuries.write', false, true, true, false],
+  ['team.reminders.send', false, true, true, false],
   ['team.attempts.void', false, false, true, true],
   ['team.reevaluations.request', false, false, true, true],
   ['team.players.invite', false, false, true, true],

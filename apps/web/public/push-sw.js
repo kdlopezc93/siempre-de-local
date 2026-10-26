@@ -1,8 +1,8 @@
 /* global self -- corre dentro del service worker */
 /*
  * Avisos de la app (Web Push, Fase 7, D16). El service worker de Workbox importa este archivo.
- * El servidor manda lo mínimo ({ kind, opponent, startsAt, url }); el texto y la hora (en la
- * zona del celular) se arman aquí.
+ * El servidor manda lo mínimo ({ kind, opponent, startsAt, url } de un partido; { kind, team,
+ * url } del recordatorio del test); el texto y la hora (en la zona del celular) se arman aquí.
  */
 const WHEN = new Intl.DateTimeFormat('es-419', {
   weekday: 'short',
@@ -31,8 +31,15 @@ function noticeText(data, when) {
         title: `¡Fuiste la figura contra ${data.opponent}!`,
         body: 'Felicitaciones de tu cuerpo técnico.',
       };
+    case 'test-reminder':
+      return {
+        title: '¿Ya hiciste tu test de posición?',
+        body: `Tu cuerpo técnico de ${data.team} te lo recuerda. Son unos minutos.`,
+      };
     default:
-      return { title: `Novedades del partido: ${data.opponent}`, body: 'Toca para verlas.' };
+      return data.opponent
+        ? { title: `Novedades del partido: ${data.opponent}`, body: 'Toca para verlas.' }
+        : { title: 'Novedades de tu equipo', body: 'Toca para verlas.' };
   }
 }
 
@@ -52,7 +59,7 @@ self.addEventListener('push', (event) => {
       icon: '/pwa-192x192.png',
       badge: '/pwa-64x64.png',
       lang: 'es-419',
-      // Uno por partido y tipo: republicar reemplaza el aviso anterior.
+      // Uno por partido (o pantalla) y tipo: republicar reemplaza el aviso anterior.
       tag: `${data.kind}:${data.url}`,
       data: { url: data.url },
     }),

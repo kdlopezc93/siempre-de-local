@@ -9,12 +9,14 @@ import {
   QuestionnaireResponseSchema,
   SquadResponseSchema,
   TeamMembersResponseSchema,
+  TestReminderResponseSchema,
   ValidationResponseSchema,
 } from '@sdl/contracts';
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { createDb, type DbConnection } from '../../../shared/db/client.js';
+import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
 import { bootApp, TEST_ENV } from '../../../test/app.js';
 import { startMigratedPostgres } from '../../../test/postgres.js';
 import { seedUserWithSession, type SeededUser } from '../../../test/sessions.js';
@@ -193,6 +195,23 @@ describe('plantilla y valoraciones (a ciegas impuesto)', () => {
       ['MCD', false],
       ['DFC', true],
     ]);
+  });
+
+  it('el cuerpo técnico les recuerda el test solo a los que no lo han hecho', async () => {
+    const notify = vi.spyOn(app.get<Notifier>(NOTIFIER, { strict: false }), 'notifyUsers');
+    const res = await call('POST', `/teams/${teamId}/test-reminders`, assistant);
+    expect(res.statusCode).toBe(200);
+    expect(TestReminderResponseSchema.parse(res.json())).toEqual({ reminded: 1 });
+    expect(notify).toHaveBeenCalledExactlyOnceWith([untested.userId], {
+      kind: 'test-reminder',
+      team: expect.any(String),
+      opponent: expect.any(String),
+      url: `/equipos/${teamId}/test`,
+    });
+    notify.mockRestore();
+    // El admin del club ve la plantilla, pero no avisa; los jugadores, tampoco.
+    expect((await call('POST', `/teams/${teamId}/test-reminders`, owner)).statusCode).toBe(403);
+    expect((await call('POST', `/teams/${teamId}/test-reminders`, tested)).statusCode).toBe(403);
   });
 
   it('jugadores y gente de fuera no ven la plantilla ni valoran', async () => {

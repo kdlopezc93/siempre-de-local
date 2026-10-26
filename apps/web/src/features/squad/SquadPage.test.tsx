@@ -118,6 +118,49 @@ describe('SquadPage', () => {
     expect(screen.queryByRole('link', { name: /Tarjeta de/ })).toBeNull();
   });
 
+  it('con el filtro "Sin test", el cuerpo técnico se lo recuerda a los que faltan', async () => {
+    const untested = {
+      ...SQUAD,
+      players: SQUAD.players.map((p) =>
+        p.userId === ANA ? { ...p, test: { status: 'none' } } : p,
+      ),
+    };
+    let sent = false;
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
+      [`GET /api/v1/teams/${TEAM_ID}/squad`]: { status: 200, body: untested },
+      [`POST /api/v1/teams/${TEAM_ID}/test-reminders`]: () => {
+        sent = true;
+        return { status: 200, body: { reminded: 1 } };
+      },
+    });
+    renderAt(`/equipos/${TEAM_ID}/plantilla?filtro=sin-test`);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Recordarles el test' }));
+    expect(
+      await screen.findByText(/Le llega un aviso al celular al que no lo ha hecho/),
+    ).toBeVisible();
+    await userEvent.click(screen.getByRole('button', { name: 'Sí, recordarles' }));
+    expect(await screen.findByText('Listo: se lo recordamos a 1 jugador.')).toBeInTheDocument();
+    expect(sent).toBe(true);
+  });
+
+  it('sin el filtro, o para el admin del club, no aparece el recordatorio', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: { ...TEAM, myRoles: [] } },
+      [`GET /api/v1/teams/${TEAM_ID}/squad`]: {
+        status: 200,
+        body: {
+          ...SQUAD,
+          players: SQUAD.players.map((p) => ({ ...p, test: { status: 'none' } })),
+        },
+      },
+    });
+    renderAt(`/equipos/${TEAM_ID}/plantilla?filtro=sin-test`);
+    expect(await screen.findByText('2 jugadores')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Recordarles el test' })).toBeNull();
+  });
+
   it('filtros y búsqueda viven en la URL (los enlaces del inicio llegan filtrados)', async () => {
     fakeApi({
       [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },

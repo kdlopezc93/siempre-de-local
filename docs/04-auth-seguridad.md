@@ -68,6 +68,7 @@ Los admins de club se crean por script al inicio; ellos crean equipos e invitan 
 | Crear/editar alineaciones | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Convocar, editar o cancelar partidos (`team.matches.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Marcar o desmarcar lesionados (`team.injuries.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
+| Recordarles el test a los que no lo han hecho (`team.reminders.send`) | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Responder voy / no voy | ✔ propio | – | – | – | – |
 | Ver quién respondió qué | ✘ (solo cuántos) | ✔ | ✔ | ✔ | ✘ |
 | Cargar el resultado y la figura del partido (`team.matches.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |

@@ -132,3 +132,11 @@ export const TeamMembersResponseSchema = z.object({
   ),
 });
 export type TeamMembersResponse = z.infer<typeof TeamMembersResponseSchema>;
+
+/**
+ * POST /api/v1/teams/:teamId/test-reminders — el cuerpo técnico les recuerda el test a los
+ * jugadores activos que no lo han hecho; `reminded`: a cuántos (el aviso llega a los que lo
+ * activaron en el celular).
+ */
+export const TestReminderResponseSchema = z.object({ reminded: z.int() });
+export type TestReminderResponse = z.infer<typeof TestReminderResponseSchema>;

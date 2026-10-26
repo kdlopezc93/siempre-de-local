@@ -1,7 +1,12 @@
 import type { CreateAssessmentRequest, SetInjuryRequest } from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { createAssessment, fetchPlayerProfile, fetchSquad } from '../../shared/api/squad';
+import {
+  createAssessment,
+  fetchPlayerProfile,
+  fetchSquad,
+  sendTestReminder,
+} from '../../shared/api/squad';
 import { downloadTeamExport } from '../../shared/api/team-data';
 import { setInjury, updateMember } from '../../shared/api/teams';
 import { saveFile } from '../../shared/save-file';
@@ -27,6 +32,11 @@ export function useCreateAssessment(teamId: string) {
     mutationFn: (request: CreateAssessmentRequest) => createAssessment(teamId, request),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['team', teamId] }),
   });
+}
+
+/** Recordarles el test a los que no lo han hecho: un aviso al celular (cuerpo técnico). */
+export function useRemindTest(teamId: string) {
+  return useMutation({ mutationFn: () => sendTestReminder(teamId) });
 }
 
 /** Descarga la plantilla en CSV (coach y admin del club). */
