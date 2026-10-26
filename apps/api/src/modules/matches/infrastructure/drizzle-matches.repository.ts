@@ -1,11 +1,12 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { MatchRatingValue, MatchReply } from '@sdl/contracts';
-import { and, asc, desc, eq, inArray, ne } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, inArray, ne } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 
 import type { DbConnection } from '../../../shared/db/client.js';
 import { DB_CONNECTION } from '../../../shared/db/db.module.js';
 import { user } from '../../identity/infrastructure/schema.js';
+import type { OpenMatchesQuery } from '../../teams/application/ports/open-matches.query.js';
 import type {
   MatchesRepository,
   MatchRecord,
@@ -18,7 +19,7 @@ const rater = alias(user, 'rater');
 const player = alias(user, 'player');
 
 @Injectable()
-export class DrizzleMatchesRepository implements MatchesRepository {
+export class DrizzleMatchesRepository implements MatchesRepository, OpenMatchesQuery {
   constructor(@Inject(DB_CONNECTION) private readonly connection: DbConnection) {}
 
   private select() {
@@ -81,6 +82,21 @@ export class DrizzleMatchesRepository implements MatchesRepository {
       .where(eq(teamMatch.teamId, teamId))
       .orderBy(asc(teamMatch.startsAt));
     return rows.map((row) => this.toRecord(row));
+  }
+
+  /** OpenMatchesQuery (para la invitación): programados que todavía no empiezan (D17). */
+  async openMatches(teamId: string, now: Date) {
+    return this.connection.db
+      .select({ id: teamMatch.id, opponent: teamMatch.opponent, startsAt: teamMatch.startsAt })
+      .from(teamMatch)
+      .where(
+        and(
+          eq(teamMatch.teamId, teamId),
+          eq(teamMatch.status, 'scheduled'),
+          gt(teamMatch.startsAt, now),
+        ),
+      )
+      .orderBy(asc(teamMatch.startsAt));
   }
 
   async update(
