@@ -81,6 +81,7 @@ El porqué de cada elección, y por qué no las alternativas, está en `01-arqui
 | `05-api.md` | Contrato REST v1. |
 | `06-roadmap.md` | Fases, pendientes heredados, decisiones abiertas. |
 | `07-experiencia.md` | Auditoría de experiencia, nueva estructura de navegación y plan de la Fase 6. |
+| `08-ecosistema.md` | Borrador (2026-10-26): visión de ecosistema de módulos deportivos y escuelas deportivas; sin decidir. |
 | `prototipo/` | Código del prototipo (`detector-posicion.jsx`, `panel-resultados.jsx`) y `traspaso-proyecto.md`. Referencia de comportamiento, no se copia tal cual. |
 
 ## 7. Glosario
