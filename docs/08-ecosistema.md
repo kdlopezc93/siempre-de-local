@@ -69,6 +69,10 @@ Página pública del equipo o escuela, buscar rival para amistosos, compartir la
 4. **Plata de por medio.** Cobrar mensualidades dentro de la app exige pasarela de pago y otras obligaciones; registrar quién pagó (sin cobrar en la app) es mucho más simple para empezar.
 5. **Orden.** Qué segmento primero: seguir puliendo el equipo de barrio (que ya lo usa) o abrir una escuela piloto.
 
+## 5b. Monetización
+
+Estudio de mercado y alternativas en `09-estudio-mercado.md` (2026-10-27). En corto: gratis para el equipo de barrio (ingresos por alianzas y patrocinio local, sin publicidad); plan por escuela con precio por deportista, donde la **evaluación** es lo que diferencia y justifica el precio; comisión por pagos solo si una escuela pide cobrar en la app.
+
 ## 6. Próximo paso
 
 Revisar las ideas una por una, con alcance y forma de ejecución, y ordenarlas en fases en `06`.
