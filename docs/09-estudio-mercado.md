@@ -110,7 +110,7 @@ Cada una con cómo funciona, cuánto podría dar, qué tan bien encaja con la ap
 
 ## 7. Cómo validar antes de cobrar
 
-1. **Entrevistar 5–10 dueños o directores de escuelas** en Bogotá: qué usan hoy (Excel, WhatsApp, GOLAPP…), cuánto pagan, qué les duele (cartera, asistencia, papás), y si un informe de progreso del niño les ayudaría a retener alumnos o subir la mensualidad.
+1. **Entrevistar 5–10 dueños o directores de escuelas** en Bogotá (guía completa en `10-entrevistas-escuelas.md`): qué usan hoy (Excel, WhatsApp, GOLAPP…), cuánto pagan, qué les duele (cartera, asistencia, papás), y si un informe de progreso del niño les ayudaría a retener alumnos o subir la mensualidad.
 2. **Mostrar la evaluación** (test, examen, tarjeta) y preguntar cuánto pagarían por ella sola.
 3. **Pedir la cifra oficial** de escuelas y deportistas a la Federación, Difútbol o el Ministerio del Deporte.
 4. **Hablar con un confeccionista** de uniformes y con una aseguradora (o easycancha) sobre comisión por referidos.
