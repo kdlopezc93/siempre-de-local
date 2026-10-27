@@ -119,3 +119,26 @@ Revisar las ideas una por una, con alcance y forma de ejecución, y ordenarlas e
 La identidad actual ("pizarra táctica": verde de cancha oscuro, acento ámbar o dorado, letra condensada en mayúsculas, aros de tiza) **se ve hecha con IA**: Kevin encontró un video de análisis táctico en Instagram, editado con IA, con una identidad casi idéntica. Es la estética que hoy repiten las herramientas de IA para cualquier cosa de fútbol, y no distingue a la app ante equipos ni escuelas.
 
 **Decisión:** rehacer la identidad antes de que la app salga a más equipos y escuelas (etapas 3 y 5). Proceso en la sección de identidad del roadmap (`06`).
+
+**Decisión (2026-10-27, Kevin):** se adopta el design system **"Escuelas Deportivas"** que hizo un amigo diseñador de Kevin (artifact `https://claude.ai/artifact/9D5UCbUAS6p4iFaT7KwiFt`): lienzo gris frío con tarjetas blancas, **cobalto** `#3155E8` como primario y **volt** `#D4F34A` como energía, tinta `#14161C`, paleta por deporte, Plus Jakarta Sans para la interfaz y Space Grotesk para las cifras, iconos de línea (Lucide), tarjetas muy redondeadas, una tarjeta de color protagonista por pantalla, barra inferior flotante y canchas dibujadas para siete deportes (SportField). Se conservan el nombre y el modo oscuro. Sin el prototipo de direcciones propias.
+
+**Lo que hay que completarle antes de aplicarlo:** tema oscuro (solo trae claro), los tres registros de voz (solo trae el de entrenador), coma decimal colombiana ("4,5 h", no "4.5 h"), iconos y fuentes servidos desde la app (la PWA funciona sin conexión: nada desde CDN), contraste de `text-muted` (2,6:1) y de volt como texto, y la regla de menores para rankings y comparaciones.
+
+### Lo que trae el demo de DeporBogota (escuela de fútbol)
+
+Recorrido de administrador y de jugador, útil para las etapas 5–7:
+
+| Pantalla | Qué hace | Dónde encaja |
+|---|---|---|
+| Panel de la escuela | Asistencia semanal (%), jugadores activos, pagos pendientes, sesiones de hoy | Etapa 7 (administrativo) |
+| Tomar asistencia | Lista por grupo con chulo por jugador, desde la cancha: "Guardar asistencia (6/7)" | El mismo patrón de "¿Quién vino?" (etapa 1) y de los entrenos |
+| Jugadores | Directorio por categoría con el estado de la mensualidad (Al día · Pendiente · Vencido) | Etapas 5 y 7 |
+| Ficha del jugador | Asistencia, partidos y goles; última evaluación por métricas; datos del acudiente; mensualidad | Etapas 5–7 |
+| Registrar desempeño | El profe elige una métrica (precisión de pases, definición, resistencia, velocidad), anota intentos y exitosos y un comentario; el jugador lo ve en su app | **Etapa 6**: una forma simple de pruebas de campo |
+| Agenda | Semana con entrenos y partidos de liga | Entrenos (más adelante) y "Mi torneo" |
+| Pagos | Recaudo del mes, por cobrar y recordatorios a acudientes | Etapa 2 (cobros) y 7 |
+| Jugador: inicio | Entreno de hoy con "Confirmar asistencia", meta semanal de horas, racha, próximo partido, temporada (partidos, goles, asistencias), logros | Etapas 1 y 6 |
+| Jugador: estadísticas y ranking | Minutos, habilidades, comparación con su grupo, ranking mensual de la categoría | Etapa 6, **con la regla de menores**: para niños, progreso propio y no tabla de posiciones |
+| Jugador: perfil | Datos, acudiente y pago de la mensualidad por PSE | Etapa 7 (pasarela, decisión 4) |
+
+Ideas nuevas que salen de ahí: **racha y logros**, **meta semanal**, **registrar desempeño con intentos y exitosos**.
