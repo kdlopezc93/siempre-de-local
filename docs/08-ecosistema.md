@@ -57,6 +57,7 @@ Página pública del equipo o escuela, buscar rival para amistosos, compartir la
 ## 4. Cómo encaja con lo que ya hay
 
 - **La arquitectura aguanta:** el API ya es un **monolito modular** (ADR) con módulos que se hablan por puertos. Cada módulo nuevo es un módulo más; no hace falta pasar a microservicios.
+- **Regla para crecer (2026-10-26):** módulos separados desde ya, **un solo despliegue**. Un módulo se saca a su propio servicio solo con una razón concreta: aislar pagos (aunque lo normal es una pasarela externa, sin procesar tarjetas), trabajos pesados (informes, video; se corren en un proceso aparte con el mismo código) u otro equipo de desarrollo dueño de ese módulo. "Ecosistema" es del producto, no de cuántos programas se despliegan.
 - **El modelo ya es multi-club** (D3): falta el nivel de **categoría o grupo**, la **sede** y los **roles** nuevos.
 - **Activar módulos por organización** es lo que permite cobrar por planes sin tener apps distintas.
 
