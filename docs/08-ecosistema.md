@@ -72,3 +72,16 @@ Página pública del equipo o escuela, buscar rival para amistosos, compartir la
 ## 6. Próximo paso
 
 Revisar las ideas una por una, con alcance y forma de ejecución, y ordenarlas en fases en `06`.
+
+## 7. Revisión de ideas, una por una (2026-10-26 y 27, Kevin)
+
+| # | Idea | Decisión |
+|---|---|---|
+| 1 | Goles, asistencias y tarjetas | **Sí.** Los carga el cuerpo técnico en "después del partido", eligiendo de "quién vino". Cada gol con asistencia opcional; autogol del rival aparte. Tabla de goleadores y asistidores para **todo el equipo**; los números de cada uno en su perfil. **Tarjetas** amarillas y rojas: se anotan y se muestran; la suspensión la marca a mano el cuerpo técnico (reglas automáticas, con el módulo de torneo). Sin minutos jugados |
+| 2 | Figura votada por los compañeros | **Descartada** |
+| 3 | Entrenos con convocatoria y asistencia | **Más adelante** (después del MVP de lo prioritario). La asistencia a partidos sale antes con "quién vino" |
+| — | **"¿Quién vino?"** (salió de usar la app el 2026-10-25) | **Sí, va primero.** Desde la hora del partido, el cuerpo técnico y el tesorero marcan quién vino: arranca con los que dijeron "voy"; se agrega al que llegó sin confirmar y se quita al que no apareció; se corrige sin plazo. Manda en todo lo de después: la vaca, goles y tarjetas, evaluaciones (reemplaza "Agregar a otro que jugó"). Da el % de asistencia a partidos. El voy / no voy sigue cerrando a la hora |
+| 4 + 5 | La vaca y las cuotas → **cobros** | **Sí.** Un cobro es de un partido o suelto (uniformes, inscripción a un torneo, cuota). Se le cobra a quien se elija (los que vinieron, todos o algunos a mano); un total que se reparte o un valor por persona, con ajuste por persona. **Patrocinios:** la parte de un jugador la asume otro (o varios, o "el equipo"); la deuda queda en quien patrocina y el patrocinado ve "pagada"; quién patrocinó solo lo ven tesorero y cuerpo técnico. Casilla **"cobrarles también a los que dijeron 'voy' y no vinieron"** (recuerda la última elección). **El cobro nunca se crea solo:** los partidos del campeonato no se cobran. Se paga por fuera (Nequi, Daviplata, efectivo): el jugador toca "Ya pagué" y el tesorero confirma; sin pasarela. **Quién debe** lo ven el tesorero y el cuerpo técnico; cada jugador, lo suyo. Recordatorio a los que deben y saldo del equipo. Cuotas que se repiten cada mes, más adelante |
+| — | **Rol de tesorero** | **Sí.** Lo asigna el entrenador o el admin del club; puede ser un jugador. Maneja cobros, confirma pagos y marca "quién vino". No arma alineaciones ni evalúa. Mientras no exista el módulo de roles, se nombra desde la ficha del integrante |
+
+**Orden que sale de aquí:** "quién vino" → goles, asistencias y tarjetas → cobros (3 PRs: cobros y pagos; patrocinios y ajustes; recordatorio y saldo).
