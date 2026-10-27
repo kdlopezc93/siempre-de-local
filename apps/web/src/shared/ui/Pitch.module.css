@@ -5,6 +5,14 @@
   margin-inline: auto;
 }
 
+.turf {
+  fill: var(--sdl-field);
+}
+
+.stripe {
+  fill: var(--sdl-field-stripe);
+}
+
 .lines {
   fill: none;
   stroke: var(--sdl-pitch-stroke);
@@ -16,22 +24,22 @@
 }
 
 .dot {
-  fill: var(--sdl-surface-selected);
+  fill: var(--sdl-surface);
   stroke: var(--sdl-pitch-stroke);
   stroke-width: 1;
 }
 
 .number {
   fill: var(--sdl-fg-muted);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: 6px;
   font-weight: 600;
   text-anchor: middle;
 }
 
-/* 2.ª y 3.ª del podio: aro de tiza ámbar. */
+/* 2.ª y 3.ª del podio: aro volt (sobre el pasto, lo destacado va en volt). */
 .podium .dot {
-  stroke: var(--sdl-primary);
+  stroke: var(--sdl-field-accent);
   stroke-width: 1.4;
 }
 
@@ -39,26 +47,26 @@
   fill: var(--sdl-fg);
 }
 
-/* Modo plantilla: con jugadores, ámbar relleno; huecos, aro ámbar punteado. */
+/* Modo plantilla: con jugadores, volt relleno; huecos, aro volt punteado sobre el pasto. */
 .filled .dot {
-  fill: var(--sdl-primary);
-  stroke: var(--sdl-primary);
+  fill: var(--sdl-field-accent);
+  stroke: var(--sdl-field-accent);
 }
 
 .filled .code {
-  fill: var(--sdl-on-primary);
+  fill: var(--sdl-on-field-accent);
 }
 
 .gap .dot {
-  fill: var(--sdl-surface);
-  stroke: var(--sdl-primary);
+  fill: none;
+  stroke: var(--sdl-field-accent);
   stroke-width: 1;
   stroke-dasharray: 2 1.6;
 }
 
 .gap .code,
 .gap .name {
-  fill: var(--sdl-primary);
+  fill: var(--sdl-field-accent);
 }
 
 .code {
@@ -69,26 +77,26 @@
 }
 
 .name {
-  fill: var(--sdl-fg);
+  fill: var(--sdl-on-field);
   font-family: var(--sdl-font-body);
   font-size: 3.6px;
   font-weight: 600;
   text-anchor: middle;
 }
 
-/* La primera: rellena de ámbar, con un halo que respira. */
+/* La primera: rellena de volt, con un halo que respira. */
 .first .dot {
-  fill: var(--sdl-primary);
-  stroke: var(--sdl-primary);
+  fill: var(--sdl-field-accent);
+  stroke: var(--sdl-field-accent);
 }
 
 .first .number {
-  fill: var(--sdl-on-primary);
+  fill: var(--sdl-on-field-accent);
 }
 
 .halo {
   fill: none;
-  stroke: var(--sdl-primary);
+  stroke: var(--sdl-field-accent);
   stroke-width: 1;
   opacity: 0.5;
   transform-box: fill-box;

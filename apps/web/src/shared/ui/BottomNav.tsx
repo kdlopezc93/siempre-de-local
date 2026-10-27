@@ -14,7 +14,8 @@ export interface NavItem {
 /**
  * La barra de abajo: las pestañas principales del rol en el equipo activo (máximo 5), con
  * icono y nombre. La activa (`current`, el `to` de su pestaña: una pestaña cubre varias
- * pantallas) se rellena y lleva el punto ámbar del icono de la app.
+ * pantallas) va en una píldora volt con su nombre; las demás muestran solo el icono (el nombre
+ * queda para el lector de pantalla). La barra es de tinta y flota sobre el contenido.
  */
 export function BottomNav({
   items,
@@ -29,10 +30,10 @@ export function BottomNav({
         {items.map(({ to, label, icon: Glyph, badge }) => {
           const active = to === current;
           return (
-            <li key={to}>
+            <li key={to} className={active ? styles.current : undefined}>
               <Link to={to} className={styles.item} aria-current={active ? 'page' : undefined}>
                 <span className={styles.icon}>
-                  <Glyph size={24} weight={active ? 'fill' : 'regular'} aria-hidden="true" />
+                  <Glyph size={22} weight={active ? 'fill' : 'regular'} aria-hidden="true" />
                   {badge ? (
                     <span className={styles.badge}>
                       {badge > 9 ? '9+' : badge}
@@ -40,7 +41,7 @@ export function BottomNav({
                     </span>
                   ) : null}
                 </span>
-                <span className={styles.label}>{label}</span>
+                <span className={active ? styles.label : 'sr-only'}>{label}</span>
               </Link>
             </li>
           );

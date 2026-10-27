@@ -1,7 +1,7 @@
 import styles from './SectionTabs.module.css';
 
 /**
- * Secciones de una pantalla larga ("Resumen · Tarjeta · Conocimiento"): subrayadas en ámbar,
+ * Secciones de una pantalla larga ("Resumen · Tarjeta · Conocimiento"): subrayadas en cobalto,
  * se deslizan de lado si no caben. Botones con `aria-pressed`; quien las usa guarda la
  * elegida en la URL.
  */

@@ -158,8 +158,9 @@ export default defineConfig(({ mode }) => {
           scope: '/',
           display: 'standalone',
           orientation: 'portrait',
-          background_color: '#0b140f',
-          theme_color: '#0b140f',
+          // El manifiesto admite un solo color: el lienzo claro (el oscuro lo da theme-color en index.html).
+          background_color: '#f5f6f8',
+          theme_color: '#f5f6f8',
           icons: [
             { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
             { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },

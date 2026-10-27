@@ -72,7 +72,7 @@ export function AccountPage({ me }: { me: Me }) {
         <ul className={styles.teams}>
           {me.teams.map(({ team, club, roles, jerseyNumber }) => (
             <li key={team.id} className={styles.team}>
-              <Token text={initialsOf(team.name)} tone="amber" size="sm" />
+              <Token text={initialsOf(team.name)} tone="brand" size="sm" />
               <div className={styles.teamText}>
                 <p className={styles.teamName}>
                   {team.name} <span className={styles.muted}>({club.name})</span>

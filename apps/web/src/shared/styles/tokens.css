@@ -1,81 +1,133 @@
 /*
- * Tokens del sistema de diseño v2, "pizarra táctica" (docs/design-system.md).
+ * Tokens de Siempre de Local (docs/design-system.md, v3 "Escuelas Deportivas", 2026-10-27).
  * Los componentes usan los roles semánticos (--sdl-fg, --sdl-primary…), nunca hex sueltos.
- * Contraste de cada pareja medido en §3.3.
+ * Claro por defecto; oscuro con el sistema del celular (prefers-color-scheme) o con
+ * data-theme="dark" en <html>. Los contrastes los vigila contrast.test.ts.
  */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* Paleta base (§3.1) */
-  --sdl-color-bg: #0b140f;
-  --sdl-color-bg-glow: #12241a;
-  --sdl-color-surface: #13241b;
-  --sdl-color-surface-hover: #172b20;
-  --sdl-color-surface-selected: #1b3125;
-  --sdl-color-line: #2a4a38;
-  --sdl-color-border-strong: #4f8468;
-  --sdl-color-pitch-line: #3a6b52;
-  --sdl-color-chalk: #eef1ea;
-  --sdl-color-dim: #9db3a4;
-  --sdl-color-accent: #e8b84b;
-  --sdl-color-accent-hover: #f0c661;
-  --sdl-color-on-accent: #0b140f;
-  --sdl-color-on-accent-muted: #4a3a12;
-  --sdl-color-green: #4cc38a;
-  --sdl-color-blue: #6cb4ee;
-  --sdl-color-coral: #f2836b;
-  --sdl-color-red: #e5555a;
-  --sdl-color-red-text: #ef6b6f;
-  --sdl-color-scrim: rgb(4 9 6 / 72%);
+  /* Paleta base del sistema (§3.1) */
+  --sdl-color-ink-900: #14161c;
+  --sdl-color-ink-700: #2e323d;
+  --sdl-color-ink-500: #5f6573;
+  --sdl-color-ink-400: #7f8592;
+  --sdl-color-ink-300: #c9cdd4;
+  --sdl-color-ink-200: #e4e6ea;
+  --sdl-color-ink-100: #eef0f3;
+  --sdl-color-ink-50: #f5f6f8;
+  --sdl-color-white: #ffffff;
+  --sdl-color-cobalt-600: #2440c4;
+  --sdl-color-cobalt-500: #3155e8;
+  --sdl-color-cobalt-300: #8fa4f5;
+  --sdl-color-cobalt-200: #a9baf8;
+  --sdl-color-cobalt-100: #e3e9fd;
+  --sdl-color-volt-600: #b8da25;
+  --sdl-color-volt-500: #d4f34a;
+  --sdl-color-sun-500: #ffd84d;
+  --sdl-color-coral-500: #ff6b57;
+  --sdl-color-aqua-500: #3cc8c9;
+  --sdl-color-lilac-500: #9b82ee;
+  --sdl-color-orange-500: #ff8a3d;
+  --sdl-color-grass-600: #2a7356;
+  --sdl-color-success-700: #0f7443;
+  --sdl-color-danger-600: #c81d33;
+  --sdl-color-attack-600: #c93d28;
+  --sdl-color-field: #2b733b;
+  --sdl-color-field-line: #ffffff;
   /* Fondo del logo de Google: exigido por sus directrices de marca. */
   --sdl-color-google-badge: #ffffff;
 
-  /* Roles semánticos (§3.2) */
-  --sdl-bg: var(--sdl-color-bg);
-  --sdl-fg: var(--sdl-color-chalk);
-  --sdl-fg-muted: var(--sdl-color-dim);
-  --sdl-surface: var(--sdl-color-surface);
-  --sdl-surface-hover: var(--sdl-color-surface-hover);
-  --sdl-surface-selected: var(--sdl-color-surface-selected);
-  --sdl-surface-raised: var(--sdl-color-surface-selected);
-  --sdl-border: var(--sdl-color-line);
-  --sdl-border-control: var(--sdl-color-border-strong);
-  --sdl-primary: var(--sdl-color-accent);
-  --sdl-primary-hover: var(--sdl-color-accent-hover);
-  --sdl-on-primary: var(--sdl-color-on-accent);
-  --sdl-on-primary-muted: var(--sdl-color-on-accent-muted);
-  --sdl-focus-ring: var(--sdl-color-accent);
-  --sdl-success: var(--sdl-color-green);
-  --sdl-info: var(--sdl-color-blue);
-  --sdl-danger: var(--sdl-color-red);
-  --sdl-danger-fg: var(--sdl-color-red-text);
-  --sdl-scrim: var(--sdl-color-scrim);
-  --sdl-chalk-stroke: var(--sdl-color-chalk);
-  --sdl-pitch-stroke: var(--sdl-color-pitch-line);
+  /* Oscuro: diseñado para este sistema (no trae uno); misma tinta, cobalto aclarado. */
+  --sdl-color-night-950: #0d0f14;
+  --sdl-color-night-900: #171a22;
+  --sdl-color-night-850: #1d212b;
+  --sdl-color-night-800: #232835;
+  --sdl-color-night-700: #2f3545;
+  --sdl-color-night-500: #6b7386;
+  --sdl-color-fog-300: #a3aab9;
+  --sdl-color-fog-50: #f2f4f8;
+  --sdl-color-success-300: #4fd18f;
+  --sdl-color-danger-300: #ff7b88;
+  --sdl-color-attack-300: #ff8b7a;
+  --sdl-color-field-dark: #245c30;
+
+  /* Roles semánticos, claro (§3.2) */
+  --sdl-bg: var(--sdl-color-ink-50);
+  --sdl-fg: var(--sdl-color-ink-900);
+  --sdl-fg-muted: var(--sdl-color-ink-500);
+  --sdl-surface: var(--sdl-color-white);
+  --sdl-surface-hover: var(--sdl-color-ink-100);
+  --sdl-surface-selected: var(--sdl-color-ink-100);
+  --sdl-surface-raised: var(--sdl-color-ink-100);
+  --sdl-border: var(--sdl-color-ink-200);
+  --sdl-border-control: var(--sdl-color-ink-400);
+  /* Cobalto: botón principal, la tarjeta protagonista, pestaña activa, foco, enlaces. */
+  --sdl-primary: var(--sdl-color-cobalt-500);
+  --sdl-primary-hover: var(--sdl-color-cobalt-600);
+  --sdl-on-primary: var(--sdl-color-white);
+  --sdl-on-primary-muted: var(--sdl-color-cobalt-100);
+  /* El relleno de marca (bloque protagonista y botón principal): cobalto intenso en los dos
+     temas; --sdl-primary en oscuro se aclara porque también es color de texto y enlaces. */
+  --sdl-brand: var(--sdl-color-cobalt-500);
+  --sdl-brand-hover: var(--sdl-color-cobalt-600);
+  --sdl-on-brand: var(--sdl-color-white);
+  --sdl-on-brand-muted: var(--sdl-color-cobalt-100);
+  /* Volt: energía (la pestaña activa de la barra, rachas, destacados). Texto encima: tinta. */
+  --sdl-accent: var(--sdl-color-volt-500);
+  --sdl-accent-hover: var(--sdl-color-volt-600);
+  --sdl-on-accent: var(--sdl-color-ink-900);
+  /* Tinta: la barra de abajo, tarjetas oscuras y los botones de "comprometer" (pagar). */
+  --sdl-inverse: var(--sdl-color-ink-900);
+  --sdl-on-inverse: var(--sdl-color-white);
+  --sdl-on-inverse-muted: var(--sdl-color-ink-300);
+  --sdl-focus-ring: var(--sdl-color-cobalt-500);
+  --sdl-success: var(--sdl-color-success-700);
+  --sdl-info: var(--sdl-color-cobalt-500);
+  --sdl-danger: var(--sdl-color-danger-600);
+  --sdl-danger-fg: var(--sdl-color-danger-600);
+  --sdl-on-danger: var(--sdl-color-white);
+  --sdl-scrim: rgb(20 22 28 / 48%);
+  /* La cancha (SportField): pasto plano con franjas de corte, líneas y texto blancos; lo
+     destacado sobre el pasto va en volt (el cobalto casi no se distingue del verde). */
+  --sdl-field: var(--sdl-color-field);
+  --sdl-field-stripe: rgb(255 255 255 / 6%);
+  --sdl-on-field: var(--sdl-color-field-line);
+  --sdl-field-accent: var(--sdl-color-volt-500);
+  --sdl-on-field-accent: var(--sdl-color-ink-900);
+  --sdl-pitch-stroke: var(--sdl-color-field-line);
+  --sdl-chalk-stroke: var(--sdl-color-field-line);
 
   /* Línea de cada posición: el aro de las fichas (§9.2). Nunca es la única pista. */
-  --sdl-line-portero: var(--sdl-color-chalk);
-  --sdl-line-defensa: var(--sdl-color-blue);
-  --sdl-line-medio: var(--sdl-color-green);
-  --sdl-line-ataque: var(--sdl-color-coral);
+  --sdl-line-portero: var(--sdl-color-ink-900);
+  --sdl-line-defensa: var(--sdl-color-cobalt-500);
+  --sdl-line-medio: var(--sdl-color-grass-600);
+  --sdl-line-ataque: var(--sdl-color-attack-600);
   /* Lesionado: la crucecita de la ficha (2026-10-24). */
-  --sdl-injured: var(--sdl-color-coral);
+  --sdl-injured: var(--sdl-color-attack-600);
 
-  /* Tipografía (§4) */
-  --sdl-font-display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
-  --sdl-font-body: 'Barlow', system-ui, sans-serif;
+  /* Sombras: tinta con poca opacidad; el brillo de color solo bajo cobalto. */
+  --sdl-shadow-card: 0 1px 2px rgb(20 22 28 / 4%), 0 4px 14px rgb(20 22 28 / 5%);
+  --sdl-shadow-raised: 0 2px 6px rgb(20 22 28 / 6%), 0 10px 24px rgb(20 22 28 / 8%);
+  --sdl-shadow-float: 0 8px 24px rgb(20 22 28 / 18%), 0 2px 6px rgb(20 22 28 / 10%);
+  --sdl-shadow-brand: 0 10px 24px rgb(49 85 232 / 28%);
+
+  /* Tipografía (§4): Plus Jakarta Sans para la interfaz, Space Grotesk para las cifras. */
+  --sdl-font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --sdl-font-body: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --sdl-font-numeric: 'Space Grotesk', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   --sdl-text-xs: 12px;
   --sdl-text-sm: 14px;
   --sdl-text-base: 16px;
-  --sdl-text-lg: 18px;
-  --sdl-text-xl: clamp(22px, 6vw, 28px);
-  --sdl-text-display: clamp(36px, 10vw, 56px);
-  --sdl-text-number: clamp(48px, 15vw, 72px);
+  --sdl-text-lg: 17px;
+  --sdl-text-xl: clamp(21px, 5.6vw, 24px);
+  --sdl-text-display: clamp(28px, 8vw, 36px);
+  --sdl-text-number: clamp(44px, 13vw, 64px);
   --sdl-leading-body: 1.5;
-  --sdl-leading-display: 0.95;
-  --sdl-tracking-display: -0.005em;
-  --sdl-tracking-button: 0.02em;
-  --sdl-tracking-eyebrow: 0.04em;
+  --sdl-leading-display: 1.1;
+  --sdl-tracking-display: -0.02em;
+  --sdl-tracking-button: 0;
+  --sdl-tracking-eyebrow: 0.08em;
 
   /* Espaciado: escala de 4px (§5) */
   --sdl-space-1: 4px;
@@ -87,37 +139,120 @@
   --sdl-space-8: 32px;
   --sdl-space-10: 40px;
   --sdl-space-14: 56px;
-  --sdl-gutter: 16px;
+  --sdl-gutter: 20px;
   --sdl-content-max: 560px;
 
-  /* Forma (§5) */
+  /* Forma (§5): radios generosos; píldora para botones, chips y la barra. */
   --sdl-stroke: 1.5px;
-  --sdl-radius-sm: 10px;
-  --sdl-radius-md: 14px;
-  --sdl-radius-lg: 20px;
+  --sdl-radius-sm: 12px;
+  --sdl-radius-md: 16px;
+  --sdl-radius-lg: 22px;
+  --sdl-radius-xl: 28px;
+  --sdl-radius-2xl: 32px;
   --sdl-radius-pill: 999px;
 
   /* Armazón (§9.1) */
   --sdl-header-height: 56px;
+  /* La barra flota 12px sobre el borde: el contenido deja ese espacio de más. */
   --sdl-nav-height: 64px;
+  --sdl-nav-inset: 12px;
   --sdl-icon-sm: 18px;
-  --sdl-icon-md: 24px;
+  --sdl-icon-md: 22px;
 
   /* Interacción (§6) */
   --sdl-touch-min: 48px;
   --sdl-focus-width: 2px;
   --sdl-focus-offset: 3px;
+  --sdl-press-scale: 0.97;
 
   /* Movimiento (§7) */
-  --sdl-duration-fast: 160ms;
-  --sdl-duration-base: 240ms;
-  --sdl-duration-enter: 450ms;
+  --sdl-duration-fast: 120ms;
+  --sdl-duration-base: 200ms;
+  --sdl-duration-enter: 320ms;
   --sdl-duration-sheet: 320ms;
-  --sdl-duration-exit: 200ms;
-  --sdl-ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --sdl-duration-exit: 160ms;
+  --sdl-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --sdl-ease-in: cubic-bezier(0.4, 0, 1, 1);
   /* Como un resorte suave: llega rápido y se asienta. */
   --sdl-ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* Oscuro: los mismos roles con los valores de noche. Dos veces: el sistema del celular y la
+   elección explícita (data-theme), para que cualquiera de los dos gane en ambos sentidos. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --sdl-bg: var(--sdl-color-night-950);
+    --sdl-fg: var(--sdl-color-fog-50);
+    --sdl-fg-muted: var(--sdl-color-fog-300);
+    --sdl-surface: var(--sdl-color-night-900);
+    --sdl-surface-hover: var(--sdl-color-night-850);
+    --sdl-surface-selected: var(--sdl-color-night-800);
+    --sdl-surface-raised: var(--sdl-color-night-800);
+    --sdl-border: var(--sdl-color-night-700);
+    --sdl-border-control: var(--sdl-color-night-500);
+    --sdl-primary: var(--sdl-color-cobalt-300);
+    --sdl-primary-hover: var(--sdl-color-cobalt-200);
+    --sdl-on-primary: var(--sdl-color-ink-900);
+    --sdl-on-primary-muted: var(--sdl-color-ink-700);
+    --sdl-inverse: var(--sdl-color-night-800);
+    --sdl-on-inverse: var(--sdl-color-fog-50);
+    --sdl-on-inverse-muted: var(--sdl-color-fog-300);
+    --sdl-focus-ring: var(--sdl-color-cobalt-300);
+    --sdl-success: var(--sdl-color-success-300);
+    --sdl-info: var(--sdl-color-cobalt-300);
+    --sdl-danger: var(--sdl-color-danger-300);
+    --sdl-danger-fg: var(--sdl-color-danger-300);
+    --sdl-on-danger: var(--sdl-color-ink-900);
+    --sdl-scrim: rgb(0 0 0 / 60%);
+    --sdl-field: var(--sdl-color-field-dark);
+    --sdl-line-portero: var(--sdl-color-fog-50);
+    --sdl-line-defensa: var(--sdl-color-cobalt-300);
+    --sdl-line-medio: var(--sdl-color-aqua-500);
+    --sdl-line-ataque: var(--sdl-color-attack-300);
+    --sdl-injured: var(--sdl-color-attack-300);
+    --sdl-shadow-card: 0 0 0 1px var(--sdl-color-night-700);
+    --sdl-shadow-raised: 0 0 0 1px var(--sdl-color-night-700), 0 10px 24px rgb(0 0 0 / 40%);
+    --sdl-shadow-float: 0 0 0 1px var(--sdl-color-night-700), 0 8px 24px rgb(0 0 0 / 50%);
+    --sdl-shadow-brand: none;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --sdl-bg: var(--sdl-color-night-950);
+  --sdl-fg: var(--sdl-color-fog-50);
+  --sdl-fg-muted: var(--sdl-color-fog-300);
+  --sdl-surface: var(--sdl-color-night-900);
+  --sdl-surface-hover: var(--sdl-color-night-850);
+  --sdl-surface-selected: var(--sdl-color-night-800);
+  --sdl-surface-raised: var(--sdl-color-night-800);
+  --sdl-border: var(--sdl-color-night-700);
+  --sdl-border-control: var(--sdl-color-night-500);
+  --sdl-primary: var(--sdl-color-cobalt-300);
+  --sdl-primary-hover: var(--sdl-color-cobalt-200);
+  --sdl-on-primary: var(--sdl-color-ink-900);
+  --sdl-on-primary-muted: var(--sdl-color-ink-700);
+  --sdl-inverse: var(--sdl-color-night-800);
+  --sdl-on-inverse: var(--sdl-color-fog-50);
+  --sdl-on-inverse-muted: var(--sdl-color-fog-300);
+  --sdl-focus-ring: var(--sdl-color-cobalt-300);
+  --sdl-success: var(--sdl-color-success-300);
+  --sdl-info: var(--sdl-color-cobalt-300);
+  --sdl-danger: var(--sdl-color-danger-300);
+  --sdl-danger-fg: var(--sdl-color-danger-300);
+  --sdl-on-danger: var(--sdl-color-ink-900);
+  --sdl-scrim: rgb(0 0 0 / 60%);
+  --sdl-field: var(--sdl-color-field-dark);
+  --sdl-line-portero: var(--sdl-color-fog-50);
+  --sdl-line-defensa: var(--sdl-color-cobalt-300);
+  --sdl-line-medio: var(--sdl-color-aqua-500);
+  --sdl-line-ataque: var(--sdl-color-attack-300);
+  --sdl-injured: var(--sdl-color-attack-300);
+  --sdl-shadow-card: 0 0 0 1px var(--sdl-color-night-700);
+  --sdl-shadow-raised: 0 0 0 1px var(--sdl-color-night-700), 0 10px 24px rgb(0 0 0 / 40%);
+  --sdl-shadow-float: 0 0 0 1px var(--sdl-color-night-700), 0 8px 24px rgb(0 0 0 / 50%);
+  --sdl-shadow-brand: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

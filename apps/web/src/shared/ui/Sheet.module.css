@@ -31,7 +31,7 @@
   width: 100%;
   max-width: var(--sdl-content-max);
   max-height: 85dvh;
-  border-radius: var(--sdl-radius-lg) var(--sdl-radius-lg) 0 0;
+  border-radius: var(--sdl-radius-2xl) var(--sdl-radius-2xl) 0 0;
   background: var(--sdl-surface);
   padding-bottom: env(safe-area-inset-bottom);
   transform: translateY(var(--drag));

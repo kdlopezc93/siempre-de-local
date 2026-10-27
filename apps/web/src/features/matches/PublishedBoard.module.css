@@ -6,7 +6,7 @@
 }
 
 .dot {
-  fill: var(--sdl-surface-selected);
+  fill: var(--sdl-surface);
   stroke: var(--ring);
   stroke-width: 1.2;
 }
@@ -27,10 +27,10 @@
   --ring: var(--sdl-line-ataque);
 }
 
-/* Tú: relleno ámbar, texto oscuro. */
+/* Tú: relleno volt, texto oscuro. */
 .me .dot {
-  fill: var(--sdl-primary);
-  stroke: var(--sdl-primary);
+  fill: var(--sdl-field-accent);
+  stroke: var(--sdl-field-accent);
 }
 
 .code {
@@ -42,11 +42,11 @@
 }
 
 .me .code {
-  fill: var(--sdl-on-primary);
+  fill: var(--sdl-on-field-accent);
 }
 
 .name {
-  fill: var(--sdl-fg);
+  fill: var(--sdl-on-field);
   font-family: var(--sdl-font-body);
   font-size: 3.6px;
   font-weight: 600;
@@ -54,5 +54,5 @@
 }
 
 .me .name {
-  fill: var(--sdl-primary);
+  fill: var(--sdl-field-accent);
 }

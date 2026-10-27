@@ -5,7 +5,7 @@ import { Link } from 'react-router';
 import styles from './TaskCard.module.css';
 
 /**
- * "Lo que toca" en el inicio. La primera es un bloque ámbar (lo más importante de la pantalla);
+ * "Lo que toca" en el inicio. La primera es el bloque cobalto (lo más importante de la pantalla);
  * las demás, filas tranquilas con su icono y, si aplica, cuántos.
  */
 export function LeadTask({ to, title, detail }: { to: string; title: string; detail?: string }) {

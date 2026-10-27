@@ -46,7 +46,7 @@ export function TeamHeader({
   const switchable = teams.length > 1;
   const content = (
     <>
-      <Token text={initialsOf(team.name)} tone="amber" size="sm" />
+      <Token text={initialsOf(team.name)} tone="brand" size="sm" />
       <span className={styles.text}>
         <span className={styles.name}>{team.name}</span>
         <span className={styles.meta}>
@@ -97,7 +97,7 @@ export function TeamHeader({
                     if (t.id !== team.id) onSwitch(t.id);
                   }}
                 >
-                  <Token text={initialsOf(t.name)} tone={t.id === team.id ? 'amber' : 'board'} />
+                  <Token text={initialsOf(t.name)} tone={t.id === team.id ? 'brand' : 'board'} />
                   <span className={styles.text}>
                     <span className={styles.name}>{t.name}</span>
                     <span className={styles.meta}>

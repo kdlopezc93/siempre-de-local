@@ -8,3 +8,4 @@ apps/api/src/modules/questionnaires/infrastructure/seed/orientation-v1.content.t
 e2e/.fixtures.json
 e2e/test-results
 e2e/playwright-report
+.claude/skills

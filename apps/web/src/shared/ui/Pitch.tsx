@@ -10,7 +10,7 @@ interface PitchProps {
   marked?: readonly PositionCode[];
   /**
    * Modo plantilla (como el planificador del prototipo): la sigla en el círculo y debajo
-   * quién juega ahí ("Ana +2"). Sin nadie es un hueco, con aro ámbar punteado.
+   * quién juega ahí ("Ana +2"). Sin nadie es un hueco, con aro volt punteado.
    */
   roster?: Partial<Record<PositionCode, readonly string[]>>;
   /** Descripción para lectores de pantalla. */

@@ -9,7 +9,7 @@
   border-radius: 50%;
   background: var(--sdl-surface-raised);
   color: var(--sdl-fg);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--font);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -54,10 +54,10 @@
   --ring: var(--sdl-line-ataque);
 }
 
-.amber {
-  --ring: var(--sdl-primary);
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
+.brand {
+  --ring: var(--sdl-brand);
+  background: var(--sdl-brand);
+  color: var(--sdl-on-brand);
 }
 
 .sm {
