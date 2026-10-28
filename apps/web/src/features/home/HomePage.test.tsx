@@ -47,7 +47,7 @@ describe('inicio: lo que toca (07 §4.3)', () => {
   beforeEach(() => localStorage.clear());
   afterEach(() => vi.unstubAllGlobals());
 
-  it('lo más urgente en el bloque ámbar; lo demás por rol, en filas', async () => {
+  it('lo más urgente en el bloque cobalto; lo demás por rol, en filas', async () => {
     api([player({ assessedByMe: false }), player({ assessedByMe: false, card: null })]);
     renderHome();
     expect(screen.getByRole('heading', { level: 1, name: 'Hola, Kevin' })).toBeInTheDocument();

@@ -21,16 +21,11 @@
 
 .display {
   font-size: var(--sdl-text-display);
-  line-height: var(--sdl-leading-display);
-  letter-spacing: var(--sdl-tracking-display);
-  text-transform: uppercase;
   overflow-wrap: anywhere;
 }
 
 .title {
   font-size: var(--sdl-text-xl);
-  line-height: 1.15;
-  text-transform: uppercase;
 }
 
 .title:focus-visible,
@@ -67,8 +62,7 @@
 
 .sectionTitle {
   font-size: var(--sdl-text-lg);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 .actions {
@@ -77,34 +71,19 @@
   gap: var(--sdl-space-3);
 }
 
-.primaryLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  padding: var(--sdl-space-3) var(--sdl-space-5);
-  border-radius: var(--sdl-radius-md);
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
-  font-family: var(--sdl-font-display);
-  font-size: var(--sdl-text-lg);
-  font-weight: 600;
-  letter-spacing: var(--sdl-tracking-button);
-  text-decoration: none;
-  text-transform: uppercase;
-  touch-action: manipulation;
-}
-
 /* --- Lista de posiciones --- */
 
+/* El examen a medias es lo que toca: el bloque cobalto, con el botón en volt. */
 .resume {
   display: flex;
   flex-direction: column;
-  gap: var(--sdl-space-3);
-  padding: var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-primary);
-  border-radius: var(--sdl-radius-lg);
-  background: var(--sdl-surface-selected);
+  gap: var(--sdl-space-4);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+  font-weight: 700;
 }
 
 .positions {
@@ -120,21 +99,20 @@
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-3);
-  padding: var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-lg);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
   background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .cardTitle {
   font-size: var(--sdl-text-xl);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
 }
 
+/* La cifra manda: en Space Grotesk. */
 .best strong {
   color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-lg);
   font-variant-numeric: tabular-nums;
 }
@@ -148,6 +126,7 @@
 .history {
   display: flex;
   flex-direction: column;
+  gap: var(--sdl-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -158,9 +137,11 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--sdl-space-3);
-  min-height: var(--sdl-touch-min);
-  padding-block: var(--sdl-space-2);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  min-height: 56px;
+  padding: var(--sdl-space-2) var(--sdl-space-4);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
   color: var(--sdl-fg);
   text-decoration: none;
   touch-action: manipulation;
@@ -168,19 +149,22 @@
 
 .historyScore {
   flex: none;
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
+  font-weight: 700;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
-/* Re-evaluación pedida (ámbar) o vencida / anulado (rojo). */
+/* Re-evaluación pedida (cobalto) o vencida / anulado (rojo); el texto dice cuál. */
 .review,
 .reviewLate {
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-1);
-  padding: var(--sdl-space-3);
+  padding: var(--sdl-space-3) var(--sdl-space-4);
   border: var(--sdl-stroke) solid var(--sdl-primary);
-  border-radius: var(--sdl-radius-md);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
   font-size: var(--sdl-text-sm);
 }
 
@@ -191,7 +175,8 @@
 .struck {
   flex: none;
   color: var(--sdl-fg-muted);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
@@ -208,14 +193,12 @@
 .clockLabel {
   min-width: 0;
   color: var(--sdl-fg-muted);
-  font-family: var(--sdl-font-display);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 
 .clock {
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: 2.25rem;
   font-weight: 700;
   line-height: 1;
@@ -234,7 +217,7 @@
   color: var(--sdl-danger-fg);
 }
 
-/* Una marca de tiza por pregunta: se rellena al responder. */
+/* Una marca por pregunta: se rellena al responder. */
 .strip {
   display: grid;
   grid-template-columns: repeat(20, 1fr);
@@ -245,7 +228,7 @@
 .tickDone {
   height: 6px;
   border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-border);
+  background: var(--sdl-surface-raised);
 }
 
 .tickDone {
@@ -273,7 +256,7 @@
 .text {
   font-family: var(--sdl-font-body);
   font-size: var(--sdl-text-xl);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.3;
 }
 
@@ -290,9 +273,10 @@
   width: 100%;
   min-height: 56px;
   padding: var(--sdl-space-3) var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-md);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
   color: var(--sdl-fg);
   font: inherit;
   text-align: left;
@@ -305,7 +289,7 @@
 }
 
 .option:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(var(--sdl-press-scale));
 }
 
 .option:disabled {
@@ -352,51 +336,65 @@
   width: 100%;
   min-height: var(--sdl-touch-min);
   border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-sm);
+  border-radius: var(--sdl-radius-md);
   background: var(--sdl-surface);
   color: var(--sdl-fg);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-lg);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
   cursor: pointer;
   touch-action: manipulation;
 }
 
 .cellDone {
-  border-color: var(--sdl-primary);
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
+  border-color: var(--sdl-brand);
+  background: var(--sdl-brand);
+  color: var(--sdl-on-brand);
 }
 
 /* --- Resultado --- */
 
+/* El bloque cobalto: el porcentaje es la cifra protagonista. */
 .result {
   display: flex;
   flex-direction: column;
-  gap: var(--sdl-space-1);
+  gap: var(--sdl-space-2);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+}
+
+.result .muted {
+  color: var(--sdl-on-brand-muted);
 }
 
 .resultPos {
-  color: var(--sdl-fg-muted);
-  font-family: var(--sdl-font-display);
-  letter-spacing: var(--sdl-tracking-button);
+  color: var(--sdl-on-brand-muted);
+  font-size: var(--sdl-text-eyebrow);
+  font-weight: 700;
+  letter-spacing: var(--sdl-tracking-eyebrow);
   text-transform: uppercase;
 }
 
 .resultPct {
-  color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
-  font-size: 5rem;
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-number);
   font-weight: 700;
-  line-height: 0.9;
+  line-height: 1;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
 
+.resultUnit {
+  font-size: 0.5em;
+}
+
 .resultBand {
-  font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-xl);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
+  font-weight: 800;
 }
 
 .areas {
@@ -411,7 +409,7 @@
 
 .areas li {
   display: grid;
-  grid-template-columns: minmax(0, 9rem) 1fr 2.5rem;
+  grid-template-columns: minmax(0, 9rem) 1fr auto;
   align-items: center;
   gap: var(--sdl-space-3);
 }
@@ -421,17 +419,20 @@
   height: 6px;
   overflow: hidden;
   border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-border);
+  background: var(--sdl-surface-raised);
 }
 
 .bar span {
   display: block;
   height: 100%;
-  background: var(--sdl-success);
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-primary);
   transform-origin: left;
 }
 
 .areaScore {
+  font-family: var(--sdl-font-numeric);
+  font-weight: 700;
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
@@ -444,10 +445,6 @@
 
   .back:hover {
     color: var(--sdl-fg);
-  }
-
-  .primaryLink:hover {
-    background: var(--sdl-primary-hover);
   }
 
   .historyLink:hover {
@@ -478,7 +475,7 @@
   border: 2px dashed var(--sdl-primary);
   border-radius: 50%;
   color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-weight: 700;
 }
 

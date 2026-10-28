@@ -6,12 +6,14 @@ import { Link, useNavigate } from 'react-router';
 import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
+import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import styles from './Knowledge.module.css';
 import { useCertPositions, useMyExams, useStartExam } from './use-knowledge';
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
-const percent = (pct: number) => `${Math.round(pct * 100)}%`;
+/** Con espacio duro antes del %, como se escribe en Colombia (design-system §4). */
+const percent = (pct: number) => `${Math.round(pct * 100)}\u00a0%`;
 
 /** /conocimiento — de qué posiciones me puedo examinar, cómo voy y mis exámenes. */
 export function KnowledgePage({ me }: { me: Me }) {
@@ -84,9 +86,9 @@ function Positions({ data, teamId }: { data: CertPositionsResponse; teamId: stri
       {active && (
         <div className={styles.resume} role="status">
           <p>Tienes un examen a medias y el reloj sigue corriendo.</p>
-          <Link to={`/conocimiento/examen/${active}`} className={styles.primaryLink}>
+          <ButtonLink to={`/conocimiento/examen/${active}`} variant="accent">
             Seguir con tu examen
-          </Link>
+          </ButtonLink>
         </div>
       )}
       <ul className={styles.positions}>

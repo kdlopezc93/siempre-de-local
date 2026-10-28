@@ -96,7 +96,6 @@
   --sdl-field-accent: var(--sdl-color-volt-500);
   --sdl-on-field-accent: var(--sdl-color-ink-900);
   --sdl-pitch-stroke: var(--sdl-color-field-line);
-  --sdl-chalk-stroke: var(--sdl-color-field-line);
 
   /* Línea de cada posición: el aro de las fichas (§9.2). Nunca es la única pista. */
   --sdl-line-portero: var(--sdl-color-ink-900);

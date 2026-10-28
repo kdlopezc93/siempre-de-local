@@ -31,7 +31,7 @@ const ICONS: Record<TodoIcon, Icon> = {
 };
 
 /**
- * "/" — lo que toca en el equipo activo (07 §4.3): lo más urgente como bloque ámbar y lo
+ * "/" — lo que toca en el equipo activo (07 §4.3): lo más urgente como bloque cobalto y lo
  * demás en filas cortas; si tienes los dos roles, separadas por rol.
  */
 export function HomePage({ me }: { me: Me }) {
