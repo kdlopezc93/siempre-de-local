@@ -104,7 +104,7 @@
   justify-content: space-between;
   gap: var(--sdl-space-3);
   padding-block: var(--sdl-space-3);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
 }
 
 .facts dt {

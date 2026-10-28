@@ -16,8 +16,6 @@
 .title {
   font-size: var(--sdl-text-display);
   line-height: var(--sdl-leading-display);
-  letter-spacing: var(--sdl-tracking-display);
-  text-transform: uppercase;
 }
 
 .muted,
@@ -35,14 +33,12 @@
 
 .sectionTitle {
   font-size: var(--sdl-text-lg);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
 }
 
 .call,
 .more {
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-md);
+  box-shadow: var(--sdl-shadow-card);
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
 }
 
@@ -87,7 +83,7 @@
 
 .jersey {
   color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-variant-numeric: tabular-nums;
 }
 
@@ -157,14 +153,15 @@
 
 .lines dt {
   color: var(--sdl-fg-muted);
-  font-size: var(--sdl-text-xs);
-  letter-spacing: var(--sdl-tracking-button);
+  font-size: var(--sdl-text-eyebrow);
+  letter-spacing: var(--sdl-tracking-eyebrow);
   text-transform: uppercase;
+  font-weight: 700;
 }
 
 .lines dd {
   margin: 0;
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-xl);
   font-variant-numeric: tabular-nums;
 }
@@ -220,7 +217,7 @@
   height: 6px;
   overflow: hidden;
   border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-border);
+  background: var(--sdl-surface-raised);
 }
 
 .bar span {
@@ -327,7 +324,7 @@
   gap: var(--sdl-space-1);
   min-height: var(--sdl-touch-min);
   padding-block: var(--sdl-space-3);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
   color: var(--sdl-fg);
   text-decoration: none;
 }
@@ -335,32 +332,12 @@
 .savedName {
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-lg);
-  text-transform: uppercase;
   overflow-wrap: anywhere;
-}
-
-.primaryLink {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  border-radius: var(--sdl-radius-md);
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
-  font-family: var(--sdl-font-display);
-  font-size: var(--sdl-text-lg);
-  letter-spacing: var(--sdl-tracking-button);
-  text-decoration: none;
-  text-transform: uppercase;
 }
 
 @media (hover: hover) {
   .savedItem:hover {
     background: var(--sdl-surface-hover);
-  }
-
-  .primaryLink:hover {
-    background: var(--sdl-primary-hover);
   }
 
   .back:hover {

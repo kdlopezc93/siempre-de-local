@@ -6,6 +6,7 @@ import { Link } from 'react-router';
 import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
+import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import { Sheet } from '../../shared/ui/Sheet';
 import { initialsOf } from '../../shared/ui/TeamHeader';
@@ -259,12 +260,9 @@ function MatchLineups({ teamId, match }: { teamId: string; match: Match }) {
         </p>
       )}
       {match.open && (
-        <Link
-          to={`/equipos/${teamId}/planificador?partido=${match.id}`}
-          className={styles.primaryLink}
-        >
+        <ButtonLink to={`/equipos/${teamId}/planificador?partido=${match.id}`}>
           {mine.length ? 'Armar otra' : 'Armar la alineación'}
-        </Link>
+        </ButtonLink>
       )}
       {mine.length > 0 && (
         <ul className={styles.lineups}>

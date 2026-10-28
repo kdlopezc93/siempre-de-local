@@ -15,8 +15,6 @@
 .title {
   font-size: var(--sdl-text-display);
   line-height: var(--sdl-leading-display);
-  letter-spacing: var(--sdl-tracking-display);
-  text-transform: uppercase;
 }
 
 .muted,
@@ -46,8 +44,6 @@
 
 .sectionTitle {
   font-size: var(--sdl-text-lg);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
 }
 
 .subTitle {
@@ -56,7 +52,7 @@
   font-weight: 600;
 }
 
-/* Lo central: dos números grandes en ámbar. */
+/* Lo central: dos números grandes en cobalto. */
 .stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -66,8 +62,8 @@
 
 .stats div {
   padding: var(--sdl-space-3);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-lg);
+  box-shadow: var(--sdl-shadow-card);
+  border-radius: var(--sdl-radius-xl);
   background: var(--sdl-surface);
 }
 
@@ -81,7 +77,7 @@
   flex-direction: column;
   margin: 0;
   color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: 2.5rem;
   font-weight: 700;
   line-height: 1;
@@ -110,7 +106,7 @@
   justify-content: space-between;
   gap: var(--sdl-space-3);
   padding-block: var(--sdl-space-2);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
   font-size: var(--sdl-text-sm);
 }
 
@@ -124,7 +120,7 @@
   flex-direction: column;
   gap: var(--sdl-space-2);
   padding-block: var(--sdl-space-3);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
   font-size: var(--sdl-text-sm);
 }
 
@@ -137,7 +133,6 @@
 .positionName {
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-lg);
-  text-transform: uppercase;
 }
 
 .scatter {
@@ -147,7 +142,7 @@
 }
 
 .axis {
-  stroke: var(--sdl-pitch-stroke);
+  stroke: var(--sdl-border-control);
   stroke-width: 0.5;
 }
 

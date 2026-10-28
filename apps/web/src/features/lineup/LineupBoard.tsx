@@ -5,7 +5,7 @@ import type { KeyboardEvent } from 'react';
 import { PitchLines } from '../../shared/ui/PitchLines';
 import styles from './LineupBoard.module.css';
 
-/** Verde si encaja bien, ámbar si regular, rojo si es un parche. */
+/** Verde si encaja bien, volt si regular, rojo si es un parche. */
 export function fitTone(fit: number | null): 'good' | 'fair' | 'weak' | 'empty' {
   if (fit === null) return 'empty';
   if (fit >= 0.65) return 'good';
