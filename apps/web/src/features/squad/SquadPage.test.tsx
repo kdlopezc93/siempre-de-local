@@ -109,11 +109,10 @@ describe('SquadPage', () => {
     expect(await screen.findByText('2 jugadores')).toBeInTheDocument();
     const [ana, beto] = within(screen.getByRole('list')).getAllByRole('link');
     expect(ana).toHaveAttribute('href', `/equipos/${TEAM_ID}/plantilla/${ANA}`);
-    expect(ana).toHaveTextContent('AnaDefensa central');
-    expect(ana).toHaveTextContent('Valorar');
-    expect(ana).toHaveTextContent('– sin tarjeta');
-    expect(beto).toHaveTextContent('BetoExtremo, re-evaluación vencida');
-    expect(beto).toHaveTextContent('74 de media');
+    // Dos líneas (quién es; cómo viene) y la insignia de lo que pide atención.
+    expect(ana).toHaveTextContent('AnaDefensa central, dorsal 4Sin tarjetaValorar');
+    expect(beto).toHaveTextContent('BetoExtremo');
+    expect(beto).toHaveTextContent('Media 74, re-evaluación vencidaVencida');
     // Un solo camino al jugador: nada de "Ver tarjeta" ni "Valorar" sueltos en la lista.
     expect(screen.queryByRole('link', { name: /Tarjeta de/ })).toBeNull();
   });

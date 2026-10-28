@@ -1,9 +1,9 @@
 .avatar {
+  position: relative;
   display: inline-flex;
   flex: none;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
   color: var(--sdl-on-tint);
   font-family: var(--sdl-font-body);
   font-weight: 700;
@@ -40,4 +40,20 @@
 
 .avatar[data-tint='6'] {
   background: var(--sdl-tint-6);
+}
+
+/* Lesionado: la crucecita de botiquín en la esquina, como en las fichas. */
+.avatar[data-injured]::after {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--sdl-surface);
+  background:
+    linear-gradient(var(--sdl-color-white), var(--sdl-color-white)) center / 58% 18% no-repeat,
+    linear-gradient(var(--sdl-color-white), var(--sdl-color-white)) center / 18% 58% no-repeat,
+    var(--sdl-injured);
+  content: '';
 }

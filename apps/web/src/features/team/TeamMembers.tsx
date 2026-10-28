@@ -3,9 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 
 import { fetchTeamMembers } from '../../shared/api/squad';
 import { Row } from '../../shared/ui/Row';
-import { initialsOf } from '../../shared/ui/TeamHeader';
-import { Token } from '../../shared/ui/Token';
 import styles from './TeamPage.module.css';
+import { Avatar } from '../../shared/ui/Avatar';
 
 const ROLE = { coach: 'Entrenador', assistant: 'Asistente' } as const;
 
@@ -38,7 +37,7 @@ export function TeamMembers({ teamId, opensSheet }: { teamId: string; opensSheet
           {staff.map((s) => (
             <li key={`${s.userId}-${s.role}`}>
               <Row
-                leading={<Token text={initialsOf(s.displayName)} size="sm" />}
+                leading={<Avatar name={s.displayName} shape="circle" />}
                 title={s.displayName}
                 meta={ROLE[s.role]}
               />
@@ -51,15 +50,7 @@ export function TeamMembers({ teamId, opensSheet }: { teamId: string; opensSheet
           <li key={p.userId}>
             <Row
               {...(opensSheet ? { to: `/equipos/${teamId}/plantilla/${p.userId}` } : {})}
-              leading={
-                <Token
-                  text={
-                    p.jerseyNumber !== null ? String(p.jerseyNumber) : initialsOf(p.displayName)
-                  }
-                  size="sm"
-                  injured={p.injured}
-                />
-              }
+              leading={<Avatar name={p.displayName} injured={p.injured} />}
               title={p.displayName}
               meta={
                 [

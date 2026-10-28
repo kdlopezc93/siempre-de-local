@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   gap: var(--sdl-space-3);
-  min-height: 64px;
+  min-height: 72px;
   margin-bottom: var(--sdl-space-2);
   padding: 10px 14px;
   border-radius: var(--sdl-radius-lg);
@@ -35,12 +35,16 @@ a.row:active {
   white-space: nowrap;
 }
 
+/* Hasta dos líneas de datos, como las filas del sistema (posición, dorsal; media…). */
 .meta {
+  display: -webkit-box;
   overflow: hidden;
   color: var(--sdl-fg-muted);
   font-size: var(--sdl-text-sm);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
 
 .trailing {
