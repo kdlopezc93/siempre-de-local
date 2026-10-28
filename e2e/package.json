@@ -8,7 +8,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
-    "@playwright/test": "1.64.0",
+    "@playwright/test": "1.64.1",
     "@sdl/config": "workspace:*",
     "@sdl/contracts": "workspace:*",
     "@types/node": "24.19.2",
