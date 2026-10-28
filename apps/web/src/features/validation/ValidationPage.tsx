@@ -7,6 +7,7 @@ import { fetchValidation } from '../../shared/api/validation';
 import { Screen } from '../../shared/ui/Screen';
 import styles from './ValidationPage.module.css';
 import { percent } from '../../shared/format';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 /** Con menos valoraciones a ciegas que esto, se avisa que es temprano. */
 const FEW = 10;
@@ -31,7 +32,7 @@ export function ValidationPage({ teamId }: { teamId: string }) {
         Equipo
       </Link>
       <header>
-        <h1 className={styles.title}>Informe de validación</h1>
+        <PageTitle eyebrow="Informe de" title="validación" />
         <p className={styles.muted}>
           Para saber cuánto confiar en cada fuente con los datos de tu propio equipo.
         </p>

@@ -17,6 +17,7 @@ import { usePush } from '../../shared/push/use-push';
 import type { PushState } from '../../shared/push/push';
 import styles from './AccountPage.module.css';
 import { useDeleteAccount, useDownloadMyData } from './use-account';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 const CLUB_ROLE = { owner: 'Dueño', admin: 'Administrador' } as const;
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
@@ -43,7 +44,7 @@ export function AccountPage({ me }: { me: Me }) {
       <header className={styles.hero}>
         <Token text={initialsOf(name)} size="lg" />
         <div className={styles.heroText}>
-          <h1 className={styles.title}>{name}</h1>
+          <PageTitle eyebrow="Tu cuenta" title={name} />
           <p className={styles.muted} translate="no">
             {me.user.email}
           </p>

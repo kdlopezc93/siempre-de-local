@@ -10,6 +10,7 @@ import { Screen } from '../../shared/ui/Screen';
 import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import styles from './ProfilePage.module.css';
 import { togglePreference, useSaveProfile } from './use-profile';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 const FEET: { value: DominantFoot; label: string }[] = [
   { value: 'right', label: 'Derecho' },
@@ -55,7 +56,7 @@ export function ProfilePage({ me }: { me: Me }) {
   return (
     <Screen className={styles.screen}>
       {guard.prompt}
-      <h1 className={styles.title}>Tu perfil</h1>
+      <PageTitle title="Tu perfil" />
       <p className={styles.lead}>
         Esto es lo que tú dices de ti. Tu entrenador lo ve junto con tu test y su propia mirada.
       </p>

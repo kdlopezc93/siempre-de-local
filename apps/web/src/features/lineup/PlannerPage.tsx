@@ -31,6 +31,7 @@ import { SlotBreakdown } from './SlotBreakdown';
 import { useLineup, usePublishLineup, useSaveLineup } from './use-lineups';
 import { healthyIds, useLineupInputs, usePlanner } from './use-planner';
 import { percent } from '../../shared/format';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 const FORMATS: { value: MatchFormat; label: string }[] = [
   { value: 'F11', label: 'Fútbol 11' },
@@ -97,7 +98,7 @@ export function PlannerPage({ teamId }: { teamId: string }) {
     return (
       <Screen className={styles.screen}>
         {back}
-        <h1 className={styles.title}>Planificador</h1>
+        <PageTitle title="Planificador" />
         <p className={styles.muted}>
           Todavía no hay jugadores.{' '}
           <Link to={`/equipos/${teamId}/invitar`}>Invita a tu equipo</Link>.
@@ -164,10 +165,7 @@ function Planner({
     <Screen className={styles.screen}>
       {guard.prompt}
       {back}
-      <header>
-        <h1 className={styles.title}>Planificador</h1>
-        <p className={styles.muted}>{teamName}</p>
-      </header>
+      <PageTitle eyebrow={teamName} title="Planificador" />
 
       <details className={styles.call}>
         <summary className={styles.summary}>

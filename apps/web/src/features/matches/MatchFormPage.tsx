@@ -12,6 +12,7 @@ import { FORMAT_LABEL } from '../shell/shell-nav';
 import { fromLocalInputs, matchWhen, toLocalInputs } from './match-view';
 import styles from './Matches.module.css';
 import { useCreateMatch, useMatch, useUpdateMatch } from './use-matches';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 /** /equipos/:teamId/partidos/nuevo y …/:matchId/editar — convocar o editar un partido. */
 export function MatchFormPage({
@@ -144,7 +145,10 @@ function MatchForm({
       >
         {matchId ? 'El partido' : 'Partidos'}
       </Link>
-      <h1 className={styles.title}>{matchId ? 'Editar el partido' : 'Convocar partido'}</h1>
+      <PageTitle
+        eyebrow={matchId ? 'Editar el' : 'Convocar'}
+        title={matchId ? 'partido' : 'partido nuevo'}
+      />
       <form className={styles.form} onSubmit={submit} noValidate>
         <label htmlFor={ids.opponent} className={styles.label}>
           Rival

@@ -93,7 +93,7 @@ describe('tarjeta', () => {
       { path: '/c', element: <StaffCardPage teamId={TEAM_ID} playerId={ANA} /> },
     ]);
 
-    expect(await screen.findByRole('heading', { name: 'Ana' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Tarjeta 0–99 de Ana' })).toBeInTheDocument();
     expect(screen.getByText('“Mejoró el pase”')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Puntuar de nuevo' })).toBeInTheDocument();
     const older = screen.getByRole('region', { name: 'Fotos anteriores' });

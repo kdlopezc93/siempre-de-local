@@ -11,6 +11,7 @@ import { Screen } from '../../shared/ui/Screen';
 import styles from './Knowledge.module.css';
 import { useCertPositions, useMyExams, useStartExam } from './use-knowledge';
 import { percent } from '../../shared/format';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
 /** /conocimiento — de qué posiciones me puedo examinar, cómo voy y mis exámenes. */
@@ -23,7 +24,7 @@ export function KnowledgePage({ me }: { me: Me }) {
   return (
     <Screen className={styles.screen}>
       <header className={styles.header}>
-        <h1 className={styles.display}>Examen de conocimiento</h1>
+        <PageTitle eyebrow="Examen de" title="conocimiento" />
         <p className={styles.lead}>
           Situaciones de partido sobre una posición, con reloj. Cuenta tu mejor puntaje y no vence.
         </p>

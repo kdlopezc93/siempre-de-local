@@ -15,6 +15,7 @@ import {
   useTeam,
   whatsappUrl,
 } from './use-invitations';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 /** /equipos/:teamId/invitar — el entrenador crea el enlace y lo manda al grupo. */
 export function InvitePage({ teamId }: { teamId: string }) {
@@ -39,7 +40,7 @@ export function InvitePage({ teamId }: { teamId: string }) {
     return (
       <Screen className={styles.screen}>
         <BackLink teamId={teamId} />
-        <h1 className={styles.title}>Invita a tu equipo</h1>
+        <PageTitle eyebrow="Invita a" title="tu equipo" />
         <p role="alert" className={styles.lead}>
           {forbidden
             ? 'Solo el entrenador y los administradores del club pueden invitar a este equipo.'
@@ -53,7 +54,7 @@ export function InvitePage({ teamId }: { teamId: string }) {
     <Screen className={styles.screen}>
       <BackLink teamId={teamId} />
       <header className={styles.header}>
-        <h1 className={styles.title}>Invita a tu equipo</h1>
+        <PageTitle eyebrow="Invita a" title="tu equipo" />
         <p className={styles.lead}>
           {team.data.team.name}, de {team.data.team.club.name}
         </p>

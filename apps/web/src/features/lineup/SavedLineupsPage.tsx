@@ -13,6 +13,7 @@ import { SlotBreakdown } from './SlotBreakdown';
 import { useDeleteLineup, useLineup, useLineups } from './use-lineups';
 import { useLineupInputs } from './use-planner';
 import { percent } from '../../shared/format';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short', year: 'numeric' });
 const day = (iso: string) => DAY.format(new Date(`${iso.slice(0, 10)}T12:00:00`));
@@ -22,7 +23,7 @@ export function SavedLineupsPage({ teamId }: { teamId: string }) {
   const lineups = useLineups(teamId);
   return (
     <Screen className={styles.screen}>
-      <h1 className={styles.title}>Alineaciones</h1>
+      <PageTitle title="Alineaciones" />
       <LeadTask to={`/equipos/${teamId}/planificador`} title="Armar la alineación" />
       {lineups.isPending ? (
         <p className="sr-only" role="status">
