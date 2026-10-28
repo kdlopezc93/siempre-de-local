@@ -28,10 +28,13 @@
 }
 
 .sectionTitle {
-  color: var(--sdl-fg-muted);
-  font-family: var(--sdl-font-body);
-  font-size: var(--sdl-text-sm);
-  font-weight: 600;
+  margin-top: 22px;
+  font-family: var(--sdl-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--sdl-fg);
 }
 
 .icon {
