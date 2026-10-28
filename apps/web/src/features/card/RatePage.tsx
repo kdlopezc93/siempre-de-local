@@ -72,6 +72,7 @@ export function RatePage({ teamId, playerId }: { teamId: string; playerId: strin
       teamId={teamId}
       playerId={playerId}
       name={player.displayName}
+      jersey={player.jerseyNumber}
       format={team.data.team.format}
       previous={history.data[0]}
       mightKeep={player.preferredPositions.includes('POR')}
@@ -84,6 +85,7 @@ function RateForm({
   teamId,
   playerId,
   name,
+  jersey,
   format,
   previous,
   mightKeep,
@@ -92,6 +94,7 @@ function RateForm({
   teamId: string;
   playerId: string;
   name: string;
+  jersey: number | null;
   format: MatchFormat;
   previous: PlayerRating | undefined;
   mightKeep: boolean;
@@ -151,6 +154,32 @@ function RateForm({
         ? 'No pudimos guardar la tarjeta. Revisa tu conexión e intenta de nuevo.'
         : null;
 
+  const keeperGroup = (
+    <>
+      <label className={styles.toggle}>
+        <input
+          type="checkbox"
+          checked={goalkeeper}
+          onChange={(event) => setGoalkeeper(event.target.checked)}
+        />
+        <span>Juega o podría jugar de portero</span>
+      </label>
+      {goalkeeper && (
+        <fieldset className={styles.group}>
+          <legend className={styles.legend}>De portero</legend>
+          {GOALKEEPER_ATTRIBUTES.map((code) => (
+            <Slider
+              key={code}
+              code={code}
+              value={values[code]}
+              onChange={(v) => setValues((s) => ({ ...s, [code]: v }))}
+            />
+          ))}
+        </fieldset>
+      )}
+    </>
+  );
+
   return (
     <Screen className={styles.screen}>
       {guard.prompt}
@@ -158,7 +187,11 @@ function RateForm({
         {cardPath.endsWith('/tarjeta') ? 'Volver a la tarjeta' : 'Volver a la ficha'}
       </Link>
       <header>
-        <PageTitle eyebrow="Puntuar a" title={name} actions={<Avatar name={name} size={56} />} />
+        <PageTitle
+          eyebrow="Puntuar a"
+          title={name}
+          actions={<Avatar name={name} size={56} label={jersey !== null ? String(jersey) : null} />}
+        />
         <p className={styles.lead}>
           {previous
             ? 'Arranca de su última foto: mueve lo que cambió. La anterior queda en su historial.'
@@ -167,6 +200,8 @@ function RateForm({
       </header>
 
       <form className={styles.form} onSubmit={handleSubmit}>
+        {/* Si ya ataja, lo suyo de portero va primero. */}
+        {start.goalkeeper && keeperGroup}
         <fieldset className={styles.group}>
           <legend className={styles.legend}>De campo</legend>
           {OUTFIELD_ATTRIBUTES.map((code) => (
@@ -178,28 +213,7 @@ function RateForm({
             />
           ))}
         </fieldset>
-
-        <label className={styles.toggle}>
-          <input
-            type="checkbox"
-            checked={goalkeeper}
-            onChange={(event) => setGoalkeeper(event.target.checked)}
-          />
-          <span>Juega o podría jugar de portero</span>
-        </label>
-        {goalkeeper && (
-          <fieldset className={styles.group}>
-            <legend className={styles.legend}>De portero</legend>
-            {GOALKEEPER_ATTRIBUTES.map((code) => (
-              <Slider
-                key={code}
-                code={code}
-                value={values[code]}
-                onChange={(v) => setValues((s) => ({ ...s, [code]: v }))}
-              />
-            ))}
-          </fieldset>
-        )}
+        {!start.goalkeeper && keeperGroup}
 
         <div className={styles.preview}>
           <p className={styles.legend}>Así queda</p>
@@ -255,7 +269,8 @@ function Slider({
   const id = useId();
   const anchor = anchorFor(value);
   return (
-    <div className={styles.slider}>
+    // El color dice el nivel: carencia, por debajo, medio, destaca (y la palabra lo repite).
+    <div className={styles.slider} data-band={anchor.min}>
       <div className={styles.sliderHead}>
         <label htmlFor={id}>{RATING_ATTRIBUTES[code].name}</label>
         <output htmlFor={id} className={styles.sliderValue}>

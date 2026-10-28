@@ -18,6 +18,7 @@ export function Avatar({
   line = null,
   ring,
   injured = false,
+  label,
 }: {
   name: string;
   size?: 32 | 40 | 44 | 48 | 56 | 64 | 72;
@@ -27,24 +28,29 @@ export function Avatar({
   /** Un aro de otro color (el del podio). Gana sobre `line`. */
   ring?: string;
   injured?: boolean;
+  /** Lo que va adentro en vez de las iniciales: el dorsal ("7") o una posición ("DFC"). */
+  label?: string | null;
 }) {
+  const text = label ?? initialsOf(name);
+  const numeric = /^\d+$/.test(text);
   const ringColor = ring ?? (line ? `var(--sdl-line-${line})` : undefined);
   return (
     <span
       className={[styles.avatar, styles[shape]].join(' ')}
       data-tint={tintOf(name)}
       data-injured={injured || undefined}
+      data-numeric={numeric || undefined}
       style={{
         width: size,
         height: size,
-        fontSize: Math.round(size * 0.36),
+        fontSize: Math.round(size * (text.length > 2 ? 0.3 : numeric ? 0.42 : 0.36)),
         ...(ringColor
           ? { boxShadow: `0 0 0 2.5px var(--sdl-surface), 0 0 0 5px ${ringColor}` }
           : {}),
       }}
       aria-hidden="true"
     >
-      {initialsOf(name)}
+      {text}
     </span>
   );
 }

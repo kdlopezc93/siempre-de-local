@@ -57,3 +57,9 @@
     var(--sdl-injured);
   content: '';
 }
+
+/* El dorsal, como toda cifra, en Space Grotesk. */
+.avatar[data-numeric] {
+  font-family: var(--sdl-font-numeric);
+  font-variant-numeric: tabular-nums;
+}

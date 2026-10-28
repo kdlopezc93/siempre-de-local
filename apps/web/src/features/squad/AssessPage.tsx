@@ -124,7 +124,13 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
         <PageTitle
           eyebrow="Valorar a"
           title={player.displayName}
-          actions={<Avatar name={player.displayName} size={56} />}
+          actions={
+            <Avatar
+              name={player.displayName}
+              size={56}
+              label={player.jerseyNumber !== null ? String(player.jerseyNumber) : null}
+            />
+          }
         />
         <p className={styles.lead}>
           {player.assessedByMe

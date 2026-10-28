@@ -22,7 +22,7 @@ import styles from './PlayerProfilePage.module.css';
 import { InjuryControl } from './InjuryControl';
 import { injuryText, todayIso } from './injury';
 import { KnowledgeSection } from './KnowledgeSection';
-import { agreement, bestKnowledge, jerseyHolders, sheetPosition } from './profile-view';
+import { agreement, jerseyHolders, knowledgeAt, sheetPosition } from './profile-view';
 import { usePlayerProfile, useSetJersey, useSquad } from './use-squad';
 import { whyCannotRate } from './who-rates';
 import { percent } from '../../shared/format';
@@ -93,7 +93,8 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
   const here = `/equipos/${teamId}/plantilla/${playerId}`;
   const position = sheetPosition(data);
   const media = data.card ? rankedAverages(data.card.positionAverages, format)[0] : undefined;
-  const knows = bestKnowledge(data);
+  // El de su posición, no el mejor: es lo que sirve para alinearlo.
+  const knows = knowledgeAt(data, position);
 
   return (
     <Screen className={styles.screen}>
@@ -101,6 +102,7 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
       <header className={styles.hero}>
         <Avatar
           name={player.displayName}
+          label={player.jerseyNumber !== null ? String(player.jerseyNumber) : null}
           size={72}
           line={position ? lineOfPosition(position) : null}
           injured={data.injury !== null}
@@ -148,7 +150,7 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
         <div>
           <dt>Conocimiento</dt>
           <dd>
-            {knows ? (
+            {knows && knows.pct !== null ? (
               <RingProgress
                 value={knows.pct}
                 max={1}
@@ -160,7 +162,13 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
               '–'
             )}
           </dd>
-          {knows && <dd className={styles.statNote}>{name(knows.position)}</dd>}
+          {knows && (
+            <dd className={styles.statNote}>
+              {knows.pct === null
+                ? `Sin presentar en ${name(knows.position)}`
+                : name(knows.position)}
+            </dd>
+          )}
         </div>
       </dl>
 

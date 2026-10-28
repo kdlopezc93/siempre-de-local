@@ -1,3 +1,4 @@
+import type { Me } from '../../shared/api/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
@@ -82,11 +83,17 @@ function renderPage() {
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
       <MemoryRouter>
-        <MyGamePage me={ME_TWO_TEAMS} teamId={TEAM_A} />
+        <MyGamePage me={ME} teamId={TEAM_A} />
       </MemoryRouter>
     </QueryClientProvider>,
   );
 }
+
+/** Juega de central y de mediocentro (sus preferidas): el conocimiento muestra esas. */
+const ME: Me = {
+  ...ME_TWO_TEAMS,
+  profile: { ...ME_TWO_TEAMS.profile, preferredPositions: ['DFC', 'MC'] },
+};
 
 describe('Mi juego (07 §4.3)', () => {
   afterEach(() => vi.unstubAllGlobals());

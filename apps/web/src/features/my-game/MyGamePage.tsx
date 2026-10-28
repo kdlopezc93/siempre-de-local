@@ -1,4 +1,4 @@
-import type { CertPositionsResponse } from '@sdl/contracts';
+import type { CertPositionsResponse, PositionCode } from '@sdl/contracts';
 import { BAND_LABELS, POSITIONS } from '@sdl/domain';
 import { NotePencil } from '@phosphor-icons/react/dist/csr/NotePencil';
 import { Link } from 'react-router';
@@ -19,6 +19,7 @@ import { matchDay } from '../matches/match-view';
 import { useMatches } from '../matches/use-matches';
 import styles from './MyGamePage.module.css';
 import { percent } from '../../shared/format';
+import { Avatar } from '../../shared/ui/Avatar';
 import { Badge } from '../../shared/ui/Badge';
 import { PageTitle } from '../../shared/ui/PageTitle';
 import { SectionHead } from '../../shared/ui/SectionHead';
@@ -61,7 +62,7 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
       {membership && <CardSection teamId={teamId} format={membership.team.format} />}
       <PositionSection me={me} teamId={teamId} />
       <MatchesSection meId={me.user.id} teamId={teamId} />
-      <KnowledgeSection />
+      <KnowledgeSection me={me} teamId={teamId} />
       <ul className={styles.list}>
         <li>
           <Row
@@ -231,11 +232,25 @@ function PositionSection({ me, teamId }: { me: Me; teamId: string }) {
   );
 }
 
-function KnowledgeSection() {
+/**
+ * Tu conocimiento en tus posiciones (las que marcaste y las del podio de tu último test), más lo
+ * que pide atención (un examen a medias, una re-evaluación). Las demás, en "Ver todo".
+ */
+function KnowledgeSection({ me, teamId }: { me: Me; teamId: string }) {
   const positions = useCertPositions();
+  const history = useHistory(me.user.id);
   if (positions.isPending) return null;
   if (positions.isError || positions.data.positions.length === 0) return null;
   const now = new Date();
+  const latest = history.entries.find((e) => e.kind === 'official' && e.result.teamId === teamId);
+  const mine = new Set<PositionCode>([
+    ...me.profile.preferredPositions,
+    ...(latest?.kind === 'official' ? latest.result.podium : []),
+  ]);
+  const all = positions.data.positions;
+  const shown = mine.size
+    ? all.filter((p) => mine.has(p.position) || p.activeExamId || p.review)
+    : all;
   return (
     <section aria-labelledby="conocimiento" className={styles.section}>
       <SectionHead
@@ -244,11 +259,13 @@ function KnowledgeSection() {
         link={{ to: '/conocimiento', label: 'Ver todo' }}
       />
       <ul className={styles.list}>
-        {positions.data.positions.map((p) => (
+        {shown.map((p) => (
           <li key={p.position}>
             <Row
               to="/conocimiento"
-              leading={<Token text={p.position} line={lineOfPosition(p.position)} />}
+              leading={
+                <Avatar name={p.position} label={p.position} line={lineOfPosition(p.position)} />
+              }
               title={POSITIONS[p.position].name}
               meta={knowledgeMeta(p)}
               trailing={<Availability p={p} now={now} />}
