@@ -19,6 +19,9 @@ import { matchDay } from '../matches/match-view';
 import { useMatches } from '../matches/use-matches';
 import styles from './MyGamePage.module.css';
 import { percent } from '../../shared/format';
+import { Badge } from '../../shared/ui/Badge';
+import { PageTitle } from '../../shared/ui/PageTitle';
+import { SectionHead } from '../../shared/ui/SectionHead';
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
 /**
@@ -30,28 +33,29 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
   const membership = me.teams.find((t) => t.team.id === teamId);
   return (
     <Screen className={styles.screen}>
-      <header className={styles.hero}>
-        <Token
-          text={
-            membership?.jerseyNumber != null
-              ? String(membership.jerseyNumber)
-              : initialsOf(me.profile.displayName)
-          }
-          size="lg"
-          tone="brand"
-          {...(membership?.jerseyNumber != null
-            ? { label: `Dorsal ${membership.jerseyNumber}` }
-            : {})}
-        />
-        <div>
-          <h1 className={styles.title}>Mi juego</h1>
-          <p className={styles.muted}>
-            {membership?.jerseyNumber != null
-              ? `Dorsal ${membership.jerseyNumber}`
-              : 'Sin dorsal todavía: te lo pone el entrenador.'}
-          </p>
-        </div>
-      </header>
+      <PageTitle
+        eyebrow={me.profile.displayName}
+        title="Mi juego"
+        subtitle={
+          membership?.jerseyNumber != null
+            ? `Dorsal ${membership.jerseyNumber}`
+            : 'Sin dorsal todavía: te lo pone el entrenador.'
+        }
+        actions={
+          <Token
+            text={
+              membership?.jerseyNumber != null
+                ? String(membership.jerseyNumber)
+                : initialsOf(me.profile.displayName)
+            }
+            size="md"
+            tone="brand"
+            {...(membership?.jerseyNumber != null
+              ? { label: `Dorsal ${membership.jerseyNumber}` }
+              : {})}
+          />
+        }
+      />
       {membership && <CardSection teamId={teamId} format={membership.team.format} />}
       <PositionSection me={me} teamId={teamId} />
       <MatchesSection meId={me.user.id} teamId={teamId} />
@@ -61,7 +65,7 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
           <Row
             to="/perfil"
             leading={
-              <span className={styles.icon} aria-hidden="true">
+              <span className={styles.icon} data-tint="4" aria-hidden="true">
                 <NotePencil size={22} />
               </span>
             }
@@ -116,9 +120,7 @@ function MatchesSection({ meId, teamId }: { meId: string; teamId: string }) {
   if (mine.length === 0) return null;
   return (
     <section aria-labelledby="partidos" className={styles.section}>
-      <h2 id="partidos" className={styles.sectionTitle}>
-        Tus últimos partidos
-      </h2>
+      <SectionHead id="partidos" title="Tus últimos partidos" />
       <ul className={styles.matches}>
         {mine.map((m) => (
           <li key={m.id}>
@@ -129,13 +131,11 @@ function MatchesSection({ meId, teamId }: { meId: string; teamId: string }) {
                   {matchDay(m.startsAt)}, {m.result!.goalsFor} a {m.result!.goalsAgainst}
                 </span>
               </span>
-              <span className={styles.matchRating}>
-                {m.result!.figure?.id === meId
-                  ? 'Figura del partido'
-                  : m.myRating !== null
-                    ? ratingLabel(m.myRating)
-                    : null}
-              </span>
+              {m.result!.figure?.id === meId ? (
+                <Badge tone="accent">Figura del partido</Badge>
+              ) : m.myRating !== null ? (
+                <Badge tone="brand">{ratingLabel(m.myRating)}</Badge>
+              ) : null}
             </Link>
           </li>
         ))}
@@ -154,9 +154,7 @@ function PositionSection({ me, teamId }: { me: Me; teamId: string }) {
 
   return (
     <section aria-labelledby="posicion" className={styles.section}>
-      <h2 id="posicion" className={styles.sectionTitle}>
-        Tu posición
-      </h2>
+      <SectionHead id="posicion" title="Tu posición" />
       {history.isPending && history.entries.length === 0 ? (
         <p className="sr-only" role="status">
           Cargando tu test…
@@ -215,9 +213,11 @@ function KnowledgeSection() {
   const now = new Date();
   return (
     <section aria-labelledby="conocimiento" className={styles.section}>
-      <h2 id="conocimiento" className={styles.sectionTitle}>
-        Conocimiento
-      </h2>
+      <SectionHead
+        id="conocimiento"
+        title="Conocimiento"
+        link={{ to: '/conocimiento', label: 'Ver todo' }}
+      />
       <ul className={styles.list}>
         {positions.data.positions.map((p) => (
           <li key={p.position}>
@@ -248,9 +248,9 @@ function knowledgeMeta(p: CertPosition): string {
 }
 
 function Availability({ p, now }: { p: CertPosition; now: Date }) {
-  if (p.activeExamId) return <span className={styles.ready}>A medias</span>;
+  if (p.activeExamId) return <Badge tone="warning">A medias</Badge>;
   if (p.review || !p.nextAttemptAt || new Date(p.nextAttemptAt) <= now) {
-    return <span className={styles.ready}>{p.best ? 'Repetir' : 'Presentar'}</span>;
+    return <Badge tone="brand">{p.best ? 'Repetir' : 'Presentar'}</Badge>;
   }
   return <span className={styles.muted}>Desde el {DAY.format(new Date(p.nextAttemptAt))}</span>;
 }

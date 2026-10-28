@@ -34,6 +34,9 @@ export function PlayerCard({
     <article className={styles.card} aria-label="Tarjeta del jugador">
       {best && (
         <header className={styles.head}>
+          <p className={styles.overline} aria-hidden="true">
+            Mejor media
+          </p>
           <p className={styles.overall}>
             <span className={styles.overallValue}>{best.value}</span>
             <span className={styles.overallPos}>
@@ -45,23 +48,27 @@ export function PlayerCard({
         </header>
       )}
 
-      <Attributes codes={OUTFIELD_ATTRIBUTES} values={card.values} />
-      {hasGoalkeeper && (
-        <>
-          <Heading className={styles.groupTitle}>De portero</Heading>
-          <Attributes codes={GOALKEEPER_ATTRIBUTES} values={card.values} />
-        </>
-      )}
+      <div className={styles.panel}>
+        <Attributes codes={OUTFIELD_ATTRIBUTES} values={card.values} />
+        {hasGoalkeeper && (
+          <>
+            <Heading className={styles.groupTitle}>De portero</Heading>
+            <Attributes codes={GOALKEEPER_ATTRIBUTES} values={card.values} />
+          </>
+        )}
+      </div>
 
-      <Heading className={styles.groupTitle}>Media por posición</Heading>
-      <ol className={styles.averages}>
-        {ranked.map(({ pos, value }, i) => (
-          <li key={pos} className={i === 0 ? styles.top : undefined}>
-            <span>{POSITIONS[pos].name}</span>
-            <span className={styles.averageValue}>{value}</span>
-          </li>
-        ))}
-      </ol>
+      <div className={styles.panel}>
+        <Heading className={styles.groupTitle}>Media por posición</Heading>
+        <ol className={styles.averages}>
+          {ranked.map(({ pos, value }, i) => (
+            <li key={pos} className={i === 0 ? styles.top : undefined}>
+              <span>{POSITIONS[pos].name}</span>
+              <span className={styles.averageValue}>{value}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
     </article>
   );
 }
