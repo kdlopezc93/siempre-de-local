@@ -1,16 +1,20 @@
+/* Campo relleno del sistema: hundido; al enfocarlo se vuelve blanco con un aro cobalto. */
 .field {
   display: flex;
   align-items: center;
-  min-height: var(--sdl-touch-min);
+  min-height: 52px;
   padding-inline: var(--sdl-space-4) var(--sdl-space-1);
-  border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-surface);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg-muted);
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    box-shadow var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
 .field:focus-within {
-  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
-  outline-offset: var(--sdl-focus-offset);
+  background: var(--sdl-surface);
+  box-shadow: inset 0 0 0 var(--sdl-stroke) var(--sdl-focus-ring);
 }
 
 .label {
@@ -30,6 +34,7 @@
   color: var(--sdl-fg);
   font: inherit;
   font-size: var(--sdl-text-base);
+  font-weight: 600;
   outline: none;
 }
 

@@ -4,7 +4,6 @@
   margin-inline: calc(var(--sdl-gutter) * -1);
   padding-inline: var(--sdl-gutter);
   overflow-x: auto;
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
   scrollbar-width: none;
 }
 
@@ -21,21 +20,31 @@
   background: transparent;
   color: var(--sdl-fg-muted);
   font: inherit;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
+  transition: color var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
+/* La activa en negrita de tinta, con un subrayado de tinta que crece desde el centro. */
 .tabs button[aria-pressed='true'] {
   color: var(--sdl-fg);
+  font-weight: 700;
+}
+
+.tabs button::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 6px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: var(--sdl-fg);
+  transform: scaleX(0);
+  transition: transform var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
 .tabs button[aria-pressed='true']::after {
-  content: '';
-  position: absolute;
-  inset: auto 0 0;
-  height: 3px;
-  border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-primary);
+  transform: scaleX(1);
 }
 
 @media (hover: hover) {

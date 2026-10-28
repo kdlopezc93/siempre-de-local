@@ -3,7 +3,7 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: var(--sdl-space-4);
-  min-height: 136px;
+  min-height: 152px;
   padding: var(--sdl-space-5);
   border-radius: var(--sdl-radius-xl);
   background: var(--sdl-brand);
@@ -23,8 +23,17 @@
   gap: var(--sdl-space-1);
 }
 
+.leadOverline {
+  color: var(--sdl-on-brand-muted);
+  font-size: var(--sdl-text-eyebrow);
+  font-weight: 700;
+  letter-spacing: var(--sdl-tracking-eyebrow);
+  text-transform: uppercase;
+}
+
 .leadTitle {
   font-family: var(--sdl-font-display);
+  margin-top: var(--sdl-space-1);
   font-size: var(--sdl-text-xl);
   font-weight: 800;
   letter-spacing: var(--sdl-tracking-display);
@@ -53,8 +62,8 @@
   display: flex;
   align-items: center;
   gap: var(--sdl-space-3);
-  min-height: 56px;
-  padding: var(--sdl-space-2) var(--sdl-space-3);
+  min-height: 68px;
+  padding: 10px 14px;
   border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
   box-shadow: var(--sdl-shadow-card);
@@ -63,20 +72,42 @@
   transition: background-color var(--sdl-duration-fast) var(--sdl-ease-out);
 }
 
+/* El icono en un mosaico de color, como las sesiones del sistema; tinta encima. */
 .rowIcon {
   display: grid;
   flex: none;
   place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--sdl-radius-sm);
-  background: var(--sdl-surface-raised);
-  color: var(--sdl-primary);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-tint-6);
+  color: var(--sdl-on-tint);
+}
+
+.rowIcon[data-tint='1'] {
+  background: var(--sdl-tint-1);
+}
+
+.rowIcon[data-tint='2'] {
+  background: var(--sdl-tint-2);
+}
+
+.rowIcon[data-tint='3'] {
+  background: var(--sdl-tint-3);
+}
+
+.rowIcon[data-tint='4'] {
+  background: var(--sdl-tint-4);
+}
+
+.rowIcon[data-tint='5'] {
+  background: var(--sdl-tint-5);
 }
 
 .rowTitle {
   flex: 1;
-  font-weight: 600;
+  min-width: 0;
+  font-weight: 700;
 }
 
 .count {

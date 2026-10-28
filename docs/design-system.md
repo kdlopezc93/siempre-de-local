@@ -2,6 +2,8 @@
 
 > Fuente de verdad visual de la PWA. Cada pantalla nueva consulta este documento; no se inventan colores ni tamaños sueltos (CLAUDE.md · Flujo de diseño). Tokens en `apps/web/src/shared/styles/tokens.css`.
 >
+> **Fuente del original (2026-10-28):** Kevin pasó el paquete completo del sistema (`Escuelas Deportivas DS.zip`: tokens, 26 componentes en React y el kit de la app). Los valores de esta guía se alinearon con ese paquete (radios, sombras, insignias, tintes) y sus componentes se portaron a `shared/ui`.
+>
 > **v3 (2026-10-27):** Kevin decidió que la identidad v2 "Pizarra táctica" (verde oscuro, ámbar, Barlow Condensed en mayúsculas, aros de tiza) **se veía hecha con IA**: encontró un video de Instagram editado con IA con una identidad casi idéntica. Se adopta el design system **"Escuelas Deportivas"** que hizo un amigo diseñador de Kevin para la visión de ecosistema (`08-ecosistema.md` §9). Original, con sus 26 componentes de referencia y la maqueta de app: `https://claude.ai/artifact/9D5UCbUAS6p4iFaT7KwiFt`. Este documento lo traduce a la app y le completa lo que no traía: **modo oscuro**, los **tres registros de voz**, **coma decimal**, todo **servido desde la app** (sin CDN) y las reglas para **menores**.
 >
 > Ojo con las herramientas: para "deportes", `ui-ux-pro-max` recomienda Barlow Condensed + Barlow, justo la elección genérica que hacía ver la v2 como de IA. No volver a ella.
@@ -59,6 +61,7 @@ Los componentes usan **roles**, nunca la paleta ni un hex: `--sdl-bg`, `--sdl-fg
 
 - **`--sdl-primary` vs `--sdl-brand`:** primary sirve de texto y de relleno (en oscuro se aclara); brand es solo relleno (el bloque protagonista, el botón principal y el escudo del equipo) y es cobalto intenso en los dos temas.
 - **Sobre el pasto, lo destacado va en volt** (`--sdl-field-accent`), no en cobalto: el cobalto casi no se distingue del verde.
+- **Insignias** (`--sdl-badge-*-bg/fg`): fondo tenue y texto de su color; en oscuro, el tinte sobre la noche. **Tintes** (`--sdl-tint-1…6`) para avatares, con tinta encima en los dos temas. **Tarjetas de color** (`--sdl-card-volt|coral|sun`) con tinta encima. `--sdl-surface-sunken` para campos, rieles y barras. `--sdl-live` para el globo de avisos y EN VIVO.
 - **Estado = color + palabra:** "Al día", "Pendiente", "Vencido"; nunca solo el color.
 
 ### 3.3 Contraste verificado (WCAG 2.2)
@@ -102,9 +105,11 @@ Del original, **no se usan como texto**: `ink-400` (2,6:1, solo bordes), `succes
 |---|---|---|
 | `--sdl-radius-sm` | 12px | Inputs, casillas, iconos en recuadro |
 | `--sdl-radius-md` | 16px | Mosaicos chicos |
-| `--sdl-radius-lg` | 22px | Filas de tarea, cifras, la pizarra del examen |
+| `--sdl-radius-xs` | 8px | Casillas |
+| `--sdl-radius-lg` | 20px | Filas de lista, mosaicos de cifras (`StatTile`), la pizarra del examen |
 | `--sdl-radius-xl` | 28px | Tarjetas y el bloque protagonista |
-| `--sdl-radius-2xl` | 32px | Hojas inferiores |
+| `--sdl-radius-2xl` | 36px | Hojas inferiores |
+| `--sdl-radius-avatar` | 30% | Avatares (squircle) |
 | `--sdl-radius-pill` | 999px | Botones, chips, insignias, la barra de abajo |
 
 - **Tarjetas:** `--sdl-surface`, `radius-xl`, `--sdl-shadow-card`, sin borde. Las de color van planas, salvo el bloque cobalto (`--sdl-shadow-brand`). **Nunca** un borde de color a la izquierda.
@@ -159,7 +164,22 @@ Sin rebotes en el layout ni parallax. La hoja sigue al dedo y se cierra si baja 
 | `Row` | Fila de lista: tarjeta blanca redondeada (`radius-lg`, sombra) con 8px debajo; algo a la izquierda, título y una línea, un dato a la derecha | Al tocarla se achica como un botón |
 | `Chips`, `Segmented`, `SectionTabs`, `SearchField`, `useUnsavedChanges` | Igual que en la v2, con los tokens nuevos | |
 
-**Del original, para cuando hagan falta** (no existen todavía en la app): `StatTile`, `RingProgress`, `CompareBar`, `BarChart`, `ProgressBar`, `Avatar` cuadrado redondeado (30%), `Badge`, `Toast`, `Tooltip`, `TwoWeightTitle`, y `SportField` para fútbol sala, baloncesto, tenis, voleibol, natación y golf. Se construyen en `shared/ui` con CSS modules y estos tokens, siguiendo el original; no se importa su paquete de React.
+**Portados del original (2026-10-28)**, con la misma API en CSS modules (muestra en `/muestra/componentes`, solo desarrollo):
+
+| Componente | Qué es |
+|---|---|
+| `PageTitle` | El TopBar grande: título de dos pesos ("Hola, Kevin / **Tu equipo**", 22px liviano + 32px 800) y botones redondos a la derecha |
+| `SectionHead` | Título de sección (20px, 700) con 22px de aire arriba y un enlace opcional a la derecha ("Ver todo") |
+| `StatTile` / `StatGrid` | Dato de un vistazo: etiqueta arriba, cifra de 30px en Space Grotesk, cambio en verde o rojo. Tonos `white`, `sunken`, `brand`, `ink`, `volt`, `coral`, `sun`. En grilla de 2–4 (`<dl>`) |
+| `Badge` | Píldora en mayúsculas para estados y datos cortos: `success` (Al día), `warning` (Pendiente), `danger` (Vencido), `brand`, `neutral`, `accent`, `inverse`, `white` (sobre color), `live` (con punto) |
+| `Avatar` | Iniciales sobre un tinte (volt, sol, coral, lila, agua, cobalto) en squircle; `circle` para el cuerpo técnico; aro opcional |
+| `IconButton` | Botón redondo de 44px solo icono (`surface`, `sunken`, `brand`, `accent`, `dark`), con globo rojo de avisos |
+| `ProgressBar` | Barra con etiqueta y valor (Space Grotesk), sobre el tono hundido |
+| `RingProgress` | Anillo con puntas redondas y el valor al centro |
+
+Y los controles ya existentes, rehechos como el original: `Chips` (blancos con borde tenue; el elegido, relleno de tinta), `Segmented` (riel hundido, la activa en píldora blanca con sombra), `SectionTabs` (subrayado de tinta, la activa en negrita), `SearchField` (campo hundido de 52px; al enfocar, blanco con aro cobalto), `Row` (radio 20, padding 10/14), `Button` `accent` (volt) y el globo de la barra en rojo (`--sdl-live`).
+
+**Todavía sin portar** (cuando hagan falta):
 
 ## 10. Voz y tono (tres registros)
 

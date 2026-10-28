@@ -89,8 +89,8 @@
   height: 18px;
   padding-inline: 4px;
   border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
+  background: var(--sdl-live);
+  color: var(--sdl-on-live);
   box-shadow: 0 0 0 2px var(--sdl-inverse);
   font-family: var(--sdl-font-numeric);
   font-size: 11px;
