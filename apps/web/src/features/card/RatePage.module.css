@@ -30,18 +30,26 @@
   gap: var(--sdl-space-6);
 }
 
+/* Cada grupo de atributos en una tarjeta blanca, como las del sistema. */
 .group {
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-4);
   margin: 0;
-  padding: 0;
+  padding: var(--sdl-space-5);
   border: 0;
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .legend {
+  float: left;
+  width: 100%;
+  margin-bottom: var(--sdl-space-2);
   padding: 0;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
 }
 
 .hint {
@@ -112,10 +120,16 @@
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-2);
-  padding: var(--sdl-space-3) var(--sdl-space-4);
-  box-shadow: var(--sdl-shadow-card);
-  border-radius: var(--sdl-radius-lg);
-  background: var(--sdl-surface);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+}
+
+/* "Así queda": el resultado en vivo es lo fuerte de la pantalla. */
+.preview .previewValue {
+  color: var(--sdl-on-brand);
 }
 
 .previewList {
@@ -129,10 +143,10 @@
 }
 
 .previewValue {
-  color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
-  font-size: var(--sdl-text-lg);
-  font-weight: 600;
+  font-family: var(--sdl-font-numeric);
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .textarea {

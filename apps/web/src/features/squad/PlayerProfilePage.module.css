@@ -466,3 +466,11 @@ button.secondaryLink {
   font: inherit;
   color-scheme: dark;
 }
+
+/* Dorsal, pie y lo que ataja: insignias debajo del nombre. */
+.heroBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--sdl-space-2);
+}

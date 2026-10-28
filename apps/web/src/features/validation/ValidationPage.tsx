@@ -8,6 +8,7 @@ import { Screen } from '../../shared/ui/Screen';
 import styles from './ValidationPage.module.css';
 import { percent } from '../../shared/format';
 import { PageTitle } from '../../shared/ui/PageTitle';
+import { RingProgress } from '../../shared/ui/RingProgress';
 
 /** Con menos valoraciones a ciegas que esto, se avisa que es temprano. */
 const FEW = 10;
@@ -74,24 +75,35 @@ function TestSection({ data }: { data: ValidationResponse['testVsStaff'] }) {
         </p>
       ) : (
         <>
-          <dl className={styles.stats}>
-            <div>
-              <dt>Coincide exacto</dt>
-              <dd>
-                {percent(data.exact / data.n)}
-                <span className={styles.of}>
+          <dl className={styles.rings}>
+            <div className={styles.ringCard}>
+              <RingProgress
+                value={data.exact}
+                max={data.n}
+                size={92}
+                label={percent(data.exact / data.n)}
+              />
+              <div>
+                <dt>Coincide exacto</dt>
+                <dd className={styles.of}>
                   {data.exact} de {data.n}
-                </span>
-              </dd>
+                </dd>
+              </div>
             </div>
-            <div>
-              <dt>En su podio</dt>
-              <dd>
-                {percent(data.inPodium / data.n)}
-                <span className={styles.of}>
+            <div className={styles.ringCard}>
+              <RingProgress
+                value={data.inPodium}
+                max={data.n}
+                size={92}
+                tone="ink"
+                label={percent(data.inPodium / data.n)}
+              />
+              <div>
+                <dt>En su podio</dt>
+                <dd className={styles.of}>
                   {data.inPodium} de {data.n}
-                </span>
-              </dd>
+                </dd>
+              </div>
             </div>
           </dl>
           {data.n < FEW && (

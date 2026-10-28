@@ -12,9 +12,8 @@ import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
 import { SearchField } from '../../shared/ui/SearchField';
 import { Segmented } from '../../shared/ui/Segmented';
+import { StatGrid, StatTile } from '../../shared/ui/StatTile';
 import { Sheet } from '../../shared/ui/Sheet';
-import { Token } from '../../shared/ui/Token';
-import { initialsOf } from '../../shared/ui/TeamHeader';
 import { useTeam } from '../team-admin/use-invitations';
 import { distribution, type DistributionSource } from './distribution';
 import {
@@ -32,7 +31,8 @@ import {
 import styles from './SquadPage.module.css';
 import { injuryText, todayIso } from './injury';
 import { useExportTeam, useRemindTest, useSquad } from './use-squad';
-import { Badge } from '../../shared/ui/Badge';
+import { Avatar } from '../../shared/ui/Avatar';
+import { Badge, type BadgeTone } from '../../shared/ui/Badge';
 import { IconButton } from '../../shared/ui/IconButton';
 import { PageTitle } from '../../shared/ui/PageTitle';
 
@@ -125,6 +125,7 @@ export function SquadPage({ teamId }: { teamId: string }) {
           ) : null
         }
       />
+      {players.length > 0 && <SquadSummary players={players} />}
       <Segmented
         label="Ver como"
         options={VIEWS}
@@ -253,6 +254,30 @@ function ListView({
   );
 }
 
+/** De un vistazo: cuántos son, a cuántos falta valorar y cuántos están lesionados. */
+function SquadSummary({ players }: { players: SquadPlayer[] }) {
+  const toRate = players.filter((p) => p.canRate && !p.assessedByMe).length;
+  const injured = players.filter((p) => p.injury !== null).length;
+  return (
+    <StatGrid>
+      <StatTile label="Jugadores" value={players.length} tone="brand" />
+      <StatTile label="Por valorar" value={toRate} tone={toRate > 0 ? 'sun' : 'white'} />
+      <StatTile label="Lesionados" value={injured} tone={injured > 0 ? 'coral' : 'white'} />
+    </StatGrid>
+  );
+}
+
+/** La insignia de estado de cada jugador: lo que pide atención primero, si no "Al día". */
+function playerStatus(player: SquadPlayer): { tone: BadgeTone; label: string } {
+  if (player.injury) return { tone: 'danger', label: 'Lesionado' };
+  if (player.knowledge.some((k) => k.review === 'expired')) {
+    return { tone: 'danger', label: 'Vencida' };
+  }
+  if (player.canRate && !player.assessedByMe) return { tone: 'warning', label: 'Valorar' };
+  if (player.test.status === 'none') return { tone: 'neutral', label: 'Sin test' };
+  return { tone: 'success', label: 'Al día' };
+}
+
 function PlayerRow({
   teamId,
   player,
@@ -263,45 +288,40 @@ function PlayerRow({
   format: MatchFormat;
 }) {
   const media = bestAverage(player, format);
-  const notes = [
+  const status = playerStatus(player);
+  // Dos líneas, como las filas del sistema: quién es en la cancha y cómo viene.
+  const who = [
+    positionLabel(player),
+    player.jerseyNumber !== null && `dorsal ${player.jerseyNumber}`,
+  ]
+    .filter(Boolean)
+    .join(', ');
+  const how = [
+    player.injury && injuryText(player.injury, todayIso()),
+    media !== null ? `media ${media}` : 'sin tarjeta',
     player.test.status === 'none' && 'sin test',
     player.knowledge.some((k) => k.review === 'expired') && 're-evaluación vencida',
-  ].filter(Boolean);
+  ]
+    .filter(Boolean)
+    .join(', ');
   return (
     <Row
       to={`/equipos/${teamId}/plantilla/${player.userId}`}
       leading={
-        <Token
-          text={
-            player.jerseyNumber !== null
-              ? String(player.jerseyNumber)
-              : initialsOf(player.displayName)
-          }
-          line={lineOf(player)}
-          injured={player.injury !== null}
-        />
+        <Avatar name={player.displayName} line={lineOf(player)} injured={player.injury !== null} />
       }
       title={player.displayName}
-      // Lesionado va primero: en 360 px la línea se corta por el final.
-      meta={[
-        player.injury && injuryText(player.injury, todayIso()),
-        positionLabel(player),
-        ...notes,
-      ]
-        .filter(Boolean)
-        .join(', ')}
-      trailing={
+      meta={
         <>
-          {player.canRate && !player.assessedByMe && (
-            <Badge tone="warning" size="sm">
-              Valorar
-            </Badge>
-          )}
-          <span className={styles.media}>
-            {media ?? '–'}
-            <span className="sr-only">{media !== null ? ' de media' : ' sin tarjeta'}</span>
-          </span>
+          {who}
+          <br />
+          {how.charAt(0).toUpperCase() + how.slice(1)}
         </>
+      }
+      trailing={
+        <Badge tone={status.tone} size="sm">
+          {status.label}
+        </Badge>
       }
     />
   );

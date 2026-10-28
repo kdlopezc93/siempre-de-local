@@ -111,7 +111,7 @@ describe('PlayerProfilePage', () => {
     const router = renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Ana' })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Dorsal 4' })).toBeInTheDocument();
+    expect(screen.getByText('Dorsal 4')).toBeInTheDocument();
     expect(screen.getByText('Zurdo')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Volver a valorar' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Puntuar tarjeta' })).toBeInTheDocument();

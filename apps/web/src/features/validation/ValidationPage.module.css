@@ -167,3 +167,28 @@
     color: var(--sdl-fg);
   }
 }
+
+/* Los dos aciertos del test, cada uno con su anillo (cobalto y tinta). */
+.rings {
+  display: grid;
+  gap: var(--sdl-space-2);
+  margin: 0;
+}
+
+.ringCard {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-4);
+  padding: var(--sdl-space-4) var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.ringCard dt {
+  font-weight: 700;
+}
+
+.ringCard dd {
+  margin: 0;
+}

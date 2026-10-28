@@ -10,6 +10,7 @@ import styles from './CardPages.module.css';
 import { PlayerCard } from './PlayerCard';
 import { useRatingHistory } from './use-card';
 import { PageTitle } from '../../shared/ui/PageTitle';
+import { Avatar } from '../../shared/ui/Avatar';
 
 /** /equipos/:teamId/plantilla/:playerId/tarjeta — la tarjeta y sus fotos anteriores. */
 export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: string }) {
@@ -53,7 +54,11 @@ export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: 
     <Screen className={styles.screen}>
       {back}
       <header>
-        <PageTitle eyebrow="Tarjeta 0–99 de" title={player.displayName} />
+        <PageTitle
+          eyebrow="Tarjeta 0–99 de"
+          title={player.displayName}
+          actions={<Avatar name={player.displayName} size={56} />}
+        />
       </header>
 
       {latest ? (

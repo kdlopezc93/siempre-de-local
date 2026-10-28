@@ -22,6 +22,7 @@ import { percent } from '../../shared/format';
 import { Badge } from '../../shared/ui/Badge';
 import { PageTitle } from '../../shared/ui/PageTitle';
 import { SectionHead } from '../../shared/ui/SectionHead';
+import { StatGrid, StatTile } from '../../shared/ui/StatTile';
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
 /**
@@ -56,6 +57,7 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
           />
         }
       />
+      <SeasonSection meId={me.user.id} teamId={teamId} />
       {membership && <CardSection teamId={teamId} format={membership.team.format} />}
       <PositionSection me={me} teamId={teamId} />
       <MatchesSection meId={me.user.id} teamId={teamId} />
@@ -75,6 +77,29 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
         </li>
       </ul>
     </Screen>
+  );
+}
+
+/** Tu temporada de un vistazo: los partidos que jugaste, las veces que fuiste figura y tus tests. */
+function SeasonSection({ meId, teamId }: { meId: string; teamId: string }) {
+  const matches = useMatches(teamId);
+  const history = useHistory(meId);
+  const items = matches.data?.items ?? [];
+  const played = items.filter(
+    (m) => m.result && (m.myRating !== null || m.result.figure?.id === meId),
+  ).length;
+  const figure = items.filter((m) => m.result?.figure?.id === meId).length;
+  const tests = history.entries.filter((e) =>
+    e.kind === 'official' ? e.result.teamId === teamId : e.teamId === teamId,
+  ).length;
+  return (
+    <section aria-label="Tu temporada">
+      <StatGrid>
+        <StatTile label="Partidos" value={played} />
+        <StatTile label="Figura" value={figure} tone={figure > 0 ? 'volt' : 'white'} />
+        <StatTile label="Tests" value={tests} />
+      </StatGrid>
+    </section>
   );
 }
 

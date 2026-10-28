@@ -30,18 +30,26 @@
   gap: var(--sdl-space-6);
 }
 
+/* Cada pregunta en una tarjeta blanca. */
 .fieldset {
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-2);
   margin: 0;
-  padding: 0;
+  padding: var(--sdl-space-5);
   border: 0;
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .label {
+  float: left;
+  width: 100%;
+  margin-bottom: var(--sdl-space-2);
   padding: 0;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
 }
 
 .hint {
@@ -67,9 +75,9 @@
   gap: var(--sdl-space-2);
   min-height: var(--sdl-touch-min);
   padding: var(--sdl-space-2) var(--sdl-space-3);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
+  border: 0;
   border-radius: var(--sdl-radius-md);
-  background: var(--sdl-surface);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
   font: inherit;
   text-align: left;
@@ -83,11 +91,18 @@
   opacity: 0;
 }
 
+/* Elegido: relleno de tinta, como los chips del sistema. */
 .choice:has(input:checked),
 .choice[aria-pressed='true'],
 .segment:has(input:checked) {
-  border-color: var(--sdl-primary);
-  background: var(--sdl-surface-selected);
+  background: var(--sdl-fg);
+  color: var(--sdl-bg);
+}
+
+.choice:has(input:checked) .number,
+.choice[aria-pressed='true'] .number,
+.segment:has(input:checked) .segmentLabel {
+  color: inherit;
 }
 
 .choice:has(input:focus-visible),
