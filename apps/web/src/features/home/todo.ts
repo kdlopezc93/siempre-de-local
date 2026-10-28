@@ -4,9 +4,9 @@ import type {
   Match,
   SquadResponse,
 } from '@sdl/contracts';
-import { POSITIONS } from '@sdl/domain';
+import { isGame, POSITIONS } from '@sdl/domain';
 
-import { matchWhen } from '../matches/match-view';
+import { matchTitle, matchWhen } from '../matches/match-view';
 import { returnDay, returnOverdue, todayIso } from '../squad/injury';
 
 export type TodoIcon =
@@ -227,7 +227,7 @@ export function matchTodos(input: {
         priority: 1,
         who: 'player',
         icon: 'match',
-        title: `Te convocaron: ${m.opponent}`,
+        title: m.opponent ? `Te convocaron: ${m.opponent}` : 'Te convocaron a entrenar',
         detail: `${matchWhen(m.startsAt)}. ¿Vas?`,
         to: path(m),
       });
@@ -254,8 +254,8 @@ export function matchTodos(input: {
       priority: 3,
       who: 'staff',
       icon: 'match',
-      title: `${next.opponent}: ${plural(next.replies.pending, 'jugador sin responder', 'jugadores sin responder')}`,
-      short: `${next.opponent}, sin responder`,
+      title: `${matchTitle(next)}: ${plural(next.replies.pending, 'jugador sin responder', 'jugadores sin responder')}`,
+      short: `${matchTitle(next)}, sin responder`,
       count: next.replies.pending,
       to: path(next),
     });
@@ -288,6 +288,8 @@ export function matchTodos(input: {
     const weekAgo = now.getTime() - 7 * 86_400_000;
     for (const m of matches) {
       const started = new Date(m.startsAt).getTime();
+      // El entreno no tiene resultado (2026-10-28).
+      if (!isGame(m.kind)) continue;
       if (m.status !== 'scheduled' || m.open || m.result || started < weekAgo) continue;
       todos.push({
         id: `match-result-${m.id}`,

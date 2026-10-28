@@ -9,6 +9,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
   createMatch,
+  createTournament,
+  fetchTournaments,
   fetchMatch,
   fetchMatchRatings,
   fetchMatches,
@@ -118,5 +120,25 @@ export function usePlayerMatchRatings(teamId: string, playerId: string, enabled 
     queryFn: () => fetchPlayerMatchRatings(teamId, playerId),
     enabled,
     networkMode: 'offlineFirst',
+  });
+}
+
+const tournamentsKey = (teamId: string) => ['team', teamId, 'tournaments'] as const;
+
+/** Los torneos del equipo, para elegir uno al convocar de campeonato. */
+export function useTournaments(teamId: string, enabled = true) {
+  return useQuery({
+    queryKey: tournamentsKey(teamId),
+    queryFn: () => fetchTournaments(teamId),
+    enabled,
+    networkMode: 'offlineFirst',
+  });
+}
+
+export function useCreateTournament(teamId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) => createTournament(teamId, name),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: tournamentsKey(teamId) }),
   });
 }
