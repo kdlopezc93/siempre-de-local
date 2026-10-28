@@ -10,11 +10,9 @@ import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import styles from './Knowledge.module.css';
 import { useCertPositions, useMyExams, useStartExam } from './use-knowledge';
+import { percent } from '../../shared/format';
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
-/** Con espacio duro antes del %, como se escribe en Colombia (design-system §4). */
-const percent = (pct: number) => `${Math.round(pct * 100)}\u00a0%`;
-
 /** /conocimiento — de qué posiciones me puedo examinar, cómo voy y mis exámenes. */
 export function KnowledgePage({ me }: { me: Me }) {
   const positions = useCertPositions();

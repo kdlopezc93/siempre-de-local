@@ -3,8 +3,8 @@
   flex-direction: column;
   gap: var(--sdl-space-4);
   padding: var(--sdl-space-5) var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-lg);
+  box-shadow: var(--sdl-shadow-card);
+  border-radius: var(--sdl-radius-xl);
   background: var(--sdl-surface);
 }
 
@@ -23,10 +23,10 @@
 
 .overallValue {
   color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
-  font-size: 4.5rem;
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-number);
   font-weight: 700;
-  line-height: 0.9;
+  line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
@@ -35,8 +35,7 @@
   overflow-wrap: anywhere;
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-xl);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
+  font-weight: 800;
 }
 
 .date {
@@ -70,25 +69,26 @@
 }
 
 .value {
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-xl);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
-/* Trazo de tiza: cuánto de 99. */
+/* La barra: cuánto de 99 (se llena con scaleX). */
 .bar {
   display: block;
-  height: 3px;
+  height: 6px;
   border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-border);
+  background: var(--sdl-surface-raised);
   overflow: hidden;
 }
 
 .bar span {
   display: block;
   height: 100%;
-  background: var(--sdl-fg);
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-primary);
   transform-origin: left;
 }
 
@@ -106,13 +106,13 @@
   justify-content: space-between;
   gap: var(--sdl-space-2);
   padding-block: var(--sdl-space-1);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
   font-size: var(--sdl-text-sm);
 }
 
 .averageValue {
-  font-family: var(--sdl-font-display);
-  font-weight: 600;
+  font-family: var(--sdl-font-numeric);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 

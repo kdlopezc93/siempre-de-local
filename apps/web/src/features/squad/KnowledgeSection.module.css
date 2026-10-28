@@ -6,8 +6,6 @@
 
 .sectionTitle {
   font-size: var(--sdl-text-lg);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
 }
 
 .subTitle {
@@ -43,7 +41,7 @@
   flex-direction: column;
   gap: var(--sdl-space-2);
   padding-block: var(--sdl-space-3);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
 }
 
 .positionHead {
@@ -56,13 +54,12 @@
 .positionName {
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-lg);
-  text-transform: uppercase;
 }
 
 .score {
   flex: none;
   color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-variant-numeric: tabular-nums;
 }
 
@@ -70,7 +67,7 @@
 .struck {
   flex: none;
   color: var(--sdl-fg-muted);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-variant-numeric: tabular-nums;
   text-decoration: line-through;
 }
@@ -113,8 +110,8 @@
   flex-direction: column;
   gap: var(--sdl-space-2);
   padding: var(--sdl-space-3);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-md);
+  box-shadow: var(--sdl-shadow-card);
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
 }
 

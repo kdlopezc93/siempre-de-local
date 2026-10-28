@@ -5,6 +5,7 @@ import type { CSSProperties } from 'react';
 import { Pitch } from '../../shared/ui/Pitch';
 import { POSITION_COPY } from './position-copy';
 import styles from './ResultView.module.css';
+import { percent } from '../../shared/format';
 
 export interface ResultData {
   format: MatchFormat;
@@ -13,9 +14,6 @@ export interface ResultData {
   /** true mientras no llega el oficial (calculado en el celular, sin señal). */
   provisional: boolean;
 }
-
-/** Con espacio duro antes del %, como se escribe en Colombia (design-system §4). */
-const percent = (pct: number) => `${Math.round(pct * 100)}\u00a0%`;
 
 /**
  * Tus 3 posiciones: la primera con su dorsal y su descripción, la pizarra con el podio

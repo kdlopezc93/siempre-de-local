@@ -16,7 +16,6 @@
 .title {
   font-size: var(--sdl-text-xl);
   line-height: 1.1;
-  text-transform: uppercase;
   overflow-wrap: anywhere;
 }
 
@@ -105,8 +104,8 @@
 .number {
   min-width: 2ch;
   color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
-  font-weight: 600;
+  font-family: var(--sdl-font-numeric);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 

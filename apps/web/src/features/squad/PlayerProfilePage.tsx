@@ -26,11 +26,10 @@ import { KnowledgeSection } from './KnowledgeSection';
 import { agreement, bestKnowledge, jerseyHolders, sheetPosition } from './profile-view';
 import { usePlayerProfile, useSetJersey, useSquad } from './use-squad';
 import { whyCannotRate } from './who-rates';
+import { percent } from '../../shared/format';
 
 const FOOT = { left: 'Zurdo', right: 'Diestro', both: 'Ambidiestro' } as const;
 const name = (pos: PositionCode) => POSITIONS[pos].name;
-const percent = (pct: number) => `${Math.round(pct * 100)}%`;
-
 type Section = 'resumen' | 'tarjeta' | 'conocimiento' | 'valoraciones';
 const SECTIONS = [
   { value: 'resumen', label: 'Resumen' },

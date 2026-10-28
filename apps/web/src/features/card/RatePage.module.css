@@ -16,7 +16,6 @@
 .title {
   font-size: var(--sdl-text-xl);
   line-height: 1.1;
-  text-transform: uppercase;
   overflow-wrap: anywhere;
 }
 
@@ -68,9 +67,9 @@
 
 .sliderValue {
   color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-xl);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -114,8 +113,8 @@
   flex-direction: column;
   gap: var(--sdl-space-2);
   padding: var(--sdl-space-3) var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-md);
+  box-shadow: var(--sdl-shadow-card);
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
 }
 
