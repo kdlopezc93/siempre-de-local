@@ -26,7 +26,11 @@ export function PageTitle({
     <header className={styles.header}>
       <div className={styles.text}>
         <h1 ref={headingRef} tabIndex={headingRef ? -1 : undefined} className={styles.title}>
-          {eyebrow && <span className={styles.eyebrow}>{eyebrow} </span>}
+          {eyebrow && (
+            <>
+              <span className={styles.eyebrow}>{eyebrow}</span>{' '}
+            </>
+          )}
           <span className={styles.subject}>{title}</span>
         </h1>
         {subtitle && <p className={styles.subtitle}>{subtitle}</p>}

@@ -43,9 +43,18 @@
   place-items: center;
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  background: var(--sdl-surface);
-  color: var(--sdl-primary);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-tint-6);
+  color: var(--sdl-on-tint);
+}
+
+/* Cada acceso con su color, como los mosaicos del sistema. */
+.list li:nth-child(3n + 2) .icon {
+  background: var(--sdl-tint-1);
+}
+
+.list li:nth-child(3n + 3) .icon {
+  background: var(--sdl-tint-2);
 }
 
 .sheetActions {
@@ -176,4 +185,14 @@
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-2);
+}
+
+/* Dentro de una fila de encabezado o de una tarjeta, el aire lo pone el contenedor. */
+.sectionHead {
+  margin-top: 22px;
+}
+
+.sectionHead .sectionTitle,
+.board > .sectionTitle:first-child {
+  margin-top: 0;
 }
