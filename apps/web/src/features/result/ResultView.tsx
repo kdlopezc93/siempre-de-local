@@ -14,7 +14,8 @@ export interface ResultData {
   provisional: boolean;
 }
 
-const percent = (pct: number) => `${Math.round(pct * 100)}%`;
+/** Con espacio duro antes del %, como se escribe en Colombia (design-system §4). */
+const percent = (pct: number) => `${Math.round(pct * 100)}\u00a0%`;
 
 /**
  * Tus 3 posiciones: la primera con su dorsal y su descripción, la pizarra con el podio
@@ -28,14 +29,19 @@ export function ResultView({ format, podium, provisional }: ResultData) {
 
   return (
     <article className={styles.result}>
-      <p className={styles.eyebrow}>{provisional ? 'Tu podio provisional' : 'Tus 3 posiciones'}</p>
-      <header className={styles.head}>
-        <span className={styles.number} aria-hidden="true">
-          {POSITIONS[first.pos].number}
-        </span>
-        <div>
-          <h1 className={styles.name}>{POSITIONS[first.pos].name}</h1>
-          <p className={styles.tagline}>{copy.tagline}</p>
+      {/* Lo fuerte de la pantalla: tu primera posición en el bloque cobalto. */}
+      <header className={styles.hero}>
+        <p className={styles.eyebrow}>
+          {provisional ? 'Tu podio provisional' : 'Tus 3 posiciones'}
+        </p>
+        <div className={styles.head}>
+          <span className={styles.number} aria-hidden="true">
+            {POSITIONS[first.pos].number}
+          </span>
+          <div>
+            <h1 className={styles.name}>{POSITIONS[first.pos].name}</h1>
+            <p className={styles.tagline}>{copy.tagline}</p>
+          </div>
         </div>
       </header>
       <p className={styles.description}>{copy.description}</p>
@@ -48,7 +54,7 @@ export function ResultView({ format, podium, provisional }: ResultData) {
         />
       </div>
 
-      <section aria-labelledby="podium-title">
+      <section aria-labelledby="podium-title" className={styles.card}>
         <h2 id="podium-title" className={styles.sectionTitle}>
           Tu podio
         </h2>

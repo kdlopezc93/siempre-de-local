@@ -50,10 +50,16 @@ function renderQuiz(roles: ('player' | 'coach')[] = ['player']) {
   return router;
 }
 
+/** El contador "1 de 20": la cifra va en su propio <span>. */
+const counter =
+  (text: string) =>
+  (_: string, el: Element | null): boolean =>
+    el?.tagName === 'SPAN' && el.textContent === text && el.children.length === 1;
+
 /** Responde las 20 preguntas con la primera opción visible. */
 async function answerAll() {
   for (let i = 0; i < 20; i++) {
-    await screen.findByText(`${i + 1} de 20`);
+    await screen.findByText(counter(`${i + 1} de 20`));
     const [first] = screen.getAllByRole('button', { pressed: false });
     await userEvent.click(first!);
   }
@@ -106,7 +112,7 @@ describe('QuizPage', () => {
     expect(screen.getByText('Primer equipo, fútbol 11')).toBeInTheDocument();
     await userEvent.click(await screen.findByRole('button', { name: 'Empezar' }));
 
-    expect(await screen.findByText('1 de 20')).toBeInTheDocument();
+    expect(await screen.findByText(counter('1 de 20'))).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1 })).toHaveFocus();
 
     await answerAll();
@@ -144,11 +150,11 @@ describe('QuizPage', () => {
     const router = renderQuiz();
 
     await userEvent.click(await screen.findByRole('button', { name: 'Empezar' }));
-    await screen.findByText('1 de 20');
+    await screen.findByText(counter('1 de 20'));
     await router.navigate(-1);
     expect(await screen.findByRole('heading', { name: '¿Dejar el test?' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Seguir con el test' }));
-    expect(await screen.findByText('1 de 20')).toBeInTheDocument();
+    expect(await screen.findByText(counter('1 de 20'))).toBeInTheDocument();
   });
 
   it('el entrenador que no es jugador no hace el test', () => {

@@ -4,6 +4,7 @@ import { Link, useSearchParams } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { Button } from '../../shared/ui/Button';
+import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import { GoogleMark } from '../auth/components/GoogleMark';
 import { useGoogleSignIn, useSignOut } from '../auth/use-session';
@@ -60,9 +61,9 @@ export function JoinPage({ code, me }: { code: string; me: Me | null }) {
             Tu entrenador ya te ve en la plantilla. Muy pronto vas a poder hacer tu test de posición
             desde aquí.
           </p>
-          <Link to="/" className={styles.primaryLink}>
+          <ButtonLink to="/" variant="accent">
             Ir a mi equipo
-          </Link>
+          </ButtonLink>
         </div>
       </Screen>
     );

@@ -4,6 +4,7 @@ import { Link, useBlocker } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { Button } from '../../shared/ui/Button';
+import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import { ResultView } from '../result/ResultView';
 import { CONTEXT, FORMAT } from './labels';
@@ -86,16 +87,18 @@ function Intro({
       <Link to="/" className={styles.back}>
         Volver al inicio
       </Link>
-      <div className={styles.intro}>
-        <h1 className={styles.display}>¿Dónde deberías jugar?</h1>
-        <p className={styles.lead}>
+      {/* Lo fuerte de la pantalla: el bloque cobalto con la pregunta y las cifras del test. */}
+      <section className={styles.hero}>
+        <p className={styles.eyebrow}>Test de posición</p>
+        <h1 className={styles.heroTitle}>¿Dónde deberías jugar?</h1>
+        <p className={styles.heroLead}>
           20 preguntas sobre situaciones de juego y tus cualidades. Al final ves las 3 posiciones
           donde mejor encajas.
         </p>
-        <p className={styles.meta}>
+        <p className={styles.heroMeta} translate="no">
           {team.name}, {FORMAT[team.format]}
         </p>
-      </div>
+      </section>
       <div className={styles.actions}>
         {questionnaire.isError && (
           <p role="alert" className={styles.alert}>
@@ -152,7 +155,7 @@ function Question({
       <div className={styles.progressHead}>
         <span className={styles.phase}>{QUESTION_LABEL}</span>
         <span className={styles.count}>
-          {index + 1} de {total}
+          <span className={styles.countNumber}>{index + 1}</span> de {total}
         </span>
       </div>
       <div
@@ -243,11 +246,11 @@ function Submitted({
         </p>
       )}
       {status.kind === 'needs-auth' ? (
-        <Link to="/entrar" className={styles.primaryLink}>
-          Entrar
-        </Link>
+        <ButtonLink to="/entrar">Entrar</ButtonLink>
+      ) : official ? (
+        <ButtonLink to="/">Volver al inicio</ButtonLink>
       ) : (
-        <Link to="/" className={official ? styles.primaryLink : styles.back}>
+        <Link to="/" className={styles.back}>
           Volver al inicio
         </Link>
       )}

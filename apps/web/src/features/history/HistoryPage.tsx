@@ -2,6 +2,7 @@ import { POSITIONS } from '@sdl/domain';
 import { Link } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
+import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import styles from './HistoryPage.module.css';
 import { useHistory, type HistoryEntry } from './use-history';
@@ -37,9 +38,7 @@ export function HistoryPage({ me }: { me: Me }) {
         <div className={styles.empty}>
           <p>Todavía no has hecho el test de posición.</p>
           {playerTeam && (
-            <Link to={`/equipos/${playerTeam.team.id}/test`} className={styles.primaryLink}>
-              Hacer mi test
-            </Link>
+            <ButtonLink to={`/equipos/${playerTeam.team.id}/test`}>Hacer mi test</ButtonLink>
           )}
         </div>
       )}

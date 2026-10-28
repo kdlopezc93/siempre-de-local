@@ -16,8 +16,6 @@
 .title {
   font-size: var(--sdl-text-display);
   line-height: var(--sdl-leading-display);
-  letter-spacing: var(--sdl-tracking-display);
-  text-transform: uppercase;
 }
 
 .muted {
@@ -44,14 +42,13 @@
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-1);
-  padding: var(--sdl-space-3) var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-md);
+  padding: var(--sdl-space-4) var(--sdl-space-5);
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .entryLink {
-  border-color: var(--sdl-border-control);
   color: var(--sdl-fg);
   text-decoration: none;
   touch-action: manipulation;
@@ -59,7 +56,7 @@
 }
 
 .entryLink:active {
-  transform: scale(0.98);
+  transform: scale(var(--sdl-press-scale));
 }
 
 .meta {
@@ -71,9 +68,7 @@
 .first {
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-lg);
-  font-weight: 600;
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
+  font-weight: 800;
 }
 
 .rest {
@@ -84,24 +79,6 @@
   color: var(--sdl-primary);
 }
 
-.primaryLink {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  padding: var(--sdl-space-3) var(--sdl-space-5);
-  border-radius: var(--sdl-radius-md);
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
-  font-family: var(--sdl-font-display);
-  font-size: var(--sdl-text-lg);
-  font-weight: 600;
-  letter-spacing: var(--sdl-tracking-button);
-  text-decoration: none;
-  text-transform: uppercase;
-  touch-action: manipulation;
-}
-
 @media (hover: hover) {
   .entryLink:hover {
     background: var(--sdl-surface-hover);
@@ -109,9 +86,5 @@
 
   .back:hover {
     color: var(--sdl-fg);
-  }
-
-  .primaryLink:hover {
-    background: var(--sdl-primary-hover);
   }
 }

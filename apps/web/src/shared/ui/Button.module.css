@@ -39,6 +39,19 @@
   box-shadow: var(--sdl-shadow-brand);
 }
 
+/* Volt: el paso siguiente cuando el cobalto ya está en la pantalla (texto encima: tinta). */
+.accent {
+  min-height: 52px;
+  font-size: var(--sdl-text-lg);
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
+}
+
+/* ButtonLink: un <a> con forma de botón. */
+.link {
+  text-decoration: none;
+}
+
 .secondary {
   font-size: var(--sdl-text-base);
   background: var(--sdl-surface);
@@ -59,6 +72,10 @@
 @media (hover: hover) {
   .primary:hover:not(:disabled) {
     background: var(--sdl-brand-hover);
+  }
+
+  .accent:hover:not(:disabled) {
+    background: var(--sdl-accent-hover);
   }
 
   .secondary:hover:not(:disabled) {
