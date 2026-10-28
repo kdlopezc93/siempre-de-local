@@ -12,6 +12,7 @@ import styles from './Matches.module.css';
 import { useMatches } from './use-matches';
 import { PageTitle } from '../../shared/ui/PageTitle';
 import { StatGrid, StatTile } from '../../shared/ui/StatTile';
+import { Badge } from '../../shared/ui/Badge';
 
 /** /equipos/:teamId/partidos — los próximos partidos, convocar y (adentro) las alineaciones. */
 export function MatchesPage({ me, teamId }: { me: Me; teamId: string }) {
@@ -177,7 +178,7 @@ function MatchRow({
 }
 
 function RowStatus({ match, staff, player }: { match: Match; staff: boolean; player: boolean }) {
-  if (match.status === 'cancelled') return <span className={styles.cancelled}>Cancelado</span>;
+  if (match.status === 'cancelled') return <Badge tone="danger">Cancelado</Badge>;
   // Ya jugado (D18): el marcador; al cuerpo técnico, si falta cargarlo.
   if (match.result) {
     return (
@@ -191,10 +192,14 @@ function RowStatus({ match, staff, player }: { match: Match; staff: boolean; pla
       </span>
     );
   }
-  if (staff && !match.open) return <span className={styles.ask}>Cargar resultado</span>;
-  if (player && match.open && !match.myReply) return <span className={styles.ask}>Responder</span>;
+  if (staff && !match.open) return <Badge tone="warning">Cargar resultado</Badge>;
+  if (player && match.open && !match.myReply) return <Badge tone="warning">Responder</Badge>;
   if (player && match.myReply) {
-    return <span className={styles.reply}>{match.myReply === 'yes' ? 'Voy' : 'No voy'}</span>;
+    return match.myReply === 'yes' ? (
+      <Badge tone="success">Voy</Badge>
+    ) : (
+      <Badge tone="neutral">No voy</Badge>
+    );
   }
   if (staff) return <span className={styles.muted}>{match.replies.yes} van</span>;
   return null;

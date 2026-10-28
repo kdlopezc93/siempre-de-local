@@ -8,7 +8,6 @@ import { ApiError } from '../../shared/api/http';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
 import { LeadTask } from '../../shared/ui/TaskCard';
-import { initialsOf } from '../../shared/ui/TeamHeader';
 import { lineOfPosition, Token } from '../../shared/ui/Token';
 import { PlayerCard } from '../card/PlayerCard';
 import { useMyCard } from '../card/use-card';
@@ -44,17 +43,10 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
             : 'Sin dorsal todavía: te lo pone el entrenador.'
         }
         actions={
-          <Token
-            text={
-              membership?.jerseyNumber != null
-                ? String(membership.jerseyNumber)
-                : initialsOf(me.profile.displayName)
-            }
-            size="md"
-            tone="brand"
-            {...(membership?.jerseyNumber != null
-              ? { label: `Dorsal ${membership.jerseyNumber}` }
-              : {})}
+          <Avatar
+            name={me.profile.displayName}
+            label={membership?.jerseyNumber != null ? String(membership.jerseyNumber) : null}
+            size={56}
           />
         }
       />

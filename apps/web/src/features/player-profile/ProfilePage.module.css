@@ -49,14 +49,17 @@
 }
 
 .input {
-  min-height: var(--sdl-touch-min);
+  min-height: 52px;
   padding: var(--sdl-space-3) var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-sm);
-  background: var(--sdl-surface);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
   font: inherit;
   font-size: var(--sdl-text-base);
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    border-color var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
 .input:focus-visible {
@@ -88,9 +91,9 @@
   gap: var(--sdl-space-2);
   min-height: var(--sdl-touch-min);
   padding: var(--sdl-space-2) var(--sdl-space-3);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
+  border: 0;
   border-radius: var(--sdl-radius-lg);
-  background: var(--sdl-surface);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
   font: inherit;
   cursor: pointer;
@@ -106,11 +109,11 @@
   opacity: 0;
 }
 
+/* Elegido: relleno de tinta, como los chips del sistema. La casilla no se rellena. */
 .segment:has(input:checked),
-.check:has(input:checked),
 .position[aria-pressed='true'] {
-  border-color: var(--sdl-primary);
-  background: var(--sdl-surface-selected);
+  background: var(--sdl-fg);
+  color: var(--sdl-bg);
 }
 
 .segment:has(input:focus-visible),
@@ -194,4 +197,11 @@
   .back:hover {
     color: var(--sdl-fg);
   }
+}
+
+/* Campo del sistema: hundido; al enfocarlo, blanco con aro cobalto (el borde). */
+.input:focus {
+  border-color: var(--sdl-focus-ring);
+  outline: none;
+  background: var(--sdl-surface);
 }

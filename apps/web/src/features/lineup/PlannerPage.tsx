@@ -44,9 +44,9 @@ const PRIORITIES: { value: LinePriority; label: string }[] = [
 ];
 const MIN_KNOWLEDGE: { value: number | null; label: string }[] = [
   { value: null, label: 'Sin mínimo' },
-  { value: 0.5, label: '50%' },
-  { value: 0.7, label: '70%' },
-  { value: 0.85, label: '85%' },
+  { value: 0.5, label: '50\u00a0%' },
+  { value: 0.7, label: '70\u00a0%' },
+  { value: 0.85, label: '85\u00a0%' },
 ];
 const REPLY_LABEL = { yes: 'Va', no: 'No va', pending: 'Sin responder' } as const;
 

@@ -1,5 +1,6 @@
 import type { MatchFormat, PlayerRating } from '@sdl/contracts';
 import {
+  anchorFor,
   GOALKEEPER_ATTRIBUTES,
   OUTFIELD_ATTRIBUTES,
   POSITIONS,
@@ -85,7 +86,8 @@ function Attributes({
       {codes.map((code) => {
         const value = values[code] ?? 0;
         return (
-          <div key={code} className={styles.attribute}>
+          // El color de la barra dice el nivel, como al puntuar (carencia, por debajo, medio, destaca).
+          <div key={code} className={styles.attribute} data-band={anchorFor(value).min}>
             <dt>{RATING_ATTRIBUTES[code].name}</dt>
             <dd>
               <span className={styles.value}>{value}</span>

@@ -177,6 +177,16 @@ Sin rebotes en el layout ni parallax. La hoja sigue al dedo y se cierra si baja 
 | `ProgressBar` | Barra con etiqueta y valor (Space Grotesk), sobre el tono hundido |
 | `RingProgress` | Anillo con puntas redondas y el valor al centro |
 
+Reglas de uso (auditoría del 2026-10-28):
+
+- **Avatar en vez de la ficha** fuera de la cancha: listas, encabezados de persona, el roster del partido y la cuenta. Lleva el **dorsal** si lo tiene (en Space Grotesk; si no, iniciales), el **aro de su línea** y la crucecita si está lesionado. La ficha en disco (`Token`) queda para la cancha, el podio y el escudo del equipo.
+- **Estados como `Badge`, nunca como texto de color:** Al día, Valorar, Lesionado, Vencida, Sin test (plantilla); Activo, Vencido, Completo, Anulado (invitaciones); Cancelado, Cargar resultado, Responder, Voy, No voy, Publicada, Jugado (partidos).
+- **Niveles 0–99 por color** (`anchorFor`): carencia en rojo, por debajo en naranja, medio en cobalto, destaca y referencia en verde. Los deslizadores de puntuar y las barras de la tarjeta usan los mismos; la palabra del nivel siempre acompaña.
+- **Campos de texto** como el `Input` del original: hundidos (`--sdl-surface-sunken`), sin borde visible, 52px, radio 16; al enfocar, blancos con el borde en cobalto. Con error, el borde en rojo.
+- **Opciones elegibles** (pie, posiciones, la palabra de la evaluación, los chips del planificador): hundidas y la elegida rellena de tinta, como los chips.
+- **Listas = filas-tarjeta** (radio 20, 8px entre ellas); **clave/valor = divisores punteados** (datos del equipo, medias de la tarjeta).
+- **Interruptor** (`Switch.module.css` sobre `<input type="checkbox" role="switch">`) para preferencias de encendido y apagado: riel de 52×32; apagado en el borde de control (3:1), encendido en cobalto.
+
 Y los controles ya existentes, rehechos como el original: `Chips` (blancos con borde tenue; el elegido, relleno de tinta), `Segmented` (riel hundido, la activa en píldora blanca con sombra), `SectionTabs` (subrayado de tinta, la activa en negrita), `SearchField` (campo hundido de 52px; al enfocar, blanco con aro cobalto), `Row` (radio 20, padding 10/14), `Button` `accent` (volt) y el globo de la barra en rojo (`--sdl-live`).
 
 **Todavía sin portar** (cuando hagan falta):

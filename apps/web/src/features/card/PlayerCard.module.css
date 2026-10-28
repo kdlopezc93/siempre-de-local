@@ -107,11 +107,28 @@
   overflow: hidden;
 }
 
+.attribute {
+  --band: var(--sdl-primary);
+}
+
+.attribute[data-band='85'],
+.attribute[data-band='70'] {
+  --band: var(--sdl-success);
+}
+
+.attribute[data-band='40'] {
+  --band: var(--sdl-badge-warning-fg);
+}
+
+.attribute[data-band='0'] {
+  --band: var(--sdl-danger-fg);
+}
+
 .bar span {
   display: block;
   height: 100%;
   border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-primary);
+  background: var(--band);
   transform-origin: left;
 }
 

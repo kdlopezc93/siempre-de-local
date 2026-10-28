@@ -47,7 +47,7 @@
   margin: 0;
 }
 
-.stats div {
+.stats > div {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -67,14 +67,14 @@
 }
 
 /* La media es lo fuerte de la ficha: su mosaico va en cobalto. */
-.stats div:first-child {
+.stats > div:first-child {
   background: var(--sdl-brand);
   box-shadow: var(--sdl-shadow-brand);
   color: var(--sdl-on-brand);
 }
 
-.stats div:first-child dt,
-.stats div:first-child .statNote {
+.stats > div:first-child dt,
+.stats > div:first-child .statNote {
   color: var(--sdl-on-brand-muted);
 }
 
@@ -265,8 +265,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-1);
-  padding-block: var(--sdl-space-3);
-  border-bottom: 1px dashed var(--sdl-border);
+  margin-bottom: var(--sdl-space-2);
+  padding: 12px 14px;
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
   font-size: var(--sdl-text-sm);
 }
 
@@ -311,16 +314,19 @@
 }
 
 .jerseyInput {
-  min-height: var(--sdl-touch-min);
+  min-height: 52px;
   padding-inline: var(--sdl-space-3);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-sm);
-  background: var(--sdl-surface);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
   font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-xl);
   font-variant-numeric: tabular-nums;
   text-align: center;
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    border-color var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
 .jerseyInput[aria-invalid='true'] {
@@ -389,7 +395,11 @@ button.secondaryLink {
 }
 
 .matchForm li {
-  border-bottom: 1px dashed var(--sdl-border);
+  margin-bottom: var(--sdl-space-2);
+  padding: 12px 14px;
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .matchFormRow {
@@ -457,14 +467,17 @@ button.secondaryLink {
 
 .dateInput {
   min-width: 0;
-  min-height: var(--sdl-touch-min);
+  min-height: 52px;
   padding-inline: var(--sdl-space-2);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-sm);
-  background: var(--sdl-surface);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
   font: inherit;
   color-scheme: dark;
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    border-color var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
 /* Dorsal, pie y lo que ataja: insignias debajo del nombre. */
@@ -473,4 +486,12 @@ button.secondaryLink {
   flex-wrap: wrap;
   gap: 6px;
   margin-top: var(--sdl-space-2);
+}
+
+/* Campo del sistema: hundido; al enfocarlo, blanco con aro cobalto (el borde). */
+.jerseyInput:focus,
+.dateInput:focus {
+  border-color: var(--sdl-focus-ring);
+  outline: none;
+  background: var(--sdl-surface);
 }

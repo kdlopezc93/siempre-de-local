@@ -76,7 +76,7 @@ describe('planificador', () => {
   it('arma la alineación con la formación por defecto y deja suplente al que encaja peor', async () => {
     renderPlanner();
     expect(await screen.findByRole('group', { name: 'Alineación 1-3-3-1' })).toBeInTheDocument();
-    expect(slot(/^Portero: Julio, encaje \d+%$/)).toBeInTheDocument();
+    expect(slot(/^Portero: Julio, encaje \d+\s%$/)).toBeInTheDocument();
     expect(slot(/^Mediocentro: Julián/)).toBeInTheDocument();
     const bench = screen.getByRole('region', { name: 'Suplentes (1)' });
     expect(within(bench).getByRole('button', { name: /Brayan/ })).toBeInTheDocument();
