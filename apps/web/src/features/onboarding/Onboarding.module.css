@@ -13,8 +13,6 @@
 .title {
   font-size: var(--sdl-text-display);
   line-height: var(--sdl-leading-display);
-  letter-spacing: var(--sdl-tracking-display);
-  text-transform: uppercase;
 }
 
 .lead {

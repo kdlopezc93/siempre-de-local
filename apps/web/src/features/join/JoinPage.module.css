@@ -2,42 +2,62 @@
   gap: var(--sdl-space-8);
 }
 
-/* La convocatoria ocupa el aire de arriba; el texto y la acción quedan abajo, al pulgar. */
+/* La convocatoria es el bloque cobalto (lo fuerte de la pantalla); el texto y la acción
+   quedan abajo, al pulgar. */
 .convocation {
   display: flex;
-  flex: 1;
   flex-direction: column;
   justify-content: flex-end;
-  gap: var(--sdl-space-2);
-  min-height: 180px;
+  gap: var(--sdl-space-1);
+  min-height: 220px;
+  padding: var(--sdl-space-6) var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+  animation: convocation-in var(--sdl-duration-enter) var(--sdl-ease-out) both;
+}
+
+.eyebrow {
+  margin-bottom: auto;
+  color: var(--sdl-on-brand-muted);
+  font-size: var(--sdl-text-eyebrow);
+  font-weight: 700;
+  letter-spacing: var(--sdl-tracking-eyebrow);
+  text-transform: uppercase;
 }
 
 .club {
-  color: var(--sdl-fg-muted);
+  color: var(--sdl-on-brand-muted);
   overflow-wrap: anywhere;
 }
 
 .team {
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-display);
-  font-weight: 700;
+  font-weight: 800;
   line-height: var(--sdl-leading-display);
   letter-spacing: var(--sdl-tracking-display);
-  text-transform: uppercase;
   text-wrap: balance;
   overflow-wrap: anywhere;
+}
+
+@keyframes convocation-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
 }
 
 .body {
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-4);
+  margin-top: auto;
 }
 
 .title {
   font-size: var(--sdl-text-xl);
-  line-height: 1.15;
-  text-transform: uppercase;
 }
 
 .lead {
@@ -76,7 +96,7 @@
 .alert {
   padding: var(--sdl-space-3) var(--sdl-space-4);
   border: var(--sdl-stroke) solid var(--sdl-danger);
-  border-radius: var(--sdl-radius-sm);
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
   color: var(--sdl-danger-fg);
   font-size: var(--sdl-text-sm);
@@ -97,24 +117,28 @@
   text-underline-offset: 4px;
 }
 
-/* Enlace con la misma presencia que el botón principal: lleva a otra pantalla. */
+/* Ya es del equipo: el paso siguiente va en volt, la energía del sistema (el cobalto ya está
+   en la convocatoria). Misma presencia que el botón principal: lleva a otra pantalla. */
 .primaryLink {
   min-height: 52px;
   padding: var(--sdl-space-3) var(--sdl-space-5);
-  border-radius: var(--sdl-radius-md);
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
-  font-family: var(--sdl-font-display);
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
+  font-family: var(--sdl-font-body);
   font-size: var(--sdl-text-lg);
-  font-weight: 600;
-  letter-spacing: var(--sdl-tracking-button);
+  font-weight: 700;
   text-decoration: none;
-  text-transform: uppercase;
+  transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
+}
+
+.primaryLink:active {
+  transform: scale(var(--sdl-press-scale));
 }
 
 @media (hover: hover) {
   .primaryLink:hover {
-    background: var(--sdl-primary-hover);
+    background: var(--sdl-accent-hover);
   }
 
   .textLink:hover {

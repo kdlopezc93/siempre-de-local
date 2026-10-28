@@ -1,0 +1,59 @@
+/* Va sobre el bloque cobalto: líneas en cobalto claro, los nuestros en blanco, la jugada en volt. */
+.play {
+  display: block;
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  margin-inline: auto;
+  overflow: visible;
+}
+
+.pitch {
+  fill: none;
+  stroke: var(--sdl-on-brand-muted);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.55;
+}
+
+.spot {
+  fill: var(--sdl-on-brand-muted);
+  opacity: 0.55;
+}
+
+.ours {
+  fill: var(--sdl-brand);
+  stroke: var(--sdl-on-brand);
+  stroke-width: 2.6;
+}
+
+.rival {
+  fill: none;
+  stroke: var(--sdl-on-brand-muted);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.pass {
+  fill: none;
+  stroke: var(--sdl-on-brand);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+}
+
+.passHead {
+  fill: var(--sdl-on-brand);
+}
+
+.run {
+  fill: none;
+  stroke: var(--sdl-accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 2 9;
+}
+
+.runHead {
+  fill: var(--sdl-accent);
+}

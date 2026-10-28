@@ -4,30 +4,35 @@
   gap: var(--sdl-space-4);
 }
 
+/* El resumen en filas redondeadas, cada una con su icono en recuadro. */
 .summary {
   display: flex;
   flex-direction: column;
-  gap: var(--sdl-space-3);
+  gap: var(--sdl-space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-/* Viñeta de tiza: un trazo corto ámbar, como las marcas del técnico. */
 .summary li {
-  position: relative;
-  padding-left: var(--sdl-space-5);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-3);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
-.summary li::before {
-  content: '';
-  position: absolute;
-  top: 0.75em;
-  left: 0;
-  width: 10px;
-  height: 2px;
-  border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-primary);
+.icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--sdl-radius-sm);
+  background: var(--sdl-surface-raised);
+  color: var(--sdl-primary);
 }
 
 .details {
@@ -62,7 +67,7 @@
   min-height: var(--sdl-touch-min);
   padding: var(--sdl-space-2) var(--sdl-space-4);
   border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-md);
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
   cursor: pointer;
   touch-action: manipulation;
@@ -99,7 +104,7 @@
 .alert {
   padding: var(--sdl-space-3) var(--sdl-space-4);
   border: var(--sdl-stroke) solid var(--sdl-danger);
-  border-radius: var(--sdl-radius-sm);
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
 }
 

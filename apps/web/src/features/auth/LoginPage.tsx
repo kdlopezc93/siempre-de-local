@@ -2,8 +2,8 @@ import { Link, useSearchParams } from 'react-router';
 
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
-import { ChalkPlay } from './components/ChalkPlay';
 import { GoogleMark } from './components/GoogleMark';
+import { HeroPlay } from './components/HeroPlay';
 import styles from './LoginPage.module.css';
 import { useGoogleSignIn } from './use-session';
 
@@ -19,12 +19,16 @@ export function LoginPage() {
 
   return (
     <Screen>
-      <div className={styles.board}>
-        <ChalkPlay />
-      </div>
+      {/* Lo fuerte de la pantalla: el bloque cobalto con el nombre y una jugada. */}
+      <section className={styles.hero}>
+        <p className={styles.eyebrow}>Fútbol amateur</p>
+        <h1 className={styles.title}>
+          <span className={styles.titleLight}>Tu equipo,</span> siempre de local
+        </h1>
+        <HeroPlay className={styles.play} />
+      </section>
 
       <div className={styles.copy}>
-        <h1 className={styles.title}>Tu equipo, siempre de local</h1>
         <p className={styles.lead}>Entra para hacer tu test de posición y seguir a tu equipo.</p>
 
         <div className={styles.actions}>
@@ -33,7 +37,11 @@ export function LoginPage() {
               {error}
             </p>
           )}
-          <Button busy={signIn.isPending || signIn.isSuccess} onClick={() => signIn.mutate()}>
+          <Button
+            variant="secondary"
+            busy={signIn.isPending || signIn.isSuccess}
+            onClick={() => signIn.mutate()}
+          >
             <span className={styles.googleBadge}>
               <GoogleMark size={18} />
             </span>
