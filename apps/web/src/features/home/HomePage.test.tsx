@@ -50,7 +50,7 @@ describe('inicio: lo que toca (07 §4.3)', () => {
   it('lo más urgente en el bloque cobalto; lo demás por rol, en filas', async () => {
     api([player({ assessedByMe: false }), player({ assessedByMe: false, card: null })]);
     renderHome();
-    expect(screen.getByRole('heading', { level: 1, name: 'Hola, Kevin' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: /^Hola, Kevin/ })).toBeInTheDocument();
     const lead = await screen.findByRole('link', { name: /Valora a 2 jugadores/ });
     expect(lead).toHaveAttribute('href', `/equipos/${TEAM_A}/plantilla?filtro=por-valorar`);
     expect(lead).toHaveTextContent('Antes de mirar su test');

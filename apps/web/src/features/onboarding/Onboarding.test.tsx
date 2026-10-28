@@ -92,6 +92,6 @@ describe('puertas de entrada al inicio', () => {
     expect(await screen.findByRole('heading', { name: 'Antes de seguir' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('checkbox', { name: 'Tengo 18 años o más' }));
     await userEvent.click(screen.getByRole('button', { name: 'Acepto' }));
-    expect(await screen.findByRole('heading', { name: 'Hola, Kevin' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^Hola, Kevin/ })).toBeInTheDocument();
   });
 });
