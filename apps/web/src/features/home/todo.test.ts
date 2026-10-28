@@ -159,6 +159,8 @@ describe('lo que toca al cuerpo técnico', () => {
 describe('lo que toca: partidos (D16)', () => {
   const m = (id: string, startsAt: string, over: object = {}) => ({
     id,
+    kind: 'friendly' as const,
+    tournament: null,
     format: 'F11' as const,
     startsAt,
     place: 'La 14',

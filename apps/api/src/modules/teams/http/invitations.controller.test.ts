@@ -189,6 +189,7 @@ describe('invitaciones', () => {
   it('al que entra tarde le llega la convocatoria de los partidos abiertos, una vez', async () => {
     const convocar = async (opponent: string) => {
       const res = await request('POST', `/teams/${teamId}/matches`, coach, {
+        kind: 'friendly',
         format: 'F8',
         startsAt: new Date(Date.now() + 2 * 86_400_000).toISOString(),
         place: 'La 14',

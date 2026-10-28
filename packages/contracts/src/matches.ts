@@ -4,20 +4,29 @@ import { MatchFormatSchema } from './teams.js';
 
 export const MatchStatusSchema = z.enum(['scheduled', 'cancelled']);
 export const MatchReplySchema = z.enum(['yes', 'no']);
+/** Campeonato (con su torneo), amistoso o entrenamiento (2026-10-28, `02` §12). */
+export const MatchKindSchema = z.enum(['championship', 'friendly', 'training']);
 
 const Text = z.string().trim().min(1).max(80);
 
-/** POST /teams/:teamId/matches — convocar (cuerpo técnico). `startsAt` con zona horaria. */
+/**
+ * POST /teams/:teamId/matches — convocar (cuerpo técnico). `startsAt` con zona horaria. El rival,
+ * salvo el entrenamiento; el torneo, solo el de campeonato (y es obligatorio): lo valida el API
+ * con `matchKindProblem` del dominio.
+ */
 export const CreateMatchRequestSchema = z.object({
+  kind: MatchKindSchema,
   format: MatchFormatSchema,
   startsAt: z.iso.datetime({ offset: true }),
   place: Text,
-  opponent: Text,
+  opponent: Text.nullable().optional(),
+  tournamentId: z.uuid().nullable().optional(),
 });
 
 /**
  * PATCH /teams/:teamId/matches/:matchId — solo lo que cambia; `cancelled` lo cancela. Mientras no
- * tenga resultado, aunque ya haya pasado la hora (`editable`).
+ * tenga resultado, aunque ya haya pasado la hora (`editable`). Asignarle el torneo a uno de
+ * campeonato que no lo tiene (los de antes del 2026-10-28) se puede siempre, aunque tenga resultado.
  */
 export const UpdateMatchRequestSchema = CreateMatchRequestSchema.extend({
   status: z.literal('cancelled'),
@@ -51,8 +60,12 @@ export const MatchSchema = z.object({
   id: z.uuid(),
   format: MatchFormatSchema,
   startsAt: z.iso.datetime(),
+  kind: MatchKindSchema,
   place: z.string(),
-  opponent: z.string(),
+  /** null en los entrenamientos. */
+  opponent: z.string().nullable(),
+  /** El torneo, en los de campeonato; null si es de antes y todavía no se lo asignaron. */
+  tournament: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   status: MatchStatusSchema,
   /** Se puede responder y (re)publicar: programado y antes de la hora (D17). */
   open: z.boolean(),
@@ -176,3 +189,23 @@ export const PublishedLineupResponseSchema = z.object({
   bench: z.array(PublishedPlayerSchema),
 });
 export type PublishedLineupResponse = z.infer<typeof PublishedLineupResponseSchema>;
+
+/** Un torneo del equipo (2026-10-28): los partidos de campeonato son de uno. */
+export const TournamentSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  createdAt: z.iso.datetime(),
+});
+
+/** GET /teams/:teamId/tournaments — los torneos del equipo, el más nuevo primero. */
+export const TournamentListResponseSchema = z.object({ items: z.array(TournamentSchema) });
+
+/** POST /teams/:teamId/tournaments — crear uno (cuerpo técnico). El nombre no se repite en el equipo. */
+export const CreateTournamentRequestSchema = z.object({ name: Text });
+export const TournamentResponseSchema = z.object({ tournament: TournamentSchema });
+
+export type MatchKind = z.infer<typeof MatchKindSchema>;
+export type Tournament = z.infer<typeof TournamentSchema>;
+export type TournamentListResponse = z.infer<typeof TournamentListResponseSchema>;
+export type CreateTournamentRequest = z.infer<typeof CreateTournamentRequestSchema>;
+export type TournamentResponse = z.infer<typeof TournamentResponseSchema>;

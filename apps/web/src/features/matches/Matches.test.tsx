@@ -15,6 +15,8 @@ const M1 = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fa1';
 const future = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString();
 const match = (over: object = {}) => ({
   id: M1,
+  kind: 'friendly',
+  tournament: null,
   format: 'F11',
   startsAt: future(3),
   place: 'Cancha de La 14',

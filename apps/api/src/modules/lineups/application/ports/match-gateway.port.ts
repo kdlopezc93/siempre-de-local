@@ -1,4 +1,4 @@
-import type { MatchFormat, MatchStatus } from '@sdl/contracts';
+import type { MatchFormat, MatchKind, MatchStatus } from '@sdl/contracts';
 
 /**
  * Lo que alineaciones necesita de los partidos (lo implementa el módulo matches): ver el
@@ -9,8 +9,9 @@ export interface MatchGateway {
     teamId: string,
     matchId: string,
   ): Promise<{
+    kind: MatchKind;
     format: MatchFormat;
-    opponent: string;
+    opponent: string | null;
     status: MatchStatus;
     startsAt: Date;
     lineupId: string | null;

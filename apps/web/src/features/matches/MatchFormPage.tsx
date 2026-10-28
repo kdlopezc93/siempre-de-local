@@ -68,7 +68,7 @@ function EditMatch({
         format: match.format,
         ...toLocalInputs(match.startsAt),
         place: match.place,
-        opponent: match.opponent,
+        opponent: match.opponent ?? '',
       }}
     />
   );
@@ -117,12 +117,14 @@ function MatchForm({
       place: draft.place.trim(),
       opponent: draft.opponent.trim(),
     };
-    save.mutate(request, {
-      onSuccess: (data) => {
-        guard.release();
-        void navigate(`/equipos/${teamId}/partidos/${data.match.id}`, { replace: true });
-      },
-    });
+    const onSuccess = (data: { match: { id: string } }) => {
+      guard.release();
+      void navigate(`/equipos/${teamId}/partidos/${data.match.id}`, { replace: true });
+    };
+    // Hasta que el formulario pregunte el tipo (PR 2), lo nuevo se convoca como amistoso; al
+    // editar no se toca el tipo.
+    if (matchId) update.mutate(request, { onSuccess });
+    else create.mutate({ ...request, kind: 'friendly' }, { onSuccess });
   }
 
   // La hora en palabras, para que no se cuele un a. m. por un p. m. (2026-10-25).

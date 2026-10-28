@@ -6,6 +6,45 @@ export type MatchStatus = 'scheduled' | 'cancelled';
 export type MatchReply = 'yes' | 'no';
 
 /**
+ * Tipo de convocatoria (2026-10-28, Kevin): de campeonato (con su torneo), amistoso o
+ * entrenamiento. El entrenamiento es solo convocatoria y asistencia: sin rival, sin alineación,
+ * sin resultado ni evaluaciones, y no suma al balance.
+ */
+export type MatchKind = 'championship' | 'friendly' | 'training';
+
+export const MATCH_KIND_LABELS: Readonly<Record<MatchKind, string>> = {
+  championship: 'Campeonato',
+  friendly: 'Amistoso',
+  training: 'Entrenamiento',
+};
+
+/** Lo que es "de partido": rival, alineación, resultado, figura y evaluaciones. */
+export function isGame(kind: MatchKind): boolean {
+  return kind !== 'training';
+}
+
+/**
+ * Qué datos lleva cada tipo al convocar: el rival, salvo el entreno; el torneo, solo el de
+ * campeonato (obligatorio en los nuevos; los que ya existían quedaron sin torneo y se les asigna
+ * después). Devuelve el problema en palabras, o null si está bien.
+ */
+export function matchKindProblem(input: {
+  kind: MatchKind;
+  opponent: string | null;
+  tournamentId: string | null;
+}): string | null {
+  if (input.kind === 'training') {
+    if (input.opponent) return 'Un entrenamiento no tiene rival.';
+    if (input.tournamentId) return 'Un entrenamiento no es de un torneo.';
+    return null;
+  }
+  if (!input.opponent) return 'Falta el rival.';
+  if (input.kind === 'championship' && !input.tournamentId) return 'Elige el torneo.';
+  if (input.kind === 'friendly' && input.tournamentId) return 'Un amistoso no es de un torneo.';
+  return null;
+}
+
+/**
  * Abierto hasta la hora del partido (D17): se puede responder, cambiar la respuesta, editar la
  * convocatoria y (re)publicar la alineación. Cancelado o ya empezado, queda fijo.
  */
@@ -68,7 +107,8 @@ export const MATCH_RATING_LABELS: Readonly<Record<MatchRating, string>> = {
 
 /**
  * El balance del equipo (2026-10-25): los jugados son los que tienen resultado, y los
- * cancelados se cuentan aparte para saber cuántos se nos han caído.
+ * cancelados se cuentan aparte para saber cuántos se nos han caído. Quien llama pasa los de un
+ * solo tipo (ver `matchTallyByKind`).
  */
 export function matchTally(
   matches: readonly {
@@ -86,4 +126,23 @@ export function matchTally(
     }
   }
   return tally;
+}
+
+export type MatchTally = ReturnType<typeof matchTally>;
+
+/**
+ * El balance separado por tipo (2026-10-28): campeonato y amistosos, cada uno con el suyo; los
+ * entrenamientos no suman.
+ */
+export function matchTallyByKind(
+  matches: readonly {
+    kind: MatchKind;
+    status: MatchStatus;
+    result: { goalsFor: number; goalsAgainst: number } | null;
+  }[],
+): { championship: MatchTally; friendly: MatchTally } {
+  return {
+    championship: matchTally(matches.filter((m) => m.kind === 'championship')),
+    friendly: matchTally(matches.filter((m) => m.kind === 'friendly')),
+  };
 }

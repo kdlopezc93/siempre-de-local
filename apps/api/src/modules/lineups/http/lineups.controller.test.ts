@@ -252,6 +252,7 @@ describe('planificador: señales y alineaciones guardadas', () => {
   describe('la alineación de un partido (Fase 7)', () => {
     const convocar = async (format: 'F11' | 'F8' = 'F11') => {
       const res = await call('POST', `/teams/${teamId}/matches`, coach, {
+        kind: 'friendly',
         format,
         startsAt: new Date(Date.now() + 3 * 86_400_000).toISOString(),
         place: 'La 14',

@@ -165,6 +165,8 @@ describe('planificador', () => {
     const MATCH_ID = uuid(70);
     const match = {
       id: MATCH_ID,
+      kind: 'friendly',
+      tournament: null,
       format: 'F8',
       startsAt: new Date(Date.now() + 3 * 86_400_000).toISOString(),
       place: 'La 14',

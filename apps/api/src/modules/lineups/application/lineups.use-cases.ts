@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { Lineup, LineupInputSchema, PublishedLineupResponse } from '@sdl/contracts';
-import { findFormation, isMatchOpen } from '@sdl/domain';
+import { findFormation, isGame, isMatchOpen } from '@sdl/domain';
 import type { z } from 'zod';
 
 import { can, type Actor, type TeamPermission } from '../../../shared/authz/policy.js';
@@ -29,6 +29,9 @@ import { MATCH_GATEWAY, type MatchGateway } from './ports/match-gateway.port.js'
 type LineupInput = z.output<typeof LineupInputSchema>;
 
 const invalid = (message: string) => new BusinessRuleError(message, 'LINEUP_INVALID');
+/** El entrenamiento es convocatoria y asistencia (2026-10-28): no lleva alineación. */
+const trainingHasNoLineup = () =>
+  new BusinessRuleError('Un entrenamiento no lleva alineación.', 'MATCH_IS_TRAINING');
 
 /**
  * Alineaciones guardadas (02 §9). Se arman en el celular; el servidor no recalcula, pero
@@ -98,6 +101,7 @@ export class Lineups {
     if (!match || !isMatchOpen(match, now)) {
       throw new ConflictError('El partido ya empezó o fue cancelado.', 'MATCH_CLOSED');
     }
+    if (!isGame(match.kind)) throw trainingHasNoLineup();
     await this.matches.publish(found.matchId, lineupId, now);
     await this.audit.record({
       actorUserId: actor.userId,
@@ -112,7 +116,7 @@ export class Lineups {
       roster.map((p) => p.userId),
       {
         kind: 'lineup-published',
-        opponent: match.opponent,
+        opponent: match.opponent ?? '',
         startsAt: match.startsAt.toISOString(),
         url: `/equipos/${teamId}/partidos/${found.matchId}`,
       },
@@ -189,6 +193,7 @@ export class Lineups {
     if (input.matchId) {
       const match = await this.matches.find(team.id, input.matchId);
       if (!match) throw new BusinessRuleError('Ese partido no es del equipo.', 'MATCH_NOT_FOUND');
+      if (!isGame(match.kind)) throw trainingHasNoLineup();
       if (match.format !== formation.format) {
         throw new BusinessRuleError(
           'La formación no es del formato del partido.',

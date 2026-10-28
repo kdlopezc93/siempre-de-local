@@ -5,7 +5,10 @@ import {
   isMatchEditable,
   isMatchOpen,
   MATCH_RATING_LABELS,
+  isGame,
+  matchKindProblem,
   matchTally,
+  matchTallyByKind,
   replySummary,
 } from './matches.js';
 
@@ -86,5 +89,41 @@ describe('partidos (Fase 7)', () => {
       'Muy bien',
       'Figura',
     ]);
+  });
+
+  it('tipo de convocatoria: rival y torneo según el tipo (2026-10-28)', () => {
+    expect(matchKindProblem({ kind: 'training', opponent: null, tournamentId: null })).toBeNull();
+    expect(matchKindProblem({ kind: 'training', opponent: 'Los Pibes', tournamentId: null })).toBe(
+      'Un entrenamiento no tiene rival.',
+    );
+    expect(
+      matchKindProblem({ kind: 'friendly', opponent: 'Los Pibes', tournamentId: null }),
+    ).toBeNull();
+    expect(matchKindProblem({ kind: 'friendly', opponent: null, tournamentId: null })).toBe(
+      'Falta el rival.',
+    );
+    expect(matchKindProblem({ kind: 'friendly', opponent: 'Los Pibes', tournamentId: 't' })).toBe(
+      'Un amistoso no es de un torneo.',
+    );
+    expect(
+      matchKindProblem({ kind: 'championship', opponent: 'Los Pibes', tournamentId: null }),
+    ).toBe('Elige el torneo.');
+    expect(
+      matchKindProblem({ kind: 'championship', opponent: 'Los Pibes', tournamentId: 't' }),
+    ).toBeNull();
+    expect(isGame('training')).toBe(false);
+    expect(isGame('friendly')).toBe(true);
+  });
+
+  it('el balance va por tipo y los entrenamientos no suman', () => {
+    const won = { status: 'scheduled' as const, result: { goalsFor: 2, goalsAgainst: 0 } };
+    const tally = matchTallyByKind([
+      { kind: 'championship', ...won },
+      { kind: 'championship', status: 'cancelled', result: null },
+      { kind: 'friendly', status: 'scheduled', result: { goalsFor: 1, goalsAgainst: 1 } },
+      { kind: 'training', status: 'scheduled', result: null },
+    ]);
+    expect(tally.championship).toEqual({ played: 1, won: 1, drawn: 0, lost: 0, cancelled: 1 });
+    expect(tally.friendly).toEqual({ played: 1, won: 0, drawn: 1, lost: 0, cancelled: 0 });
   });
 });
