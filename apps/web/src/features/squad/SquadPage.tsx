@@ -1,6 +1,6 @@
 import type { MatchFormat, SquadPlayer } from '@sdl/contracts';
 import { POSITIONS } from '@sdl/domain';
-import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
+import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
@@ -32,6 +32,9 @@ import {
 import styles from './SquadPage.module.css';
 import { injuryText, todayIso } from './injury';
 import { useExportTeam, useRemindTest, useSquad } from './use-squad';
+import { Badge } from '../../shared/ui/Badge';
+import { IconButton } from '../../shared/ui/IconButton';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 type View = 'lista' | 'pizarra';
 const VIEWS = [
@@ -108,15 +111,26 @@ export function SquadPage({ teamId }: { teamId: string }) {
 
   return (
     <Screen className={styles.screen}>
-      <div className={styles.titleRow}>
-        <h1 className={styles.title}>Plantilla</h1>
-        <Segmented
-          label="Ver como"
-          options={VIEWS}
-          value={view}
-          onChange={(v) => setParam({ vista: v === 'lista' ? '' : v })}
-        />
-      </div>
+      <PageTitle
+        eyebrow={team.data.team.name}
+        title="Plantilla"
+        actions={
+          canRemind || canExport ? (
+            <IconButton
+              to={`/equipos/${teamId}/invitar`}
+              label="Invitar jugadores"
+              icon={<UserPlus size={20} />}
+              variant="brand"
+            />
+          ) : null
+        }
+      />
+      <Segmented
+        label="Ver como"
+        options={VIEWS}
+        value={view}
+        onChange={(v) => setParam({ vista: v === 'lista' ? '' : v })}
+      />
 
       {players.length === 0 ? (
         <p className={styles.empty}>
@@ -279,10 +293,9 @@ function PlayerRow({
       trailing={
         <>
           {player.canRate && !player.assessedByMe && (
-            <span className={styles.flag}>
-              <Warning size={16} weight="fill" aria-hidden="true" />
+            <Badge tone="warning" size="sm">
               Valorar
-            </span>
+            </Badge>
           )}
           <span className={styles.media}>
             {media ?? '–'}

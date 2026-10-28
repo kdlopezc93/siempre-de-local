@@ -1,5 +1,5 @@
 .screen {
-  gap: var(--sdl-space-6);
+  gap: var(--sdl-space-4);
 }
 
 .back {
@@ -27,14 +27,16 @@
 }
 
 .title {
-  font-size: var(--sdl-text-display);
-  line-height: var(--sdl-leading-display);
-  letter-spacing: var(--sdl-tracking-display);
+  font-size: var(--sdl-text-h1);
+  line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
+/* La posición va arriba del nombre, liviana: el título de dos pesos del sistema. */
 .heroPos {
-  font-weight: 600;
+  order: -1;
+  font-size: var(--sdl-text-lg);
+  font-weight: 500;
 }
 
 /* Tres datos de un vistazo: media, test y conocimiento. */
@@ -48,19 +50,32 @@
 .stats div {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
-  padding: var(--sdl-space-3);
+  padding: 14px 12px;
+  text-align: center;
   border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
   box-shadow: var(--sdl-shadow-card);
 }
 
 .stats dt {
-  order: 2;
   color: var(--sdl-fg-muted);
   font-size: var(--sdl-text-xs);
   font-weight: 600;
+}
+
+/* La media es lo fuerte de la ficha: su mosaico va en cobalto. */
+.stats div:first-child {
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+}
+
+.stats div:first-child dt,
+.stats div:first-child .statNote {
+  color: var(--sdl-on-brand-muted);
 }
 
 .stats dd {
@@ -119,7 +134,10 @@
 }
 
 .sectionTitle {
-  font-size: var(--sdl-text-lg);
+  margin-top: 22px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .sources {

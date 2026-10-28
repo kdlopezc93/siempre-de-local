@@ -1,7 +1,6 @@
 /* Riel hundido; la opción activa es una píldora blanca con sombra. */
 .segmented {
-  display: inline-flex;
-  flex: none;
+  display: flex;
   gap: 4px;
   padding: 4px;
   border-radius: var(--sdl-radius-pill);
@@ -9,6 +8,7 @@
 }
 
 .segmented button {
+  flex: 1;
   min-height: 44px;
   padding-inline: var(--sdl-space-4);
   border: 0;

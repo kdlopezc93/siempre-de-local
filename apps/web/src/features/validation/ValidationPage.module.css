@@ -43,7 +43,13 @@
 }
 
 .sectionTitle {
-  font-size: var(--sdl-text-lg);
+  margin-top: 22px;
+  font-family: var(--sdl-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--sdl-fg);
 }
 
 .subTitle {
