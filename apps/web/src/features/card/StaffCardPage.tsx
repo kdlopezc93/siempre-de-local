@@ -57,7 +57,13 @@ export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: 
         <PageTitle
           eyebrow="Tarjeta 0–99 de"
           title={player.displayName}
-          actions={<Avatar name={player.displayName} size={56} />}
+          actions={
+            <Avatar
+              name={player.displayName}
+              size={56}
+              label={player.jerseyNumber !== null ? String(player.jerseyNumber) : null}
+            />
+          }
         />
       </header>
 

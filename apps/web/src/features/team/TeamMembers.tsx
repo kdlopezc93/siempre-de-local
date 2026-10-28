@@ -50,7 +50,13 @@ export function TeamMembers({ teamId, opensSheet }: { teamId: string; opensSheet
           <li key={p.userId}>
             <Row
               {...(opensSheet ? { to: `/equipos/${teamId}/plantilla/${p.userId}` } : {})}
-              leading={<Avatar name={p.displayName} injured={p.injured} />}
+              leading={
+                <Avatar
+                  name={p.displayName}
+                  label={p.jerseyNumber !== null ? String(p.jerseyNumber) : null}
+                  injured={p.injured}
+                />
+              }
               title={p.displayName}
               meta={
                 [

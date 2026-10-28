@@ -308,7 +308,12 @@ function PlayerRow({
     <Row
       to={`/equipos/${teamId}/plantilla/${player.userId}`}
       leading={
-        <Avatar name={player.displayName} line={lineOf(player)} injured={player.injury !== null} />
+        <Avatar
+          name={player.displayName}
+          label={player.jerseyNumber !== null ? String(player.jerseyNumber) : null}
+          line={lineOf(player)}
+          injured={player.injury !== null}
+        />
       }
       title={player.displayName}
       meta={

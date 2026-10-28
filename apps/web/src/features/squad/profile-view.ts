@@ -34,6 +34,20 @@ export function sheetPosition(profile: PlayerProfileResponse): PositionCode | nu
   );
 }
 
+/**
+ * Su conocimiento en la posición donde juega (la de la ficha): el dato que importa para
+ * alinearlo. `pct` es null si no presentó el examen de esa posición. Sin posición, su mejor
+ * puntaje en cualquiera.
+ */
+export function knowledgeAt(
+  profile: PlayerProfileResponse,
+  position: PositionCode | null,
+): { position: PositionCode; pct: number | null } | null {
+  if (!position) return bestKnowledge(profile);
+  const there = profile.knowledge.positions.find((p) => p.position === position);
+  return { position, pct: there?.best?.pct ?? null };
+}
+
 /** Su mejor puntaje de conocimiento en cualquier posición, o null sin exámenes. */
 export function bestKnowledge(
   profile: PlayerProfileResponse,
