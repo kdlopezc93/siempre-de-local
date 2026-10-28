@@ -19,13 +19,15 @@
   gap: var(--sdl-space-2);
   min-height: 44px;
   padding-inline: var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
+  border: 0;
   border-radius: var(--sdl-radius-pill);
-  background: transparent;
+  background: var(--sdl-surface);
+  box-shadow: inset 0 0 0 var(--sdl-stroke) var(--sdl-border);
   color: var(--sdl-fg);
   font: inherit;
   font-size: var(--sdl-text-sm);
   font-weight: 600;
+  white-space: nowrap;
   cursor: pointer;
   transition:
     background-color var(--sdl-duration-fast) var(--sdl-ease-out),
@@ -33,18 +35,21 @@
 }
 
 .chip:active {
-  transform: scale(0.96);
+  transform: scale(var(--sdl-press-scale));
 }
 
+/* Elegido: relleno de tinta, texto blanco (en oscuro, al revés). */
 .chip[aria-pressed='true'] {
-  border-color: var(--sdl-fg);
   background: var(--sdl-fg);
+  box-shadow: none;
   color: var(--sdl-bg);
 }
 
 .count {
+  font-family: var(--sdl-font-numeric);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
-  opacity: 0.8;
+  opacity: 0.55;
 }
 
 @media (hover: hover) {

@@ -1,6 +1,7 @@
 import { POSITIONS } from '@sdl/domain';
 import { Link } from 'react-router';
 
+import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import { useSquad } from '../squad/use-squad';
 import { useTeam } from '../team-admin/use-invitations';
@@ -8,6 +9,8 @@ import { RATED_ON, rankedAverages } from './card-view';
 import styles from './CardPages.module.css';
 import { PlayerCard } from './PlayerCard';
 import { useRatingHistory } from './use-card';
+import { PageTitle } from '../../shared/ui/PageTitle';
+import { Avatar } from '../../shared/ui/Avatar';
 
 /** /equipos/:teamId/plantilla/:playerId/tarjeta — la tarjeta y sus fotos anteriores. */
 export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: string }) {
@@ -51,8 +54,17 @@ export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: 
     <Screen className={styles.screen}>
       {back}
       <header>
-        <h1 className={styles.subtitle}>{player.displayName}</h1>
-        <p className={styles.muted}>Tarjeta 0–99</p>
+        <PageTitle
+          eyebrow="Tarjeta 0–99 de"
+          title={player.displayName}
+          actions={
+            <Avatar
+              name={player.displayName}
+              size={56}
+              label={player.jerseyNumber !== null ? String(player.jerseyNumber) : null}
+            />
+          }
+        />
       </header>
 
       {latest ? (
@@ -63,12 +75,9 @@ export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: 
       {latest?.ratedBy && <p className={styles.muted}>La puntuó {latest.ratedBy.name}.</p>}
       {latest?.notes && <p className={styles.notes}>“{latest.notes}”</p>}
       {rates && (
-        <Link
-          to={`/equipos/${teamId}/plantilla/${playerId}/tarjeta/puntuar`}
-          className={styles.primaryLink}
-        >
+        <ButtonLink to={`/equipos/${teamId}/plantilla/${playerId}/tarjeta/puntuar`}>
           {latest ? 'Puntuar de nuevo' : 'Puntuar'}
-        </Link>
+        </ButtonLink>
       )}
 
       {older.length > 0 && (

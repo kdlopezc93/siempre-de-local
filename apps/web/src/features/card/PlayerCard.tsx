@@ -1,5 +1,6 @@
 import type { MatchFormat, PlayerRating } from '@sdl/contracts';
 import {
+  anchorFor,
   GOALKEEPER_ATTRIBUTES,
   OUTFIELD_ATTRIBUTES,
   POSITIONS,
@@ -34,6 +35,9 @@ export function PlayerCard({
     <article className={styles.card} aria-label="Tarjeta del jugador">
       {best && (
         <header className={styles.head}>
+          <p className={styles.overline} aria-hidden="true">
+            Mejor media
+          </p>
           <p className={styles.overall}>
             <span className={styles.overallValue}>{best.value}</span>
             <span className={styles.overallPos}>
@@ -45,23 +49,27 @@ export function PlayerCard({
         </header>
       )}
 
-      <Attributes codes={OUTFIELD_ATTRIBUTES} values={card.values} />
-      {hasGoalkeeper && (
-        <>
-          <Heading className={styles.groupTitle}>De portero</Heading>
-          <Attributes codes={GOALKEEPER_ATTRIBUTES} values={card.values} />
-        </>
-      )}
+      <div className={styles.panel}>
+        <Attributes codes={OUTFIELD_ATTRIBUTES} values={card.values} />
+        {hasGoalkeeper && (
+          <>
+            <Heading className={styles.groupTitle}>De portero</Heading>
+            <Attributes codes={GOALKEEPER_ATTRIBUTES} values={card.values} />
+          </>
+        )}
+      </div>
 
-      <Heading className={styles.groupTitle}>Media por posición</Heading>
-      <ol className={styles.averages}>
-        {ranked.map(({ pos, value }, i) => (
-          <li key={pos} className={i === 0 ? styles.top : undefined}>
-            <span>{POSITIONS[pos].name}</span>
-            <span className={styles.averageValue}>{value}</span>
-          </li>
-        ))}
-      </ol>
+      <div className={styles.panel}>
+        <Heading className={styles.groupTitle}>Media por posición</Heading>
+        <ol className={styles.averages}>
+          {ranked.map(({ pos, value }, i) => (
+            <li key={pos} className={i === 0 ? styles.top : undefined}>
+              <span>{POSITIONS[pos].name}</span>
+              <span className={styles.averageValue}>{value}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
     </article>
   );
 }
@@ -78,7 +86,8 @@ function Attributes({
       {codes.map((code) => {
         const value = values[code] ?? 0;
         return (
-          <div key={code} className={styles.attribute}>
+          // El color de la barra dice el nivel, como al puntuar (carencia, por debajo, medio, destaca).
+          <div key={code} className={styles.attribute} data-band={anchorFor(value).min}>
             <dt>{RATING_ATTRIBUTES[code].name}</dt>
             <dd>
               <span className={styles.value}>{value}</span>

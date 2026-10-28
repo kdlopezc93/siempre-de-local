@@ -1,5 +1,5 @@
 .screen {
-  gap: var(--sdl-space-6);
+  gap: var(--sdl-space-4);
 }
 
 .back {
@@ -27,14 +27,16 @@
 }
 
 .title {
-  font-size: var(--sdl-text-display);
-  line-height: var(--sdl-leading-display);
-  letter-spacing: var(--sdl-tracking-display);
+  font-size: var(--sdl-text-h1);
+  line-height: 1.2;
   overflow-wrap: anywhere;
 }
 
+/* La posición va arriba del nombre, liviana: el título de dos pesos del sistema. */
 .heroPos {
-  font-weight: 600;
+  order: -1;
+  font-size: var(--sdl-text-lg);
+  font-weight: 500;
 }
 
 /* Tres datos de un vistazo: media, test y conocimiento. */
@@ -45,36 +47,55 @@
   margin: 0;
 }
 
-.stats div {
+.stats > div {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  gap: 6px;
   min-width: 0;
-  padding: var(--sdl-space-3);
-  border-radius: var(--sdl-radius-md);
+  padding: 14px 12px;
+  text-align: center;
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .stats dt {
-  order: 2;
   color: var(--sdl-fg-muted);
   font-size: var(--sdl-text-xs);
   font-weight: 600;
 }
 
+/* La media es lo fuerte de la ficha: su mosaico va en cobalto. */
+.stats > div:first-child {
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+}
+
+.stats > div:first-child dt,
+.stats > div:first-child .statNote {
+  color: var(--sdl-on-brand-muted);
+}
+
 .stats dd {
   margin: 0;
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: 30px;
   font-weight: 700;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 
+/* Cuando el dato es una palabra (la posición del test): texto, no cifra, y se parte por
+   palabras, nunca por letras. */
 .stats .statWord {
-  font-size: 20px;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-base);
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .stats .statNote {
@@ -113,9 +134,10 @@
 }
 
 .sectionTitle {
-  font-size: var(--sdl-text-lg);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
+  margin-top: 22px;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .sources {
@@ -123,8 +145,8 @@
   gap: var(--sdl-space-2);
   margin: 0;
   padding: var(--sdl-space-3) var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-lg);
+  box-shadow: var(--sdl-shadow-card);
+  border-radius: var(--sdl-radius-xl);
   background: var(--sdl-surface);
 }
 
@@ -157,20 +179,31 @@
   justify-content: center;
   min-height: var(--sdl-touch-min);
   padding-inline: var(--sdl-space-3);
-  border-radius: var(--sdl-radius-md);
-  font-weight: 600;
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-pill);
+  font: inherit;
+  font-weight: 700;
   text-align: center;
   text-decoration: none;
+  cursor: pointer;
   touch-action: manipulation;
+  transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
 }
 
+.primaryLink:active:not(:disabled),
+.secondaryLink:active:not(:disabled) {
+  transform: scale(var(--sdl-press-scale));
+}
+
+/* Los botones de la ficha: pastilla cobalto y pastilla con borde, como Button. */
 .primaryLink {
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
+  background: var(--sdl-brand);
+  color: var(--sdl-on-brand);
 }
 
 .secondaryLink {
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
+  border-color: var(--sdl-border-control);
+  background: var(--sdl-surface);
   color: var(--sdl-fg);
 }
 
@@ -200,7 +233,7 @@
   display: block;
   height: 6px;
   border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-border);
+  background: var(--sdl-surface-raised);
   overflow: hidden;
 }
 
@@ -232,8 +265,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-1);
-  padding-block: var(--sdl-space-3);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  margin-bottom: var(--sdl-space-2);
+  padding: 12px 14px;
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
   font-size: var(--sdl-text-sm);
 }
 
@@ -246,7 +282,6 @@
 .listPos {
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-lg);
-  text-transform: uppercase;
 }
 
 .tag {
@@ -279,16 +314,19 @@
 }
 
 .jerseyInput {
-  min-height: var(--sdl-touch-min);
+  min-height: 52px;
   padding-inline: var(--sdl-space-3);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-sm);
-  background: var(--sdl-surface);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-xl);
   font-variant-numeric: tabular-nums;
   text-align: center;
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    border-color var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
 .jerseyInput[aria-invalid='true'] {
@@ -357,7 +395,11 @@ button.secondaryLink {
 }
 
 .matchForm li {
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  margin-bottom: var(--sdl-space-2);
+  padding: 12px 14px;
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .matchFormRow {
@@ -425,12 +467,31 @@ button.secondaryLink {
 
 .dateInput {
   min-width: 0;
-  min-height: var(--sdl-touch-min);
+  min-height: 52px;
   padding-inline: var(--sdl-space-2);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-sm);
-  background: var(--sdl-surface);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
   font: inherit;
   color-scheme: dark;
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    border-color var(--sdl-duration-base) var(--sdl-ease-out);
+}
+
+/* Dorsal, pie y lo que ataja: insignias debajo del nombre. */
+.heroBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: var(--sdl-space-2);
+}
+
+/* Campo del sistema: hundido; al enfocarlo, blanco con aro cobalto (el borde). */
+.jerseyInput:focus,
+.dateInput:focus {
+  border-color: var(--sdl-focus-ring);
+  outline: none;
+  background: var(--sdl-surface);
 }

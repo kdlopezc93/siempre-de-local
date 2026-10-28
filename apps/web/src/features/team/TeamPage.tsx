@@ -11,6 +11,7 @@ import { VisibilitySettings } from './VisibilitySettings';
 import { TeamData } from './TeamData';
 import { TeamMembers } from './TeamMembers';
 import styles from './TeamPage.module.css';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 /**
  * /equipos/:teamId/equipo — el equipo (tu cuenta va aparte, en /cuenta): sus datos, accesos,
@@ -26,12 +27,11 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
   return (
     <Screen className={styles.screen}>
       {membership ? (
-        <header>
-          <h1 className={styles.title}>{membership.team.name}</h1>
-          <p className={styles.muted}>
-            {membership.club.name}, {formatsLabel(membership.team.formats, membership.team.format)}
-          </p>
-        </header>
+        <PageTitle
+          eyebrow={membership.club.name}
+          title={membership.team.name}
+          subtitle={formatsLabel(membership.team.formats, membership.team.format)}
+        />
       ) : (
         <h1 className={styles.title}>Equipo</h1>
       )}

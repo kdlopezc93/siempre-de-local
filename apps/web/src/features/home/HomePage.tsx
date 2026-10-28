@@ -18,6 +18,26 @@ import styles from './HomePage.module.css';
 import type { Todo, TodoIcon } from './todo';
 import { arrange } from './todo';
 import { useHomeTodos } from './use-home';
+import { PageTitle } from '../../shared/ui/PageTitle';
+import { SectionHead } from '../../shared/ui/SectionHead';
+
+/** El color del mosaico de cada tarea: lo del partido en volt, lo de valorar en sol… */
+const TINTS: Record<TodoIcon, 1 | 2 | 3 | 4 | 5 | 6> = {
+  exam: 4,
+  test: 1,
+  assess: 2,
+  card: 5,
+  review: 3,
+  lineup: 6,
+  match: 1,
+  injury: 3,
+};
+
+const TODAY = new Intl.DateTimeFormat('es-419', { weekday: 'long', day: 'numeric', month: 'long' });
+const today = () => {
+  const text = TODAY.format(new Date());
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
 
 const ICONS: Record<TodoIcon, Icon> = {
   exam: Brain,
@@ -31,7 +51,7 @@ const ICONS: Record<TodoIcon, Icon> = {
 };
 
 /**
- * "/" — lo que toca en el equipo activo (07 §4.3): lo más urgente como bloque ámbar y lo
+ * "/" — lo que toca en el equipo activo (07 §4.3): lo más urgente como bloque cobalto y lo
  * demás en filas cortas; si tienes los dos roles, separadas por rol.
  */
 export function HomePage({ me }: { me: Me }) {
@@ -49,7 +69,7 @@ export function HomePage({ me }: { me: Me }) {
 
   return (
     <Screen className={styles.screen}>
-      <h1 className={styles.title}>Hola, {firstName}</h1>
+      <PageTitle eyebrow={`Hola, ${firstName}`} title="Tu equipo" subtitle={today()} />
       {active?.injury && (
         <p className={styles.injury}>
           <FirstAid size={20} weight="fill" aria-hidden="true" />
@@ -99,6 +119,7 @@ function Group({ title, todos }: { title: string | null; todos: Todo[] }) {
       to={t.to}
       icon={ICONS[t.icon]}
       title={t.short ?? t.title}
+      tint={TINTS[t.icon]}
       {...(t.count !== undefined ? { count: t.count } : {})}
     />
   ));
@@ -106,9 +127,7 @@ function Group({ title, todos }: { title: string | null; todos: Todo[] }) {
   const id = `grupo-${title.replace(/\s+/g, '-').toLowerCase()}`;
   return (
     <section aria-labelledby={id} className={styles.group}>
-      <h2 id={id} className={styles.groupTitle}>
-        {title}
-      </h2>
+      <SectionHead id={id} title={title} />
       {rows}
     </section>
   );

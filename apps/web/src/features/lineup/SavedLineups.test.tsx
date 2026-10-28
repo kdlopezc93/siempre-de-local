@@ -177,7 +177,7 @@ describe('alineaciones guardadas', () => {
       await screen.findByRole('button', { name: /^Mediocentro: Meza.*fijado$/ }),
     );
     const detail = screen.getByRole('region', { name: 'Mediocentro' });
-    expect(detail).toHaveTextContent('80% de encaje, puesto a mano');
+    expect(detail).toHaveTextContent('80 % de encaje, puesto a mano');
     expect(detail).toHaveTextContent('Testsin dato');
     expect(screen.getByRole('link', { name: 'Editar en el planificador' })).toHaveAttribute(
       'href',

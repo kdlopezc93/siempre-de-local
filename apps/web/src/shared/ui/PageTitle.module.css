@@ -1,0 +1,46 @@
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sdl-space-3);
+}
+
+.text {
+  min-width: 0;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  overflow-wrap: anywhere;
+}
+
+.title:focus-visible {
+  outline: none;
+}
+
+.eyebrow {
+  font-size: var(--sdl-text-h1-eyebrow);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.subject {
+  font-size: var(--sdl-text-h1);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: var(--sdl-tracking-display);
+}
+
+.subtitle {
+  margin-top: var(--sdl-space-1);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.actions {
+  display: flex;
+  flex: none;
+  gap: var(--sdl-space-2);
+}

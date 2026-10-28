@@ -13,6 +13,8 @@ import { useBackTo } from './back';
 import styles from './AssessPage.module.css';
 import { useCreateAssessment, useSquad } from './use-squad';
 import { whyCannotRate } from './who-rates';
+import { PageTitle } from '../../shared/ui/PageTitle';
+import { Avatar } from '../../shared/ui/Avatar';
 
 const CONFIDENCE = [
   { value: 1, label: 'Muy poca' },
@@ -119,7 +121,17 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
       {guard.prompt}
       <BackLink to={back} />
       <header>
-        <h1 className={styles.title}>Valorar a {player.displayName}</h1>
+        <PageTitle
+          eyebrow="Valorar a"
+          title={player.displayName}
+          actions={
+            <Avatar
+              name={player.displayName}
+              size={56}
+              label={player.jerseyNumber !== null ? String(player.jerseyNumber) : null}
+            />
+          }
+        />
         <p className={styles.lead}>
           {player.assessedByMe
             ? 'Tu mirada de hoy. Las anteriores quedan en su historial.'

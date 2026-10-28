@@ -16,7 +16,6 @@
 .title {
   font-size: var(--sdl-text-xl);
   line-height: 1.1;
-  text-transform: uppercase;
   overflow-wrap: anywhere;
 }
 
@@ -31,18 +30,26 @@
   gap: var(--sdl-space-6);
 }
 
+/* Cada grupo de atributos en una tarjeta blanca, como las del sistema. */
 .group {
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-4);
   margin: 0;
-  padding: 0;
+  padding: var(--sdl-space-5);
   border: 0;
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .legend {
+  float: left;
+  width: 100%;
+  margin-bottom: var(--sdl-space-2);
   padding: 0;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
 }
 
 .hint {
@@ -66,11 +73,28 @@
   justify-content: space-between;
 }
 
+.slider {
+  --band: var(--sdl-primary);
+}
+
+.slider[data-band='85'],
+.slider[data-band='70'] {
+  --band: var(--sdl-success);
+}
+
+.slider[data-band='40'] {
+  --band: var(--sdl-badge-warning-fg);
+}
+
+.slider[data-band='0'] {
+  --band: var(--sdl-danger-fg);
+}
+
 .sliderValue {
-  color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
+  color: var(--band);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-xl);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -79,7 +103,7 @@
   width: 100%;
   height: var(--sdl-touch-min);
   margin: 0;
-  accent-color: var(--sdl-primary);
+  accent-color: var(--band);
   touch-action: pan-y;
   cursor: pointer;
 }
@@ -90,7 +114,7 @@
 }
 
 .anchor {
-  color: var(--sdl-fg-muted);
+  color: var(--band);
   font-size: var(--sdl-text-sm);
 }
 
@@ -113,10 +137,16 @@
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-2);
-  padding: var(--sdl-space-3) var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-md);
-  background: var(--sdl-surface);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+}
+
+/* "Así queda": el resultado en vivo es lo fuerte de la pantalla. */
+.preview .previewValue {
+  color: var(--sdl-on-brand);
 }
 
 .previewList {
@@ -130,21 +160,24 @@
 }
 
 .previewValue {
-  color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
-  font-size: var(--sdl-text-lg);
-  font-weight: 600;
+  font-family: var(--sdl-font-numeric);
+  font-size: 28px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .textarea {
   min-height: 88px;
   padding: var(--sdl-space-3) var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-sm);
-  background: var(--sdl-surface);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
   font: inherit;
   resize: vertical;
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    border-color var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
 .textarea::placeholder {
@@ -155,4 +188,11 @@
   .back:hover {
     color: var(--sdl-fg);
   }
+}
+
+/* Campo del sistema: hundido; al enfocarlo, blanco con aro cobalto (el borde). */
+.textarea:focus {
+  border-color: var(--sdl-focus-ring);
+  outline: none;
+  background: var(--sdl-surface);
 }

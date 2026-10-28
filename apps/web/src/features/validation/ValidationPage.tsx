@@ -6,10 +6,12 @@ import { Link } from 'react-router';
 import { fetchValidation } from '../../shared/api/validation';
 import { Screen } from '../../shared/ui/Screen';
 import styles from './ValidationPage.module.css';
+import { percent } from '../../shared/format';
+import { PageTitle } from '../../shared/ui/PageTitle';
+import { RingProgress } from '../../shared/ui/RingProgress';
 
 /** Con menos valoraciones a ciegas que esto, se avisa que es temprano. */
 const FEW = 10;
-const percent = (part: number, total: number) => `${Math.round((part / total) * 100)}%`;
 const name = (pos: keyof typeof POSITIONS) => POSITIONS[pos].name;
 
 const STRENGTH: Record<Strength, string> = {
@@ -31,7 +33,7 @@ export function ValidationPage({ teamId }: { teamId: string }) {
         Equipo
       </Link>
       <header>
-        <h1 className={styles.title}>Informe de validación</h1>
+        <PageTitle eyebrow="Informe de" title="validación" />
         <p className={styles.muted}>
           Para saber cuánto confiar en cada fuente con los datos de tu propio equipo.
         </p>
@@ -73,24 +75,35 @@ function TestSection({ data }: { data: ValidationResponse['testVsStaff'] }) {
         </p>
       ) : (
         <>
-          <dl className={styles.stats}>
-            <div>
-              <dt>Coincide exacto</dt>
-              <dd>
-                {percent(data.exact, data.n)}
-                <span className={styles.of}>
+          <dl className={styles.rings}>
+            <div className={styles.ringCard}>
+              <RingProgress
+                value={data.exact}
+                max={data.n}
+                size={92}
+                label={percent(data.exact / data.n)}
+              />
+              <div>
+                <dt>Coincide exacto</dt>
+                <dd className={styles.of}>
                   {data.exact} de {data.n}
-                </span>
-              </dd>
+                </dd>
+              </div>
             </div>
-            <div>
-              <dt>En su podio</dt>
-              <dd>
-                {percent(data.inPodium, data.n)}
-                <span className={styles.of}>
+            <div className={styles.ringCard}>
+              <RingProgress
+                value={data.inPodium}
+                max={data.n}
+                size={92}
+                tone="ink"
+                label={percent(data.inPodium / data.n)}
+              />
+              <div>
+                <dt>En su podio</dt>
+                <dd className={styles.of}>
                   {data.inPodium} de {data.n}
-                </span>
-              </dd>
+                </dd>
+              </div>
             </div>
           </dl>
           {data.n < FEW && (
@@ -126,7 +139,7 @@ function KnowledgeSection({ data }: { data: ValidationResponse['knowledgeVsCard'
   return (
     <section aria-labelledby="conocimiento" className={styles.section}>
       <h2 id="conocimiento" className={styles.sectionTitle}>
-        ¿Quien más sabe, tiene mejor tarjeta?
+        ¿Quién más sabe, tiene mejor tarjeta?
       </h2>
       <p className={styles.muted}>
         Por posición, el mejor examen de conocimiento de cada jugador frente a su media en la
@@ -171,7 +184,7 @@ function KnowledgeSection({ data }: { data: ValidationResponse['knowledgeVsCard'
   );
 }
 
-/** Puntos de tiza: conocimiento (abajo, 0–100%) frente a tarjeta (al costado, 0–99). */
+/** Puntos: conocimiento (abajo, 0–100%) frente a tarjeta (al costado, 0–99). */
 function Scatter({ points, label }: { points: { pct: number; mp: number }[]; label: string }) {
   return (
     <svg viewBox="0 0 100 60" className={styles.scatter} role="img" aria-label={label}>

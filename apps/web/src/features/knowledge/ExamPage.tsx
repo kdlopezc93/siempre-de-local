@@ -356,7 +356,8 @@ function ResultView({ result }: { result: ExamResult }) {
       <header className={styles.result}>
         <p className={styles.resultPos}>{POSITIONS[result.position].name}</p>
         <h1 ref={heading} tabIndex={-1} className={styles.resultPct}>
-          {Math.round(result.pct * 100)}%
+          {Math.round(result.pct * 100)}
+          <span className={styles.resultUnit}>{'\u00a0%'}</span>
         </h1>
         <p className={styles.resultBand}>{BAND_LABELS[result.band]}</p>
         <p className={styles.muted}>

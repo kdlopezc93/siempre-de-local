@@ -2,13 +2,6 @@
   gap: var(--sdl-space-4);
 }
 
-.titleRow {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--sdl-space-3);
-}
-
 .title {
   font-size: var(--sdl-text-display);
   line-height: var(--sdl-leading-display);
@@ -62,7 +55,7 @@
 
 .media {
   min-width: 2ch;
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: 26px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;

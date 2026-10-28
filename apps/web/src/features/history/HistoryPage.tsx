@@ -6,6 +6,7 @@ import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import styles from './HistoryPage.module.css';
 import { useHistory, type HistoryEntry } from './use-history';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 const WHEN = new Intl.DateTimeFormat('es-419', {
   day: 'numeric',
@@ -22,7 +23,7 @@ export function HistoryPage({ me }: { me: Me }) {
 
   return (
     <Screen className={styles.screen}>
-      <h1 className={styles.title}>Tus tests</h1>
+      <PageTitle eyebrow="Tus" title="tests de posición" />
 
       {history.isPending && history.entries.length === 0 && (
         <p className="sr-only" role="status">

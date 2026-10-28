@@ -2,6 +2,8 @@
 
 > Fuente de verdad visual de la PWA. Cada pantalla nueva consulta este documento; no se inventan colores ni tamaños sueltos (CLAUDE.md · Flujo de diseño). Tokens en `apps/web/src/shared/styles/tokens.css`.
 >
+> **Fuente del original (2026-10-28):** Kevin pasó el paquete completo del sistema (`Escuelas Deportivas DS.zip`: tokens, 26 componentes en React y el kit de la app). Los valores de esta guía se alinearon con ese paquete (radios, sombras, insignias, tintes) y sus componentes se portaron a `shared/ui`.
+>
 > **v3 (2026-10-27):** Kevin decidió que la identidad v2 "Pizarra táctica" (verde oscuro, ámbar, Barlow Condensed en mayúsculas, aros de tiza) **se veía hecha con IA**: encontró un video de Instagram editado con IA con una identidad casi idéntica. Se adopta el design system **"Escuelas Deportivas"** que hizo un amigo diseñador de Kevin para la visión de ecosistema (`08-ecosistema.md` §9). Original, con sus 26 componentes de referencia y la maqueta de app: `https://claude.ai/artifact/9D5UCbUAS6p4iFaT7KwiFt`. Este documento lo traduce a la app y le completa lo que no traía: **modo oscuro**, los **tres registros de voz**, **coma decimal**, todo **servido desde la app** (sin CDN) y las reglas para **menores**.
 >
 > Ojo con las herramientas: para "deportes", `ui-ux-pro-max` recomienda Barlow Condensed + Barlow, justo la elección genérica que hacía ver la v2 como de IA. No volver a ella.
@@ -59,6 +61,7 @@ Los componentes usan **roles**, nunca la paleta ni un hex: `--sdl-bg`, `--sdl-fg
 
 - **`--sdl-primary` vs `--sdl-brand`:** primary sirve de texto y de relleno (en oscuro se aclara); brand es solo relleno (el bloque protagonista, el botón principal y el escudo del equipo) y es cobalto intenso en los dos temas.
 - **Sobre el pasto, lo destacado va en volt** (`--sdl-field-accent`), no en cobalto: el cobalto casi no se distingue del verde.
+- **Insignias** (`--sdl-badge-*-bg/fg`): fondo tenue y texto de su color; en oscuro, el tinte sobre la noche. **Tintes** (`--sdl-tint-1…6`) para avatares, con tinta encima en los dos temas. **Tarjetas de color** (`--sdl-card-volt|coral|sun`) con tinta encima. `--sdl-surface-sunken` para campos, rieles y barras. `--sdl-live` para el globo de avisos y EN VIVO.
 - **Estado = color + palabra:** "Al día", "Pendiente", "Vencido"; nunca solo el color.
 
 ### 3.3 Contraste verificado (WCAG 2.2)
@@ -91,6 +94,7 @@ Del original, **no se usan como texto**: `ink-400` (2,6:1, solo bordes), `succes
 
 - **Tipo oración** en títulos y botones ("Registrar desempeño", "Tomar asistencia"). **Mayúsculas solo en insignias y sobretítulos** (11px, 700, `0.08em`): "EN VIVO", "ENTRENAMIENTO DE HOY".
 - Altura de línea 1.5 en texto y 1.1 en títulos.
+- **Porcentajes:** con `percent()` de `shared/format.ts` (entero y espacio duro antes del %: "82 %"); nunca se arman a mano.
 - **Coma decimal** y punto de miles, como en Colombia: "4,5 h", "$28.440.000", "88,5 %" (con espacio antes del % en el detalle).
 
 ## 5. Espaciado, radios, forma y sombras
@@ -101,9 +105,11 @@ Del original, **no se usan como texto**: `ink-400` (2,6:1, solo bordes), `succes
 |---|---|---|
 | `--sdl-radius-sm` | 12px | Inputs, casillas, iconos en recuadro |
 | `--sdl-radius-md` | 16px | Mosaicos chicos |
-| `--sdl-radius-lg` | 22px | Filas de tarea, cifras, la pizarra del examen |
+| `--sdl-radius-xs` | 8px | Casillas |
+| `--sdl-radius-lg` | 20px | Filas de lista, mosaicos de cifras (`StatTile`), la pizarra del examen |
 | `--sdl-radius-xl` | 28px | Tarjetas y el bloque protagonista |
-| `--sdl-radius-2xl` | 32px | Hojas inferiores |
+| `--sdl-radius-2xl` | 36px | Hojas inferiores |
+| `--sdl-radius-avatar` | 30% | Avatares (squircle) |
 | `--sdl-radius-pill` | 999px | Botones, chips, insignias, la barra de abajo |
 
 - **Tarjetas:** `--sdl-surface`, `radius-xl`, `--sdl-shadow-card`, sin borde. Las de color van planas, salvo el bloque cobalto (`--sdl-shadow-brand`). **Nunca** un borde de color a la izquierda.
@@ -153,11 +159,37 @@ Sin rebotes en el layout ni parallax. La hoja sigue al dedo y se cierra si baja 
 | `LeadTask` / `TaskRow` | "Lo que toca": el **bloque cobalto** (uno por pantalla) con botón volt, y las filas como tarjetas blancas con icono en recuadro y conteo en Space Grotesk | El bloque es lo más fuerte de la pantalla |
 | `TeamHeader` | Escudo (iniciales en cobalto), nombre del equipo, club y formato; a la derecha tu ficha | Con más de un equipo, abre la hoja "Tus equipos" |
 | `Token` | La ficha del jugador: dorsal o iniciales (Space Grotesk) en un disco con el aro de su línea; `tone="brand"` para el equipo o lo elegido; `injured` pone la crucecita | Tamaños 32/44/64/96. Decorativa salvo que lleve `label` |
-| `PitchLines` / `Pitch` | **La cancha** (como `SportField` del original): pasto plano con franjas de corte y líneas blancas | Fichas blancas con el aro de su línea, nombres en blanco; lo destacado (la 1.ª del podio, tú, lo elegido, los huecos) en **volt**. `role="img"` con las posiciones en su etiqueta |
+| `PitchLines` / `Pitch` | **La cancha** (como `SportField` del original): pasto plano con franjas de corte y líneas blancas | Fichas blancas con el aro de su línea, nombres en blanco con un borde del color del pasto (se leen aunque caigan sobre una línea); lo destacado (la 1.ª del podio, tú, lo elegido, los huecos) en **volt**. `role="img"` con las posiciones en su etiqueta |
 | `Sheet` | Hoja inferior modal (`<dialog>`), `radius-2xl` | Atrapa y devuelve el foco; se cierra con X, velo, Escape o arrastrando |
-| `Chips`, `Segmented`, `SectionTabs`, `SearchField`, `Row`, `useUnsavedChanges` | Igual que en la v2, con los tokens nuevos | Se pasan al estilo nuevo pantalla por pantalla |
+| `Row` | Fila de lista: tarjeta blanca redondeada (`radius-lg`, sombra) con 8px debajo; algo a la izquierda, título y una línea, un dato a la derecha | Al tocarla se achica como un botón |
+| `Chips`, `Segmented`, `SectionTabs`, `SearchField`, `useUnsavedChanges` | Igual que en la v2, con los tokens nuevos | |
 
-**Del original, para cuando hagan falta** (no existen todavía en la app): `StatTile`, `RingProgress`, `CompareBar`, `BarChart`, `ProgressBar`, `Avatar` cuadrado redondeado (30%), `Badge`, `Toast`, `Tooltip`, `TwoWeightTitle`, y `SportField` para fútbol sala, baloncesto, tenis, voleibol, natación y golf. Se construyen en `shared/ui` con CSS modules y estos tokens, siguiendo el original; no se importa su paquete de React.
+**Portados del original (2026-10-28)**, con la misma API en CSS modules (muestra en `/muestra/componentes`, solo desarrollo):
+
+| Componente | Qué es |
+|---|---|
+| `PageTitle` | El TopBar grande: título de dos pesos ("Hola, Kevin / **Tu equipo**", 22px liviano + 32px 800) y botones redondos a la derecha |
+| `SectionHead` | Título de sección (20px, 700) con 22px de aire arriba y un enlace opcional a la derecha ("Ver todo") |
+| `StatTile` / `StatGrid` | Dato de un vistazo: etiqueta arriba, cifra de 30px en Space Grotesk, cambio en verde o rojo. Tonos `white`, `sunken`, `brand`, `ink`, `volt`, `coral`, `sun`. En grilla de 2–4 (`<dl>`) |
+| `Badge` | Píldora en mayúsculas para estados y datos cortos: `success` (Al día), `warning` (Pendiente), `danger` (Vencido), `brand`, `neutral`, `accent`, `inverse`, `white` (sobre color), `live` (con punto) |
+| `Avatar` | Iniciales sobre un tinte (volt, sol, coral, lila, agua, cobalto) en squircle; `circle` para el cuerpo técnico; aro opcional |
+| `IconButton` | Botón redondo de 44px solo icono (`surface`, `sunken`, `brand`, `accent`, `dark`), con globo rojo de avisos |
+| `ProgressBar` | Barra con etiqueta y valor (Space Grotesk), sobre el tono hundido |
+| `RingProgress` | Anillo con puntas redondas y el valor al centro |
+
+Reglas de uso (auditoría del 2026-10-28):
+
+- **Avatar en vez de la ficha** fuera de la cancha: listas, encabezados de persona, el roster del partido y la cuenta. Lleva el **dorsal** si lo tiene (en Space Grotesk; si no, iniciales), el **aro de su línea** y la crucecita si está lesionado. La ficha en disco (`Token`) queda para la cancha, el podio y el escudo del equipo.
+- **Estados como `Badge`, nunca como texto de color:** Al día, Valorar, Lesionado, Vencida, Sin test (plantilla); Activo, Vencido, Completo, Anulado (invitaciones); Cancelado, Cargar resultado, Responder, Voy, No voy, Publicada, Jugado (partidos).
+- **Niveles 0–99 por color** (`anchorFor`): carencia en rojo, por debajo en naranja, medio en cobalto, destaca y referencia en verde. Los deslizadores de puntuar y las barras de la tarjeta usan los mismos; la palabra del nivel siempre acompaña.
+- **Campos de texto** como el `Input` del original: hundidos (`--sdl-surface-sunken`), sin borde visible, 52px, radio 16; al enfocar, blancos con el borde en cobalto. Con error, el borde en rojo.
+- **Opciones elegibles** (pie, posiciones, la palabra de la evaluación, los chips del planificador): hundidas y la elegida rellena de tinta, como los chips.
+- **Listas = filas-tarjeta** (radio 20, 8px entre ellas); **clave/valor = divisores punteados** (datos del equipo, medias de la tarjeta).
+- **Interruptor** (`Switch.module.css` sobre `<input type="checkbox" role="switch">`) para preferencias de encendido y apagado: riel de 52×32; apagado en el borde de control (3:1), encendido en cobalto.
+
+Y los controles ya existentes, rehechos como el original: `Chips` (blancos con borde tenue; el elegido, relleno de tinta), `Segmented` (riel hundido, la activa en píldora blanca con sombra), `SectionTabs` (subrayado de tinta, la activa en negrita), `SearchField` (campo hundido de 52px; al enfocar, blanco con aro cobalto), `Row` (radio 20, padding 10/14), `Button` `accent` (volt) y el globo de la barra en rojo (`--sdl-live`).
+
+**Todavía sin portar** (cuando hagan falta):
 
 ## 10. Voz y tono (tres registros)
 
@@ -177,8 +209,8 @@ Una sola voz: cercana, clara, en español latinoamericano, de **tú**, sin jerga
 
 - **Entrada (`auth`, `join`, `onboarding`, `consent`):** en el login, el bloque cobalto lleva el sobretítulo, el título de dos pesos ("Tu equipo, / **siempre de local**") y una jugada sobre media cancha (líneas en `--sdl-on-brand-muted`, los nuestros en blanco, la subida en volt); el botón de Google va en `secondary` (blanco, como pide su marca). Al unirse, la convocatoria es el bloque cobalto y "Ir a mi equipo" va en volt. El resumen de la política, en filas con icono en recuadro. El texto y la acción, abajo, al pulgar.
 - **Test y resultado (`quiz`, `result`, `history`, `science`):** la portada del test es el bloque cobalto (sobretítulo, la pregunta y el equipo) y "Empezar" queda al pulgar. En cada pregunta, el sobretítulo, la cifra del contador en Space Grotesk, la barra que se llena con `scaleX` y las opciones como tarjetas blancas (la elegida, borde y marca cobalto). En el resultado, el bloque cobalto lleva el dorsal en `--sdl-text-number` y el nombre; la cancha y el podio van en tarjetas, y en el podio la barra va debajo del nombre (así no se parte) y el porcentaje lleva espacio antes del % ("82 %").
-- **Ficha 0–99 (`features/card`):** sin brillos ni degradados de videojuego. Lo fuerte es la mejor media (Space Grotesk en `--sdl-text-number`, cobalto) con su posición; los atributos en dos columnas con barra, las medias por posición ordenadas. Al puntuar, deslizadores nativos de 44px (`accent-color` cobalto, `touch-action: pan-y`).
-- **Examen de conocimiento (`features/knowledge`):** una pregunta por pantalla; el reloj en Space Grotesk (cambia en los últimos 2 minutos y en el último; para lectores de pantalla avisa a los 5, 2 y 1); 20 marcas que se rellenan; revisión en grilla de 5 × 4 (≥ 44px); el resultado con el porcentaje grande, la banda y las áreas. Nunca las respuestas correctas.
+- **Ficha 0–99 (`features/card`):** sin brillos ni degradados de videojuego. Lo fuerte es la mejor media (Space Grotesk en `--sdl-text-number`, cobalto) con su posición; los atributos en dos columnas con barra cobalto, las medias por posición con divisores punteados. En la ficha del jugador para el cuerpo técnico, los tres datos de arriba son mosaicos; si el dato es una palabra (la posición del test), va en texto y se parte por palabras, nunca por letras. Al puntuar, deslizadores nativos de 44px (`accent-color` cobalto, `touch-action: pan-y`).
+- **Examen de conocimiento (`features/knowledge`):** una pregunta por pantalla; el reloj en Space Grotesk (cambia en los últimos 2 minutos y en el último; para lectores de pantalla avisa a los 5, 2 y 1); 20 marcas que se rellenan; revisión en grilla de 5 × 4 (≥ 44px); el resultado en el bloque cobalto, con el porcentaje en `--sdl-text-number` (el % a media altura), la banda y las correctas; las áreas con barra cobalto. El examen a medias es lo que toca en la lista: bloque cobalto con "Seguir con tu examen" en volt. Nunca las respuestas correctas.
 - **Pizarra del examen (`ExamBoard`):** la jugada sobre el pasto con líneas blancas; los tuyos con **O**, los rivales con **X** (la forma lo dice); tú en volt; los puntos de respuesta son botones de 44px con anillo volt punteado y transparente; elegido, relleno de volt. Muestra en `/muestra/pizarra` (solo desarrollo).
 - **Planificador (`features/lineup`):** la misma cancha; el aro dice qué tan bien encaja (éxito ≥ 65%, volt ≥ 40%, peligro debajo) y un punto volt marca lo fijado.
 - **Después del partido (`AfterMatch`, D18):** el marcador es lo memorable (goles en `--sdl-text-number`, `−` / `+` redondos de 48px); evaluar es una fila de cinco palabras (Flojo · Regular · Bien · Muy bien · Figura), la elegida rellena.

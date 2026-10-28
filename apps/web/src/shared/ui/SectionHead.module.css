@@ -1,0 +1,33 @@
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sdl-space-3);
+  margin-top: 22px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.link {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  min-height: var(--sdl-touch-min);
+  margin-block: calc((var(--sdl-touch-min) - 1.2em) / -2);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  touch-action: manipulation;
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--sdl-fg);
+  }
+}

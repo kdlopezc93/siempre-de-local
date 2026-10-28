@@ -74,7 +74,7 @@ describe('KnowledgeSection', () => {
     fakeApi({});
     renderSection();
     const [dfc, mc] = screen.getAllByRole('listitem').slice(0, 2);
-    expect(dfc).toHaveTextContent('Defensa central80% Sólido');
+    expect(dfc).toHaveTextContent('Defensa central80 % Sólido');
     expect(mc).toHaveTextContent('Sin examen');
     expect(mc).toHaveTextContent(/Re-evaluación vencida el 15 oct.*no cuenta en el planificador/);
     expect(mc).toHaveTextContent('“Queremos verlo en el medio”');

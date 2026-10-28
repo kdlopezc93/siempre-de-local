@@ -5,9 +5,13 @@
 }
 
 .sectionTitle {
-  font-size: var(--sdl-text-lg);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
+  margin-top: 22px;
+  font-family: var(--sdl-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--sdl-fg);
 }
 
 .subTitle {
@@ -42,8 +46,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-2);
-  padding-block: var(--sdl-space-3);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  margin-bottom: var(--sdl-space-2);
+  padding: 12px 14px;
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .positionHead {
@@ -56,13 +63,12 @@
 .positionName {
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-lg);
-  text-transform: uppercase;
 }
 
 .score {
   flex: none;
   color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-variant-numeric: tabular-nums;
 }
 
@@ -70,7 +76,7 @@
 .struck {
   flex: none;
   color: var(--sdl-fg-muted);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-variant-numeric: tabular-nums;
   text-decoration: line-through;
 }
@@ -113,8 +119,8 @@
   flex-direction: column;
   gap: var(--sdl-space-2);
   padding: var(--sdl-space-3);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-md);
+  box-shadow: var(--sdl-shadow-card);
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
 }
 
@@ -126,12 +132,15 @@
 .textarea,
 .days {
   padding: var(--sdl-space-2) var(--sdl-space-3);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-sm);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
   background: var(--sdl-bg);
   color: var(--sdl-fg);
   font: inherit;
   font-size: var(--sdl-text-base);
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    border-color var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
 .textarea {
@@ -168,4 +177,12 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--sdl-space-2);
+}
+
+/* Campo del sistema: hundido; al enfocarlo, blanco con aro cobalto (el borde). */
+.textarea:focus,
+.days:focus {
+  border-color: var(--sdl-focus-ring);
+  outline: none;
+  background: var(--sdl-surface);
 }

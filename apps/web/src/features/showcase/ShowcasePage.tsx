@@ -23,6 +23,7 @@ import { LeadTask, TaskRow } from '../../shared/ui/TaskCard';
 import { TeamHeader } from '../../shared/ui/TeamHeader';
 import { lineOfPosition, Token, type TokenLine } from '../../shared/ui/Token';
 import { PlayerCard } from '../card/PlayerCard';
+import { ComponentsSample } from './ComponentsSample';
 import { ExamBoard } from '../knowledge/ExamBoard';
 import { DEMO_PLAYERS, DEMO_TEAMS } from './showcase-data';
 import styles from './ShowcasePage.module.css';
@@ -58,6 +59,7 @@ export function ShowcasePage() {
           <Route path="mi-juego" element={<MyGame />} />
           <Route path="equipo" element={<Team />} />
           <Route path="pizarra" element={<BoardSamples />} />
+          <Route path="componentes" element={<ComponentsSample />} />
         </Routes>
       </div>
       <BottomNav items={NAV} current={current} />

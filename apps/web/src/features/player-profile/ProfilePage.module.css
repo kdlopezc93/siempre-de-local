@@ -16,8 +16,6 @@
 .title {
   font-size: var(--sdl-text-display);
   line-height: var(--sdl-leading-display);
-  letter-spacing: var(--sdl-tracking-display);
-  text-transform: uppercase;
 }
 
 .lead,
@@ -51,14 +49,17 @@
 }
 
 .input {
-  min-height: var(--sdl-touch-min);
+  min-height: 52px;
   padding: var(--sdl-space-3) var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-sm);
-  background: var(--sdl-surface);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
   font: inherit;
   font-size: var(--sdl-text-base);
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    border-color var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
 .input:focus-visible {
@@ -90,9 +91,9 @@
   gap: var(--sdl-space-2);
   min-height: var(--sdl-touch-min);
   padding: var(--sdl-space-2) var(--sdl-space-3);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-md);
-  background: var(--sdl-surface);
+  border: 0;
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
   font: inherit;
   cursor: pointer;
@@ -108,11 +109,11 @@
   opacity: 0;
 }
 
+/* Elegido: relleno de tinta, como los chips del sistema. La casilla no se rellena. */
 .segment:has(input:checked),
-.check:has(input:checked),
 .position[aria-pressed='true'] {
-  border-color: var(--sdl-primary);
-  background: var(--sdl-surface-selected);
+  background: var(--sdl-fg);
+  color: var(--sdl-bg);
 }
 
 .segment:has(input:focus-visible),
@@ -141,7 +142,9 @@
 
 .position {
   text-align: left;
-  overflow-wrap: anywhere;
+  /* Por palabras (con guion si hace falta), nunca por letras: "Mediocentro" entero. */
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .position:disabled {
@@ -149,19 +152,19 @@
   cursor: not-allowed;
 }
 
-/* El dorsal; si está elegida, su número de preferencia en ámbar. */
+/* El dorsal; si está elegida, su número de preferencia en cobalto. */
 .badge {
   display: inline-grid;
   place-items: center;
   flex: none;
   width: 26px;
   height: 26px;
-  border: var(--sdl-stroke) solid var(--sdl-pitch-stroke);
+  border: var(--sdl-stroke) solid var(--sdl-border-control);
   border-radius: var(--sdl-radius-pill);
   color: var(--sdl-fg-muted);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-sm);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -174,8 +177,8 @@
 .board {
   margin-top: var(--sdl-space-2);
   padding: var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-lg);
+  box-shadow: var(--sdl-shadow-card);
+  border-radius: var(--sdl-radius-xl);
   background: var(--sdl-surface);
 }
 
@@ -194,4 +197,11 @@
   .back:hover {
     color: var(--sdl-fg);
   }
+}
+
+/* Campo del sistema: hundido; al enfocarlo, blanco con aro cobalto (el borde). */
+.input:focus {
+  border-color: var(--sdl-focus-ring);
+  outline: none;
+  background: var(--sdl-surface);
 }

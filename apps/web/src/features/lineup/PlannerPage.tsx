@@ -30,6 +30,8 @@ import { fromLineup, fromMatch, lineupSignature, toLineupInput } from './planner
 import { SlotBreakdown } from './SlotBreakdown';
 import { useLineup, usePublishLineup, useSaveLineup } from './use-lineups';
 import { healthyIds, useLineupInputs, usePlanner } from './use-planner';
+import { percent } from '../../shared/format';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 const FORMATS: { value: MatchFormat; label: string }[] = [
   { value: 'F11', label: 'Fútbol 11' },
@@ -42,11 +44,10 @@ const PRIORITIES: { value: LinePriority; label: string }[] = [
 ];
 const MIN_KNOWLEDGE: { value: number | null; label: string }[] = [
   { value: null, label: 'Sin mínimo' },
-  { value: 0.5, label: '50%' },
-  { value: 0.7, label: '70%' },
-  { value: 0.85, label: '85%' },
+  { value: 0.5, label: '50\u00a0%' },
+  { value: 0.7, label: '70\u00a0%' },
+  { value: 0.85, label: '85\u00a0%' },
 ];
-const percent = (x: number) => `${Math.round(x * 100)}%`;
 const REPLY_LABEL = { yes: 'Va', no: 'No va', pending: 'Sin responder' } as const;
 
 /** /equipos/:teamId/planificador — armar la alineación del partido (02 §9). */
@@ -97,7 +98,7 @@ export function PlannerPage({ teamId }: { teamId: string }) {
     return (
       <Screen className={styles.screen}>
         {back}
-        <h1 className={styles.title}>Planificador</h1>
+        <PageTitle title="Planificador" />
         <p className={styles.muted}>
           Todavía no hay jugadores.{' '}
           <Link to={`/equipos/${teamId}/invitar`}>Invita a tu equipo</Link>.
@@ -164,10 +165,7 @@ function Planner({
     <Screen className={styles.screen}>
       {guard.prompt}
       {back}
-      <header>
-        <h1 className={styles.title}>Planificador</h1>
-        <p className={styles.muted}>{teamName}</p>
-      </header>
+      <PageTitle eyebrow={teamName} title="Planificador" />
 
       <details className={styles.call}>
         <summary className={styles.summary}>
@@ -320,7 +318,7 @@ function Planner({
           {(['defensa', 'medio', 'ataque'] as const).map((line) => (
             <div key={line}>
               <dt>{line[0]!.toUpperCase() + line.slice(1)}</dt>
-              <dd>{lines[line] === null ? '–' : `${lines[line]}%`}</dd>
+              <dd>{lines[line] === null ? '–' : `${lines[line]}\u00a0%`}</dd>
             </div>
           ))}
         </dl>

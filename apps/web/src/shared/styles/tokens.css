@@ -24,11 +24,24 @@
   --sdl-color-cobalt-100: #e3e9fd;
   --sdl-color-volt-600: #b8da25;
   --sdl-color-volt-500: #d4f34a;
+  --sdl-color-volt-300: #e6fa92;
   --sdl-color-sun-500: #ffd84d;
+  --sdl-color-sun-300: #ffe88f;
   --sdl-color-coral-500: #ff6b57;
+  --sdl-color-coral-300: #ffa597;
+  --sdl-color-coral-100: #ffe4df;
   --sdl-color-aqua-500: #3cc8c9;
+  --sdl-color-aqua-100: #daf5f5;
   --sdl-color-lilac-500: #9b82ee;
+  --sdl-color-lilac-300: #c9b8f5;
   --sdl-color-orange-500: #ff8a3d;
+  --sdl-color-orange-100: #ffe8d8;
+  /* Insignias de estado (Badge del sistema): texto oscuro sobre su tinte claro. */
+  --sdl-color-success-100: #ddf4e8;
+  --sdl-color-warning-700: #9a4512;
+  --sdl-color-danger-100: #fde3e6;
+  /* Globo de avisos (EN VIVO, la campana): rojo del sistema. */
+  --sdl-color-live-500: #e5243b;
   --sdl-color-grass-600: #2a7356;
   --sdl-color-success-700: #0f7443;
   --sdl-color-danger-600: #c81d33;
@@ -51,6 +64,12 @@
   --sdl-color-danger-300: #ff7b88;
   --sdl-color-attack-300: #ff8b7a;
   --sdl-color-field-dark: #245c30;
+  /* Fondos de insignia en oscuro: el tinte de su color sobre la noche. */
+  --sdl-color-success-night: #173a2c;
+  --sdl-color-warning-night: #3d2a1f;
+  --sdl-color-warning-300: #ffb27f;
+  --sdl-color-danger-night: #3d1f27;
+  --sdl-color-cobalt-night: #222c4d;
 
   /* Roles semánticos, claro (§3.2) */
   --sdl-bg: var(--sdl-color-ink-50);
@@ -60,6 +79,8 @@
   --sdl-surface-hover: var(--sdl-color-ink-100);
   --sdl-surface-selected: var(--sdl-color-ink-100);
   --sdl-surface-raised: var(--sdl-color-ink-100);
+  /* Hundido: campos de texto, búsqueda, el riel del segmentado y las barras. */
+  --sdl-surface-sunken: var(--sdl-color-ink-100);
   --sdl-border: var(--sdl-color-ink-200);
   --sdl-border-control: var(--sdl-color-ink-400);
   /* Cobalto: botón principal, la tarjeta protagonista, pestaña activa, foco, enlaces. */
@@ -88,6 +109,32 @@
   --sdl-danger-fg: var(--sdl-color-danger-600);
   --sdl-on-danger: var(--sdl-color-white);
   --sdl-scrim: rgb(20 22 28 / 48%);
+  --sdl-live: var(--sdl-color-live-500);
+  --sdl-on-live: var(--sdl-color-white);
+  /* Insignias (Badge): fondo tenue y texto de su color, siempre con la palabra. */
+  --sdl-badge-success-bg: var(--sdl-color-success-100);
+  --sdl-badge-success-fg: var(--sdl-color-success-700);
+  --sdl-badge-warning-bg: var(--sdl-color-orange-100);
+  --sdl-badge-warning-fg: var(--sdl-color-warning-700);
+  --sdl-badge-danger-bg: var(--sdl-color-danger-100);
+  --sdl-badge-danger-fg: var(--sdl-color-danger-600);
+  --sdl-badge-brand-bg: var(--sdl-color-cobalt-100);
+  --sdl-badge-brand-fg: var(--sdl-color-cobalt-600);
+  --sdl-badge-neutral-bg: var(--sdl-color-ink-100);
+  --sdl-badge-neutral-fg: var(--sdl-color-ink-500);
+  /* Tintes de avatar y de mosaicos de color (texto encima: tinta, en los dos temas). */
+  --sdl-tint-1: var(--sdl-color-volt-300);
+  --sdl-tint-2: var(--sdl-color-sun-300);
+  --sdl-tint-3: var(--sdl-color-coral-300);
+  --sdl-tint-4: var(--sdl-color-lilac-300);
+  --sdl-tint-5: var(--sdl-color-aqua-100);
+  --sdl-tint-6: var(--sdl-color-cobalt-100);
+  --sdl-on-tint: var(--sdl-color-ink-900);
+  /* Tarjetas de color (Card del sistema): volt, coral y sol con tinta encima. */
+  --sdl-card-volt: var(--sdl-color-volt-500);
+  --sdl-card-coral: var(--sdl-color-coral-500);
+  --sdl-card-sun: var(--sdl-color-sun-500);
+  --sdl-on-card-color: var(--sdl-color-ink-900);
   /* La cancha (SportField): pasto plano con franjas de corte, líneas y texto blancos; lo
      destacado sobre el pasto va en volt (el cobalto casi no se distingue del verde). */
   --sdl-field: var(--sdl-color-field);
@@ -96,7 +143,6 @@
   --sdl-field-accent: var(--sdl-color-volt-500);
   --sdl-on-field-accent: var(--sdl-color-ink-900);
   --sdl-pitch-stroke: var(--sdl-color-field-line);
-  --sdl-chalk-stroke: var(--sdl-color-field-line);
 
   /* Línea de cada posición: el aro de las fichas (§9.2). Nunca es la única pista. */
   --sdl-line-portero: var(--sdl-color-ink-900);
@@ -107,10 +153,10 @@
   --sdl-injured: var(--sdl-color-attack-600);
 
   /* Sombras: tinta con poca opacidad; el brillo de color solo bajo cobalto. */
-  --sdl-shadow-card: 0 1px 2px rgb(20 22 28 / 4%), 0 4px 14px rgb(20 22 28 / 5%);
-  --sdl-shadow-raised: 0 2px 6px rgb(20 22 28 / 6%), 0 10px 24px rgb(20 22 28 / 8%);
-  --sdl-shadow-float: 0 8px 24px rgb(20 22 28 / 18%), 0 2px 6px rgb(20 22 28 / 10%);
-  --sdl-shadow-brand: 0 10px 24px rgb(49 85 232 / 28%);
+  --sdl-shadow-card: 0 1px 2px rgb(20 22 28 / 4%), 0 6px 20px rgb(20 22 28 / 5%);
+  --sdl-shadow-raised: 0 2px 4px rgb(20 22 28 / 5%), 0 12px 32px rgb(20 22 28 / 9%);
+  --sdl-shadow-float: 0 18px 48px rgb(20 22 28 / 16%);
+  --sdl-shadow-brand: 0 12px 28px rgb(49 85 232 / 32%);
 
   /* Tipografía (§4): Plus Jakarta Sans para la interfaz, Space Grotesk para las cifras. */
   --sdl-font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
@@ -123,6 +169,9 @@
   --sdl-text-lg: 17px;
   --sdl-text-xl: clamp(21px, 5.6vw, 24px);
   --sdl-text-display: clamp(28px, 8vw, 36px);
+  /* El título de pantalla del sistema (TopBar grande): 32px, con su línea liviana de 22px. */
+  --sdl-text-h1: 32px;
+  --sdl-text-h1-eyebrow: 22px;
   --sdl-text-number: clamp(44px, 13vw, 64px);
   --sdl-leading-body: 1.5;
   --sdl-leading-display: 1.1;
@@ -145,12 +194,15 @@
 
   /* Forma (§5): radios generosos; píldora para botones, chips y la barra. */
   --sdl-stroke: 1.5px;
+  --sdl-radius-xs: 8px;
   --sdl-radius-sm: 12px;
   --sdl-radius-md: 16px;
-  --sdl-radius-lg: 22px;
+  --sdl-radius-lg: 20px;
   --sdl-radius-xl: 28px;
-  --sdl-radius-2xl: 32px;
+  --sdl-radius-2xl: 36px;
   --sdl-radius-pill: 999px;
+  /* Avatares: "squircle" (cuadrado muy redondeado). */
+  --sdl-radius-avatar: 30%;
 
   /* Armazón (§9.1) */
   --sdl-header-height: 56px;
@@ -165,6 +217,7 @@
   --sdl-focus-width: 2px;
   --sdl-focus-offset: 3px;
   --sdl-press-scale: 0.97;
+  --sdl-press-scale-icon: 0.92;
 
   /* Movimiento (§7) */
   --sdl-duration-fast: 120ms;
@@ -172,6 +225,8 @@
   --sdl-duration-enter: 320ms;
   --sdl-duration-sheet: 320ms;
   --sdl-duration-exit: 160ms;
+  /* Gráficos (anillos y barras) se llenan despacio. */
+  --sdl-duration-chart: 700ms;
   --sdl-ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --sdl-ease-in: cubic-bezier(0.4, 0, 1, 1);
   /* Como un resorte suave: llega rápido y se asienta. */
@@ -190,6 +245,17 @@
     --sdl-surface-hover: var(--sdl-color-night-850);
     --sdl-surface-selected: var(--sdl-color-night-800);
     --sdl-surface-raised: var(--sdl-color-night-800);
+    --sdl-surface-sunken: var(--sdl-color-night-800);
+    --sdl-badge-success-bg: var(--sdl-color-success-night);
+    --sdl-badge-success-fg: var(--sdl-color-success-300);
+    --sdl-badge-warning-bg: var(--sdl-color-warning-night);
+    --sdl-badge-warning-fg: var(--sdl-color-warning-300);
+    --sdl-badge-danger-bg: var(--sdl-color-danger-night);
+    --sdl-badge-danger-fg: var(--sdl-color-danger-300);
+    --sdl-badge-brand-bg: var(--sdl-color-cobalt-night);
+    --sdl-badge-brand-fg: var(--sdl-color-cobalt-200);
+    --sdl-badge-neutral-bg: var(--sdl-color-night-800);
+    --sdl-badge-neutral-fg: var(--sdl-color-fog-300);
     --sdl-border: var(--sdl-color-night-700);
     --sdl-border-control: var(--sdl-color-night-500);
     --sdl-primary: var(--sdl-color-cobalt-300);
@@ -228,6 +294,17 @@
   --sdl-surface-hover: var(--sdl-color-night-850);
   --sdl-surface-selected: var(--sdl-color-night-800);
   --sdl-surface-raised: var(--sdl-color-night-800);
+  --sdl-surface-sunken: var(--sdl-color-night-800);
+  --sdl-badge-success-bg: var(--sdl-color-success-night);
+  --sdl-badge-success-fg: var(--sdl-color-success-300);
+  --sdl-badge-warning-bg: var(--sdl-color-warning-night);
+  --sdl-badge-warning-fg: var(--sdl-color-warning-300);
+  --sdl-badge-danger-bg: var(--sdl-color-danger-night);
+  --sdl-badge-danger-fg: var(--sdl-color-danger-300);
+  --sdl-badge-brand-bg: var(--sdl-color-cobalt-night);
+  --sdl-badge-brand-fg: var(--sdl-color-cobalt-200);
+  --sdl-badge-neutral-bg: var(--sdl-color-night-800);
+  --sdl-badge-neutral-fg: var(--sdl-color-fog-300);
   --sdl-border: var(--sdl-color-night-700);
   --sdl-border-control: var(--sdl-color-night-500);
   --sdl-primary: var(--sdl-color-cobalt-300);
@@ -263,5 +340,6 @@
     --sdl-duration-enter: 0ms;
     --sdl-duration-sheet: 0ms;
     --sdl-duration-exit: 0ms;
+    --sdl-duration-chart: 0ms;
   }
 }

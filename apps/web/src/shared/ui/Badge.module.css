@@ -1,0 +1,78 @@
+.badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--sdl-radius-pill);
+  font-family: var(--sdl-font-body);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: var(--sdl-tracking-eyebrow);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.md {
+  height: 26px;
+  padding-inline: 11px;
+  font-size: var(--sdl-text-eyebrow);
+}
+
+.sm {
+  height: 20px;
+  padding-inline: 8px;
+  font-size: 10px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentcolor;
+}
+
+.success {
+  background: var(--sdl-badge-success-bg);
+  color: var(--sdl-badge-success-fg);
+}
+
+.warning {
+  background: var(--sdl-badge-warning-bg);
+  color: var(--sdl-badge-warning-fg);
+}
+
+.danger {
+  background: var(--sdl-badge-danger-bg);
+  color: var(--sdl-badge-danger-fg);
+}
+
+.brand {
+  background: var(--sdl-badge-brand-bg);
+  color: var(--sdl-badge-brand-fg);
+}
+
+.neutral {
+  background: var(--sdl-badge-neutral-bg);
+  color: var(--sdl-badge-neutral-fg);
+}
+
+.accent {
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
+}
+
+.inverse {
+  background: var(--sdl-inverse);
+  color: var(--sdl-on-inverse);
+}
+
+/* Sobre tarjetas de color (el bloque cobalto). */
+.white {
+  background: var(--sdl-color-white);
+  color: var(--sdl-color-ink-900);
+}
+
+.live {
+  background: var(--sdl-live);
+  color: var(--sdl-on-live);
+}

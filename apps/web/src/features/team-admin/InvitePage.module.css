@@ -22,8 +22,6 @@
 .title {
   font-size: var(--sdl-text-display);
   line-height: var(--sdl-leading-display);
-  letter-spacing: var(--sdl-tracking-display);
-  text-transform: uppercase;
 }
 
 .lead {
@@ -54,16 +52,14 @@
 
 .ticketTitle {
   font-size: var(--sdl-text-lg);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
 }
 
 .code {
   display: flex;
   flex-wrap: wrap;
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-xl);
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.18em;
   font-variant-numeric: tabular-nums;
 }
@@ -99,15 +95,13 @@
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-lg);
   font-weight: 600;
-  letter-spacing: var(--sdl-tracking-button);
   text-decoration: none;
-  text-transform: uppercase;
   touch-action: manipulation;
   transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
 }
 
 .whatsapp:active {
-  transform: scale(0.98);
+  transform: scale(var(--sdl-press-scale));
 }
 
 .note,
@@ -129,8 +123,6 @@
 
 .listTitle {
   font-size: var(--sdl-text-lg);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
 }
 
 .items {
@@ -145,8 +137,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-1);
-  padding-block: var(--sdl-space-3);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  margin-bottom: var(--sdl-space-2);
+  padding: 12px 14px;
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .itemHead {

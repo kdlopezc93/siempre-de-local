@@ -6,9 +6,9 @@ import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import styles from './KnowledgeSection.module.css';
 import { useCancelReview, useRequestReview, useVoidExam } from './use-knowledge-staff';
+import { percent } from '../../shared/format';
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
-const percent = (pct: number) => `${Math.round(pct * 100)}%`;
 const day = (iso: string) => DAY.format(new Date(iso));
 
 /**

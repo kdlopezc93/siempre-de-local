@@ -52,7 +52,7 @@ describe('informe de validación', () => {
     });
     renderPage();
 
-    expect(await screen.findByText('25%')).toBeInTheDocument();
+    expect(await screen.findByText('25 %')).toBeInTheDocument();
     expect(screen.getByText('3 de 4')).toBeInTheDocument();
     expect(screen.getByText(/todavía es temprano/)).toBeInTheDocument();
     expect(screen.getByText('Tú: Defensa central. Test: Pivote.')).toBeInTheDocument();

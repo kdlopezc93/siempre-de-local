@@ -10,8 +10,7 @@ import { Link, useSearchParams } from 'react-router';
 import { ApiError } from '../../shared/api/http';
 import { Screen } from '../../shared/ui/Screen';
 import { SectionTabs } from '../../shared/ui/SectionTabs';
-import { initialsOf } from '../../shared/ui/TeamHeader';
-import { lineOfPosition, Token } from '../../shared/ui/Token';
+import { lineOfPosition } from '../../shared/ui/Token';
 import { RATED_ON, rankedAverages } from '../card/card-view';
 import { PlayerCard } from '../card/PlayerCard';
 import { ratingLabel } from '../matches/after-match';
@@ -23,14 +22,16 @@ import styles from './PlayerProfilePage.module.css';
 import { InjuryControl } from './InjuryControl';
 import { injuryText, todayIso } from './injury';
 import { KnowledgeSection } from './KnowledgeSection';
-import { agreement, bestKnowledge, jerseyHolders, sheetPosition } from './profile-view';
+import { agreement, jerseyHolders, knowledgeAt, sheetPosition } from './profile-view';
 import { usePlayerProfile, useSetJersey, useSquad } from './use-squad';
 import { whyCannotRate } from './who-rates';
+import { percent } from '../../shared/format';
+import { Avatar } from '../../shared/ui/Avatar';
+import { Badge } from '../../shared/ui/Badge';
+import { RingProgress } from '../../shared/ui/RingProgress';
 
 const FOOT = { left: 'Zurdo', right: 'Diestro', both: 'Ambidiestro' } as const;
 const name = (pos: PositionCode) => POSITIONS[pos].name;
-const percent = (pct: number) => `${Math.round(pct * 100)}%`;
-
 type Section = 'resumen' | 'tarjeta' | 'conocimiento' | 'valoraciones';
 const SECTIONS = [
   { value: 'resumen', label: 'Resumen' },
@@ -92,33 +93,29 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
   const here = `/equipos/${teamId}/plantilla/${playerId}`;
   const position = sheetPosition(data);
   const media = data.card ? rankedAverages(data.card.positionAverages, format)[0] : undefined;
-  const knows = bestKnowledge(data);
+  // El de su posición, no el mejor: es lo que sirve para alinearlo.
+  const knows = knowledgeAt(data, position);
 
   return (
     <Screen className={styles.screen}>
       {back}
       <header className={styles.hero}>
-        <Token
-          text={
-            player.jerseyNumber !== null
-              ? String(player.jerseyNumber)
-              : initialsOf(player.displayName)
-          }
+        <Avatar
+          name={player.displayName}
+          label={player.jerseyNumber !== null ? String(player.jerseyNumber) : null}
+          size={72}
           line={position ? lineOfPosition(position) : null}
-          size="xl"
           injured={data.injury !== null}
-          {...(player.jerseyNumber !== null ? { label: `Dorsal ${player.jerseyNumber}` } : {})}
         />
         <div className={styles.heroText}>
           <h1 className={styles.title}>{player.displayName}</h1>
           <p className={styles.heroPos}>{position ? name(position) : 'Sin posición todavía'}</p>
-          <p className={styles.muted}>
-            {[
-              player.dominantFoot && FOOT[player.dominantFoot],
-              player.playsGoalkeeper && 'Dice que ataja',
-            ]
-              .filter(Boolean)
-              .join('. ')}
+          <p className={styles.heroBadges}>
+            {player.jerseyNumber !== null && (
+              <Badge tone="brand">Dorsal {player.jerseyNumber}</Badge>
+            )}
+            {player.dominantFoot && <Badge tone="neutral">{FOOT[player.dominantFoot]}</Badge>}
+            {player.playsGoalkeeper && <Badge tone="neutral">Ataja</Badge>}
           </p>
         </div>
       </header>
@@ -152,8 +149,26 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
         </div>
         <div>
           <dt>Conocimiento</dt>
-          <dd>{knows ? percent(knows.pct) : '–'}</dd>
-          {knows && <dd className={styles.statNote}>{name(knows.position)}</dd>}
+          <dd>
+            {knows && knows.pct !== null ? (
+              <RingProgress
+                value={knows.pct}
+                max={1}
+                size={64}
+                stroke={7}
+                label={percent(knows.pct)}
+              />
+            ) : (
+              '–'
+            )}
+          </dd>
+          {knows && (
+            <dd className={styles.statNote}>
+              {knows.pct === null
+                ? `Sin presentar en ${name(knows.position)}`
+                : name(knows.position)}
+            </dd>
+          )}
         </div>
       </dl>
 

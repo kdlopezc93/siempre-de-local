@@ -1,4 +1,4 @@
-import type { CertPositionsResponse } from '@sdl/contracts';
+import type { CertPositionsResponse, PositionCode } from '@sdl/contracts';
 import { BAND_LABELS, POSITIONS } from '@sdl/domain';
 import { NotePencil } from '@phosphor-icons/react/dist/csr/NotePencil';
 import { Link } from 'react-router';
@@ -8,7 +8,6 @@ import { ApiError } from '../../shared/api/http';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
 import { LeadTask } from '../../shared/ui/TaskCard';
-import { initialsOf } from '../../shared/ui/TeamHeader';
 import { lineOfPosition, Token } from '../../shared/ui/Token';
 import { PlayerCard } from '../card/PlayerCard';
 import { useMyCard } from '../card/use-card';
@@ -18,10 +17,14 @@ import { ratingLabel } from '../matches/after-match';
 import { matchDay } from '../matches/match-view';
 import { useMatches } from '../matches/use-matches';
 import styles from './MyGamePage.module.css';
+import { percent } from '../../shared/format';
+import { Avatar } from '../../shared/ui/Avatar';
+import { Badge } from '../../shared/ui/Badge';
+import { PageTitle } from '../../shared/ui/PageTitle';
+import { SectionHead } from '../../shared/ui/SectionHead';
+import { StatGrid, StatTile } from '../../shared/ui/StatTile';
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
-const percent = (pct: number) => `${Math.round(pct * 100)}%`;
-
 /**
  * /equipos/:teamId/mi-juego — lo tuyo como jugador en este equipo (07 §4.3): tu tarjeta, tu
  * posición según el test, tu conocimiento y tu perfil. Una vez hecho, el test queda como
@@ -31,38 +34,33 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
   const membership = me.teams.find((t) => t.team.id === teamId);
   return (
     <Screen className={styles.screen}>
-      <header className={styles.hero}>
-        <Token
-          text={
-            membership?.jerseyNumber != null
-              ? String(membership.jerseyNumber)
-              : initialsOf(me.profile.displayName)
-          }
-          size="lg"
-          tone="brand"
-          {...(membership?.jerseyNumber != null
-            ? { label: `Dorsal ${membership.jerseyNumber}` }
-            : {})}
-        />
-        <div>
-          <h1 className={styles.title}>Mi juego</h1>
-          <p className={styles.muted}>
-            {membership?.jerseyNumber != null
-              ? `Dorsal ${membership.jerseyNumber}`
-              : 'Sin dorsal todavía: te lo pone el entrenador.'}
-          </p>
-        </div>
-      </header>
+      <PageTitle
+        eyebrow={me.profile.displayName}
+        title="Mi juego"
+        subtitle={
+          membership?.jerseyNumber != null
+            ? `Dorsal ${membership.jerseyNumber}`
+            : 'Sin dorsal todavía: te lo pone el entrenador.'
+        }
+        actions={
+          <Avatar
+            name={me.profile.displayName}
+            label={membership?.jerseyNumber != null ? String(membership.jerseyNumber) : null}
+            size={56}
+          />
+        }
+      />
+      <SeasonSection meId={me.user.id} teamId={teamId} />
       {membership && <CardSection teamId={teamId} format={membership.team.format} />}
       <PositionSection me={me} teamId={teamId} />
       <MatchesSection meId={me.user.id} teamId={teamId} />
-      <KnowledgeSection />
+      <KnowledgeSection me={me} teamId={teamId} />
       <ul className={styles.list}>
         <li>
           <Row
             to="/perfil"
             leading={
-              <span className={styles.icon} aria-hidden="true">
+              <span className={styles.icon} data-tint="4" aria-hidden="true">
                 <NotePencil size={22} />
               </span>
             }
@@ -72,6 +70,29 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
         </li>
       </ul>
     </Screen>
+  );
+}
+
+/** Tu temporada de un vistazo: los partidos que jugaste, las veces que fuiste figura y tus tests. */
+function SeasonSection({ meId, teamId }: { meId: string; teamId: string }) {
+  const matches = useMatches(teamId);
+  const history = useHistory(meId);
+  const items = matches.data?.items ?? [];
+  const played = items.filter(
+    (m) => m.result && (m.myRating !== null || m.result.figure?.id === meId),
+  ).length;
+  const figure = items.filter((m) => m.result?.figure?.id === meId).length;
+  const tests = history.entries.filter((e) =>
+    e.kind === 'official' ? e.result.teamId === teamId : e.teamId === teamId,
+  ).length;
+  return (
+    <section aria-label="Tu temporada">
+      <StatGrid>
+        <StatTile label="Partidos" value={played} />
+        <StatTile label="Figura" value={figure} tone={figure > 0 ? 'volt' : 'white'} />
+        <StatTile label="Tests" value={tests} />
+      </StatGrid>
+    </section>
   );
 }
 
@@ -117,9 +138,7 @@ function MatchesSection({ meId, teamId }: { meId: string; teamId: string }) {
   if (mine.length === 0) return null;
   return (
     <section aria-labelledby="partidos" className={styles.section}>
-      <h2 id="partidos" className={styles.sectionTitle}>
-        Tus últimos partidos
-      </h2>
+      <SectionHead id="partidos" title="Tus últimos partidos" />
       <ul className={styles.matches}>
         {mine.map((m) => (
           <li key={m.id}>
@@ -130,13 +149,11 @@ function MatchesSection({ meId, teamId }: { meId: string; teamId: string }) {
                   {matchDay(m.startsAt)}, {m.result!.goalsFor} a {m.result!.goalsAgainst}
                 </span>
               </span>
-              <span className={styles.matchRating}>
-                {m.result!.figure?.id === meId
-                  ? 'Figura del partido'
-                  : m.myRating !== null
-                    ? ratingLabel(m.myRating)
-                    : null}
-              </span>
+              {m.result!.figure?.id === meId ? (
+                <Badge tone="accent">Figura del partido</Badge>
+              ) : m.myRating !== null ? (
+                <Badge tone="brand">{ratingLabel(m.myRating)}</Badge>
+              ) : null}
             </Link>
           </li>
         ))}
@@ -155,9 +172,7 @@ function PositionSection({ me, teamId }: { me: Me; teamId: string }) {
 
   return (
     <section aria-labelledby="posicion" className={styles.section}>
-      <h2 id="posicion" className={styles.sectionTitle}>
-        Tu posición
-      </h2>
+      <SectionHead id="posicion" title="Tu posición" />
       {history.isPending && history.entries.length === 0 ? (
         <p className="sr-only" role="status">
           Cargando tu test…
@@ -209,22 +224,40 @@ function PositionSection({ me, teamId }: { me: Me; teamId: string }) {
   );
 }
 
-function KnowledgeSection() {
+/**
+ * Tu conocimiento en tus posiciones (las que marcaste y las del podio de tu último test), más lo
+ * que pide atención (un examen a medias, una re-evaluación). Las demás, en "Ver todo".
+ */
+function KnowledgeSection({ me, teamId }: { me: Me; teamId: string }) {
   const positions = useCertPositions();
+  const history = useHistory(me.user.id);
   if (positions.isPending) return null;
   if (positions.isError || positions.data.positions.length === 0) return null;
   const now = new Date();
+  const latest = history.entries.find((e) => e.kind === 'official' && e.result.teamId === teamId);
+  const mine = new Set<PositionCode>([
+    ...me.profile.preferredPositions,
+    ...(latest?.kind === 'official' ? latest.result.podium : []),
+  ]);
+  const all = positions.data.positions;
+  const shown = mine.size
+    ? all.filter((p) => mine.has(p.position) || p.activeExamId || p.review)
+    : all;
   return (
     <section aria-labelledby="conocimiento" className={styles.section}>
-      <h2 id="conocimiento" className={styles.sectionTitle}>
-        Conocimiento
-      </h2>
+      <SectionHead
+        id="conocimiento"
+        title="Conocimiento"
+        link={{ to: '/conocimiento', label: 'Ver todo' }}
+      />
       <ul className={styles.list}>
-        {positions.data.positions.map((p) => (
+        {shown.map((p) => (
           <li key={p.position}>
             <Row
               to="/conocimiento"
-              leading={<Token text={p.position} line={lineOfPosition(p.position)} />}
+              leading={
+                <Avatar name={p.position} label={p.position} line={lineOfPosition(p.position)} />
+              }
               title={POSITIONS[p.position].name}
               meta={knowledgeMeta(p)}
               trailing={<Availability p={p} now={now} />}
@@ -249,9 +282,9 @@ function knowledgeMeta(p: CertPosition): string {
 }
 
 function Availability({ p, now }: { p: CertPosition; now: Date }) {
-  if (p.activeExamId) return <span className={styles.ready}>A medias</span>;
+  if (p.activeExamId) return <Badge tone="warning">A medias</Badge>;
   if (p.review || !p.nextAttemptAt || new Date(p.nextAttemptAt) <= now) {
-    return <span className={styles.ready}>{p.best ? 'Repetir' : 'Presentar'}</span>;
+    return <Badge tone="brand">{p.best ? 'Repetir' : 'Presentar'}</Badge>;
   }
   return <span className={styles.muted}>Desde el {DAY.format(new Date(p.nextAttemptAt))}</span>;
 }

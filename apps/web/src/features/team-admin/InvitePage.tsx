@@ -15,6 +15,8 @@ import {
   useTeam,
   whatsappUrl,
 } from './use-invitations';
+import { PageTitle } from '../../shared/ui/PageTitle';
+import { Badge, type BadgeTone } from '../../shared/ui/Badge';
 
 /** /equipos/:teamId/invitar — el entrenador crea el enlace y lo manda al grupo. */
 export function InvitePage({ teamId }: { teamId: string }) {
@@ -39,7 +41,7 @@ export function InvitePage({ teamId }: { teamId: string }) {
     return (
       <Screen className={styles.screen}>
         <BackLink teamId={teamId} />
-        <h1 className={styles.title}>Invita a tu equipo</h1>
+        <PageTitle eyebrow="Invita a" title="tu equipo" />
         <p role="alert" className={styles.lead}>
           {forbidden
             ? 'Solo el entrenador y los administradores del club pueden invitar a este equipo.'
@@ -53,7 +55,7 @@ export function InvitePage({ teamId }: { teamId: string }) {
     <Screen className={styles.screen}>
       <BackLink teamId={teamId} />
       <header className={styles.header}>
-        <h1 className={styles.title}>Invita a tu equipo</h1>
+        <PageTitle eyebrow="Invita a" title="tu equipo" />
         <p className={styles.lead}>
           {team.data.team.name}, de {team.data.team.club.name}
         </p>
@@ -172,11 +174,11 @@ function FreshLink({
   );
 }
 
-const STATUS: Record<InvitationSummary['status'], string> = {
-  active: 'Activo',
-  expired: 'Vencido',
-  used_up: 'Completo',
-  revoked: 'Anulado',
+const STATUS: Record<InvitationSummary['status'], { label: string; tone: BadgeTone }> = {
+  active: { label: 'Activo', tone: 'success' },
+  expired: { label: 'Vencido', tone: 'danger' },
+  used_up: { label: 'Completo', tone: 'neutral' },
+  revoked: { label: 'Anulado', tone: 'neutral' },
 };
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
@@ -217,9 +219,7 @@ function InvitationRow({ teamId, item }: { teamId: string; item: InvitationSumma
   return (
     <li className={styles.item}>
       <div className={styles.itemHead}>
-        <span className={active ? styles.statusActive : styles.statusOff}>
-          {STATUS[item.status]}
-        </span>
+        <Badge tone={STATUS[item.status].tone}>{STATUS[item.status].label}</Badge>
         <span className={styles.uses}>
           {item.usedCount} de {item.maxUses} {item.maxUses === 1 ? 'persona' : 'personas'}
         </span>

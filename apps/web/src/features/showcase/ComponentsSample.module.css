@@ -1,0 +1,119 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.gap {
+  margin-top: var(--sdl-space-3);
+}
+
+.wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sdl-space-2);
+}
+
+.list {
+  margin: var(--sdl-space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin-top: var(--sdl-space-3);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+}
+
+.heroBadges {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sdl-space-2);
+  margin-bottom: var(--sdl-space-3);
+}
+
+.overline {
+  color: var(--sdl-on-brand-muted);
+  font-size: var(--sdl-text-eyebrow);
+  font-weight: 700;
+  letter-spacing: var(--sdl-tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.heroMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sdl-space-2) var(--sdl-space-4);
+  margin-bottom: var(--sdl-space-3);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.heroMeta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-5);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.cardTitle {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.caption {
+  color: var(--sdl-fg-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.figure {
+  font-family: var(--sdl-font-numeric);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.figureOf {
+  color: var(--sdl-fg-muted);
+  font-size: 16px;
+}
+
+.skills {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-4);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}

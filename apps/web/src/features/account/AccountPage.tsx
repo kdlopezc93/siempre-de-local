@@ -15,8 +15,11 @@ import { useSignOut, useSignOutEverywhere } from '../auth/use-session';
 import { rolesLabel } from '../shell/shell-nav';
 import { usePush } from '../../shared/push/use-push';
 import type { PushState } from '../../shared/push/push';
+import switchStyles from '../../shared/ui/Switch.module.css';
 import styles from './AccountPage.module.css';
 import { useDeleteAccount, useDownloadMyData } from './use-account';
+import { PageTitle } from '../../shared/ui/PageTitle';
+import { Avatar } from '../../shared/ui/Avatar';
 
 const CLUB_ROLE = { owner: 'Dueño', admin: 'Administrador' } as const;
 const cap = (s: string) => s[0]!.toUpperCase() + s.slice(1);
@@ -41,9 +44,12 @@ export function AccountPage({ me }: { me: Me }) {
   return (
     <Screen className={styles.screen}>
       <header className={styles.hero}>
-        <Token text={initialsOf(name)} size="lg" />
         <div className={styles.heroText}>
-          <h1 className={styles.title}>{name}</h1>
+          <PageTitle
+            eyebrow="Tu cuenta"
+            title={name}
+            actions={<Avatar name={name} size={56} shape="circle" />}
+          />
           <p className={styles.muted} translate="no">
             {me.user.email}
           </p>
@@ -89,7 +95,7 @@ export function AccountPage({ me }: { me: Me }) {
           ))}
           {me.clubs.map((c) => (
             <li key={c.id} className={styles.team}>
-              <Token text={initialsOf(c.name)} size="sm" />
+              <Avatar name={c.name} size={40} />
               <div className={styles.teamText}>
                 <p className={styles.teamName}>{c.name}</p>
                 <p>{CLUB_ROLE[c.role]} del club</p>
@@ -248,6 +254,7 @@ function Notices() {
         <input
           type="checkbox"
           role="switch"
+          className={switchStyles.switch}
           checked={state === 'on'}
           disabled={!canToggle || toggle.isPending}
           onChange={(e) => toggle.mutate(e.target.checked)}

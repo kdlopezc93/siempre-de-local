@@ -10,6 +10,9 @@ import { LeadTask } from '../../shared/ui/TaskCard';
 import { matchWhen, splitMatches } from './match-view';
 import styles from './Matches.module.css';
 import { useMatches } from './use-matches';
+import { PageTitle } from '../../shared/ui/PageTitle';
+import { StatGrid, StatTile } from '../../shared/ui/StatTile';
+import { Badge } from '../../shared/ui/Badge';
 
 /** /equipos/:teamId/partidos — los próximos partidos, convocar y (adentro) las alineaciones. */
 export function MatchesPage({ me, teamId }: { me: Me; teamId: string }) {
@@ -20,8 +23,15 @@ export function MatchesPage({ me, teamId }: { me: Me; teamId: string }) {
 
   return (
     <Screen className={styles.screen}>
-      <h1 className={styles.title}>Partidos</h1>
-      {staff && <LeadTask to={`/equipos/${teamId}/partidos/nuevo`} title="Convocar partido" />}
+      <PageTitle eyebrow={me.teams.find((t) => t.team.id === teamId)?.team.name} title="Partidos" />
+      {staff && (
+        <LeadTask
+          to={`/equipos/${teamId}/partidos/nuevo`}
+          title="Convocar partido"
+          detail="Fecha, hora, lugar y rival; el equipo responde si va"
+          overline="Nuevo partido"
+        />
+      )}
       {matches.isPending ? (
         <p className="sr-only" role="status">
           Cargando los partidos…
@@ -39,7 +49,7 @@ export function MatchesPage({ me, teamId }: { me: Me; teamId: string }) {
             <Row
               to={`/equipos/${teamId}/alineaciones`}
               leading={
-                <span className={styles.icon} aria-hidden="true">
+                <span className={styles.icon} data-tint="6" aria-hidden="true">
                   <Strategy size={22} />
                 </span>
               }
@@ -126,14 +136,17 @@ function Tally({ items }: { items: Match[] }) {
           ({tally.played} {tally.played === 1 ? 'jugado' : 'jugados'})
         </span>
       </h2>
-      <dl className={`${styles.counts} ${styles.tally}`}>
+      <StatGrid columns={2}>
         {tiles.map(([label, value]) => (
-          <div key={label}>
-            <dt>{label}</dt>
-            <dd>{value}</dd>
-          </div>
+          <StatTile
+            key={label}
+            label={label}
+            value={value}
+            align="start"
+            tone={label === 'Ganados' && value > 0 ? 'volt' : 'white'}
+          />
         ))}
-      </dl>
+      </StatGrid>
     </section>
   );
 }
@@ -165,7 +178,7 @@ function MatchRow({
 }
 
 function RowStatus({ match, staff, player }: { match: Match; staff: boolean; player: boolean }) {
-  if (match.status === 'cancelled') return <span className={styles.cancelled}>Cancelado</span>;
+  if (match.status === 'cancelled') return <Badge tone="danger">Cancelado</Badge>;
   // Ya jugado (D18): el marcador; al cuerpo técnico, si falta cargarlo.
   if (match.result) {
     return (
@@ -179,10 +192,14 @@ function RowStatus({ match, staff, player }: { match: Match; staff: boolean; pla
       </span>
     );
   }
-  if (staff && !match.open) return <span className={styles.ask}>Cargar resultado</span>;
-  if (player && match.open && !match.myReply) return <span className={styles.ask}>Responder</span>;
+  if (staff && !match.open) return <Badge tone="warning">Cargar resultado</Badge>;
+  if (player && match.open && !match.myReply) return <Badge tone="warning">Responder</Badge>;
   if (player && match.myReply) {
-    return <span className={styles.reply}>{match.myReply === 'yes' ? 'Voy' : 'No voy'}</span>;
+    return match.myReply === 'yes' ? (
+      <Badge tone="success">Voy</Badge>
+    ) : (
+      <Badge tone="neutral">No voy</Badge>
+    );
   }
   if (staff) return <span className={styles.muted}>{match.replies.yes} van</span>;
   return null;

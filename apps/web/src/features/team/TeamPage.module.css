@@ -28,10 +28,13 @@
 }
 
 .sectionTitle {
-  color: var(--sdl-fg-muted);
-  font-family: var(--sdl-font-body);
-  font-size: var(--sdl-text-sm);
-  font-weight: 600;
+  margin-top: 22px;
+  font-family: var(--sdl-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+  color: var(--sdl-fg);
 }
 
 .icon {
@@ -40,9 +43,18 @@
   place-items: center;
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  background: var(--sdl-surface);
-  color: var(--sdl-primary);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-tint-6);
+  color: var(--sdl-on-tint);
+}
+
+/* Cada acceso con su color, como los mosaicos del sistema. */
+.list li:nth-child(3n + 2) .icon {
+  background: var(--sdl-tint-1);
+}
+
+.list li:nth-child(3n + 3) .icon {
+  background: var(--sdl-tint-2);
 }
 
 .sheetActions {
@@ -104,7 +116,7 @@
   justify-content: space-between;
   gap: var(--sdl-space-3);
   padding-block: var(--sdl-space-3);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
 }
 
 .facts dt {
@@ -136,14 +148,17 @@
 }
 
 .input {
-  min-height: var(--sdl-touch-min);
+  min-height: 52px;
   padding-inline: var(--sdl-space-3);
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-sm);
-  background: var(--sdl-surface);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
   font: inherit;
   font-size: var(--sdl-text-base);
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    border-color var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
 .fieldset {
@@ -173,4 +188,21 @@
   display: flex;
   flex-direction: column;
   gap: var(--sdl-space-2);
+}
+
+/* Dentro de una fila de encabezado o de una tarjeta, el aire lo pone el contenedor. */
+.sectionHead {
+  margin-top: 22px;
+}
+
+.sectionHead .sectionTitle,
+.board > .sectionTitle:first-child {
+  margin-top: 0;
+}
+
+/* Campo del sistema: hundido; al enfocarlo, blanco con aro cobalto (el borde). */
+.input:focus {
+  border-color: var(--sdl-focus-ring);
+  outline: none;
+  background: var(--sdl-surface);
 }

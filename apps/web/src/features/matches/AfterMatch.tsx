@@ -7,7 +7,6 @@ import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { Sheet } from '../../shared/ui/Sheet';
 import { initialsOf } from '../../shared/ui/TeamHeader';
-import { Token } from '../../shared/ui/Token';
 import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { whyCannotRate } from '../squad/who-rates';
 import { useSession } from '../auth/use-session';
@@ -19,6 +18,7 @@ import {
   useRateMatchPlayer,
   useRecordMatchResult,
 } from './use-matches';
+import { Avatar } from '../../shared/ui/Avatar';
 
 const tokenText = (p: { jerseyNumber: number | null; displayName: string }) =>
   p.jerseyNumber !== null ? String(p.jerseyNumber) : initialsOf(p.displayName);
@@ -143,7 +143,7 @@ export function AfterMatch({
                     setAdding(false);
                   }}
                 >
-                  <Token text={tokenText(p)} size="sm" />
+                  <Avatar name={p.displayName} label={tokenText(p)} size={32} />
                   <span>{p.displayName}</span>
                 </button>
               </li>
@@ -225,7 +225,7 @@ function ResultBoard({
           <span className={styles.figureLabel}>Figura del partido</span>
           {figure ? (
             <span className={styles.figureName}>
-              <Token text={tokenText(figure)} size="sm" tone="brand" />
+              <Avatar name={figure.displayName} label={tokenText(figure)} size={32} />
               {figure.displayName}
             </span>
           ) : (
@@ -249,10 +249,11 @@ function ResultBoard({
                   setPicking(false);
                 }}
               >
-                <Token
-                  text={tokenText(p)}
-                  size="sm"
-                  tone={p.playerId === figureId ? 'brand' : 'board'}
+                <Avatar
+                  name={p.displayName}
+                  label={tokenText(p)}
+                  size={32}
+                  {...(p.playerId === figureId ? { ring: 'var(--sdl-accent)' } : {})}
                 />
                 <span>{p.displayName}</span>
               </button>
@@ -374,7 +375,7 @@ export function MatchResultView({
           <div className={styles.figureWho}>
             <span className={styles.figureLabel}>Figura del partido</span>
             <span className={styles.figureName}>
-              <Token text={tokenText(result.figure)} size="sm" tone="brand" />
+              <Avatar name={result.figure.displayName} label={tokenText(result.figure)} size={32} />
               {result.figure.displayName}
             </span>
           </div>
@@ -405,7 +406,7 @@ function FixedRow({
   return (
     <li className={styles.player}>
       <div className={styles.playerHead}>
-        <Token text={tokenText(player)} size="sm" />
+        <Avatar name={player.displayName} label={tokenText(player)} size={32} />
         <span className={styles.playerName}>{player.displayName}</span>
         {rating !== null && <span className={styles.rowStatus}>{ratingLabel(rating)}</span>}
       </div>
@@ -443,7 +444,7 @@ function RatingRow({
   return (
     <li className={styles.player}>
       <div className={styles.playerHead}>
-        <Token text={tokenText(player)} size="sm" />
+        <Avatar name={player.displayName} label={tokenText(player)} size={32} />
         <span className={styles.playerName}>{player.displayName}</span>
         <span role="status" className={styles.rowStatus}>
           {rate.isPending ? 'Guardando…' : rate.isSuccess ? 'Guardada' : ''}

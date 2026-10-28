@@ -1,12 +1,14 @@
+/* Riel hundido; la opción activa es una píldora blanca con sombra. */
 .segmented {
-  display: inline-flex;
-  flex: none;
-  padding: 3px;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
   border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-surface);
+  background: var(--sdl-surface-sunken);
 }
 
 .segmented button {
+  flex: 1;
   min-height: 44px;
   padding-inline: var(--sdl-space-4);
   border: 0;
@@ -15,13 +17,16 @@
   color: var(--sdl-fg-muted);
   font: inherit;
   font-size: var(--sdl-text-sm);
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color var(--sdl-duration-fast) var(--sdl-ease-out);
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    color var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
 .segmented button[aria-pressed='true'] {
-  background: var(--sdl-surface-raised);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
   color: var(--sdl-fg);
 }
 

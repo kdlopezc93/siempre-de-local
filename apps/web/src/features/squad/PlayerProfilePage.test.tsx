@@ -111,7 +111,7 @@ describe('PlayerProfilePage', () => {
     const router = renderAt(`/equipos/${TEAM_ID}/plantilla/${ANA}`);
 
     expect(await screen.findByRole('heading', { level: 1, name: 'Ana' })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Dorsal 4' })).toBeInTheDocument();
+    expect(screen.getByText('Dorsal 4')).toBeInTheDocument();
     expect(screen.getByText('Zurdo')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Volver a valorar' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Puntuar tarjeta' })).toBeInTheDocument();
@@ -123,7 +123,7 @@ describe('PlayerProfilePage', () => {
     expect(where).toHaveTextContent('El test coincide: Defensa central está en su podio.');
     const test = screen.getByRole('region', { name: 'Su test' });
     expect(within(test).getAllByRole('listitem')).toHaveLength(8);
-    expect(within(test).getAllByRole('listitem')[0]).toHaveTextContent('Defensa central82%');
+    expect(within(test).getAllByRole('listitem')[0]).toHaveTextContent('Defensa central82 %');
 
     // Las secciones van en la URL.
     await userEvent.click(screen.getByRole('button', { name: 'Valoraciones' }));

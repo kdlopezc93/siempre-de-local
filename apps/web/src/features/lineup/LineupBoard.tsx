@@ -3,9 +3,10 @@ import { POSITIONS } from '@sdl/domain';
 import type { KeyboardEvent } from 'react';
 
 import { PitchLines } from '../../shared/ui/PitchLines';
+import { percent } from '../../shared/format';
 import styles from './LineupBoard.module.css';
 
-/** Verde si encaja bien, ámbar si regular, rojo si es un parche. */
+/** Verde si encaja bien, volt si regular, rojo si es un parche. */
 export function fitTone(fit: number | null): 'good' | 'fair' | 'weak' | 'empty' {
   if (fit === null) return 'empty';
   if (fit >= 0.65) return 'good';
@@ -57,7 +58,7 @@ export function LineupBoard({
         const jersey = a.playerId ? jerseys.get(a.playerId) : null;
         const tone = fitTone(a.fit);
         const label = name
-          ? `${POSITIONS[slot.position].name}${slot.side ? ` ${slot.side}` : ''}: ${name}, encaje ${Math.round((a.fit ?? 0) * 100)}%${pinned.has(slot.id) ? ', fijado' : ''}`
+          ? `${POSITIONS[slot.position].name}${slot.side ? ` ${slot.side}` : ''}: ${name}, encaje ${percent(a.fit ?? 0)}${pinned.has(slot.id) ? ', fijado' : ''}`
           : `${POSITIONS[slot.position].name}${slot.side ? ` ${slot.side}` : ''}: vacío`;
         const onKey = (event: KeyboardEvent) => {
           if (event.key === 'Enter' || event.key === ' ') {

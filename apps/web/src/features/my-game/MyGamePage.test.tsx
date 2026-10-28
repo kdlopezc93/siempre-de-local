@@ -1,3 +1,4 @@
+import type { Me } from '../../shared/api/auth';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
@@ -82,11 +83,17 @@ function renderPage() {
       client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
     >
       <MemoryRouter>
-        <MyGamePage me={ME_TWO_TEAMS} teamId={TEAM_A} />
+        <MyGamePage me={ME} teamId={TEAM_A} />
       </MemoryRouter>
     </QueryClientProvider>,
   );
 }
+
+/** Juega de central y de mediocentro (sus preferidas): el conocimiento muestra esas. */
+const ME: Me = {
+  ...ME_TWO_TEAMS,
+  profile: { ...ME_TWO_TEAMS.profile, preferredPositions: ['DFC', 'MC'] },
+};
 
 describe('Mi juego (07 §4.3)', () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -95,17 +102,16 @@ describe('Mi juego (07 §4.3)', () => {
     api();
     renderPage();
     // Su dorsal, arriba.
-    expect(screen.getByRole('img', { name: 'Dorsal 10' })).toBeInTheDocument();
     expect(screen.getByText('Dorsal 10')).toBeInTheDocument();
     const card = await screen.findByRole('article', { name: 'Tarjeta del jugador' });
-    expect(card).toHaveTextContent(/^74de media como Extremo/);
+    expect(card).toHaveTextContent(/^Mejor media74de media como Extremo/);
 
     const podium = await screen.findByRole('list', { name: 'Tus 3 posiciones' });
     expect(
       within(podium)
         .getAllByRole('listitem')
         .map((li) => li.textContent),
-    ).toEqual(['1Extremo86%', '2Delantero centro74%', '3Mediapunta61%']);
+    ).toEqual(['1Extremo86\u00a0%', '2Delantero centro74\u00a0%', '3Mediapunta61\u00a0%']);
     expect(screen.getByRole('link', { name: /Ver el resultado/ })).toHaveAttribute(
       'href',
       `/resultados/${ATTEMPT.attemptId}`,
@@ -114,7 +120,7 @@ describe('Mi juego (07 §4.3)', () => {
     expect(screen.queryByRole('link', { name: /Haz tu test/ })).toBeNull();
 
     const dfc = await screen.findByRole('link', { name: /Defensa central/ });
-    expect(dfc).toHaveTextContent('45%, insuficiente');
+    expect(dfc).toHaveTextContent('45 %, insuficiente');
     expect(dfc).toHaveTextContent('Desde el 20 nov');
     expect(screen.getByRole('link', { name: /Mediocentro/ })).toHaveTextContent(
       'Sin presentarPresentar',

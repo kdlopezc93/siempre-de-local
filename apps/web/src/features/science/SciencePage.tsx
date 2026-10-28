@@ -1,5 +1,6 @@
 import { Screen } from '../../shared/ui/Screen';
 import styles from './SciencePage.module.css';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 /**
  * Fuentes verificadas el 2026-10-22: las de PubMed Central leídas; las demás confirmadas por
@@ -59,7 +60,7 @@ const REFERENCES = [
 export function SciencePage() {
   return (
     <Screen className={styles.screen}>
-      <h1 className={styles.title}>En qué se basa el test</h1>
+      <PageTitle eyebrow="En qué se basa" title="el test" />
       <p className={styles.lead}>
         Es una <strong>orientación</strong>: se apoya en estudios de rendimiento, pero no está
         validado con tu equipo. El cuerpo técnico puede medir si acierta en su informe de
