@@ -47,7 +47,7 @@
   margin: 0;
 }
 
-.stats div {
+.stats > div {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -67,14 +67,14 @@
 }
 
 /* La media es lo fuerte de la ficha: su mosaico va en cobalto. */
-.stats div:first-child {
+.stats > div:first-child {
   background: var(--sdl-brand);
   box-shadow: var(--sdl-shadow-brand);
   color: var(--sdl-on-brand);
 }
 
-.stats div:first-child dt,
-.stats div:first-child .statNote {
+.stats > div:first-child dt,
+.stats > div:first-child .statNote {
   color: var(--sdl-on-brand-muted);
 }
 
