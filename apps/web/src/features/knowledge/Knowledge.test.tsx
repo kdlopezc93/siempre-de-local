@@ -164,14 +164,14 @@ describe('examen de conocimiento', () => {
     renderRoutes('/conocimiento');
 
     const card = await screen.findByRole('article', { name: 'Defensa central' });
-    expect(card).toHaveTextContent('Tu mejor puntaje: 75%, Sólido');
+    expect(card).toHaveTextContent('Tu mejor puntaje: 75 %, Sólido');
     expect(card).toHaveTextContent('Puedes volver a presentarlo desde el 21 nov');
     expect(screen.getByRole('link', { name: 'Seguir con tu examen' })).toHaveAttribute(
       'href',
       `/conocimiento/examen/${EXAM_ID}`,
     );
     expect(
-      await screen.findByRole('link', { name: /Defensa central.*50% En desarrollo/ }),
+      await screen.findByRole('link', { name: /Defensa central.*50\s% En desarrollo/ }),
     ).toBeInTheDocument();
   });
 
@@ -246,7 +246,7 @@ describe('examen de conocimiento', () => {
     expect(screen.getByText('Las que dejes sin responder cuentan como fallo.')).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Entregar el examen' }));
-    expect(await screen.findByRole('heading', { name: '50%' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: /^50\s*%$/ })).toBeInTheDocument();
     expect(screen.getByText('En desarrollo')).toBeInTheDocument();
     const areas = screen.getByRole('region', { name: 'Por área' });
     expect(areas).toHaveTextContent('Marcaje1/1');

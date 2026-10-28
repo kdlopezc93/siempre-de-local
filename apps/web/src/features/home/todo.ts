@@ -14,11 +14,11 @@ export type TodoIcon =
 
 export interface Todo {
   id: string;
-  /** Menor = más urgente. El primero va como bloque ámbar. */
+  /** Menor = más urgente. El primero va como bloque cobalto. */
   priority: number;
   who: 'staff' | 'player';
   icon: TodoIcon;
-  /** Como bloque ámbar ("Valora a 4 jugadores")… */
+  /** Como bloque cobalto ("Valora a 4 jugadores")… */
   title: string;
   /** …y como fila, más corto ("Sin valorar"), con `count` a la derecha. */
   short?: string;
@@ -196,7 +196,7 @@ export function lastLineup(teamId: string, lineups: LineupListResponse['items'])
     : null;
 }
 
-/** Ordena: el primero es el bloque ámbar; el resto, filas. */
+/** Ordena: el primero es el bloque cobalto; el resto, filas. */
 export function arrange(todos: readonly Todo[]): { lead: Todo | null; rest: Todo[] } {
   const sorted = [...todos].sort((a, b) => a.priority - b.priority);
   return { lead: sorted[0] ?? null, rest: sorted.slice(1) };

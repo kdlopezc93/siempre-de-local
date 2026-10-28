@@ -15,8 +15,8 @@ export interface BoardOption {
 const ARROW_DASH = { pass: undefined, run: '2.4 1.6', dribble: '0.6 1.4' } as const;
 
 /**
- * La jugada en tiza (Fase 8): los tuyos con O, los rivales con X, el balón y las flechas
- * (pase continuo, desmarque a trazos, conducción punteada). Una visera de tiza junto a la
+ * La jugada sobre el pasto (Fase 8): los tuyos con O, los rivales con X, el balón y las flechas
+ * (pase continuo, desmarque a trazos, conducción punteada). Una visera blanca junto a la
  * ficha dice hacia dónde mira; para el lector de pantalla va en palabras. Los puntos de respuesta son
  * botones de verdad sobre la cancha; tocar uno es lo mismo que tocar su opción escrita.
  */

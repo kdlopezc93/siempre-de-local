@@ -25,7 +25,7 @@
 
 .own circle {
   fill: var(--sdl-surface);
-  stroke: var(--sdl-chalk-stroke);
+  stroke: var(--sdl-on-field);
   stroke-width: 0.9;
 }
 
@@ -37,7 +37,7 @@
 
 .rival path {
   fill: none;
-  stroke: var(--sdl-chalk-stroke);
+  stroke: var(--sdl-on-field);
   stroke-width: 1;
   stroke-linecap: round;
 }
@@ -61,11 +61,11 @@
   font-weight: 700;
 }
 
-/* Hacia dónde mira: un arco de tiza del lado al que mira (la visera). */
+/* Hacia dónde mira: un arco blanco del lado al que mira (la visera). */
 .visor,
 .visorYou {
   fill: none;
-  stroke: var(--sdl-chalk-stroke);
+  stroke: var(--sdl-on-field);
   stroke-width: 1;
   stroke-linecap: round;
 }
@@ -75,17 +75,17 @@
 }
 
 .ball {
-  fill: var(--sdl-chalk-stroke);
+  fill: var(--sdl-on-field);
 }
 
 .arrow {
-  stroke: var(--sdl-chalk-stroke);
+  stroke: var(--sdl-on-field);
   stroke-width: 0.7;
   stroke-linecap: round;
 }
 
 .arrowHead {
-  fill: var(--sdl-chalk-stroke);
+  fill: var(--sdl-on-field);
 }
 
 /* Los puntos de respuesta: 44 px, centrados en su lugar de la cancha. */
