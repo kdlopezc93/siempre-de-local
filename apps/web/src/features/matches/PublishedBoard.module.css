@@ -45,8 +45,13 @@
   fill: var(--sdl-on-field-accent);
 }
 
+/* Con un borde del color del pasto: el nombre se lee aunque caiga sobre una línea. */
 .name {
   fill: var(--sdl-on-field);
+  stroke: var(--sdl-field);
+  stroke-width: 0.9px;
+  stroke-linejoin: round;
+  paint-order: stroke;
   font-family: var(--sdl-font-body);
   font-size: 3.6px;
   font-weight: 600;

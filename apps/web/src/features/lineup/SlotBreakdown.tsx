@@ -1,6 +1,7 @@
 import type { Breakdown, Signal } from '@sdl/domain';
 
 import styles from './PlannerPage.module.css';
+import { percent } from '../../shared/format';
 
 const SIGNALS: { key: Signal; label: string }[] = [
   { key: 'V', label: 'Cuerpo técnico' },
@@ -21,9 +22,7 @@ export function SlotBreakdown({ breakdown }: { breakdown: Breakdown | null }) {
             <span className={styles.bar} aria-hidden="true">
               <span style={{ transform: `scaleX(${v ?? 0})` }} />
             </span>
-            <span className={styles.value}>
-              {v === undefined ? 'sin dato' : `${Math.round(v * 100)}%`}
-            </span>
+            <span className={styles.value}>{v === undefined ? 'sin dato' : percent(v)}</span>
           </li>
         );
       })}

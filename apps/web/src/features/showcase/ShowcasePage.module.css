@@ -124,7 +124,7 @@
 
 .media {
   min-width: 2ch;
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: 26px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -206,7 +206,7 @@
 
 .stats dd {
   margin: 0;
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: 30px;
   font-weight: 700;
   line-height: 1;
@@ -221,7 +221,7 @@
 .tabs {
   display: flex;
   gap: var(--sdl-space-4);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
 }
 
 .tabs button {
@@ -260,7 +260,7 @@
   justify-content: space-between;
   gap: var(--sdl-space-3);
   padding-block: var(--sdl-space-3);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
 }
 
 .facts li span:first-child {

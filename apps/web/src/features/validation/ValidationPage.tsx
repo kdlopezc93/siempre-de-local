@@ -6,10 +6,10 @@ import { Link } from 'react-router';
 import { fetchValidation } from '../../shared/api/validation';
 import { Screen } from '../../shared/ui/Screen';
 import styles from './ValidationPage.module.css';
+import { percent } from '../../shared/format';
 
 /** Con menos valoraciones a ciegas que esto, se avisa que es temprano. */
 const FEW = 10;
-const percent = (part: number, total: number) => `${Math.round((part / total) * 100)}%`;
 const name = (pos: keyof typeof POSITIONS) => POSITIONS[pos].name;
 
 const STRENGTH: Record<Strength, string> = {
@@ -77,7 +77,7 @@ function TestSection({ data }: { data: ValidationResponse['testVsStaff'] }) {
             <div>
               <dt>Coincide exacto</dt>
               <dd>
-                {percent(data.exact, data.n)}
+                {percent(data.exact / data.n)}
                 <span className={styles.of}>
                   {data.exact} de {data.n}
                 </span>
@@ -86,7 +86,7 @@ function TestSection({ data }: { data: ValidationResponse['testVsStaff'] }) {
             <div>
               <dt>En su podio</dt>
               <dd>
-                {percent(data.inPodium, data.n)}
+                {percent(data.inPodium / data.n)}
                 <span className={styles.of}>
                   {data.inPodium} de {data.n}
                 </span>
@@ -126,7 +126,7 @@ function KnowledgeSection({ data }: { data: ValidationResponse['knowledgeVsCard'
   return (
     <section aria-labelledby="conocimiento" className={styles.section}>
       <h2 id="conocimiento" className={styles.sectionTitle}>
-        ¿Quien más sabe, tiene mejor tarjeta?
+        ¿Quién más sabe, tiene mejor tarjeta?
       </h2>
       <p className={styles.muted}>
         Por posición, el mejor examen de conocimiento de cada jugador frente a su media en la
@@ -171,7 +171,7 @@ function KnowledgeSection({ data }: { data: ValidationResponse['knowledgeVsCard'
   );
 }
 
-/** Puntos de tiza: conocimiento (abajo, 0–100%) frente a tarjeta (al costado, 0–99). */
+/** Puntos: conocimiento (abajo, 0–100%) frente a tarjeta (al costado, 0–99). */
 function Scatter({ points, label }: { points: { pct: number; mp: number }[]; label: string }) {
   return (
     <svg viewBox="0 0 100 60" className={styles.scatter} role="img" aria-label={label}>

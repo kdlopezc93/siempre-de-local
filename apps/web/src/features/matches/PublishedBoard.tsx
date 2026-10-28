@@ -10,7 +10,7 @@ const short = (name: string) => (name.length > 11 ? `${name.split(' ')[0]!.slice
 
 /**
  * La alineación publicada, para mirar (D17): cada titular en su puesto con su dorsal y el aro
- * del color de su línea; quien la mira, en ámbar. Sin encaje ni nada que tocar.
+ * del color de su línea; quien la mira, en volt. Sin encaje ni nada que tocar.
  */
 export function PublishedBoard({
   lineup,

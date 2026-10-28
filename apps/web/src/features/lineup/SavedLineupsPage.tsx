@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 
 import { Button } from '../../shared/ui/Button';
+import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import { LeadTask } from '../../shared/ui/TaskCard';
 import { useTeam } from '../team-admin/use-invitations';
@@ -11,6 +12,7 @@ import styles from './PlannerPage.module.css';
 import { SlotBreakdown } from './SlotBreakdown';
 import { useDeleteLineup, useLineup, useLineups } from './use-lineups';
 import { useLineupInputs } from './use-planner';
+import { percent } from '../../shared/format';
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short', year: 'numeric' });
 const day = (iso: string) => DAY.format(new Date(`${iso.slice(0, 10)}T12:00:00`));
@@ -142,7 +144,7 @@ export function LineupViewPage({ teamId, lineupId }: { teamId: string; lineupId:
           <p className={styles.detailHead}>
             <span>{nameOf(detail.playerId)}</span>
             <span>
-              {detail.fit === null ? '' : `${Math.round(detail.fit * 100)}% de encaje`}
+              {detail.fit === null ? '' : `${percent(detail.fit)} de encaje`}
               {detail.manual ? ', puesto a mano' : ''}
             </span>
           </p>
@@ -165,12 +167,9 @@ export function LineupViewPage({ teamId, lineupId }: { teamId: string; lineupId:
 
       {writes && (
         <div className={styles.saveActions}>
-          <Link
-            to={`/equipos/${teamId}/planificador?alineacion=${l.id}`}
-            className={styles.primaryLink}
-          >
+          <ButtonLink to={`/equipos/${teamId}/planificador?alineacion=${l.id}`}>
             Editar en el planificador
-          </Link>
+          </ButtonLink>
           {confirming ? (
             <>
               <p>¿Borrar “{l.name}”? No se puede deshacer.</p>

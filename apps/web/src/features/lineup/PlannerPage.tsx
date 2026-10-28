@@ -30,6 +30,7 @@ import { fromLineup, fromMatch, lineupSignature, toLineupInput } from './planner
 import { SlotBreakdown } from './SlotBreakdown';
 import { useLineup, usePublishLineup, useSaveLineup } from './use-lineups';
 import { healthyIds, useLineupInputs, usePlanner } from './use-planner';
+import { percent } from '../../shared/format';
 
 const FORMATS: { value: MatchFormat; label: string }[] = [
   { value: 'F11', label: 'Fútbol 11' },
@@ -46,7 +47,6 @@ const MIN_KNOWLEDGE: { value: number | null; label: string }[] = [
   { value: 0.7, label: '70%' },
   { value: 0.85, label: '85%' },
 ];
-const percent = (x: number) => `${Math.round(x * 100)}%`;
 const REPLY_LABEL = { yes: 'Va', no: 'No va', pending: 'Sin responder' } as const;
 
 /** /equipos/:teamId/planificador — armar la alineación del partido (02 §9). */
@@ -320,7 +320,7 @@ function Planner({
           {(['defensa', 'medio', 'ataque'] as const).map((line) => (
             <div key={line}>
               <dt>{line[0]!.toUpperCase() + line.slice(1)}</dt>
-              <dd>{lines[line] === null ? '–' : `${lines[line]}%`}</dd>
+              <dd>{lines[line] === null ? '–' : `${lines[line]}\u00a0%`}</dd>
             </div>
           ))}
         </dl>
