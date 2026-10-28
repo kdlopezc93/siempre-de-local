@@ -23,6 +23,7 @@ import { useTeam } from '../team-admin/use-invitations';
 import { rankedAverages } from './card-view';
 import styles from './RatePage.module.css';
 import { useCreateRating, useRatingHistory } from './use-card';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 /** Sin foto anterior, todo arranca en el nivel medio del equipo. */
 const START = 60;
@@ -156,7 +157,7 @@ function RateForm({
         {cardPath.endsWith('/tarjeta') ? 'Volver a la tarjeta' : 'Volver a la ficha'}
       </Link>
       <header>
-        <h1 className={styles.title}>Puntuar a {name}</h1>
+        <PageTitle eyebrow="Puntuar a" title={name} />
         <p className={styles.lead}>
           {previous
             ? 'Arranca de su última foto: mueve lo que cambió. La anterior queda en su historial.'

@@ -9,6 +9,7 @@ import { RATED_ON, rankedAverages } from './card-view';
 import styles from './CardPages.module.css';
 import { PlayerCard } from './PlayerCard';
 import { useRatingHistory } from './use-card';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 /** /equipos/:teamId/plantilla/:playerId/tarjeta — la tarjeta y sus fotos anteriores. */
 export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: string }) {
@@ -52,8 +53,7 @@ export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: 
     <Screen className={styles.screen}>
       {back}
       <header>
-        <h1 className={styles.subtitle}>{player.displayName}</h1>
-        <p className={styles.muted}>Tarjeta 0–99</p>
+        <PageTitle eyebrow="Tarjeta 0–99 de" title={player.displayName} />
       </header>
 
       {latest ? (

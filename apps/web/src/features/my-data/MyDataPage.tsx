@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router';
 import { Screen } from '../../shared/ui/Screen';
 import { PolicyText } from '../consent/PolicyText';
 import styles from './MyDataPage.module.css';
+import { PageTitle } from '../../shared/ui/PageTitle';
 
 /**
  * /tus-datos — pública, sin sesión (07 §4.5): qué guardamos y cómo eliminar la cuenta. Google
@@ -19,7 +20,7 @@ export function MyDataPage({ signedIn }: { signedIn: boolean }) {
         </p>
       )}
       <header>
-        <h1 className={styles.title}>Tus datos</h1>
+        <PageTitle title="Tus datos" />
         <p className={styles.lead}>Qué guardamos de ti en Siempre de Local y cómo eliminarlo.</p>
       </header>
 
