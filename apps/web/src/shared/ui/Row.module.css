@@ -5,7 +5,7 @@
   gap: var(--sdl-space-3);
   min-height: 64px;
   margin-bottom: var(--sdl-space-2);
-  padding: var(--sdl-space-2) var(--sdl-space-3) var(--sdl-space-2) var(--sdl-space-2);
+  padding: 10px 14px;
   border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
   box-shadow: var(--sdl-shadow-card);

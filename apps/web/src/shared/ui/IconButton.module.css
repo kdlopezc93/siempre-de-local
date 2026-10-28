@@ -1,0 +1,70 @@
+.button {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  text-decoration: none;
+  touch-action: manipulation;
+  transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(var(--sdl-press-scale-icon));
+}
+
+.button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.surface {
+  background: var(--sdl-surface);
+  color: var(--sdl-fg);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.sunken {
+  background: var(--sdl-surface-sunken);
+  color: var(--sdl-fg);
+}
+
+.brand {
+  background: var(--sdl-brand);
+  color: var(--sdl-on-brand);
+  box-shadow: var(--sdl-shadow-brand);
+}
+
+.accent {
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
+}
+
+.dark {
+  background: var(--sdl-inverse);
+  color: var(--sdl-on-inverse);
+}
+
+.badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  padding-inline: 5px;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-live);
+  box-shadow: 0 0 0 2px var(--sdl-bg);
+  color: var(--sdl-on-live);
+  font-family: var(--sdl-font-numeric);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+}
