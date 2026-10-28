@@ -62,7 +62,7 @@
 
 .media {
   min-width: 2ch;
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: 26px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;

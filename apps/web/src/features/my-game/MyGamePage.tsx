@@ -18,10 +18,9 @@ import { ratingLabel } from '../matches/after-match';
 import { matchDay } from '../matches/match-view';
 import { useMatches } from '../matches/use-matches';
 import styles from './MyGamePage.module.css';
+import { percent } from '../../shared/format';
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
-const percent = (pct: number) => `${Math.round(pct * 100)}%`;
-
 /**
  * /equipos/:teamId/mi-juego — lo tuyo como jugador en este equipo (07 §4.3): tu tarjeta, tu
  * posición según el test, tu conocimiento y tu perfil. Una vez hecho, el test queda como

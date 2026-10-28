@@ -51,8 +51,9 @@
   gap: 2px;
   min-width: 0;
   padding: var(--sdl-space-3);
-  border-radius: var(--sdl-radius-md);
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .stats dt {
@@ -64,17 +65,22 @@
 
 .stats dd {
   margin: 0;
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: 30px;
   font-weight: 700;
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 
+/* Cuando el dato es una palabra (la posición del test): texto, no cifra, y se parte por
+   palabras, nunca por letras. */
 .stats .statWord {
-  font-size: 20px;
-  line-height: 1.5;
-  overflow-wrap: anywhere;
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-base);
+  font-weight: 800;
+  line-height: 1.2;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .stats .statNote {
@@ -114,8 +120,6 @@
 
 .sectionTitle {
   font-size: var(--sdl-text-lg);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
 }
 
 .sources {
@@ -123,8 +127,8 @@
   gap: var(--sdl-space-2);
   margin: 0;
   padding: var(--sdl-space-3) var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-lg);
+  box-shadow: var(--sdl-shadow-card);
+  border-radius: var(--sdl-radius-xl);
   background: var(--sdl-surface);
 }
 
@@ -157,20 +161,31 @@
   justify-content: center;
   min-height: var(--sdl-touch-min);
   padding-inline: var(--sdl-space-3);
-  border-radius: var(--sdl-radius-md);
-  font-weight: 600;
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-pill);
+  font: inherit;
+  font-weight: 700;
   text-align: center;
   text-decoration: none;
+  cursor: pointer;
   touch-action: manipulation;
+  transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
 }
 
+.primaryLink:active:not(:disabled),
+.secondaryLink:active:not(:disabled) {
+  transform: scale(var(--sdl-press-scale));
+}
+
+/* Los botones de la ficha: pastilla cobalto y pastilla con borde, como Button. */
 .primaryLink {
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
+  background: var(--sdl-brand);
+  color: var(--sdl-on-brand);
 }
 
 .secondaryLink {
-  border: var(--sdl-stroke) solid var(--sdl-border-control);
+  border-color: var(--sdl-border-control);
+  background: var(--sdl-surface);
   color: var(--sdl-fg);
 }
 
@@ -200,7 +215,7 @@
   display: block;
   height: 6px;
   border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-border);
+  background: var(--sdl-surface-raised);
   overflow: hidden;
 }
 
@@ -233,7 +248,7 @@
   flex-direction: column;
   gap: var(--sdl-space-1);
   padding-block: var(--sdl-space-3);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
   font-size: var(--sdl-text-sm);
 }
 
@@ -246,7 +261,6 @@
 .listPos {
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-lg);
-  text-transform: uppercase;
 }
 
 .tag {
@@ -285,7 +299,7 @@
   border-radius: var(--sdl-radius-sm);
   background: var(--sdl-surface);
   color: var(--sdl-fg);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-xl);
   font-variant-numeric: tabular-nums;
   text-align: center;
@@ -357,7 +371,7 @@ button.secondaryLink {
 }
 
 .matchForm li {
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
 }
 
 .matchFormRow {

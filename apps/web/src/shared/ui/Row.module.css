@@ -1,17 +1,23 @@
+/* Las listas son filas separadas y redondeadas, con 8px entre ellas (design-system §5). */
 .row {
   display: flex;
   align-items: center;
   gap: var(--sdl-space-3);
   min-height: 64px;
-  padding-block: var(--sdl-space-2);
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  margin-bottom: var(--sdl-space-2);
+  padding: var(--sdl-space-2) var(--sdl-space-3) var(--sdl-space-2) var(--sdl-space-2);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
   color: var(--sdl-fg);
   text-decoration: none;
-  transition: background-color var(--sdl-duration-fast) var(--sdl-ease-out);
+  transition:
+    transform var(--sdl-duration-fast) var(--sdl-ease-out),
+    background-color var(--sdl-duration-fast) var(--sdl-ease-out);
 }
 
 a.row:active {
-  background: var(--sdl-surface-hover);
+  transform: scale(var(--sdl-press-scale));
 }
 
 .main {
@@ -24,7 +30,7 @@ a.row:active {
 .title {
   overflow: hidden;
   font-size: var(--sdl-text-base);
-  font-weight: 600;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

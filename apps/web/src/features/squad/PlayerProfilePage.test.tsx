@@ -123,7 +123,7 @@ describe('PlayerProfilePage', () => {
     expect(where).toHaveTextContent('El test coincide: Defensa central está en su podio.');
     const test = screen.getByRole('region', { name: 'Su test' });
     expect(within(test).getAllByRole('listitem')).toHaveLength(8);
-    expect(within(test).getAllByRole('listitem')[0]).toHaveTextContent('Defensa central82%');
+    expect(within(test).getAllByRole('listitem')[0]).toHaveTextContent('Defensa central82 %');
 
     // Las secciones van en la URL.
     await userEvent.click(screen.getByRole('button', { name: 'Valoraciones' }));

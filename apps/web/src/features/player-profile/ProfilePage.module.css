@@ -16,8 +16,6 @@
 .title {
   font-size: var(--sdl-text-display);
   line-height: var(--sdl-leading-display);
-  letter-spacing: var(--sdl-tracking-display);
-  text-transform: uppercase;
 }
 
 .lead,
@@ -91,7 +89,7 @@
   min-height: var(--sdl-touch-min);
   padding: var(--sdl-space-2) var(--sdl-space-3);
   border: var(--sdl-stroke) solid var(--sdl-border-control);
-  border-radius: var(--sdl-radius-md);
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
   color: var(--sdl-fg);
   font: inherit;
@@ -141,7 +139,9 @@
 
 .position {
   text-align: left;
-  overflow-wrap: anywhere;
+  /* Por palabras (con guion si hace falta), nunca por letras: "Mediocentro" entero. */
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 
 .position:disabled {
@@ -149,19 +149,19 @@
   cursor: not-allowed;
 }
 
-/* El dorsal; si está elegida, su número de preferencia en ámbar. */
+/* El dorsal; si está elegida, su número de preferencia en cobalto. */
 .badge {
   display: inline-grid;
   place-items: center;
   flex: none;
   width: 26px;
   height: 26px;
-  border: var(--sdl-stroke) solid var(--sdl-pitch-stroke);
+  border: var(--sdl-stroke) solid var(--sdl-border-control);
   border-radius: var(--sdl-radius-pill);
   color: var(--sdl-fg-muted);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-sm);
-  font-weight: 600;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
@@ -174,8 +174,8 @@
 .board {
   margin-top: var(--sdl-space-2);
   padding: var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-lg);
+  box-shadow: var(--sdl-shadow-card);
+  border-radius: var(--sdl-radius-xl);
   background: var(--sdl-surface);
 }
 

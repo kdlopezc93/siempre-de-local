@@ -105,7 +105,7 @@ describe('Mi juego (07 §4.3)', () => {
       within(podium)
         .getAllByRole('listitem')
         .map((li) => li.textContent),
-    ).toEqual(['1Extremo86%', '2Delantero centro74%', '3Mediapunta61%']);
+    ).toEqual(['1Extremo86\u00a0%', '2Delantero centro74\u00a0%', '3Mediapunta61\u00a0%']);
     expect(screen.getByRole('link', { name: /Ver el resultado/ })).toHaveAttribute(
       'href',
       `/resultados/${ATTEMPT.attemptId}`,
@@ -114,7 +114,7 @@ describe('Mi juego (07 §4.3)', () => {
     expect(screen.queryByRole('link', { name: /Haz tu test/ })).toBeNull();
 
     const dfc = await screen.findByRole('link', { name: /Defensa central/ });
-    expect(dfc).toHaveTextContent('45%, insuficiente');
+    expect(dfc).toHaveTextContent('45 %, insuficiente');
     expect(dfc).toHaveTextContent('Desde el 20 nov');
     expect(screen.getByRole('link', { name: /Mediocentro/ })).toHaveTextContent(
       'Sin presentarPresentar',

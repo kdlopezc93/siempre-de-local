@@ -132,7 +132,7 @@
   gap: var(--sdl-space-4);
 }
 
-/* Tus últimos partidos (D18): rival, día y marcador; la palabra en ámbar a la derecha. */
+/* Tus últimos partidos (D18): rival, día y marcador; la palabra en cobalto a la derecha. */
 .matches {
   margin: 0;
   padding: 0;
@@ -140,7 +140,7 @@
 }
 
 .matches li {
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
+  border-bottom: 1px dashed var(--sdl-border);
 }
 
 .matchRow {
