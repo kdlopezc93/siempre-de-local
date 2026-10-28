@@ -98,7 +98,7 @@ describe('Mi juego (07 §4.3)', () => {
     expect(screen.getByRole('img', { name: 'Dorsal 10' })).toBeInTheDocument();
     expect(screen.getByText('Dorsal 10')).toBeInTheDocument();
     const card = await screen.findByRole('article', { name: 'Tarjeta del jugador' });
-    expect(card).toHaveTextContent(/^74de media como Extremo/);
+    expect(card).toHaveTextContent(/^Mejor media74de media como Extremo/);
 
     const podium = await screen.findByRole('list', { name: 'Tus 3 posiciones' });
     expect(
