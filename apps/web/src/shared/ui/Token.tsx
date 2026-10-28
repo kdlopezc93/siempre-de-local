@@ -24,8 +24,8 @@ export function Token({
   text: string;
   line?: TokenLine | null;
   size?: 'sm' | 'md' | 'lg' | 'xl';
-  /** `amber`: el equipo o lo elegido, rellena de ámbar. */
-  tone?: 'board' | 'amber';
+  /** `brand`: el equipo o lo elegido, rellena de cobalto. */
+  tone?: 'board' | 'brand';
   /** Lesionado: una crucecita de botiquín en la esquina (quien la usa también lo dice en texto). */
   injured?: boolean;
   label?: string;

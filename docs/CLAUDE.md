@@ -24,9 +24,9 @@ Tono de la UI: cercano, de barrio y en español latinoamericano; nada de jerga c
 
 ## Flujo de diseño de UI (obligatorio para todo lo visual)
 
-1. **Sistema de diseño primero** — skill `ui-ux-pro-max`. Antes de la primera pantalla, genera el sistema de diseño (paleta, tipografía, espaciado, estilo, anti-patrones) partiendo de la identidad existente "pizarra táctica" del prototipo, y guárdalo en `docs/design-system.md` + tokens en `apps/web/src/shared/styles/`. Cada pantalla nueva consulta ese documento; no se inventan colores ni tamaños sueltos.
+1. **Sistema de diseño primero** — `docs/design-system.md` (v3 "Escuelas Deportivas", 2026-10-27: cobalto + volt, Plus Jakarta Sans y Space Grotesk, claro y oscuro) + tokens en `apps/web/src/shared/styles/`. Cada pantalla nueva consulta ese documento; no se inventan colores ni tamaños sueltos. La identidad v2 "pizarra táctica" quedó retirada porque se veía hecha con IA: no volver a ella. `ui-ux-pro-max` sirve para guías de UX y accesibilidad, no para elegir la paleta o la tipografía.
 2. **Dirección estética e implementación** — skill `frontend-design`. Úsala al construir o rediseñar pantallas y componentes de `shared/ui` para evitar el look genérico de plantilla.
-3. **Animaciones** — solo donde aporten (transición entre pasos del test, revelado del podio, cambios en la pizarra). Usa la skill de animación instalada; siempre respetando `prefers-reduced-motion`, animando solo `transform`/`opacity` y sin bloquear la interacción.
+3. **Animaciones** — solo donde aporten (transición entre pasos del test, revelado del podio, cambios en la cancha). Usa las skills de animación instaladas (`animate`, `review-animations`, `apple-design`); siempre respetando `prefers-reduced-motion`, animando solo `transform`/`opacity` y sin bloquear la interacción.
 4. **Auditoría antes de dar por terminada una pantalla** — skills `web-design-guidelines` (accesibilidad, foco, formularios, táctil, dark mode) y `vercel-react-best-practices` (re-renders, bundle, data fetching). Corrige los hallazgos críticos y altos; deja los demás anotados en el PR.
 
 Mobile first: la mayoría de jugadores lo usará en el celular. Objetivos táctiles ≥ 44 px, sin scroll horizontal, probado a 360 px de ancho.

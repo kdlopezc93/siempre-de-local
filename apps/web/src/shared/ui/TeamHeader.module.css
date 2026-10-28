@@ -5,7 +5,6 @@
   z-index: 10;
   padding: env(safe-area-inset-top) max(var(--sdl-gutter), env(safe-area-inset-right)) 0
     max(var(--sdl-gutter), env(safe-area-inset-left));
-  border-bottom: var(--sdl-stroke) solid var(--sdl-border);
   background: var(--sdl-bg);
 }
 
@@ -55,9 +54,10 @@ button.team {
 .name {
   overflow: hidden;
   font-family: var(--sdl-font-display);
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.05;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: var(--sdl-tracking-display);
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

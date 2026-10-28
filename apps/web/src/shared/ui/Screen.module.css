@@ -15,5 +15,8 @@
 :global([data-shell]) .screen {
   min-height: auto;
   padding-top: var(--sdl-space-5);
-  padding-bottom: calc(var(--sdl-nav-height) + env(safe-area-inset-bottom) + var(--sdl-space-8));
+  /* La barra flota: deja su alto, su margen y aire para que nada quede tapado. */
+  padding-bottom: calc(
+    var(--sdl-nav-height) + var(--sdl-nav-inset) + env(safe-area-inset-bottom) + var(--sdl-space-8)
+  );
 }

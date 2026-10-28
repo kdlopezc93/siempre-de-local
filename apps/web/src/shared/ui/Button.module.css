@@ -7,21 +7,23 @@
   min-height: var(--sdl-touch-min);
   padding: var(--sdl-space-3) var(--sdl-space-5);
   border: var(--sdl-stroke) solid transparent;
-  border-radius: var(--sdl-radius-md);
-  font-family: var(--sdl-font-display);
-  font-weight: 600;
-  text-transform: uppercase;
+  border-radius: var(--sdl-radius-pill);
+  font-family: var(--sdl-font-body);
+  font-weight: 700;
   letter-spacing: var(--sdl-tracking-button);
   cursor: pointer;
   touch-action: manipulation;
   transition:
     transform var(--sdl-duration-fast) var(--sdl-ease-out),
+    filter var(--sdl-duration-fast) var(--sdl-ease-out),
     background-color var(--sdl-duration-fast) var(--sdl-ease-out),
     border-color var(--sdl-duration-fast) var(--sdl-ease-out);
 }
 
+/* En el celular, presionar es lo principal: se achica y oscurece un poco. */
 .button:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: scale(var(--sdl-press-scale));
+  filter: brightness(0.94);
 }
 
 .button:disabled {
@@ -32,13 +34,14 @@
 .primary {
   min-height: 52px;
   font-size: var(--sdl-text-lg);
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
+  background: var(--sdl-brand);
+  color: var(--sdl-on-brand);
+  box-shadow: var(--sdl-shadow-brand);
 }
 
 .secondary {
   font-size: var(--sdl-text-base);
-  background: transparent;
+  background: var(--sdl-surface);
   color: var(--sdl-fg);
   border-color: var(--sdl-border-control);
 }
@@ -49,15 +52,13 @@
   color: var(--sdl-fg-muted);
   text-decoration: underline;
   text-underline-offset: 4px;
-  text-transform: none;
   letter-spacing: 0;
-  font-family: var(--sdl-font-body);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 @media (hover: hover) {
   .primary:hover:not(:disabled) {
-    background: var(--sdl-primary-hover);
+    background: var(--sdl-brand-hover);
   }
 
   .secondary:hover:not(:disabled) {
@@ -69,8 +70,8 @@
   }
 }
 
-/* Irreversible (eliminar la cuenta): rojo con texto oscuro (5,2:1, medido). */
+/* Irreversible (eliminar la cuenta): rojo; el texto encima lo mide contrast.test.ts. */
 .danger {
   background: var(--sdl-danger);
-  color: var(--sdl-on-primary);
+  color: var(--sdl-on-danger);
 }

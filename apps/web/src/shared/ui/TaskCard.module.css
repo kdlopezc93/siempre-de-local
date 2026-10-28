@@ -5,15 +5,16 @@
   gap: var(--sdl-space-4);
   min-height: 136px;
   padding: var(--sdl-space-5);
-  border-radius: var(--sdl-radius-lg);
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
   text-decoration: none;
   transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
 }
 
 .lead:active {
-  transform: scale(0.98);
+  transform: scale(var(--sdl-press-scale));
 }
 
 .leadText {
@@ -25,13 +26,14 @@
 .leadTitle {
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-xl);
-  font-weight: 700;
-  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: var(--sdl-tracking-display);
+  line-height: var(--sdl-leading-display);
   text-wrap: balance;
 }
 
 .leadDetail {
-  color: var(--sdl-on-primary-muted);
+  color: var(--sdl-on-brand-muted);
   font-size: var(--sdl-text-sm);
   font-weight: 500;
 }
@@ -43,8 +45,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--sdl-on-primary);
-  color: var(--sdl-primary);
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
 }
 
 .row {
@@ -53,8 +55,9 @@
   gap: var(--sdl-space-3);
   min-height: 56px;
   padding: var(--sdl-space-2) var(--sdl-space-3);
-  border-radius: var(--sdl-radius-md);
+  border-radius: var(--sdl-radius-lg);
   background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
   color: var(--sdl-fg);
   text-decoration: none;
   transition: background-color var(--sdl-duration-fast) var(--sdl-ease-out);
@@ -66,7 +69,7 @@
   place-items: center;
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: var(--sdl-radius-sm);
   background: var(--sdl-surface-raised);
   color: var(--sdl-primary);
 }
@@ -77,7 +80,7 @@
 }
 
 .count {
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-size: var(--sdl-text-xl);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -85,7 +88,7 @@
 
 @media (hover: hover) {
   .lead:hover {
-    background: var(--sdl-primary-hover);
+    background: var(--sdl-brand-hover);
   }
 
   .row:hover {

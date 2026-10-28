@@ -225,7 +225,7 @@ function ResultBoard({
           <span className={styles.figureLabel}>Figura del partido</span>
           {figure ? (
             <span className={styles.figureName}>
-              <Token text={tokenText(figure)} size="sm" tone="amber" />
+              <Token text={tokenText(figure)} size="sm" tone="brand" />
               {figure.displayName}
             </span>
           ) : (
@@ -252,7 +252,7 @@ function ResultBoard({
                 <Token
                   text={tokenText(p)}
                   size="sm"
-                  tone={p.playerId === figureId ? 'amber' : 'board'}
+                  tone={p.playerId === figureId ? 'brand' : 'board'}
                 />
                 <span>{p.displayName}</span>
               </button>
@@ -374,7 +374,7 @@ export function MatchResultView({
           <div className={styles.figureWho}>
             <span className={styles.figureLabel}>Figura del partido</span>
             <span className={styles.figureName}>
-              <Token text={tokenText(result.figure)} size="sm" tone="amber" />
+              <Token text={tokenText(result.figure)} size="sm" tone="brand" />
               {result.figure.displayName}
             </span>
           </div>

@@ -1,9 +1,10 @@
 /* Solo el subconjunto latin: cubre el español completo y evita precachear fuentes que no se usan. */
-@import '@fontsource/barlow-condensed/latin-600.css';
-@import '@fontsource/barlow-condensed/latin-700.css';
-@import '@fontsource/barlow/latin-400.css';
-@import '@fontsource/barlow/latin-500.css';
-@import '@fontsource/barlow/latin-600.css';
+@import '@fontsource/plus-jakarta-sans/latin-500.css';
+@import '@fontsource/plus-jakarta-sans/latin-600.css';
+@import '@fontsource/plus-jakarta-sans/latin-700.css';
+@import '@fontsource/plus-jakarta-sans/latin-800.css';
+@import '@fontsource/space-grotesk/latin-500.css';
+@import '@fontsource/space-grotesk/latin-700.css';
 @import './tokens.css';
 
 *,
@@ -23,12 +24,12 @@ html {
 body {
   margin: 0;
   min-height: 100dvh;
-  background:
-    radial-gradient(120% 80% at 50% -10%, var(--sdl-color-bg-glow) 0%, var(--sdl-bg) 60%) fixed,
-    var(--sdl-bg);
+  /* Fondo plano: el color lo ponen las tarjetas, no el lienzo. */
+  background: var(--sdl-bg);
   color: var(--sdl-fg);
   font-family: var(--sdl-font-body);
   font-size: var(--sdl-text-base);
+  font-weight: 500;
   line-height: var(--sdl-leading-body);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
@@ -38,9 +39,16 @@ h1,
 h2,
 h3 {
   font-family: var(--sdl-font-display);
-  font-weight: 700;
+  font-weight: 800;
+  letter-spacing: var(--sdl-tracking-display);
+  line-height: var(--sdl-leading-display);
   margin: 0;
   text-wrap: balance;
+}
+
+h3 {
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 p {

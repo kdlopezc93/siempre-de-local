@@ -4,8 +4,8 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 /**
- * Contraste WCAG 2.2 de las parejas que usan las pantallas (design-system §3.3). Lee los hex de
- * tokens.css: si alguien cambia un color y baja del mínimo, este test falla.
+ * Contraste WCAG 2.2 de las parejas que usan las pantallas (design-system §3.3), en claro y en
+ * oscuro. Lee los hex de tokens.css: si alguien cambia un color y baja del mínimo, este test falla.
  */
 const css = readFileSync(new URL('./tokens.css', import.meta.url), 'utf8');
 const color = (token: string) => {
@@ -25,28 +25,56 @@ const ratio = (a: string, b: string) => {
   return (hi! + 0.05) / (lo! + 0.05);
 };
 
-const SURFACES = ['bg', 'surface', 'surface-selected'];
-/** Texto (4,5:1): todo lo que se lee sobre las tres superficies. */
-const TEXT = ['chalk', 'dim', 'accent', 'green', 'blue', 'coral', 'red-text'];
-/** No texto (3:1, 1.4.11): bordes de controles, aros de las fichas, foco. */
-const NON_TEXT = ['border-strong', 'chalk', 'blue', 'green', 'coral', 'accent'];
+const THEMES = {
+  claro: {
+    /** Lienzo, tarjeta y lo seleccionado. */
+    surfaces: ['ink-50', 'white', 'ink-100'],
+    /** Texto (4,5:1): fg, fg-muted, primary, success, danger. */
+    text: ['ink-900', 'ink-500', 'cobalt-500', 'success-700', 'danger-600'],
+    /** No texto (3:1, 1.4.11): borde de controles, aros de las fichas, foco. */
+    nonText: ['ink-400', 'ink-900', 'cobalt-500', 'grass-600', 'attack-600'],
+    pairs: [
+      ['white', 'cobalt-500', 'texto del bloque y del botón cobalto'],
+      ['cobalt-100', 'cobalt-500', 'detalle del bloque cobalto'],
+      ['ink-900', 'volt-500', 'pestaña activa y acento volt'],
+      ['ink-300', 'ink-900', 'pestañas de la barra de tinta'],
+      ['white', 'danger-600', 'botón de eliminar'],
+      ['white', 'field', 'nombres sobre el pasto'],
+      ['volt-500', 'field', 'lo destacado sobre el pasto'],
+    ],
+  },
+  oscuro: {
+    surfaces: ['night-950', 'night-900', 'night-800'],
+    text: ['fog-50', 'fog-300', 'cobalt-300', 'success-300', 'danger-300'],
+    nonText: ['night-500', 'fog-50', 'cobalt-300', 'aqua-500', 'attack-300'],
+    pairs: [
+      ['white', 'cobalt-500', 'bloque protagonista y botón principal (--sdl-brand)'],
+      ['cobalt-100', 'cobalt-500', 'detalle del bloque protagonista'],
+      ['ink-900', 'cobalt-300', 'texto sobre relleno --sdl-primary'],
+      ['ink-700', 'cobalt-300', 'detalle del bloque cobalto'],
+      ['ink-900', 'volt-500', 'pestaña activa y acento volt'],
+      ['fog-300', 'night-800', 'pestañas de la barra'],
+      ['ink-900', 'danger-300', 'botón de eliminar'],
+      ['white', 'field-dark', 'nombres sobre el pasto'],
+      ['volt-500', 'field-dark', 'lo destacado sobre el pasto'],
+    ],
+  },
+} as const;
 
-describe('contraste de los tokens (WCAG 2.2 AA)', () => {
-  for (const fg of TEXT) {
-    for (const bg of SURFACES) {
+describe.each(Object.entries(THEMES))('contraste de los tokens, tema %s (WCAG 2.2 AA)', (_, t) => {
+  for (const fg of t.text) {
+    for (const bg of t.surfaces) {
       it(`texto ${fg} sobre ${bg} ≥ 4,5`, () => expect(ratio(fg, bg)).toBeGreaterThanOrEqual(4.5));
     }
   }
-  for (const fg of NON_TEXT) {
-    for (const bg of SURFACES) {
+  for (const fg of t.nonText) {
+    for (const bg of t.surfaces) {
       it(`borde o aro ${fg} sobre ${bg} ≥ 3`, () =>
         expect(ratio(fg, bg)).toBeGreaterThanOrEqual(3));
     }
   }
-  it.each([
-    ['on-accent', 'accent', 'texto del bloque y del botón ámbar'],
-    ['on-accent-muted', 'accent', 'detalle del bloque ámbar'],
-    ['on-accent', 'red', 'botón de eliminar'],
-    ['bg', 'chalk', 'filtro prendido'],
-  ])('%s sobre %s (%s) ≥ 4,5', (fg, bg) => expect(ratio(fg, bg)).toBeGreaterThanOrEqual(4.5));
+  for (const [fg, bg, what] of t.pairs) {
+    it(`${fg} sobre ${bg} (${what}) ≥ 4,5`, () =>
+      expect(ratio(fg, bg)).toBeGreaterThanOrEqual(4.5));
+  }
 });

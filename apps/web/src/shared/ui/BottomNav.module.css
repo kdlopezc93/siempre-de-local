@@ -2,17 +2,24 @@
   position: fixed;
   inset: auto 0 0;
   z-index: 10;
-  padding-bottom: env(safe-area-inset-bottom);
-  border-top: var(--sdl-stroke) solid var(--sdl-border);
-  background: var(--sdl-bg);
+  padding: 0 max(var(--sdl-nav-inset), env(safe-area-inset-right))
+    max(var(--sdl-nav-inset), env(safe-area-inset-bottom))
+    max(var(--sdl-nav-inset), env(safe-area-inset-left));
+  pointer-events: none;
 }
 
+/* Flota sobre el contenido, que pasa por debajo. */
 .list {
   display: flex;
+  gap: 0;
   max-width: var(--sdl-content-max);
   margin: 0 auto;
-  padding: 0;
+  padding: 5px;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-inverse);
+  box-shadow: var(--sdl-shadow-float);
   list-style: none;
+  pointer-events: auto;
 }
 
 .list li {
@@ -20,39 +27,44 @@
   min-width: 0;
 }
 
+/* La activa se estira para que quepa su nombre al lado del icono. */
+.list li.current {
+  flex: 2.2;
+}
+
 .item {
   position: relative;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  height: var(--sdl-nav-height);
-  color: var(--sdl-fg-muted);
+  gap: var(--sdl-space-2);
+  height: calc(var(--sdl-nav-height) - 10px);
+  padding-inline: 2px;
+  border-radius: var(--sdl-radius-pill);
+  color: var(--sdl-on-inverse-muted);
   text-decoration: none;
+  touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--sdl-duration-base) var(--sdl-ease-out),
+    color var(--sdl-duration-base) var(--sdl-ease-out);
 }
 
+/* Sobre la tinta, el anillo cobalto no llega a 3:1: el foco de la barra va en volt. */
+.item:focus-visible {
+  outline-color: var(--sdl-accent);
+}
+
+/* Donde estás: píldora volt con texto de tinta (la forma también lo dice, no solo el color). */
 .item[aria-current='page'] {
-  color: var(--sdl-fg);
-}
-
-/* El punto ámbar del icono de la app marca dónde estás. */
-.item[aria-current='page']::before {
-  content: '';
-  position: absolute;
-  top: 6px;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--sdl-primary);
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
 }
 
 .icon {
   position: relative;
   display: grid;
   place-items: center;
-  margin-top: 8px;
   transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
 }
 
@@ -61,10 +73,10 @@
 }
 
 .label {
-  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
-  font-size: var(--sdl-text-xs);
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -79,6 +91,8 @@
   border-radius: var(--sdl-radius-pill);
   background: var(--sdl-primary);
   color: var(--sdl-on-primary);
+  box-shadow: 0 0 0 2px var(--sdl-inverse);
+  font-family: var(--sdl-font-numeric);
   font-size: 11px;
   font-weight: 700;
   line-height: 18px;
@@ -86,7 +100,7 @@
 }
 
 @media (hover: hover) {
-  .item:hover {
-    color: var(--sdl-fg);
+  .item:hover:not([aria-current='page']) {
+    color: var(--sdl-on-inverse);
   }
 }

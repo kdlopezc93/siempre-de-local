@@ -1,4 +1,4 @@
-/* La pizarra del examen (Fase 8): tiza sobre el verde de la app; lo tocable, en ámbar. */
+/* La pizarra del examen (Fase 8): líneas blancas sobre el pasto; lo tocable, en volt. */
 
 .figure {
   display: flex;
@@ -13,8 +13,8 @@
   max-width: 420px;
   margin-inline: auto;
   overflow: hidden;
-  border-radius: var(--sdl-radius-md);
-  background: var(--sdl-surface);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-field);
 }
 
 .svg {
@@ -30,8 +30,8 @@
 }
 
 .you circle {
-  fill: var(--sdl-primary);
-  stroke: var(--sdl-primary);
+  fill: var(--sdl-field-accent);
+  stroke: var(--sdl-field-accent);
   stroke-width: 0.9;
 }
 
@@ -51,11 +51,11 @@
 }
 
 .you .label {
-  fill: var(--sdl-on-primary);
+  fill: var(--sdl-on-field-accent);
 }
 
 .rivalLabel {
-  fill: var(--sdl-fg-muted);
+  fill: var(--sdl-on-field);
   font-family: var(--sdl-font-display);
   font-size: 3.6px;
   font-weight: 700;
@@ -71,7 +71,7 @@
 }
 
 .visorYou {
-  stroke: var(--sdl-primary);
+  stroke: var(--sdl-field-accent);
 }
 
 .ball {
@@ -95,14 +95,14 @@
   place-items: center;
   width: 44px;
   height: 44px;
-  border: 2px dashed var(--sdl-primary);
+  border: 2px dashed var(--sdl-field-accent);
   border-radius: 50%;
   /* Transparente: no tapa a los jugadores de abajo; la letra lleva contorno de cancha. */
   background: transparent;
-  color: var(--sdl-primary);
+  color: var(--sdl-field-accent);
   text-shadow:
-    0 0 3px var(--sdl-surface),
-    0 0 2px var(--sdl-surface);
+    0 0 3px var(--sdl-field),
+    0 0 2px var(--sdl-field);
   font-family: var(--sdl-font-display);
   font-size: var(--sdl-text-lg);
   font-weight: 700;
@@ -118,8 +118,8 @@
 
 .spot[aria-pressed='true'] {
   border-style: solid;
-  background: var(--sdl-primary);
-  color: var(--sdl-on-primary);
+  background: var(--sdl-field-accent);
+  color: var(--sdl-on-field-accent);
   text-shadow: none;
 }
 
@@ -138,5 +138,18 @@
 }
 
 .legendYou {
-  color: var(--sdl-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sdl-space-1);
+  color: var(--sdl-fg);
+}
+
+/* El mismo volt de tu ficha en la cancha: la leyenda no depende solo del color del texto. */
+.legendYou::before {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--sdl-field-accent);
+  box-shadow: 0 0 0 1px var(--sdl-border-control);
+  content: '';
 }

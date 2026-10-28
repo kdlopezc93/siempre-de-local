@@ -39,7 +39,7 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
               : initialsOf(me.profile.displayName)
           }
           size="lg"
-          tone="amber"
+          tone="brand"
           {...(membership?.jerseyNumber != null
             ? { label: `Dorsal ${membership.jerseyNumber}` }
             : {})}

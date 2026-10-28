@@ -15,7 +15,7 @@
 }
 
 .dot {
-  fill: var(--sdl-surface-selected);
+  fill: var(--sdl-surface);
   stroke-width: 1.2;
 }
 
@@ -24,7 +24,7 @@
 }
 
 .fair .dot {
-  stroke: var(--sdl-primary);
+  stroke: var(--sdl-field-accent);
 }
 
 .weak .dot {
@@ -32,8 +32,8 @@
 }
 
 .empty .dot {
-  fill: var(--sdl-surface);
-  stroke: var(--sdl-primary);
+  fill: none;
+  stroke: var(--sdl-field-accent);
   stroke-dasharray: 2 1.6;
 }
 
@@ -46,7 +46,7 @@
 }
 
 .name {
-  fill: var(--sdl-fg);
+  fill: var(--sdl-on-field);
   font-family: var(--sdl-font-body);
   font-size: 3.6px;
   font-weight: 600;
@@ -55,16 +55,16 @@
 
 .empty .name,
 .empty .code {
-  fill: var(--sdl-primary);
+  fill: var(--sdl-field-accent);
 }
 
 .pin {
-  fill: var(--sdl-primary);
+  fill: var(--sdl-field-accent);
 }
 
-/* Elegido para cambiar: aro ámbar alrededor. */
+/* Elegido para cambiar: aro volt alrededor. */
 .selected .dot {
-  stroke: var(--sdl-primary);
+  stroke: var(--sdl-field-accent);
   stroke-width: 2.2;
 }
 
