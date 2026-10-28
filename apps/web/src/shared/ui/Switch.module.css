@@ -1,0 +1,43 @@
+/*
+ * El interruptor del sistema (Switch) sobre un <input type="checkbox" role="switch">: riel de
+ * 52×32 y perilla blanca que se desliza. Apagado, el riel va en el borde de control (3:1 con el
+ * fondo, no el gris muy claro del original); encendido, cobalto.
+ */
+.switch[role='switch'] {
+  position: relative;
+  flex: none;
+  width: 52px;
+  height: 32px;
+  margin: 0;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-border-control);
+  cursor: pointer;
+  appearance: none;
+  transition: background-color var(--sdl-duration-base) var(--sdl-ease-out);
+}
+
+.switch[role='switch']::before {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--sdl-color-white);
+  box-shadow: 0 2px 6px rgb(20 22 28 / 20%);
+  content: '';
+  transition: transform var(--sdl-duration-base) var(--sdl-ease-sheet);
+}
+
+.switch[role='switch']:checked {
+  background: var(--sdl-brand);
+}
+
+.switch[role='switch']:checked::before {
+  transform: translateX(20px);
+}
+
+.switch[role='switch']:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

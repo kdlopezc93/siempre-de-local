@@ -16,6 +16,7 @@ import {
   whatsappUrl,
 } from './use-invitations';
 import { PageTitle } from '../../shared/ui/PageTitle';
+import { Badge, type BadgeTone } from '../../shared/ui/Badge';
 
 /** /equipos/:teamId/invitar — el entrenador crea el enlace y lo manda al grupo. */
 export function InvitePage({ teamId }: { teamId: string }) {
@@ -173,11 +174,11 @@ function FreshLink({
   );
 }
 
-const STATUS: Record<InvitationSummary['status'], string> = {
-  active: 'Activo',
-  expired: 'Vencido',
-  used_up: 'Completo',
-  revoked: 'Anulado',
+const STATUS: Record<InvitationSummary['status'], { label: string; tone: BadgeTone }> = {
+  active: { label: 'Activo', tone: 'success' },
+  expired: { label: 'Vencido', tone: 'danger' },
+  used_up: { label: 'Completo', tone: 'neutral' },
+  revoked: { label: 'Anulado', tone: 'neutral' },
 };
 
 const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' });
@@ -218,9 +219,7 @@ function InvitationRow({ teamId, item }: { teamId: string; item: InvitationSumma
   return (
     <li className={styles.item}>
       <div className={styles.itemHead}>
-        <span className={active ? styles.statusActive : styles.statusOff}>
-          {STATUS[item.status]}
-        </span>
+        <Badge tone={STATUS[item.status].tone}>{STATUS[item.status].label}</Badge>
         <span className={styles.uses}>
           {item.usedCount} de {item.maxUses} {item.maxUses === 1 ? 'persona' : 'personas'}
         </span>

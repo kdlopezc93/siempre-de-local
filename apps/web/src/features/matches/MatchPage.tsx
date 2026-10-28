@@ -10,8 +10,6 @@ import { Button } from '../../shared/ui/Button';
 import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import { Sheet } from '../../shared/ui/Sheet';
-import { initialsOf } from '../../shared/ui/TeamHeader';
-import { Token } from '../../shared/ui/Token';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import { usePublishLineup, useLineups } from '../lineup/use-lineups';
 import { AfterMatch, MatchResultView } from './AfterMatch';
@@ -21,6 +19,7 @@ import styles from './Matches.module.css';
 import { useMatch, usePublishedLineup, useReplyMatch, useUpdateMatch } from './use-matches';
 import { Badge } from '../../shared/ui/Badge';
 import { StatGrid, StatTile } from '../../shared/ui/StatTile';
+import { Avatar } from '../../shared/ui/Avatar';
 
 /**
  * /equipos/:teamId/partidos/:matchId — el partido: responder, y para el cuerpo técnico, quién va
@@ -180,11 +179,10 @@ function Roster({ roster }: { roster: MatchRoster }) {
             <ul className={styles.people}>
               {people.map((p) => (
                 <li key={p.playerId}>
-                  <Token
-                    text={
-                      p.jerseyNumber !== null ? String(p.jerseyNumber) : initialsOf(p.displayName)
-                    }
-                    size="sm"
+                  <Avatar
+                    name={p.displayName}
+                    label={p.jerseyNumber !== null ? String(p.jerseyNumber) : null}
+                    size={32}
                     injured={p.injured}
                   />
                   <span>
@@ -273,7 +271,7 @@ function MatchLineups({ teamId, match }: { teamId: string; match: Match }) {
                 {l.name}
               </Link>
               {l.id === publishedId ? (
-                <span className={styles.publishedTag}>Publicada</span>
+                <Badge tone="success">Publicada</Badge>
               ) : (
                 match.open && (
                   <button

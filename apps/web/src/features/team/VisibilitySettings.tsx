@@ -2,6 +2,7 @@ import type { UpdateTeamRequest } from '@sdl/contracts';
 
 import { useUpdateTeam } from '../card/use-card';
 import { useTeam } from '../team-admin/use-invitations';
+import switchStyles from '../../shared/ui/Switch.module.css';
 import styles from './TeamPage.module.css';
 
 type Setting = 'ratingsVisibleToPlayers' | 'matchRatingsVisibleToPlayers';
@@ -39,6 +40,7 @@ export function VisibilitySettings({ teamId }: { teamId: string }) {
             <input
               type="checkbox"
               role="switch"
+              className={switchStyles.switch}
               checked={visible}
               disabled={update.isPending}
               onChange={(event) => update.mutate({ [key]: event.target.checked })}

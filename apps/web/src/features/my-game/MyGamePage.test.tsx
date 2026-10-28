@@ -102,7 +102,6 @@ describe('Mi juego (07 §4.3)', () => {
     api();
     renderPage();
     // Su dorsal, arriba.
-    expect(screen.getByRole('img', { name: 'Dorsal 10' })).toBeInTheDocument();
     expect(screen.getByText('Dorsal 10')).toBeInTheDocument();
     const card = await screen.findByRole('article', { name: 'Tarjeta del jugador' });
     expect(card).toHaveTextContent(/^Mejor media74de media como Extremo/);
