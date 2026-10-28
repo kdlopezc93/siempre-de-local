@@ -102,8 +102,7 @@
   font-size: var(--sdl-text-sm);
 }
 
-.textLink,
-.primaryLink {
+.textLink {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -117,30 +116,7 @@
   text-underline-offset: 4px;
 }
 
-/* Ya es del equipo: el paso siguiente va en volt, la energía del sistema (el cobalto ya está
-   en la convocatoria). Misma presencia que el botón principal: lleva a otra pantalla. */
-.primaryLink {
-  min-height: 52px;
-  padding: var(--sdl-space-3) var(--sdl-space-5);
-  border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-accent);
-  color: var(--sdl-on-accent);
-  font-family: var(--sdl-font-body);
-  font-size: var(--sdl-text-lg);
-  font-weight: 700;
-  text-decoration: none;
-  transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
-}
-
-.primaryLink:active {
-  transform: scale(var(--sdl-press-scale));
-}
-
 @media (hover: hover) {
-  .primaryLink:hover {
-    background: var(--sdl-accent-hover);
-  }
-
   .textLink:hover {
     color: var(--sdl-primary);
   }

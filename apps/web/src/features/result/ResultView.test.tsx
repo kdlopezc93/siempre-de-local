@@ -23,9 +23,9 @@ describe('ResultView', () => {
 
     const rows = within(screen.getByRole('list')).getAllByRole('listitem');
     expect(rows.map((row) => row.textContent)).toEqual([
-      '1Defensa central82%',
-      '2Pivote70%',
-      '3Lateral55%',
+      '1Defensa central82\u00a0%',
+      '2Pivote70\u00a0%',
+      '3Lateral55\u00a0%',
     ]);
     expect(screen.getByRole('img')).toHaveAccessibleName(
       'Cancha con tus posiciones marcadas: Defensa central, Pivote, Lateral',

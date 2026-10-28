@@ -4,10 +4,22 @@
   gap: var(--sdl-space-5);
 }
 
+/* El bloque cobalto: el dorsal y el nombre de tu primera posición. */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-4);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+}
+
 .eyebrow {
-  color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
-  font-size: var(--sdl-text-sm);
+  color: var(--sdl-on-brand-muted);
+  font-size: var(--sdl-text-eyebrow);
+  font-weight: 700;
   letter-spacing: var(--sdl-tracking-eyebrow);
   text-transform: uppercase;
 }
@@ -18,13 +30,11 @@
   gap: var(--sdl-space-4);
 }
 
-/* El dorsal, como se escribe en la pizarra: grande y en tiza ámbar. */
+/* El dorsal es la cifra protagonista: Space Grotesk, grande. */
 .number {
   flex: none;
-  min-width: 2ch;
-  color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
-  font-size: var(--sdl-text-display);
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-number);
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
@@ -32,13 +42,11 @@
 
 .name {
   font-size: var(--sdl-text-xl);
-  line-height: 1.05;
-  text-transform: uppercase;
   overflow-wrap: anywhere;
 }
 
 .tagline {
-  color: var(--sdl-fg-muted);
+  color: var(--sdl-on-brand-muted);
 }
 
 .description {
@@ -46,17 +54,23 @@
 }
 
 .board {
-  padding: var(--sdl-space-4);
-  border: var(--sdl-stroke) solid var(--sdl-border);
-  border-radius: var(--sdl-radius-lg);
+  padding: var(--sdl-space-3);
+  border-radius: var(--sdl-radius-xl);
   background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.card {
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
 }
 
 .sectionTitle {
-  margin-bottom: var(--sdl-space-3);
+  margin-bottom: var(--sdl-space-4);
   font-size: var(--sdl-text-lg);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
+  letter-spacing: 0;
 }
 
 .podium {
@@ -71,43 +85,50 @@
 /* Revelado: cada fila entra con su retraso (--reveal), de la 3.ª a la 1.ª. */
 .row {
   display: grid;
-  grid-template-columns: 1.5ch minmax(0, 7.5rem) 1fr 4ch;
+  grid-template-columns: 1.5ch minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--sdl-space-3);
+  gap: var(--sdl-space-2) var(--sdl-space-3);
   animation: row-in var(--sdl-duration-enter) var(--sdl-ease-out) both;
   animation-delay: calc(var(--reveal, 0) * 260ms + 200ms);
 }
 
 .rank {
   color: var(--sdl-primary);
-  font-family: var(--sdl-font-display);
+  font-family: var(--sdl-font-numeric);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
 .rowName {
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
 
+/* La barra va debajo del nombre, a todo el ancho: el nombre no se parte. */
 .bar {
-  height: 7px;
+  grid-row: 2;
+  grid-column: 2 / -1;
+  height: 8px;
   overflow: hidden;
   border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-border);
+  background: var(--sdl-surface-raised);
 }
 
 .bar span {
   display: block;
   height: 100%;
   border-radius: var(--sdl-radius-pill);
-  background: var(--sdl-success);
+  background: var(--sdl-primary);
   transform-origin: left center;
   animation: bar-in var(--sdl-duration-enter) var(--sdl-ease-out) both;
   animation-delay: calc(var(--reveal, 0) * 260ms + 320ms);
 }
 
 .pct {
+  font-family: var(--sdl-font-numeric);
+  font-weight: 700;
   text-align: right;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }
 
@@ -117,9 +138,9 @@
 }
 
 .next {
-  padding: var(--sdl-space-4);
-  border: var(--sdl-stroke) dashed var(--sdl-border-control);
-  border-radius: var(--sdl-radius-md);
+  padding: var(--sdl-space-4) var(--sdl-space-5);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface-raised);
 }
 
 @keyframes row-in {
