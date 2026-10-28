@@ -52,7 +52,11 @@ describe('JoinPage', () => {
     renderJoin();
 
     expect(await screen.findByText('Primer equipo')).toBeInTheDocument();
-    expect(screen.getByText('Los del Barrio te convoca a')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, el) => el?.tagName === 'P' && el.textContent === 'Los del Barrio te convoca a',
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByText(/Entras como jugador. El equipo juega fútbol 8/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Continuar con Google' })).toBeEnabled();
   });

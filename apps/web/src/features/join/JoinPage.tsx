@@ -8,7 +8,6 @@ import { Screen } from '../../shared/ui/Screen';
 import { GoogleMark } from '../auth/components/GoogleMark';
 import { useGoogleSignIn, useSignOut } from '../auth/use-session';
 import { ConsentForm } from '../consent/ConsentForm';
-import { ChalkUnderline } from './ChalkUnderline';
 import styles from './JoinPage.module.css';
 import { errorMessage, useInvitationPreview, useJoinTeam } from './use-join';
 
@@ -111,7 +110,10 @@ export function JoinPage({ code, me }: { code: string; me: Me | null }) {
   );
 }
 
-/** `asTitle`: el nombre del equipo es el título de la pantalla (h1) o solo contexto. */
+/**
+ * La convocatoria es el bloque cobalto de la pantalla. `asTitle`: el nombre del equipo es el
+ * título de la pantalla (h1) o solo contexto.
+ */
 function Convocation({
   invitation,
   asTitle = false,
@@ -122,9 +124,13 @@ function Convocation({
   const Team = asTitle ? 'h1' : 'p';
   return (
     <header className={styles.convocation}>
-      <p className={styles.club}>{invitation.club.name} te convoca a</p>
-      <Team className={styles.team}>{invitation.team.name}</Team>
-      <ChalkUnderline />
+      <p className={styles.eyebrow}>Convocatoria</p>
+      <p className={styles.club}>
+        <span translate="no">{invitation.club.name}</span> te convoca a
+      </p>
+      <Team className={styles.team} translate="no">
+        {invitation.team.name}
+      </Team>
     </header>
   );
 }
@@ -146,7 +152,7 @@ function SignInActions({ returnTo }: { returnTo: string }) {
           {error}
         </p>
       )}
-      <Button busy={opening} onClick={() => signIn.mutate()}>
+      <Button variant="secondary" busy={opening} onClick={() => signIn.mutate()}>
         <span className={styles.googleBadge}>
           <GoogleMark size={18} />
         </span>

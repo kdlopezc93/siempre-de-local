@@ -1,3 +1,6 @@
+import { DownloadSimple } from '@phosphor-icons/react/dist/csr/DownloadSimple';
+import { Eye } from '@phosphor-icons/react/dist/csr/Eye';
+import { IdentificationCard } from '@phosphor-icons/react/dist/csr/IdentificationCard';
 import { POLICY_VERSION } from '@sdl/contracts';
 import { lazy, Suspense, useId, useRef, useState, type FormEvent } from 'react';
 
@@ -40,11 +43,24 @@ export function ConsentForm({ submitLabel, busy, error, onAccept }: ConsentFormP
     <form className={styles.form} onSubmit={handleSubmit} noValidate>
       <ul className={styles.summary}>
         <li>
+          <span className={styles.icon}>
+            <IdentificationCard size={20} aria-hidden="true" />
+          </span>
           Guardamos tu nombre, tu correo y lo que respondes en la app. Nada de documentos, dirección
           ni teléfono.
         </li>
-        <li>Lo ven tú y el cuerpo técnico de tu equipo. Nadie de fuera.</li>
-        <li>Puedes descargar tus datos o pedir que los borremos cuando quieras.</li>
+        <li>
+          <span className={styles.icon}>
+            <Eye size={20} aria-hidden="true" />
+          </span>
+          Lo ven tú y el cuerpo técnico de tu equipo. Nadie de fuera.
+        </li>
+        <li>
+          <span className={styles.icon}>
+            <DownloadSimple size={20} aria-hidden="true" />
+          </span>
+          Puedes descargar tus datos o pedir que los borremos cuando quieras.
+        </li>
       </ul>
 
       <details

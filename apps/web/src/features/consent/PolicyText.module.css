@@ -11,8 +11,6 @@
   margin-top: var(--sdl-space-3);
   color: var(--sdl-fg);
   font-size: var(--sdl-text-base);
-  letter-spacing: var(--sdl-tracking-button);
-  text-transform: uppercase;
 }
 
 .policy ul,

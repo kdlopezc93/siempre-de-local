@@ -80,6 +80,7 @@ Del original, **no se usan como texto**: `ink-400` (2,6:1, solo bordes), `succes
 |---|---|---|
 | `--sdl-font-display` / `--sdl-font-body` | Plus Jakarta Sans | Títulos / texto |
 | `--sdl-font-numeric` | Space Grotesk | Toda cifra |
+| `--sdl-text-eyebrow` | 11px | Sobretítulos e insignias (700, `--sdl-tracking-eyebrow`, mayúsculas) |
 | `--sdl-text-xs` | 12px | Metadatos cortos, ejes |
 | `--sdl-text-sm` | 14px | Metadatos, pistas |
 | `--sdl-text-base` | 16px | Texto e inputs (evita el zoom de iOS) |
@@ -173,6 +174,7 @@ Una sola voz: cercana, clara, en español latinoamericano, de **tú**, sin jerga
 
 ## 11. Pantallas propias
 
+- **Entrada (`auth`, `join`, `onboarding`, `consent`):** en el login, el bloque cobalto lleva el sobretítulo, el título de dos pesos ("Tu equipo, / **siempre de local**") y una jugada sobre media cancha (líneas en `--sdl-on-brand-muted`, los nuestros en blanco, la subida en volt); el botón de Google va en `secondary` (blanco, como pide su marca). Al unirse, la convocatoria es el bloque cobalto y "Ir a mi equipo" va en volt. El resumen de la política, en filas con icono en recuadro. El texto y la acción, abajo, al pulgar.
 - **Ficha 0–99 (`features/card`):** sin brillos ni degradados de videojuego. Lo fuerte es la mejor media (Space Grotesk en `--sdl-text-number`, cobalto) con su posición; los atributos en dos columnas con barra, las medias por posición ordenadas. Al puntuar, deslizadores nativos de 44px (`accent-color` cobalto, `touch-action: pan-y`).
 - **Examen de conocimiento (`features/knowledge`):** una pregunta por pantalla; el reloj en Space Grotesk (cambia en los últimos 2 minutos y en el último; para lectores de pantalla avisa a los 5, 2 y 1); 20 marcas que se rellenan; revisión en grilla de 5 × 4 (≥ 44px); el resultado con el porcentaje grande, la banda y las áreas. Nunca las respuestas correctas.
 - **Pizarra del examen (`ExamBoard`):** la jugada sobre el pasto con líneas blancas; los tuyos con **O**, los rivales con **X** (la forma lo dice); tú en volt; los puntos de respuesta son botones de 44px con anillo volt punteado y transparente; elegido, relleno de volt. Muestra en `/muestra/pizarra` (solo desarrollo).

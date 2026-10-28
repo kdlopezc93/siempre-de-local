@@ -116,6 +116,7 @@
   --sdl-font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   --sdl-font-body: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   --sdl-font-numeric: 'Space Grotesk', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+  --sdl-text-eyebrow: 11px;
   --sdl-text-xs: 12px;
   --sdl-text-sm: 14px;
   --sdl-text-base: 16px;
