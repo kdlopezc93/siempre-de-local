@@ -10,6 +10,8 @@ import { LeadTask } from '../../shared/ui/TaskCard';
 import { matchWhen, splitMatches } from './match-view';
 import styles from './Matches.module.css';
 import { useMatches } from './use-matches';
+import { PageTitle } from '../../shared/ui/PageTitle';
+import { StatGrid, StatTile } from '../../shared/ui/StatTile';
 
 /** /equipos/:teamId/partidos — los próximos partidos, convocar y (adentro) las alineaciones. */
 export function MatchesPage({ me, teamId }: { me: Me; teamId: string }) {
@@ -20,8 +22,15 @@ export function MatchesPage({ me, teamId }: { me: Me; teamId: string }) {
 
   return (
     <Screen className={styles.screen}>
-      <h1 className={styles.title}>Partidos</h1>
-      {staff && <LeadTask to={`/equipos/${teamId}/partidos/nuevo`} title="Convocar partido" />}
+      <PageTitle eyebrow={me.teams.find((t) => t.team.id === teamId)?.team.name} title="Partidos" />
+      {staff && (
+        <LeadTask
+          to={`/equipos/${teamId}/partidos/nuevo`}
+          title="Convocar partido"
+          detail="Fecha, hora, lugar y rival; el equipo responde si va"
+          overline="Nuevo partido"
+        />
+      )}
       {matches.isPending ? (
         <p className="sr-only" role="status">
           Cargando los partidos…
@@ -39,7 +48,7 @@ export function MatchesPage({ me, teamId }: { me: Me; teamId: string }) {
             <Row
               to={`/equipos/${teamId}/alineaciones`}
               leading={
-                <span className={styles.icon} aria-hidden="true">
+                <span className={styles.icon} data-tint="6" aria-hidden="true">
                   <Strategy size={22} />
                 </span>
               }
@@ -126,14 +135,17 @@ function Tally({ items }: { items: Match[] }) {
           ({tally.played} {tally.played === 1 ? 'jugado' : 'jugados'})
         </span>
       </h2>
-      <dl className={`${styles.counts} ${styles.tally}`}>
+      <StatGrid columns={2}>
         {tiles.map(([label, value]) => (
-          <div key={label}>
-            <dt>{label}</dt>
-            <dd>{value}</dd>
-          </div>
+          <StatTile
+            key={label}
+            label={label}
+            value={value}
+            align="start"
+            tone={label === 'Ganados' && value > 0 ? 'volt' : 'white'}
+          />
         ))}
-      </dl>
+      </StatGrid>
     </section>
   );
 }

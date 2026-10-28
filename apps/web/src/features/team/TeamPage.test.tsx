@@ -26,8 +26,10 @@ describe('TeamPage', () => {
 
   it('el equipo, invitar e informe para quien corresponde', () => {
     renderTeam(TEAM_A);
-    expect(screen.getByRole('heading', { level: 1, name: 'Primer equipo' })).toBeInTheDocument();
-    expect(screen.getByText('Los del Barrio, Fútbol 11')).toBeInTheDocument();
+    expect(
+      screen.getByRole('heading', { level: 1, name: 'Los del Barrio Primer equipo' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Fútbol 11')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Invitar jugadores' })).toHaveAttribute(
       'href',
       `/equipos/${TEAM_A}/invitar`,

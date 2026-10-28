@@ -1,3 +1,4 @@
+import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
 import type { Match, MatchRoster } from '@sdl/contracts';
 import { findFormation } from '@sdl/domain';
 import { useState } from 'react';
@@ -18,6 +19,8 @@ import { matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
 import styles from './Matches.module.css';
 import { useMatch, usePublishedLineup, useReplyMatch, useUpdateMatch } from './use-matches';
+import { Badge } from '../../shared/ui/Badge';
+import { StatGrid, StatTile } from '../../shared/ui/StatTile';
 
 /**
  * /equipos/:teamId/partidos/:matchId — el partido: responder, y para el cuerpo técnico, quién va
@@ -65,14 +68,24 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
   return (
     <Screen className={styles.screen}>
       {back}
-      <header>
-        <h1 className={styles.title}>{match.opponent}</h1>
-        <p className={styles.when}>{matchWhen(match.startsAt)}</p>
-        <p className={styles.muted}>
+      {/* Lo fuerte de la pantalla: el partido en el bloque cobalto, como el entreno de hoy. */}
+      <header className={styles.matchHero}>
+        <div className={styles.heroBadges}>
+          <Badge tone="white">{matchWhen(match.startsAt)}</Badge>
+          {!match.open && (
+            <Badge tone={match.status === 'cancelled' ? 'danger' : 'accent'}>
+              {match.status === 'cancelled' ? 'Cancelado' : 'Jugado'}
+            </Badge>
+          )}
+        </div>
+        <p className={styles.heroOverline}>Partido contra</p>
+        <h1 className={styles.heroTitle}>{match.opponent}</h1>
+        <p className={styles.heroMeta}>
+          <MapPin size={16} aria-hidden="true" />
           {match.place}, {FORMAT_LABEL[match.format]}
         </p>
         {!match.open && (
-          <p className={styles.closed}>
+          <p className={styles.heroMeta}>
             {match.status === 'cancelled' ? 'Partido cancelado.' : 'El partido ya empezó.'}
           </p>
         )}
@@ -92,26 +105,14 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
       {!played && player && <ReplyButtons teamId={teamId} match={match} />}
 
       {!played && (
-        <dl className={styles.counts}>
-          <div>
-            <dt>Van</dt>
-            <dd>{match.replies.yes}</dd>
-          </div>
-          <div>
-            <dt>No van</dt>
-            <dd>{match.replies.no}</dd>
-          </div>
-          <div>
-            <dt>Faltan</dt>
-            <dd>{match.replies.pending}</dd>
-          </div>
+        <StatGrid columns={match.replies.injured > 0 ? 4 : 3}>
+          <StatTile label="Van" value={match.replies.yes} />
+          <StatTile label="No van" value={match.replies.no} />
+          <StatTile label="Faltan" value={match.replies.pending} />
           {match.replies.injured > 0 && (
-            <div>
-              <dt>Lesionados</dt>
-              <dd>{match.replies.injured}</dd>
-            </div>
+            <StatTile label="Lesionados" value={match.replies.injured} />
           )}
-        </dl>
+        </StatGrid>
       )}
 
       {staff && <MatchLineups teamId={teamId} match={match} />}

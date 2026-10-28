@@ -72,9 +72,18 @@
   place-items: center;
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  background: var(--sdl-surface);
-  color: var(--sdl-primary);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-tint-6);
+  color: var(--sdl-on-tint);
+}
+
+/* Cada acceso con su color, como los mosaicos del sistema. */
+.list li:nth-child(3n + 2) .icon {
+  background: var(--sdl-tint-1);
+}
+
+.list li:nth-child(3n + 3) .icon {
+  background: var(--sdl-tint-2);
 }
 
 .ask {
@@ -349,4 +358,46 @@
   font-size: var(--sdl-text-xl);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+/* El encabezado del partido: el bloque cobalto, con la fecha en insignia blanca. */
+.matchHero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+}
+
+.heroBadges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--sdl-space-2);
+  margin-bottom: var(--sdl-space-2);
+}
+
+.heroOverline {
+  color: var(--sdl-on-brand-muted);
+  font-size: var(--sdl-text-eyebrow);
+  font-weight: 700;
+  letter-spacing: var(--sdl-tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  font-size: var(--sdl-text-display);
+  overflow-wrap: anywhere;
+}
+
+.heroMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  overflow-wrap: anywhere;
 }

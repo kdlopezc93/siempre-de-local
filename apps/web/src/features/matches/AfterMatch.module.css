@@ -354,3 +354,13 @@
   font-weight: 700;
   line-height: var(--sdl-leading-display);
 }
+
+/* Dentro de una fila de encabezado o de una tarjeta, el aire lo pone el contenedor. */
+.sectionHead {
+  margin-top: 22px;
+}
+
+.sectionHead .sectionTitle,
+.board > .sectionTitle:first-child {
+  margin-top: 0;
+}
