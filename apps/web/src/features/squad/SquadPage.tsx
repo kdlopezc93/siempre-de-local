@@ -31,7 +31,7 @@ import {
 } from './squad-filters';
 import styles from './SquadPage.module.css';
 import { injuryText, todayIso } from './injury';
-import { useExportTeam, useSquad } from './use-squad';
+import { useExportTeam, useRemindTest, useSquad } from './use-squad';
 
 type View = 'lista' | 'pizarra';
 const VIEWS = [
@@ -103,6 +103,8 @@ export function SquadPage({ teamId }: { teamId: string }) {
   // El coach o el admin del club (que entra sin roles en el equipo); el asistente no.
   const myRoles = team.data.myRoles;
   const canExport = myRoles.includes('coach') || myRoles.length === 0;
+  // Recordar el test es del cuerpo técnico; el admin del club ve la plantilla, pero no avisa.
+  const canRemind = myRoles.includes('coach') || myRoles.includes('assistant');
 
   return (
     <Screen className={styles.screen}>
@@ -128,6 +130,7 @@ export function SquadPage({ teamId }: { teamId: string }) {
           format={format}
           query={params.get('q') ?? ''}
           filters={parseFilters(params.get('filtro'))}
+          canRemind={canRemind}
           onQuery={(q) => setParam({ q })}
           onFilters={(f) => setParam({ filtro: serializeFilters(f) })}
           onClear={() => setParam({ q: '', filtro: '' })}
@@ -155,6 +158,7 @@ function ListView({
   format,
   query,
   filters,
+  canRemind,
   onQuery,
   onFilters,
   onClear,
@@ -164,6 +168,7 @@ function ListView({
   format: MatchFormat;
   query: string;
   filters: ReadonlySet<SquadFilter>;
+  canRemind: boolean;
   onQuery: (q: string) => void;
   onFilters: (f: Set<SquadFilter>) => void;
   onClear: () => void;
@@ -204,6 +209,9 @@ function ListView({
           </button>
         )}
       </div>
+      {canRemind && filters.has('sin-test') && counts['sin-test'] > 0 && (
+        <TestReminder teamId={teamId} pending={counts['sin-test']} />
+      )}
       {shown.length === 0 ? (
         <div className={styles.empty}>
           <p>Nadie con esa búsqueda o esos filtros.</p>
@@ -330,6 +338,49 @@ function describeRoster(roster: Record<string, string[]>): string {
         `${POSITIONS[pos as keyof typeof POSITIONS].name}: ${names.length ? names.join(', ') : 'hueco'}`,
     )
     .join('; ');
+}
+
+/**
+ * Recordarles el test a los que no lo han hecho (2026-10-26): un aviso al celular de los que
+ * activaron los avisos; en el inicio ya les aparece.
+ */
+function TestReminder({ teamId, pending }: { teamId: string; pending: number }) {
+  const remind = useRemindTest(teamId);
+  const [confirm, setConfirm] = useState(false);
+  const people = pending === 1 ? 'al que no lo ha hecho' : `a los ${pending} que no lo han hecho`;
+  return (
+    <div className={styles.reminder}>
+      <Button variant="secondary" onClick={() => setConfirm(true)}>
+        Recordarles el test
+      </Button>
+      <p className={styles.muted} aria-live="polite">
+        {remind.isSuccess &&
+          `Listo: se lo recordamos a ${remind.data.reminded === 1 ? '1 jugador' : `${remind.data.reminded} jugadores`}.`}
+      </p>
+      <Sheet open={confirm} onClose={() => setConfirm(false)} title="¿Recordarles el test?">
+        <div className={styles.sheetActions}>
+          <p className={styles.sheetText}>
+            Le llega un aviso al celular {people}, si activaron los avisos. Igual lo ven en el
+            inicio de la app.
+          </p>
+          {remind.isError && (
+            <p role="alert" className={styles.error}>
+              No pudimos mandar el recordatorio. Revisa tu conexión e intenta de nuevo.
+            </p>
+          )}
+          <Button
+            busy={remind.isPending}
+            onClick={() => remind.mutate(undefined, { onSuccess: () => setConfirm(false) })}
+          >
+            Sí, recordarles
+          </Button>
+          <Button variant="ghost" disabled={remind.isPending} onClick={() => setConfirm(false)}>
+            No
+          </Button>
+        </div>
+      </Sheet>
+    </div>
+  );
 }
 
 /** La plantilla en CSV: lo mismo que se ve aquí, sin notas y respetando la regla a ciegas. */

@@ -41,6 +41,8 @@ const TEAM_PERMISSIONS = {
   'team.matches.write': { roles: STAFF, clubAdmin: false },
   /** Marcar o desmarcar lesionados (2026-10-24). */
   'team.injuries.write': { roles: STAFF, clubAdmin: false },
+  /** Recordarles el test a los que no lo han hecho (2026-10-26). */
+  'team.reminders.send': { roles: STAFF, clubAdmin: false },
   'team.attempts.void': { roles: ['coach'], clubAdmin: true },
   'team.reevaluations.request': { roles: ['coach'], clubAdmin: true },
   'team.players.invite': { roles: ['coach'], clubAdmin: true },

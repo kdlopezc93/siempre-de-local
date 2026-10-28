@@ -1,9 +1,10 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import type {
   LineupInputsResponse,
   PlayerProfileResponse,
   SquadResponse,
   TeamMembersResponse,
+  TestReminderResponse,
   ValidationResponse,
 } from '@sdl/contracts';
 import { z } from 'zod';
@@ -17,6 +18,7 @@ import { GetPlayerProfile } from '../application/get-player-profile.use-case.js'
 import { GetSquad } from '../application/get-squad.use-case.js';
 import { GetTeamMembers } from '../application/get-team-members.use-case.js';
 import { GetValidation } from '../application/get-validation.use-case.js';
+import { RemindTest } from '../application/remind-test.use-case.js';
 
 @Controller('teams/:teamId')
 export class SquadController {
@@ -26,7 +28,19 @@ export class SquadController {
     private readonly getInputs: GetLineupInputs,
     private readonly getValidation: GetValidation,
     private readonly getMembers: GetTeamMembers,
+    private readonly remindTest: RemindTest,
   ) {}
+
+  /** Recordarles el test a los que no lo han hecho (cuerpo técnico, 2026-10-26). */
+  @Post('test-reminders')
+  @HttpCode(200)
+  @Can('team.reminders.send', { teamParam: 'teamId' })
+  testReminders(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+  ): Promise<TestReminderResponse> {
+    return this.remindTest.execute(actor, teamId);
+  }
 
   /** Los integrantes, para todo el equipo (D11: de los jugadores, solo su mejor banda). */
   @Get('members')

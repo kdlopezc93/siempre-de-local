@@ -9,13 +9,21 @@ import { GetPlayerProfile } from './application/get-player-profile.use-case.js';
 import { GetTeamMembers } from './application/get-team-members.use-case.js';
 import { GetSquad } from './application/get-squad.use-case.js';
 import { GetValidation } from './application/get-validation.use-case.js';
+import { RemindTest } from './application/remind-test.use-case.js';
 import { SquadController } from './http/squad.controller.js';
 
 /** Panel de la plantilla para el cuerpo técnico: lee de varios módulos por sus puertos. */
 @Module({
   imports: [QuizModule, AssessmentsModule, RatingsModule, CertificationModule],
   controllers: [SquadController],
-  providers: [GetSquad, GetPlayerProfile, GetLineupInputs, GetValidation, GetTeamMembers],
+  providers: [
+    GetSquad,
+    GetPlayerProfile,
+    GetLineupInputs,
+    GetValidation,
+    GetTeamMembers,
+    RemindTest,
+  ],
   exports: [GetSquad],
 })
 export class SquadModule {}

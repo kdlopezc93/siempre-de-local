@@ -95,6 +95,20 @@
   color: var(--sdl-fg);
 }
 
+/* Recordar el test: aparece con el filtro "Sin test". */
+.reminder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin-bottom: var(--sdl-space-3);
+}
+
+.sheetActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
 .export {
   display: flex;
   flex-direction: column;

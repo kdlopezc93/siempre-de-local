@@ -76,6 +76,26 @@ describe('avisos en el service worker', () => {
     );
   });
 
+  it('el recordatorio del test lleva al test', async () => {
+    const { fire, showNotification } = loadWorker();
+    await fire(
+      'push',
+      push({
+        kind: 'test-reminder',
+        team: 'QLeones FC',
+        opponent: 'QLeones FC',
+        url: '/equipos/t/test',
+      }),
+    );
+    expect(showNotification).toHaveBeenCalledWith(
+      '¿Ya hiciste tu test de posición?',
+      expect.objectContaining({
+        body: 'Tu cuerpo técnico de QLeones FC te lo recuerda. Son unos minutos.',
+        data: { url: '/equipos/t/test' },
+      }),
+    );
+  });
+
   it('un tipo que no conoce lleva un texto neutro, nunca el de otro aviso', async () => {
     const { fire, showNotification } = loadWorker();
     await fire(
@@ -89,6 +109,11 @@ describe('avisos en el service worker', () => {
     );
     expect(showNotification).toHaveBeenCalledWith(
       'Novedades del partido: Los Pibes',
+      expect.objectContaining({ body: 'Toca para verlas.' }),
+    );
+    await fire('push', push({ kind: 'algo-nuevo', url: '/equipos/t' }));
+    expect(showNotification).toHaveBeenLastCalledWith(
+      'Novedades de tu equipo',
       expect.objectContaining({ body: 'Toca para verlas.' }),
     );
   });
