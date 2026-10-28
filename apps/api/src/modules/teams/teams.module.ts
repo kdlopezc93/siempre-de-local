@@ -3,6 +3,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 
 import { AUTHORIZATION_READER } from '../../shared/authz/actor.port.js';
 import { MEMBERSHIPS_QUERY } from '../identity/application/ports/memberships.query.js';
+import { MatchesModule } from '../matches/matches.module.js';
 import { TEAM_PLAYERS_QUERY } from '../squad/application/ports/squad.ports.js';
 import { GetTeam, SetInjury, UpdateMember, UpdateTeam } from './application/get-team.use-case.js';
 import { InvitationRedemption, TeamInvitations } from './application/invitations.use-cases.js';
@@ -17,6 +18,8 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
 @Global()
 @Module({
   imports: [
+    // Los partidos abiertos, para avisarle al que entra tarde (OPEN_MATCHES_QUERY).
+    MatchesModule,
     // Endpoints públicos de invitación: ver y aceptar un código. Corta la fuerza bruta
     // sobre los códigos (04 §1.2). En memoria: alcanza con una sola instancia del API.
     ThrottlerModule.forRoot({

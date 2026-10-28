@@ -12,6 +12,7 @@ import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { createDb, type DbConnection } from '../../../shared/db/client.js';
+import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
 import { bootApp, TEST_ENV } from '../../../test/app.js';
 import { startMigratedPostgres } from '../../../test/postgres.js';
 import { seedUserWithSession, type SeededUser } from '../../../test/sessions.js';
@@ -42,7 +43,7 @@ describe('invitaciones', () => {
   };
 
   const request = (
-    method: 'GET' | 'POST' | 'DELETE',
+    method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
     path: string,
     who?: SeededUser,
     payload?: object,
@@ -183,6 +184,39 @@ describe('invitaciones', () => {
       .from(invitation)
       .where(eq(invitation.id, inv.id));
     expect(row!.usedCount).toBe(1);
+  });
+
+  it('al que entra tarde le llega la convocatoria de los partidos abiertos, una vez', async () => {
+    const convocar = async (opponent: string) => {
+      const res = await request('POST', `/teams/${teamId}/matches`, coach, {
+        format: 'F8',
+        startsAt: new Date(Date.now() + 2 * 86_400_000).toISOString(),
+        place: 'La 14',
+        opponent,
+      });
+      return (res.json() as { match: { id: string } }).match.id;
+    };
+    const open = await convocar('Los Pibes');
+    const cancelled = await convocar('Veteranos');
+    await request('PATCH', `/teams/${teamId}/matches/${cancelled}`, coach, {
+      status: 'cancelled',
+    });
+
+    const notify = vi.spyOn(app.get<Notifier>(NOTIFIER, { strict: false }), 'notifyUsers');
+    const late = await newUser();
+    const { code } = await invite(coach, { maxUses: 5 });
+    await request('POST', `/invitations/${code}/accept`, late);
+    expect(notify).toHaveBeenCalledExactlyOnceWith([late.userId], {
+      kind: 'match-called',
+      opponent: 'Los Pibes',
+      startsAt: expect.any(String),
+      url: `/equipos/${teamId}/partidos/${open}`,
+    });
+    // Volver a abrir el enlace no repite el aviso.
+    await request('POST', `/invitations/${code}/accept`, late);
+    expect(notify).toHaveBeenCalledOnce();
+    notify.mockRestore();
+    await request('PATCH', `/teams/${teamId}/matches/${open}`, coach, { status: 'cancelled' });
   });
 
   it('aceptar exige sesión y haber aceptado la política de datos', async () => {

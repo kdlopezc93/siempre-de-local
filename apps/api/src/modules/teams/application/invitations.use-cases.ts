@@ -10,6 +10,7 @@ import type { z } from 'zod';
 
 import { can, type Actor, type TeamPermission } from '../../../shared/authz/policy.js';
 import { CONSENT_CHECKER, type ConsentChecker } from '../../../shared/consent/consent.port.js';
+import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
 import {
   BusinessRuleError,
   ForbiddenError,
@@ -22,6 +23,7 @@ import {
   type InvitationRecord,
   type InvitationsRepository,
 } from './ports/invitations.repository.js';
+import { OPEN_MATCHES_QUERY, type OpenMatchesQuery } from './ports/open-matches.query.js';
 import { TEAMS_REPOSITORY, type TeamsRepository } from './ports/teams.repository.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -106,6 +108,8 @@ export class InvitationRedemption {
   constructor(
     @Inject(INVITATIONS_REPOSITORY) private readonly invitations: InvitationsRepository,
     @Inject(CONSENT_CHECKER) private readonly consent: ConsentChecker,
+    @Inject(OPEN_MATCHES_QUERY) private readonly matches: OpenMatchesQuery,
+    @Inject(NOTIFIER) private readonly notifier: Notifier,
   ) {}
 
   /** Público: lo que ve quien abre el enlace antes de entrar. */
@@ -126,11 +130,29 @@ export class InvitationRedemption {
     }
     const outcome = await this.invitations.redeem(invitation, userId, now);
     if (outcome === 'unavailable') throw unusable('used_up');
+    if (outcome !== 'already-member' && invitation.role === 'player') {
+      await this.callToOpenMatches(invitation.teamId, userId, now);
+    }
     return {
       teamId: invitation.teamId,
       role: invitation.role,
       alreadyMember: outcome === 'already-member',
     };
+  }
+
+  /**
+   * El que entra tarde (2026-10-26): la convocatoria de los partidos que siguen abiertos, que
+   * al crearse solo les llegó a los que ya estaban. Un aviso que falla no impide unirse.
+   */
+  private async callToOpenMatches(teamId: string, userId: string, now: Date) {
+    for (const match of await this.matches.openMatches(teamId, now)) {
+      await this.notifier.notifyUsers([userId], {
+        kind: 'match-called',
+        opponent: match.opponent,
+        startsAt: match.startsAt.toISOString(),
+        url: `/equipos/${teamId}/partidos/${match.id}`,
+      });
+    }
   }
 
   private async usable(code: string, now: Date) {
