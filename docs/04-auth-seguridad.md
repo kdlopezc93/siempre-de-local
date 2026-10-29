@@ -76,7 +76,9 @@ Los admins de club se crean por script al inicio; ellos crean equipos e invitan 
 | Ver las evaluaciones del partido con notas | propia, sin nota, si el equipo las muestra (D18) | ✔ | ✔ | ✔ | ✘ |
 | Invitar jugadores | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Invitar entrenadores | ✘ | ✘ | ✘ | ✔ | ✘ |
-| Quitar miembros / cambiar roles | ✘ | ✘ | jugadores | ✔ | ✘ |
+| Quitar miembros | ✘ | ✘ | jugadores | ✔ | ✘ |
+| Subir a asistente o quitárselo, marcar quién juega (`team.members.manage`, Kevin 2026-10-29) | ✘ | ✘ | ✔ | ✔ | ✘ |
+| Pasar el mando de entrenador; el anterior queda de asistente (`team.members.manage`) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Exportar datos del equipo (CSV) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Gestionar cuestionarios y bancos de certificación | ✘ | ✘ | ✘ | ✘ | ✔ |
 | Revisar contenido de un banco (sin publicar) | ✘ | ✘ | ✔ si se le asigna como revisor | ✘ | ✔ |

@@ -1,4 +1,4 @@
-import type { MatchFormat } from '@sdl/contracts';
+import type { MatchFormat, TeamRole } from '@sdl/contracts';
 
 export interface TeamRecord {
   id: string;
@@ -19,6 +19,13 @@ export type TeamSettings = Partial<
   >
 >;
 
+/** Prender (`active`) o apagar un rol de alguien en el equipo. */
+export interface RoleChange {
+  userId: string;
+  role: TeamRole;
+  active: boolean;
+}
+
 export interface TeamsRepository {
   findById(teamId: string): Promise<TeamRecord | null>;
   /** Solo lo que cambia; `name-taken` si el club ya tiene otro equipo con ese nombre esta temporada. */
@@ -31,6 +38,15 @@ export interface TeamsRepository {
     userId: string,
     injury: { injuredAt: Date; returnOn: string | null } | null,
   ): Promise<boolean>;
+  /** Los roles vigentes de alguien en el equipo (vacío si no está). */
+  activeRoles(teamId: string, userId: string): Promise<TeamRole[]>;
+  /** Quiénes son entrenador del equipo hoy. */
+  activeCoaches(teamId: string): Promise<string[]>;
+  /**
+   * Aplica los cambios juntos (una transacción). Apagar deja la fila con `left_at` (su
+   * historial sigue); prender reactiva la anterior (con su dorsal) o crea una nueva.
+   */
+  changeRoles(teamId: string, changes: RoleChange[], now: Date): Promise<void>;
 }
 
 export const TEAMS_REPOSITORY = Symbol('TEAMS_REPOSITORY');

@@ -14,6 +14,7 @@ import {
   type TeamResponse,
   type SetInjuryRequest,
   type UpdateMemberRequest,
+  type UpdateMemberRolesRequest,
 } from '@sdl/contracts';
 
 import { apiFetch, apiRequest } from './http';
@@ -71,6 +72,26 @@ export async function updateMember(
   await apiFetch(`/api/v1/teams/${teamId}/members/${userId}`, {
     method: 'PATCH',
     body: JSON.stringify(patch),
+  });
+}
+
+/** Sus roles de jugador y de asistente (coach y admin del club). */
+export async function updateMemberRoles(
+  teamId: string,
+  userId: string,
+  patch: UpdateMemberRolesRequest,
+): Promise<void> {
+  await apiFetch(`/api/v1/teams/${teamId}/members/${userId}/roles`, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  });
+}
+
+/** Pasar el mando de entrenador; el anterior queda de asistente. */
+export async function transferCoach(teamId: string, userId: string): Promise<void> {
+  await apiFetch(`/api/v1/teams/${teamId}/coach`, {
+    method: 'PUT',
+    body: JSON.stringify({ userId }),
   });
 }
 

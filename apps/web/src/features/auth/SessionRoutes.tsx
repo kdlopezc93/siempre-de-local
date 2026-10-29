@@ -25,6 +25,7 @@ const screens = {
   science: () => import('../science/SciencePage'),
   profile: () => import('../player-profile/ProfilePage'),
   invite: () => import('../team-admin/InvitePage'),
+  roles: () => import('../team-roles/TeamRolesPage'),
   squad: () => import('../squad/SquadPage'),
   assess: () => import('../squad/AssessPage'),
   playerProfile: () => import('../squad/PlayerProfilePage'),
@@ -53,6 +54,7 @@ const HistoryPage = lazy(() => screens.history().then((m) => ({ default: m.Histo
 const SciencePage = lazy(() => screens.science().then((m) => ({ default: m.SciencePage })));
 const ProfilePage = lazy(() => screens.profile().then((m) => ({ default: m.ProfilePage })));
 const InvitePage = lazy(() => screens.invite().then((m) => ({ default: m.InvitePage })));
+const TeamRolesPage = lazy(() => screens.roles().then((m) => ({ default: m.TeamRolesPage })));
 const SquadPage = lazy(() => screens.squad().then((m) => ({ default: m.SquadPage })));
 const AssessPage = lazy(() => screens.assess().then((m) => ({ default: m.AssessPage })));
 const PlayerProfilePage = lazy(() =>
@@ -179,6 +181,12 @@ export function JoinRoute() {
 export function InviteRoute() {
   const { teamId = '' } = useParams();
   return <ShellRoute>{() => <InvitePage teamId={teamId} />}</ShellRoute>;
+}
+
+/** "/equipos/:teamId/roles" — el API decide si puede (coach o admin del club). */
+export function TeamRolesRoute() {
+  const { teamId = '' } = useParams();
+  return <ShellRoute>{() => <TeamRolesPage teamId={teamId} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/test" — el test de orientación del jugador. */
