@@ -111,6 +111,24 @@ describe('cuerpo técnico y roles (2026-10-29)', () => {
     await vi.waitFor(() => expect(body).toEqual({ userId: JUAN }));
   });
 
+  it('quitar del equipo: pide confirmar y al entrenador no se le ofrece', async () => {
+    const api = renderPage(['coach', 'player'], {
+      [`DELETE /api/v1/teams/${TEAM_A}/members/${ANA}`]: { status: 204 },
+    });
+
+    expect(
+      await screen.findByRole('button', { name: 'Quitar del equipo a Juan Pérez' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Quitar del equipo a Kevin López' })).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Quitar del equipo a Ana' }));
+    const sheet = screen.getByRole('dialog', { name: '¿Quitar a Ana del equipo?' });
+    expect(sheet).toHaveTextContent('recupera su dorsal');
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Sí, quitar a Ana' }));
+    await vi.waitFor(() =>
+      expect(api.calls).toContain(`DELETE /api/v1/teams/${TEAM_A}/members/${ANA}`),
+    );
+  });
+
   it('un asistente o un jugador no cambian roles', async () => {
     renderPage(['assistant', 'player']);
     expect(await screen.findByRole('alert')).toHaveTextContent(

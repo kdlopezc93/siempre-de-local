@@ -13,14 +13,20 @@ import { useSession } from '../auth/use-session';
 import { useTeam } from '../team-admin/use-invitations';
 import { teamPeople, type TeamPerson } from './roles-view';
 import styles from './TeamRolesPage.module.css';
-import { useTeamMembers, useTransferCoach, useUpdateRoles } from './use-team-roles';
+import {
+  useRemoveMember,
+  useTeamMembers,
+  useTransferCoach,
+  useUpdateRoles,
+} from './use-team-roles';
 
 const failed = (error: unknown, fallback: string) =>
   error instanceof ApiError && error.status < 500 ? error.message : fallback;
 
 /**
- * /equipos/:teamId/roles — quién juega y quién es asistente, y pasar el mando de entrenador
- * (coach y admin del club; Kevin, 2026-10-29). Alguien del cuerpo técnico también puede jugar.
+ * /equipos/:teamId/roles — quién juega y quién es asistente, pasar el mando de entrenador y
+ * quitar del equipo al que ya no viene (coach y admin del club; Kevin, 2026-10-29). Alguien del
+ * cuerpo técnico también puede jugar.
  */
 export function TeamRolesPage({ teamId }: { teamId: string }) {
   const team = useTeam(teamId);
@@ -46,7 +52,7 @@ export function TeamRolesPage({ teamId }: { teamId: string }) {
     return (
       <Screen className={styles.screen}>
         {back}
-        <PageTitle eyebrow="Equipo" title="Cuerpo técnico y roles" />
+        <PageTitle eyebrow="Equipo" title="Integrantes y roles" />
         <p role="alert" className={styles.lead}>
           {team.data && !manages
             ? 'Solo el entrenador y los administradores del club cambian los roles.'
@@ -62,7 +68,7 @@ export function TeamRolesPage({ teamId }: { teamId: string }) {
     <Screen className={styles.screen}>
       {back}
       <header>
-        <PageTitle eyebrow={team.data.team.name} title="Cuerpo técnico y roles" />
+        <PageTitle eyebrow={team.data.team.name} title="Integrantes y roles" />
         <p className={styles.lead}>
           Los asistentes valoran, puntúan y arman alineaciones. Quien es del cuerpo técnico también
           puede jugar.
@@ -169,6 +175,7 @@ function CoachSection({
 
 function PeopleSection({ teamId, people }: { teamId: string; people: TeamPerson[] }) {
   const update = useUpdateRoles(teamId);
+  const [removing, setRemoving] = useState<TeamPerson | null>(null);
   const pending = update.isPending ? update.variables : undefined;
   return (
     <section aria-labelledby="roles" className={styles.section}>
@@ -176,7 +183,7 @@ function PeopleSection({ teamId, people }: { teamId: string; people: TeamPerson[
         Integrantes ({people.length})
       </h2>
       <p className={styles.muted}>
-        Si es lo único que tiene, no se apaga: así nadie queda fuera del equipo por un toque.
+        Si es lo único que tiene, no se apaga: para sacar a alguien, usa «Quitar del equipo».
       </p>
       {update.isError && (
         <p role="alert" className={styles.error}>
@@ -226,11 +233,65 @@ function PeopleSection({ teamId, people }: { teamId: string; people: TeamPerson[
                   />
                 )}
               </div>
+              {!p.coach && (
+                <button
+                  type="button"
+                  className={styles.remove}
+                  aria-label={`Quitar del equipo a ${p.displayName}`}
+                  disabled={busy}
+                  onClick={() => setRemoving(p)}
+                >
+                  Quitar del equipo
+                </button>
+              )}
             </li>
           );
         })}
       </ul>
+      <RemoveSheet teamId={teamId} person={removing} onClose={() => setRemoving(null)} />
     </section>
+  );
+}
+
+/** Confirmar antes de quitar: deja de ver el equipo, pero lo suyo queda. */
+function RemoveSheet({
+  teamId,
+  person,
+  onClose,
+}: {
+  teamId: string;
+  person: TeamPerson | null;
+  onClose: () => void;
+}) {
+  const remove = useRemoveMember(teamId);
+  // Al cerrar, la hoja sigue mostrando a quién mientras baja.
+  const [shown, setShown] = useState(person);
+  if (person && person !== shown) setShown(person);
+  const name = shown?.displayName ?? '';
+  return (
+    <Sheet open={person !== null} onClose={onClose} title={`¿Quitar a ${name} del equipo?`}>
+      <div className={styles.sheet}>
+        <p className={styles.sheetText}>
+          Deja de ver el equipo y de contar en la plantilla, las convocatorias y las alineaciones.
+          Lo suyo queda guardado: si vuelve, lo invitas de nuevo y recupera su dorsal.
+        </p>
+        {remove.isError && (
+          <p role="alert" className={styles.error}>
+            {failed(remove.error, 'No pudimos quitarlo. Revisa tu conexión.')}
+          </p>
+        )}
+        <Button
+          variant="danger"
+          busy={remove.isPending}
+          onClick={() => shown && remove.mutate(shown.userId, { onSuccess: onClose })}
+        >
+          Sí, quitar a {name}
+        </Button>
+        <Button variant="ghost" disabled={remove.isPending} onClick={onClose}>
+          Cancelar
+        </Button>
+      </div>
+    </Sheet>
   );
 }
 

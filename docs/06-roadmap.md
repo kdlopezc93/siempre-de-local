@@ -169,8 +169,8 @@ Gestionar el equipo desde la app, sin `admin:bootstrap-team` ni cambios a mano e
 
 | # | PR | Estado |
 |---|---|---|
-| 1 | Cuerpo técnico y roles: interruptores "Juega" y "Asistente" por persona, y pasar el mando (04 §2.2) | |
-| 2 | Quitar del equipo: el que ya no viene sale con `left_at` y conserva su historial (era "Quitar jugadores") | |
+| 1 | Cuerpo técnico y roles: interruptores "Juega" y "Asistente" por persona, y pasar el mando (04 §2.2) | #122 |
+| 2 | Quitar del equipo: el que ya no viene sale con `left_at` y conserva su historial (era "Quitar jugadores"); la pantalla pasa a llamarse "Integrantes y roles" | |
 | 3 | Invitar al cuerpo técnico: el admin del club elige asistente o entrenador y "También juega en el equipo"; quien acepta entra con los dos roles | |
 | 4 | Crear club y equipo desde la app: quién puede y con qué límites (toca la monetización) | |
 

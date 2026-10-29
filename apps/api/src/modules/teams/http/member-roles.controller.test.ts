@@ -19,7 +19,7 @@ describe('roles en el equipo y pasar el mando (2026-10-29)', () => {
   let teamId: string;
 
   const call = (
-    method: 'GET' | 'PATCH' | 'PUT' | 'POST',
+    method: 'GET' | 'PATCH' | 'PUT' | 'POST' | 'DELETE',
     path: string,
     who: SeededUser,
     payload?: object,
@@ -139,5 +139,35 @@ describe('roles en el equipo y pasar el mando (2026-10-29)', () => {
     expect((await members()).staff).toEqual({ profe: 'coach', ana: 'assistant' });
     // Al que ya es entrenador, nada cambia.
     expect((await transfer(owner, coach.userId)).statusCode).toBe(204);
+  });
+
+  it('quitar del equipo: sale con su historial, al entrenador no, y vuelve con su dorsal', async () => {
+    const remove = (who: SeededUser, userId: string) =>
+      call('DELETE', `/teams/${teamId}/members/${userId}`, who);
+    expect((await remove(ana, beto.userId)).statusCode).toBe(403);
+    const coachOut = await remove(owner, coach.userId);
+    expect(coachOut.statusCode).toBe(422);
+    expect(code(coachOut)).toBe('COACH_CANNOT_BE_REMOVED');
+
+    // Ana es asistente y jugadora: sale de los dos.
+    await call('PUT', `/teams/${teamId}/players/${ana.userId}/injury`, coach, { returnOn: null });
+    expect((await remove(coach, ana.userId)).statusCode).toBe(204);
+    expect(await members()).toEqual({ staff: { profe: 'coach' }, players: ['beto', 'profe'] });
+    expect((await call('GET', `/teams/${teamId}`, ana)).statusCode).toBe(403);
+    expect((await remove(coach, ana.userId)).statusCode).toBe(404);
+
+    // Vuelve con una invitación: recupera su dorsal, sin la lesión de antes.
+    const invite = await call('POST', `/teams/${teamId}/invitations`, coach, {});
+    const { code: inviteCode } = invite.json() as { code: string };
+    expect((await call('POST', `/invitations/${inviteCode}/accept`, ana)).statusCode).toBeLessThan(
+      300,
+    );
+    const { players } = TeamMembersResponseSchema.parse(
+      (await call('GET', `/teams/${teamId}/members`, coach)).json(),
+    );
+    expect(players.find((p) => p.userId === ana.userId)).toMatchObject({
+      jerseyNumber: 10,
+      injured: false,
+    });
   });
 });

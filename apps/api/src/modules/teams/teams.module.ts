@@ -7,7 +7,11 @@ import { MatchesModule } from '../matches/matches.module.js';
 import { TEAM_PLAYERS_QUERY } from '../squad/application/ports/squad.ports.js';
 import { GetTeam, SetInjury, UpdateMember, UpdateTeam } from './application/get-team.use-case.js';
 import { InvitationRedemption, TeamInvitations } from './application/invitations.use-cases.js';
-import { ChangeMemberRoles, TransferCoach } from './application/member-roles.use-cases.js';
+import {
+  ChangeMemberRoles,
+  RemoveMember,
+  TransferCoach,
+} from './application/member-roles.use-cases.js';
 import { INVITATIONS_REPOSITORY } from './application/ports/invitations.repository.js';
 import { TEAMS_REPOSITORY } from './application/ports/teams.repository.js';
 import { InvitationsController, TeamInvitationsController } from './http/invitations.controller.js';
@@ -42,6 +46,7 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
     SetInjury,
     ChangeMemberRoles,
     TransferCoach,
+    RemoveMember,
     TeamInvitations,
     InvitationRedemption,
   ],
