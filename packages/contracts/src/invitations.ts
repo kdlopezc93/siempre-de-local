@@ -5,6 +5,11 @@ import { MatchFormatSchema, TeamRoleSchema } from './teams.js';
 /** POST /api/v1/teams/:teamId/invitations */
 export const CreateInvitationRequestSchema = z.object({
   role: TeamRoleSchema.default('player'),
+  /**
+   * Cuerpo técnico que también juega (2026-10-29): al aceptar entra además como jugador. En las
+   * de jugador no aplica. Las de entrenador sirven para una sola persona y pasan el mando.
+   */
+  alsoPlays: z.boolean().default(false),
   expiresInDays: z.int().min(1).max(30).default(7),
   /** 1 = individual; por defecto alcanza para un equipo completo. */
   maxUses: z.int().min(1).max(100).default(30),
@@ -16,6 +21,7 @@ export const InvitationStatusSchema = z.enum(['active', 'expired', 'used_up', 'r
 export const InvitationSummarySchema = z.object({
   id: z.uuid(),
   role: TeamRoleSchema,
+  alsoPlays: z.boolean(),
   status: InvitationStatusSchema,
   expiresAt: z.iso.datetime(),
   maxUses: z.int(),
@@ -38,6 +44,8 @@ export const InvitationPreviewResponseSchema = z.object({
   team: z.object({ id: z.uuid(), name: z.string(), format: MatchFormatSchema }),
   club: z.object({ name: z.string() }),
   role: TeamRoleSchema,
+  /** Entra también como jugador. */
+  alsoPlays: z.boolean(),
 });
 
 /** POST /api/v1/invitations/:code/accept */

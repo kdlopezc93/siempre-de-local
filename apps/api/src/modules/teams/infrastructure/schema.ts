@@ -107,6 +107,8 @@ export const invitation = pgTable(
       .notNull()
       .references(() => team.id),
     role: teamRole().notNull(),
+    /** Cuerpo técnico que también juega: al aceptar entra además como jugador (2026-10-29). */
+    alsoPlays: boolean().notNull().default(false),
     /** SHA-256 del código; el código en claro no se guarda (se muestra una vez). */
     codeHash: text().notNull().unique(),
     /** Null si se borró la cuenta de quien la creó (derecho de supresión, 04 §5). */

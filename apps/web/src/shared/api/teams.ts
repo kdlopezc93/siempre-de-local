@@ -8,6 +8,7 @@ import {
   TeamResponseSchema,
   type AcceptConsentResponse,
   type AcceptInvitationResponse,
+  type CreateInvitationRequest,
   type CreateInvitationResponse,
   type InvitationListResponse,
   type InvitationPreviewResponse,
@@ -48,10 +49,14 @@ export function fetchTeam(teamId: string): Promise<TeamResponse> {
 }
 
 /** Enlace grupal por defecto: 7 días y hasta 30 personas (docs/05-api.md). */
-export function createInvitation(teamId: string): Promise<CreateInvitationResponse> {
+/** Por defecto, de jugador; las de cuerpo técnico llevan su rol y si también juega. */
+export function createInvitation(
+  teamId: string,
+  request: CreateInvitationRequest = { role: 'player' },
+): Promise<CreateInvitationResponse> {
   return apiRequest(`/api/v1/teams/${teamId}/invitations`, CreateInvitationResponseSchema, {
     method: 'POST',
-    body: JSON.stringify({ role: 'player' }),
+    body: JSON.stringify(request),
   });
 }
 

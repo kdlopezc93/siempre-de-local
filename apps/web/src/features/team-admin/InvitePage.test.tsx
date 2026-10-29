@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fakeApi } from '../../test/fake-api';
+import { ME_TWO_TEAMS } from '../../test/me-two-teams';
 import { InvitePage } from './InvitePage';
 
 const TEAM_ID = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f71';
@@ -24,6 +25,7 @@ const TEAM = {
 const summary = (id: string, status: string, usedCount = 0) => ({
   id,
   role: 'player',
+  alsoPlays: false,
   status,
   expiresAt: '2026-10-28T12:00:00.000Z',
   maxUses: 30,
@@ -117,6 +119,64 @@ describe('InvitePage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Sí, anular enlace' }));
     expect(await within(list).findByText('Anulado')).toBeInTheDocument();
     expect(calls.filter((c) => c.startsWith('DELETE'))).toHaveLength(1);
+  });
+
+  it('el admin del club invita al cuerpo técnico, que también puede jugar (2026-10-29)', async () => {
+    let body: unknown;
+    fakeApi({
+      [`GET /api/v1/me`]: {
+        status: 200,
+        body: {
+          ...ME_TWO_TEAMS,
+          clubs: [{ id: TEAM.team.club.id, name: 'Los del Barrio', role: 'owner' }],
+        },
+      },
+      [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
+      [`GET /api/v1/teams/${TEAM_ID}/invitations`]: { status: 200, body: { items: [] } },
+      [`POST /api/v1/teams/${TEAM_ID}/invitations`]: (init) => {
+        body = JSON.parse(init.body as string);
+        return {
+          status: 201,
+          body: {
+            invitation: {
+              ...summary(ACTIVE_ID, 'active'),
+              role: 'assistant',
+              alsoPlays: true,
+              maxUses: 1,
+            },
+            code: 'K7Q2M9XDAB',
+            joinUrl: 'https://app.sdl.test/unirse/K7Q2M9XDAB',
+          },
+        };
+      },
+    });
+    renderPage();
+
+    const kinds = await screen.findByRole('group', { name: 'A quién invitas' });
+    await vi.waitFor(() =>
+      expect(within(kinds).getByRole('button', { name: 'Entrenador' })).toBeInTheDocument(),
+    );
+    await userEvent.click(within(kinds).getByRole('button', { name: 'Asistente' }));
+    expect(screen.getByRole('switch', { name: /También juega en el equipo/ })).toBeChecked();
+    await userEvent.click(screen.getByRole('button', { name: 'Crear enlace' }));
+    await vi.waitFor(() =>
+      expect(body).toEqual({ role: 'assistant', alsoPlays: true, maxUses: 1 }),
+    );
+    expect(await screen.findByRole('link', { name: 'Compartir por WhatsApp' })).toHaveAttribute(
+      'href',
+      expect.stringContaining(encodeURIComponent('cuerpo técnico de Primer equipo')),
+    );
+  });
+
+  it('el entrenador invita asistentes, pero no a otro entrenador', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
+      [`GET /api/v1/teams/${TEAM_ID}/invitations`]: { status: 200, body: { items: [] } },
+    });
+    renderPage();
+    const kinds = await screen.findByRole('group', { name: 'A quién invitas' });
+    expect(within(kinds).getByRole('button', { name: 'Asistente' })).toBeInTheDocument();
+    expect(within(kinds).queryByRole('button', { name: 'Entrenador' })).toBeNull();
   });
 
   it('a un jugador le explica que solo el cuerpo técnico invita', async () => {

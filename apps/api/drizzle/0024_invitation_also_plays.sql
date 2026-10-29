@@ -1,0 +1,1 @@
+ALTER TABLE "invitation" ADD COLUMN "also_plays" boolean DEFAULT false NOT NULL;

@@ -46,8 +46,9 @@ const TEAM_PERMISSIONS = {
   'team.attempts.void': { roles: ['coach'], clubAdmin: true },
   'team.reevaluations.request': { roles: ['coach'], clubAdmin: true },
   'team.players.invite': { roles: ['coach'], clubAdmin: true },
+  'team.assistants.invite': { roles: ['coach'], clubAdmin: true },
   'team.staff.invite': { roles: [], clubAdmin: true },
-  /** El coach solo gestiona jugadores; esa restricción fina va en el caso de uso. */
+  /** Dorsal, roles de jugador y asistente, pasar el mando y quitar del equipo (04 §2.2). */
   'team.members.manage': { roles: ['coach'], clubAdmin: true },
   'team.data.transfer': { roles: ['coach'], clubAdmin: true },
   /** Ajustes del equipo, p. ej. si el jugador ve su tarjeta (D8). */
