@@ -16,11 +16,11 @@ import { playerRating, playerRatingValue } from './schema.js';
 export class DrizzleRatingsRepository implements RatingsRepository {
   constructor(@Inject(DB_CONNECTION) private readonly connection: DbConnection) {}
 
-  async create({ teamId, playerUserId, ratedBy, values, notes }: NewRating) {
+  async create({ teamId, playerUserId, ratedBy, values, notes, position }: NewRating) {
     const id = await this.connection.db.transaction(async (tx) => {
       const [row] = (await tx
         .insert(playerRating)
-        .values({ teamId, playerUserId, ratedBy, notes })
+        .values({ teamId, playerUserId, ratedBy, notes, position })
         .returning({ id: playerRating.id })) as [{ id: string }];
       await tx.insert(playerRatingValue).values(
         Object.entries(values).map(([attributeCode, value]) => ({
@@ -62,6 +62,7 @@ export class DrizzleRatingsRepository implements RatingsRepository {
         ratedAt: playerRating.ratedAt,
         source: playerRating.source,
         notes: playerRating.notes,
+        position: playerRating.position,
       })
       .from(playerRating)
       .leftJoin(user, eq(playerRating.ratedBy, user.id))

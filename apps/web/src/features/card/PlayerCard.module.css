@@ -46,6 +46,18 @@
   font-weight: 800;
 }
 
+.best {
+  color: var(--sdl-on-brand);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}
+
+.bestValue {
+  font-family: var(--sdl-font-numeric);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 .head .date {
   color: var(--sdl-on-brand-muted);
 }

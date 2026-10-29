@@ -29,6 +29,11 @@ export const RatingValuesSchema = z
 export const CreateRatingRequestSchema = z.object({
   values: RatingValuesSchema,
   notes: z.string().trim().max(500).optional(),
+  /**
+   * La posición de la tarjeta (02 §7.4): la elige quien puntúa, aparte de los valores. Portero,
+   * solo con sus atributos. Sin ella, la tarjeta encabeza con su mejor media.
+   */
+  position: PositionCodeSchema.optional(),
 });
 
 /** Media por posición (MP) calculada con la fórmula vigente; sin portero si no hay sus atributos. */
@@ -42,6 +47,8 @@ export const PlayerRatingSchema = z.object({
   ratedAt: z.iso.datetime(),
   source: z.enum(['manual', 'field_test']),
   notes: z.string().nullable(),
+  /** La posición que le puso quien puntuó; null en las fotos de antes (02 §7.4). */
+  position: PositionCodeSchema.nullable(),
   values: z.partialRecord(RatingAttributeCodeSchema, z.int()),
   positionAverages: PositionAveragesSchema,
   formulaVersion: z.string(),
@@ -58,6 +65,7 @@ export const RatingHistoryResponseSchema = z.object({ items: z.array(PlayerRatin
 export const MyCardResponseSchema = z.object({
   card: PlayerRatingSchema.pick({
     ratedAt: true,
+    position: true,
     values: true,
     positionAverages: true,
     formulaVersion: true,

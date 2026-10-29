@@ -66,7 +66,11 @@ const SQUAD = {
       canRate: true,
       injury: null,
       knowledge: [{ position: 'DFC', pct: 0.8, band: 'solid', review: 'expired' }],
-      card: { ratedAt: '2026-10-21T10:00:00.000Z', positionAverages: { EXT: 74, DC: 67, LAT: 60 } },
+      card: {
+        ratedAt: '2026-10-21T10:00:00.000Z',
+        position: null,
+        positionAverages: { EXT: 74, DC: 67, LAT: 60 },
+      },
     },
   ],
 };

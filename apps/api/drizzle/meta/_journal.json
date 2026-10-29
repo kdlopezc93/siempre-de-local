@@ -162,6 +162,13 @@
       "when": 1793225006761,
       "tag": "0022_match_kind",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1793289819635,
+      "tag": "0023_card_position",
+      "breakpoints": true
     }
   ]
 }

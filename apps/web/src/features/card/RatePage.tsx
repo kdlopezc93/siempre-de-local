@@ -1,6 +1,7 @@
-import type { MatchFormat, PlayerRating } from '@sdl/contracts';
+import type { MatchFormat, PlayerRating, PositionCode } from '@sdl/contracts';
 import {
   anchorFor,
+  ELIGIBLE_POSITIONS,
   GOALKEEPER_ATTRIBUTES,
   OUTFIELD_ATTRIBUTES,
   POSITIONS,
@@ -20,7 +21,7 @@ import { useSquad } from '../squad/use-squad';
 import { whyCannotRate } from '../squad/who-rates';
 import { useSession } from '../auth/use-session';
 import { useTeam } from '../team-admin/use-invitations';
-import { rankedAverages } from './card-view';
+import { cardPositionIn, rankedAverages } from './card-view';
 import styles from './RatePage.module.css';
 import { useCreateRating, useRatingHistory } from './use-card';
 import { PageTitle } from '../../shared/ui/PageTitle';
@@ -75,6 +76,7 @@ export function RatePage({ teamId, playerId }: { teamId: string; playerId: strin
       jersey={player.jerseyNumber}
       format={team.data.team.format}
       previous={history.data[0]}
+      suggested={history.data[0]?.position ?? player.latestAssessment?.primaryPosition ?? null}
       mightKeep={player.preferredPositions.includes('POR')}
       cardPath={cardPath}
     />
@@ -88,6 +90,7 @@ function RateForm({
   jersey,
   format,
   previous,
+  suggested,
   mightKeep,
   cardPath,
 }: {
@@ -97,6 +100,8 @@ function RateForm({
   jersey: number | null;
   format: MatchFormat;
   previous: PlayerRating | undefined;
+  /** La de su foto anterior o, si no, la principal de su última valoración. */
+  suggested: PositionCode | null;
   mightKeep: boolean;
   cardPath: string;
 }) {
@@ -111,13 +116,16 @@ function RateForm({
       ]),
     ) as Record<RatingAttributeCode, number>,
     goalkeeper: previous ? previous.values.GK_DIV !== undefined : mightKeep,
+    position: suggested && cardPositionIn(suggested, format),
   }));
   const [values, setValues] = useState(start.values);
   const [goalkeeper, setGoalkeeper] = useState(start.goalkeeper);
+  const [picked, setPicked] = useState(start.position);
   const [notes, setNotes] = useState('');
   const guard = useUnsavedChanges(
     notes.trim() !== '' ||
       goalkeeper !== start.goalkeeper ||
+      picked !== start.position ||
       Object.entries(values).some(
         ([code, value]) => start.values[code as RatingAttributeCode] !== value,
       ),
@@ -129,7 +137,11 @@ function RateForm({
       (code) => [code, values[code]],
     ),
   ) as Record<RatingAttributeCode, number>;
-  const preview = rankedAverages(positionAverages(sent), format).slice(0, 3);
+  const averages = positionAverages(sent);
+  const preview = rankedAverages(averages, format).slice(0, 3);
+  // Sin elegir (o portero sin sus atributos), la tarjeta sigue a su mejor media.
+  const position = picked && averages[picked] !== undefined ? picked : preview[0]?.pos;
+  const choices = ELIGIBLE_POSITIONS[format].filter((pos) => averages[pos] !== undefined);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -137,6 +149,7 @@ function RateForm({
       {
         values: sent as Parameters<typeof create.mutate>[0]['values'],
         notes: notes.trim() || undefined,
+        position,
       },
       {
         onSuccess: () => {
@@ -225,6 +238,28 @@ function RateForm({
             ))}
           </ol>
         </div>
+
+        <fieldset className={styles.group}>
+          <legend className={styles.legend}>Su posición en la tarjeta</legend>
+          <p className={styles.hint}>Sale arriba en su tarjeta, aunque su mejor media sea otra.</p>
+          <div className={styles.positions}>
+            {choices.map((pos) => (
+              <label key={pos} className={styles.choice}>
+                <input
+                  type="radio"
+                  name="position"
+                  checked={position === pos}
+                  onChange={() => setPicked(pos)}
+                />
+                <span className={styles.choiceName}>{POSITIONS[pos].name}</span>
+                <span className={styles.choiceValue}>
+                  <span className="sr-only">, media </span>
+                  {averages[pos]}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
 
         <div className={styles.group}>
           <label htmlFor={notesId} className={styles.legend}>

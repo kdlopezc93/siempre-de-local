@@ -2,7 +2,7 @@ import type { MatchFormat, PositionCode, SquadPlayer } from '@sdl/contracts';
 import { POSITIONS } from '@sdl/domain';
 
 import { lineOfPosition, type TokenLine } from '../../shared/ui/Token';
-import { rankedAverages } from '../card/card-view';
+import { cardHeadline } from '../card/card-view';
 import { positionOf } from './distribution';
 
 /** Filtros de la plantilla. Viven en la URL (`?filtro=por-valorar,defensa`). */
@@ -59,11 +59,9 @@ export function lineOf(player: SquadPlayer): TokenLine | null {
   return pos ? lineOfPosition(pos) : null;
 }
 
-/** Su mejor media en el formato del equipo, o null sin tarjeta. */
-export function bestAverage(player: SquadPlayer, format: MatchFormat): number | null {
-  return player.card
-    ? (rankedAverages(player.card.positionAverages, format)[0]?.value ?? null)
-    : null;
+/** La media que encabeza su tarjeta en el formato del equipo (02 §7.4), o null sin tarjeta. */
+export function cardAverage(player: SquadPlayer, format: MatchFormat): number | null {
+  return player.card ? (cardHeadline(player.card, format)?.main.value ?? null) : null;
 }
 
 const fold = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();

@@ -54,6 +54,7 @@ export const SquadResponseSchema = z.object({
       card: z
         .object({
           ratedAt: z.iso.datetime(),
+          position: PositionCodeSchema.nullable(),
           positionAverages: z.partialRecord(PositionCodeSchema, z.int()),
         })
         .nullable(),

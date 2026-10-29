@@ -446,6 +446,7 @@ try {
         ratedBy: assistantId,
         values,
         notes: null,
+        position: base,
       });
       cardOf.set(userId, values);
       cards++;

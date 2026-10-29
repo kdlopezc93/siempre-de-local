@@ -240,6 +240,14 @@ En F8 se usan MC y DC como en F11 (el plegado solo afecta al test).
 
 Los pesos viven en código versionado (`rating-formula-v1`), no en la BD, igual que el algoritmo del test.
 
+### 7.4 Posición de la tarjeta (2026-10-29, Kevin)
+La tarjeta encabeza con **la posición que le pone quien puntúa**, aunque su media más alta sea otra: el entrenador sabe dónde juega, y los valores no siempre lo dicen.
+- **Al puntuar** se elige entre las posiciones del formato del equipo que tienen media (portero, solo con sus atributos: 422 `RATING_POSITION_WITHOUT_AVERAGE`). Viene puesta la de su foto anterior; si no tiene, la principal de su última valoración; si tampoco, sigue a su mejor media mientras se mueven los valores.
+- **La tarjeta** muestra en grande esa posición con su media y, si su mejor media es otra y más alta, debajo "Su mejor media: Extremo 78". En la lista de medias se resalta la elegida.
+- **Las fotos de antes** no tienen posición (`null`): encabezan con su mejor media, como hasta ahora.
+- **En F8**, pivote y mediapunta se muestran como mediocentro y delantero (§4).
+- La posición es parte de la foto (no se edita, como los valores) y la ve el jugador en su tarjeta (D8). La plantilla y la ficha usan esa media. **No cambia** el planificador ni la validación: siguen con todas las medias (§9, §11).
+
 ## 8. Pruebas de campo (futuro — diseño preliminar, no implementar aún)
 
 Objetivo: sustituir o complementar la puntuación manual con **mediciones**.

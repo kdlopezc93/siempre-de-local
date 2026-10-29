@@ -44,13 +44,20 @@ const SQUAD = {
     },
   ],
 };
-const rating = (id: number, ratedAt: string, notes: string | null, values = VALUES) => ({
+const rating = (
+  id: number,
+  ratedAt: string,
+  notes: string | null,
+  values = VALUES,
+  position: string | null = null,
+) => ({
   id: uuid(id),
   playerId: ANA,
   ratedBy: { id: uuid(8), name: 'Profe' },
   ratedAt,
   source: 'manual',
   notes,
+  position,
   values,
   positionAverages: AVERAGES,
   formulaVersion: 'rating-formula-v1',
@@ -137,7 +144,65 @@ describe('tarjeta', () => {
     await vi.waitFor(() =>
       expect(router.state.location.pathname).toBe(`/equipos/${TEAM_ID}/plantilla/${ANA}/tarjeta`),
     );
-    expect(body).toEqual({ values: { ...VALUES, PAC: 90 }, notes: 'Voló' });
+    // Sin posición elegida antes ni valoración, va la de su mejor media en vivo.
+    expect(body).toEqual({ values: { ...VALUES, PAC: 90 }, notes: 'Voló', position: 'EXT' });
+  });
+
+  it('la tarjeta encabeza con la posición elegida y dice su mejor media aparte (02 §7.4)', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
+      [`GET /api/v1/teams/${TEAM_ID}/squad`]: { status: 200, body: SQUAD },
+      [`GET /api/v1/teams/${TEAM_ID}/players/${ANA}/ratings`]: {
+        status: 200,
+        body: {
+          items: [
+            rating(31, '2026-10-21T10:00:00.000Z', null, VALUES, 'LAT'),
+            rating(30, '2026-09-01T10:00:00.000Z', null),
+          ],
+        },
+      },
+    });
+    renderRoutes('/c', [
+      { path: '/c', element: <StaffCardPage teamId={TEAM_ID} playerId={ANA} /> },
+    ]);
+
+    const card = await screen.findByRole('article', { name: 'Tarjeta del jugador' });
+    const head = within(card).getByText('Su posición').parentElement!;
+    expect(head).toHaveTextContent('61de media como Lateral');
+    expect(head).toHaveTextContent('Su mejor media: Extremo 74');
+    // La de antes, sin posición, sigue con su mejor media.
+    expect(screen.getByRole('region', { name: 'Fotos anteriores' })).toHaveTextContent(
+      '74 Extremo',
+    );
+  });
+
+  it('puntuar: arranca con la posición de la foto anterior y se puede cambiar', async () => {
+    let body: { position?: string } | undefined;
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
+      [`GET /api/v1/teams/${TEAM_ID}/squad`]: { status: 200, body: SQUAD },
+      [`GET /api/v1/teams/${TEAM_ID}/players/${ANA}/ratings`]: {
+        status: 200,
+        body: { items: [rating(31, '2026-10-21T10:00:00.000Z', null, VALUES, 'LAT')] },
+      },
+      [`POST /api/v1/teams/${TEAM_ID}/players/${ANA}/ratings`]: (init) => {
+        body = JSON.parse(init.body as string);
+        return { status: 201, body: { rating: rating(32, '2026-10-22T10:00:00.000Z', null) } };
+      },
+    });
+    renderRoutes('/p', [
+      { path: '/p', element: <RatePage teamId={TEAM_ID} playerId={ANA} /> },
+      { path: '/equipos/:teamId/plantilla/:playerId/tarjeta', element: <p>Tarjeta</p> },
+    ]);
+
+    const group = await screen.findByRole('group', { name: 'Su posición en la tarjeta' });
+    expect(within(group).getByRole('radio', { name: /^Lateral/ })).toBeChecked();
+    // Sin sus atributos, portero no se ofrece.
+    expect(within(group).queryByRole('radio', { name: /Portero/ })).not.toBeInTheDocument();
+    await userEvent.click(within(group).getByRole('radio', { name: /Mediocentro/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar tarjeta' }));
+    await vi.waitFor(() => expect(body).toBeDefined());
+    expect(body!.position).toBe('MC');
   });
 
   it('puntuar de portero suma sus 6 atributos', async () => {

@@ -15,7 +15,7 @@ const player = (over: Partial<SquadPlayer>): SquadPlayer => ({
   canRate: true,
   injury: null,
   knowledge: [],
-  card: { ratedAt: '2026-10-01T00:00:00.000Z', positionAverages: {} },
+  card: { ratedAt: '2026-10-01T00:00:00.000Z', position: null, positionAverages: {} },
   ...over,
 });
 const assessed = (primaryPosition: 'DFC' | 'MC' | 'POR' | 'DC') =>

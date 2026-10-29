@@ -11,6 +11,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 
+import { positionCode } from '../../../shared/db/enums.js';
 import { user } from '../../identity/infrastructure/schema.js';
 import { team } from '../../teams/infrastructure/schema.js';
 
@@ -44,6 +45,11 @@ export const playerRating = pgTable(
     ratedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     source: ratingSource().notNull().default('manual'),
     notes: text(),
+    /**
+     * La posición que quien puntuó le pone a la tarjeta, aunque su media más alta sea otra
+     * (02 §7.4). Null en las fotos de antes: encabeza su mejor media.
+     */
+    position: positionCode(),
   },
   (t) => [index().on(t.teamId, t.playerUserId, t.ratedAt.desc())],
 );
