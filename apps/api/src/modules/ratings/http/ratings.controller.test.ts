@@ -133,6 +133,30 @@ describe('tarjeta 0–99', () => {
     expect(players[0]!.card?.positionAverages.POR).toBe(68);
   });
 
+  it('quien puntúa le pone la posición a la tarjeta, aunque su mejor media sea otra (02 §7.4)', async () => {
+    const values = { ...OUTFIELD, ...GOALKEEPER, PAC: 85 };
+    const path = `/teams/${teamId}/players/${player.userId}/ratings`;
+    const res = await call('POST', path, coach, { values, position: 'LAT' });
+    expect(res.statusCode).toBe(201);
+    const { rating } = RatingResponseSchema.parse(res.json());
+    expect(rating.position).toBe('LAT');
+    expect(rating.positionAverages.EXT).toBeGreaterThan(rating.positionAverages.LAT!);
+
+    // Las de antes, sin posición: encabeza su mejor media.
+    const history = RatingHistoryResponseSchema.parse((await call('GET', path, coach)).json());
+    expect(history.items.map((r) => r.position)).toEqual(['LAT', null, null]);
+    const { players } = SquadResponseSchema.parse(
+      (await call('GET', `/teams/${teamId}/squad`, coach)).json(),
+    );
+    expect(players[0]!.card?.position).toBe('LAT');
+
+    // Portero, solo con sus atributos.
+    const keeper = await call('POST', path, coach, { values: OUTFIELD, position: 'POR' });
+    expect(keeper.statusCode).toBe(422);
+    expect(ErrorBodySchema.parse(keeper.json()).error.code).toBe('RATING_POSITION_WITHOUT_AVERAGE');
+    expect((await call('POST', path, coach, { values, position: 'XX' })).statusCode).toBe(400);
+  });
+
   it('valida la foto: faltantes, portero a medias y fuera de rango', async () => {
     const { PHY: _, ...missing } = OUTFIELD;
     for (const values of [missing, { ...OUTFIELD, GK_DIV: 50 }, { ...OUTFIELD, PAC: 100 }]) {
@@ -158,6 +182,7 @@ describe('tarjeta 0–99', () => {
     expect(visible.statusCode).toBe(200);
     const { card } = MyCardResponseSchema.parse(visible.json());
     expect(card?.values.PAC).toBe(85);
+    expect(card?.position).toBe('LAT');
     expect(JSON.stringify(visible.json())).not.toMatch(/Rápido|ratedBy|notes/);
 
     // Solo el coach o el admin del club cambian el ajuste.

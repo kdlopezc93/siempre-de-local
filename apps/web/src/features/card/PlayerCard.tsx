@@ -8,14 +8,15 @@ import {
   type RatingAttributeCode,
 } from '@sdl/domain';
 
-import { RATED_ON, rankedAverages } from './card-view';
+import { cardHeadline, RATED_ON, rankedAverages } from './card-view';
 import styles from './PlayerCard.module.css';
 
-type Card = Pick<PlayerRating, 'ratedAt' | 'values' | 'positionAverages'>;
+type Card = Pick<PlayerRating, 'ratedAt' | 'position' | 'values' | 'positionAverages'>;
 
 /**
- * La ficha 0–99: su mejor media del formato en grande, los atributos y las medias por
- * posición. La comparten el jugador (su tarjeta) y el cuerpo técnico.
+ * La ficha 0–99: en grande, la posición que le puso quien puntuó con su media (o su mejor
+ * media, en las fotos de antes; 02 §7.4), los atributos y las medias por posición. La
+ * comparten el jugador (su tarjeta) y el cuerpo técnico.
  */
 export function PlayerCard({
   card,
@@ -29,22 +30,28 @@ export function PlayerCard({
 }) {
   const Heading = headingLevel === 2 ? 'h2' : 'h3';
   const ranked = rankedAverages(card.positionAverages, format);
-  const best = ranked[0];
+  const headline = cardHeadline(card, format);
   const hasGoalkeeper = card.values.GK_DIV !== undefined;
   return (
     <article className={styles.card} aria-label="Tarjeta del jugador">
-      {best && (
+      {headline && (
         <header className={styles.head}>
           <p className={styles.overline} aria-hidden="true">
-            Mejor media
+            {headline.chosen ? 'Su posición' : 'Mejor media'}
           </p>
           <p className={styles.overall}>
-            <span className={styles.overallValue}>{best.value}</span>
+            <span className={styles.overallValue}>{headline.main.value}</span>
             <span className={styles.overallPos}>
               <span className="sr-only">de media como </span>
-              {POSITIONS[best.pos].name}
+              {POSITIONS[headline.main.pos].name}
             </span>
           </p>
+          {headline.best && (
+            <p className={styles.best}>
+              Su mejor media: {POSITIONS[headline.best.pos].name}{' '}
+              <span className={styles.bestValue}>{headline.best.value}</span>
+            </p>
+          )}
           <p className={styles.date}>Puntuada el {RATED_ON.format(new Date(card.ratedAt))}</p>
         </header>
       )}
@@ -62,8 +69,8 @@ export function PlayerCard({
       <div className={styles.panel}>
         <Heading className={styles.groupTitle}>Media por posición</Heading>
         <ol className={styles.averages}>
-          {ranked.map(({ pos, value }, i) => (
-            <li key={pos} className={i === 0 ? styles.top : undefined}>
+          {ranked.map(({ pos, value }) => (
+            <li key={pos} className={pos === headline?.main.pos ? styles.top : undefined}>
               <span>{POSITIONS[pos].name}</span>
               <span className={styles.averageValue}>{value}</span>
             </li>

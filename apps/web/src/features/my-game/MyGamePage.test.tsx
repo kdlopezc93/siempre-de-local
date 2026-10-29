@@ -12,6 +12,7 @@ const VALUES = { PAC: 82, SHO: 64, PAS: 62, DRI: 78, DEF: 35, PHY: 58 };
 const CARD = {
   card: {
     ratedAt: '2026-10-21T10:00:00.000Z',
+    position: null,
     values: VALUES,
     positionAverages: { EXT: 74, MP: 70 },
     formulaVersion: 'rating-formula-v1',

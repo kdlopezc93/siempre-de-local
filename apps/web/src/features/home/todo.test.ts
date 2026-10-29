@@ -80,7 +80,7 @@ describe('lo que toca al cuerpo técnico', () => {
     canRate: true,
     injury: null,
     knowledge: [],
-    card: { ratedAt: '2026-10-01T00:00:00Z', positionAverages: {} },
+    card: { ratedAt: '2026-10-01T00:00:00Z', position: null, positionAverages: {} },
     ...over,
   });
 

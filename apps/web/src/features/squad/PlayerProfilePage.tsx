@@ -11,7 +11,7 @@ import { ApiError } from '../../shared/api/http';
 import { Screen } from '../../shared/ui/Screen';
 import { SectionTabs } from '../../shared/ui/SectionTabs';
 import { lineOfPosition } from '../../shared/ui/Token';
-import { RATED_ON, rankedAverages } from '../card/card-view';
+import { cardHeadline, RATED_ON } from '../card/card-view';
 import { PlayerCard } from '../card/PlayerCard';
 import { ratingLabel } from '../matches/after-match';
 import { matchDay } from '../matches/match-view';
@@ -92,7 +92,7 @@ export function PlayerProfilePage({ teamId, playerId }: { teamId: string; player
   const managesMembers = team.data.myRoles.includes('coach') || team.data.myRoles.length === 0;
   const here = `/equipos/${teamId}/plantilla/${playerId}`;
   const position = sheetPosition(data);
-  const media = data.card ? rankedAverages(data.card.positionAverages, format)[0] : undefined;
+  const media = data.card ? cardHeadline(data.card, format)?.main : undefined;
   // El de su posición, no el mejor: es lo que sirve para alinearlo.
   const knows = knowledgeAt(data, position);
 

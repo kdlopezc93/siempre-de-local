@@ -166,6 +166,59 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Su posición: casillas de dos columnas, la elegida rellena de tinta (como al valorar). */
+.positions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sdl-space-2);
+}
+
+.choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sdl-space-2);
+  min-height: var(--sdl-touch-min);
+  padding: var(--sdl-space-2) var(--sdl-space-3);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
+  color: var(--sdl-fg);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.choice input {
+  position: absolute;
+  opacity: 0;
+}
+
+.choice:has(input:checked) {
+  background: var(--sdl-fg);
+  color: var(--sdl-bg);
+}
+
+.choice:has(input:focus-visible) {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+}
+
+.choiceName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.choiceValue {
+  color: var(--sdl-primary);
+  font-family: var(--sdl-font-numeric);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.choice:has(input:checked) .choiceValue {
+  color: inherit;
+}
+
 .textarea {
   min-height: 88px;
   padding: var(--sdl-space-3) var(--sdl-space-4);

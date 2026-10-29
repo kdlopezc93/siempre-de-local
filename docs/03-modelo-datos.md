@@ -249,6 +249,7 @@ Al anular un examen (`status = 'void'`) la vista toma automáticamente el mejor 
 | rated_at | timestamptz | |
 | source | enum (`manual`,`field_test`) | |
 | notes | text null | |
+| position | position_code null | La posición que le pone quien puntuó (02 §7.4); null en las fotos de antes. Migración `0023_card_position` |
 
 **player_rating_value** — `rating_id, attribute_code, value smallint check (value between 0 and 99)` · PK (rating_id, attribute_code)
 

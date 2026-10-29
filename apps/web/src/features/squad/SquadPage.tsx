@@ -17,7 +17,7 @@ import { Sheet } from '../../shared/ui/Sheet';
 import { useTeam } from '../team-admin/use-invitations';
 import { distribution, type DistributionSource } from './distribution';
 import {
-  bestAverage,
+  cardAverage,
   filterCounts,
   filterSquad,
   LINE_FILTERS,
@@ -287,7 +287,7 @@ function PlayerRow({
   player: SquadPlayer;
   format: MatchFormat;
 }) {
-  const media = bestAverage(player, format);
+  const media = cardAverage(player, format);
   const status = playerStatus(player);
   // Dos líneas, como las filas del sistema: quién es en la cancha y cómo viene.
   const who = [

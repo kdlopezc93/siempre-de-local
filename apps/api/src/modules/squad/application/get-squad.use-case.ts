@@ -82,6 +82,7 @@ export class GetSquad {
             card: card
               ? {
                   ratedAt: card.ratedAt.toISOString(),
+                  position: card.position,
                   positionAverages: positionAverages(card.values),
                 }
               : null,

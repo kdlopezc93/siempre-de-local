@@ -1,0 +1,1 @@
+ALTER TABLE "player_rating" ADD COLUMN "position" "position_code";

@@ -5,7 +5,7 @@ import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import { useSquad } from '../squad/use-squad';
 import { useTeam } from '../team-admin/use-invitations';
-import { RATED_ON, rankedAverages } from './card-view';
+import { cardHeadline, RATED_ON } from './card-view';
 import styles from './CardPages.module.css';
 import { PlayerCard } from './PlayerCard';
 import { useRatingHistory } from './use-card';
@@ -87,7 +87,7 @@ export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: 
           </h2>
           <ul className={styles.history}>
             {older.map((rating) => {
-              const best = rankedAverages(rating.positionAverages, format)[0];
+              const shown = cardHeadline(rating, format)?.main;
               return (
                 <li key={rating.id}>
                   <div className={styles.historyHead}>
@@ -95,9 +95,9 @@ export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: 
                       {RATED_ON.format(new Date(rating.ratedAt))}
                       {rating.ratedBy && `, por ${rating.ratedBy.name}`}
                     </span>
-                    {best && (
+                    {shown && (
                       <span className={styles.historyBest}>
-                        {best.value} {POSITIONS[best.pos].name}
+                        {shown.value} {POSITIONS[shown.pos].name}
                       </span>
                     )}
                   </div>

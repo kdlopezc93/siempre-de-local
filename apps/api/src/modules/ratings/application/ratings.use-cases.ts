@@ -95,12 +95,19 @@ export class PlayerRatings {
       }
       throw error;
     }
+    if (request.position && positionAverages(values)[request.position] === undefined) {
+      throw new BusinessRuleError(
+        'Para ponerle portero, puntúa también sus atributos de portero',
+        'RATING_POSITION_WITHOUT_AVERAGE',
+      );
+    }
     const saved = await this.ratings.create({
       teamId,
       playerUserId: playerId,
       ratedBy: actor.userId,
       values,
       notes: request.notes || null,
+      position: request.position ?? null,
     });
     // Datos evaluativos (04 §3): cada foto nueva queda registrada.
     await this.audit.record({
@@ -158,7 +165,7 @@ export class MyCard {
     }
     const [latest] = await this.ratings.listByPlayer(teamId, userId);
     if (!latest) return { card: null };
-    const { ratedAt, values, positionAverages, formulaVersion } = toPlayerRating(latest);
-    return { card: { ratedAt, values, positionAverages, formulaVersion } };
+    const { ratedAt, position, values, positionAverages, formulaVersion } = toPlayerRating(latest);
+    return { card: { ratedAt, position, values, positionAverages, formulaVersion } };
   }
 }

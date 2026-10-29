@@ -29,6 +29,8 @@ export const MyDataExportSchema = z.object({
       ratedBy: z.string().nullable(),
       values: z.record(z.string(), z.number()),
       notes: z.string().nullable(),
+      /** La posición que le puso quien puntuó (02 §7.4). */
+      position: z.string().nullable(),
     }),
   ),
   assessments: z.array(

@@ -1,4 +1,4 @@
-import type { RatingValues } from '@sdl/domain';
+import type { PositionCode, RatingValues } from '@sdl/domain';
 
 export interface StoredRating {
   id: string;
@@ -7,6 +7,7 @@ export interface StoredRating {
   ratedAt: Date;
   source: 'manual' | 'field_test';
   notes: string | null;
+  position: PositionCode | null;
   values: RatingValues;
 }
 
@@ -16,6 +17,7 @@ export interface NewRating {
   ratedBy: string;
   values: RatingValues;
   notes: string | null;
+  position: PositionCode | null;
 }
 
 export interface RatingsRepository {

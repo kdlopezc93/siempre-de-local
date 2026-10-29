@@ -162,6 +162,7 @@ Elegidos por Kevin el 2026-10-23, antes del staging o la Fase 8: cosas chicas qu
 | 8 | Al que entra tarde le llega la convocatoria de los partidos abiertos | #100 ✔ |
 | 9 | El cuerpo técnico les recuerda el test a los que no lo han hecho | #101 ✔ |
 | 10 | Tipo de convocatoria (Kevin, 2026-10-28): campeonato (con su torneo, obligatorio), amistoso o entrenamiento (solo convocatoria y asistencia: sin rival, alineación, resultado ni evaluaciones). Tabla `tournament` por equipo, pensada para relacionarla después con los cobros. Balance separado por tipo. Los partidos anteriores quedan de campeonato y el cuerpo técnico les asigna el torneo después (02 §13) | API #118 ✔, app #119 ✔ |
+| 11 | Posición de la tarjeta elegida aparte (Kevin, 2026-10-29): campo nuevo en la foto, elegido al puntuar (viene la anterior o la de su valoración); la tarjeta la encabeza y dice su mejor media aparte (02 §7.4) | |
 
 ### Fase 6b · Identidad v3 "Escuelas Deportivas"
 **Cerrada el 2026-10-28** (#102–#117). La v2 "pizarra táctica" se veía hecha con IA; Kevin pasó el kit original del sistema de diseño y se migraron todas las pantallas (`design-system.md`, v3: cobalto + volt, Plus Jakarta Sans y Space Grotesk, claro y oscuro).
@@ -207,7 +208,6 @@ Anotados para cuando toque, sin orden ni fase todavía. Cada uno pide decidir el
 | Pedir unirse a un equipo | Un jugador busca el equipo por nombre o por quien lo creó y pide entrar; el cuerpo técnico acepta o rechaza. Convive con la invitación por código | Solo se entra con invitación (código o enlace) |
 | Módulo de equipos | Crear clubes y equipos desde la app (quién puede, límites), editar sus datos y **gestionar los roles** (subir a asistente, pasar el mando de entrenador, varios equipos por club) | Los equipos se crean con `admin:bootstrap-team` y los roles se cambian a mano en la base |
 | Monetizar | Definir cómo se sostiene la app (hosting, dominio, almacenamiento de fotos) sin perder el tono de barrio. Opciones a evaluar: plan gratis por equipo con extras de pago (fotos, más de un equipo, pruebas de campo); plan por club o liga; patrocinio de comercios del barrio en la página del equipo; donaciones o aporte voluntario | Nada todavía. Depende de tener equipos usándola (staging, D5) y de la política de datos (D7) |
-| Posición de la tarjeta elegida aparte (Kevin, 2026-10-28) | Al puntuar la tarjeta 0–99, la posición que se muestra sale de los valores (la media por posición más alta). Kevin quiere que el entrenador **elija la posición** aparte de los valores, y que la tarjeta la muestre aunque su media más alta sea otra | La valoración ("Valorar") ya elige la posición aparte (`primaryPosition`, a ciegas); la tarjeta encabeza con su mejor media (02 §7.3). Decidir: usar la posición de la valoración del mismo entrenador, o un campo nuevo en la puntuación (esquema, contrato y 02) |
 | Cobros por torneo (Kevin, 2026-10-28) | Relacionar los cobros del equipo (inscripción, cuotas) con cada torneo | Los torneos ya existen como tabla (`tournament`, Pendientes sueltos 10); no hay nada de cobros |
 
 ## Pendientes heredados del prototipo → dónde quedan

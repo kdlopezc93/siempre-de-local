@@ -312,7 +312,13 @@ function DemoCard({ pos }: { pos: PositionCode }) {
       : { PAC: 82, SHO: 64, PAS: 62, DRI: 78, DEF: 35, PHY: 58 };
   return (
     <PlayerCard
-      card={{ values, positionAverages: positionAverages(values), ratedAt: '2026-10-20T12:00:00Z' }}
+      card={{
+        values,
+        // La de la ficha: en los que no son extremos, su mejor media sale aparte (02 §7.4).
+        position: pos,
+        positionAverages: positionAverages(values),
+        ratedAt: '2026-10-20T12:00:00Z',
+      }}
       format="F11"
       headingLevel={3}
     />

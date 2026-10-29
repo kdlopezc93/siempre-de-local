@@ -52,6 +52,7 @@ export class DrizzleAccountRepository implements AccountRepository {
         ratedAt: playerRating.ratedAt,
         ratedBy: author.name,
         notes: playerRating.notes,
+        position: playerRating.position,
       })
       .from(playerRating)
       .innerJoin(team, eq(playerRating.teamId, team.id))
