@@ -1,4 +1,4 @@
-import type { TeamResponse } from '@sdl/contracts';
+import type { CreateInvitationRequest, TeamRole, TeamResponse } from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -22,7 +22,7 @@ export function useInvitations(teamId: string) {
 export function useCreateInvitation(teamId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => createInvitation(teamId),
+    mutationFn: (request?: CreateInvitationRequest) => createInvitation(teamId, request),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: invitationsKey(teamId) }),
   });
 }
@@ -35,9 +35,40 @@ export function useRevokeInvitation(teamId: string) {
   });
 }
 
+/** A quién invita el enlace (2026-10-29): jugadores, o alguien del cuerpo técnico. */
+export type InviteKind = TeamRole;
+
+export const INVITE_KINDS: Record<InviteKind, { label: string; what: string }> = {
+  player: { label: 'Jugadores', what: 'Sirve 7 días y para hasta 30 personas.' },
+  assistant: { label: 'Asistente', what: 'Sirve 7 días.' },
+  coach: {
+    label: 'Entrenador',
+    what: 'Sirve 7 días. Al entrar queda de entrenador y el actual pasa a asistente.',
+  },
+};
+
+/** Lo que se pide al API: las de cuerpo técnico son para una persona. */
+export function invitationRequest(kind: InviteKind, alsoPlays: boolean): CreateInvitationRequest {
+  return kind === 'player' ? { role: 'player' } : { role: kind, alsoPlays, maxUses: 1 };
+}
+
+/** Cómo se nombra una invitación en la lista. */
+export function invitationLabel({ role, alsoPlays }: { role: TeamRole; alsoPlays: boolean }) {
+  if (role === 'player') return 'Para jugadores';
+  return `${role === 'coach' ? 'Entrenador' : 'Asistente'}${alsoPlays ? ' que también juega' : ''}`;
+}
+
 /** El mensaje que el entrenador manda: corto, en su voz y con el enlace al final. */
-export function invitationMessage(team: TeamResponse['team'], joinUrl: string): string {
-  return `Te convoco a ${team.name} (${team.club.name}). Entra con este enlace para unirte: ${joinUrl}`;
+export function invitationMessage(
+  team: TeamResponse['team'],
+  joinUrl: string,
+  role: TeamRole = 'player',
+): string {
+  if (role === 'player') {
+    return `Te convoco a ${team.name} (${team.club.name}). Entra con este enlace para unirte: ${joinUrl}`;
+  }
+  const as = role === 'coach' ? 'entrenador' : 'asistente';
+  return `Te invito al cuerpo técnico de ${team.name} (${team.club.name}) como ${as}. Entra con este enlace: ${joinUrl}`;
 }
 
 /** wa.me abre WhatsApp (app o web) con el mensaje listo para elegir el chat del equipo. */

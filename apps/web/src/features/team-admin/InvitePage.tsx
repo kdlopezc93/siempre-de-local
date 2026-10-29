@@ -7,7 +7,11 @@ import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
 import styles from './InvitePage.module.css';
 import {
+  INVITE_KINDS,
+  invitationLabel,
   invitationMessage,
+  invitationRequest,
+  type InviteKind,
   useCopy,
   useCreateInvitation,
   useInvitations,
@@ -17,12 +21,21 @@ import {
 } from './use-invitations';
 import { PageTitle } from '../../shared/ui/PageTitle';
 import { Badge, type BadgeTone } from '../../shared/ui/Badge';
+import { Segmented } from '../../shared/ui/Segmented';
+import switchStyles from '../../shared/ui/Switch.module.css';
+import { useSession } from '../auth/use-session';
 
-/** /equipos/:teamId/invitar — el entrenador crea el enlace y lo manda al grupo. */
+/**
+ * /equipos/:teamId/invitar — el entrenador crea el enlace y lo manda al grupo. También invita
+ * al cuerpo técnico (asistentes; entrenador, solo el admin del club), que puede también jugar.
+ */
 export function InvitePage({ teamId }: { teamId: string }) {
   const team = useTeam(teamId);
   const invitations = useInvitations(teamId);
   const create = useCreateInvitation(teamId);
+  const session = useSession();
+  const [kind, setKind] = useState<InviteKind>('player');
+  const [alsoPlays, setAlsoPlays] = useState(true);
 
   if (team.isPending || invitations.isPending) {
     return (
@@ -51,6 +64,12 @@ export function InvitePage({ teamId }: { teamId: string }) {
     );
   }
 
+  // Entrenador, solo el admin del club (04 §2.2).
+  const clubAdmin = session.data?.clubs.some((c) => c.id === team.data.team.club.id) ?? false;
+  const kinds: InviteKind[] = clubAdmin
+    ? ['player', 'assistant', 'coach']
+    : ['player', 'assistant'];
+
   return (
     <Screen className={styles.screen}>
       <BackLink teamId={teamId} />
@@ -68,15 +87,28 @@ export function InvitePage({ teamId }: { teamId: string }) {
           <h2 id="create-title" className="sr-only">
             Crear enlace
           </h2>
+          <InviteKindPicker
+            kinds={kinds}
+            kind={kind}
+            onKind={setKind}
+            alsoPlays={alsoPlays}
+            onAlsoPlays={setAlsoPlays}
+          />
           <p>
-            Crea un enlace y mándalo al grupo del equipo. Sirve 7 días y para hasta 30 personas.
+            {kind === 'player'
+              ? 'Crea un enlace y mándalo al grupo del equipo. '
+              : 'Crea un enlace solo para esa persona y mándaselo. '}
+            {INVITE_KINDS[kind].what}
           </p>
           {create.isError && (
             <p role="alert" className={styles.alert}>
               No pudimos crear el enlace. Revisa tu conexión e intenta de nuevo.
             </p>
           )}
-          <Button busy={create.isPending} onClick={() => create.mutate()}>
+          <Button
+            busy={create.isPending}
+            onClick={() => create.mutate(invitationRequest(kind, alsoPlays))}
+          >
             {create.isPending ? 'Creando…' : 'Crear enlace'}
           </Button>
         </section>
@@ -84,6 +116,49 @@ export function InvitePage({ teamId }: { teamId: string }) {
 
       <InvitationList teamId={teamId} items={invitations.data.items} />
     </Screen>
+  );
+}
+
+/** Jugadores (al grupo) o alguien del cuerpo técnico, que puede también jugar. */
+function InviteKindPicker({
+  kinds,
+  kind,
+  onKind,
+  alsoPlays,
+  onAlsoPlays,
+}: {
+  kinds: InviteKind[];
+  kind: InviteKind;
+  onKind: (kind: InviteKind) => void;
+  alsoPlays: boolean;
+  onAlsoPlays: (alsoPlays: boolean) => void;
+}) {
+  return (
+    <div className={styles.kind}>
+      <Segmented
+        label="A quién invitas"
+        options={kinds.map((k) => ({ value: k, label: INVITE_KINDS[k].label }))}
+        value={kind}
+        onChange={onKind}
+      />
+      {kind !== 'player' && (
+        <label className={styles.alsoPlays}>
+          <input
+            type="checkbox"
+            role="switch"
+            className={switchStyles.switch}
+            checked={alsoPlays}
+            onChange={(event) => onAlsoPlays(event.target.checked)}
+          />
+          <span>
+            También juega en el equipo
+            <span className={styles.muted}>
+              {alsoPlays ? 'Entra al cuerpo técnico y a la plantilla.' : 'Solo al cuerpo técnico.'}
+            </span>
+          </span>
+        </label>
+      )}
+    </div>
   );
 }
 
@@ -108,7 +183,7 @@ function FreshLink({
   const { copied, copy } = useCopy();
   const [copyFailed, setCopyFailed] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const message = invitationMessage(team, created.joinUrl);
+  const message = invitationMessage(team, created.joinUrl, created.invitation.role);
 
   // El botón "Crear enlace" desaparece: el foco pasa al enlace recién creado.
   useEffect(() => titleRef.current?.focus(), []);
@@ -218,6 +293,7 @@ function InvitationRow({ teamId, item }: { teamId: string; item: InvitationSumma
 
   return (
     <li className={styles.item}>
+      <p className={styles.itemKind}>{invitationLabel(item)}</p>
       <div className={styles.itemHead}>
         <Badge tone={STATUS[item.status].tone}>{STATUS[item.status].label}</Badge>
         <span className={styles.uses}>

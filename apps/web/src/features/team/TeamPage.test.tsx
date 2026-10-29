@@ -30,7 +30,7 @@ describe('TeamPage', () => {
       screen.getByRole('heading', { level: 1, name: 'Los del Barrio Primer equipo' }),
     ).toBeInTheDocument();
     expect(screen.getByText('Fútbol 11')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Invitar jugadores' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Invitar al equipo' })).toHaveAttribute(
       'href',
       `/equipos/${TEAM_A}/invitar`,
     );
@@ -41,7 +41,7 @@ describe('TeamPage', () => {
     renderTeam(TEAM_B);
     expect(screen.queryByRole('button', { name: 'Cerrar sesión' })).toBeNull();
     // Ahí es solo jugador, pero como dueño del club puede invitar.
-    expect(screen.getByRole('link', { name: 'Invitar jugadores' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Invitar al equipo' })).toBeInTheDocument();
   });
 
   it('el coach decide si los jugadores ven su tarjeta (D8)', async () => {

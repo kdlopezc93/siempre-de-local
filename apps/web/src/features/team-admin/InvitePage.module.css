@@ -185,3 +185,26 @@
     color: var(--sdl-fg);
   }
 }
+
+/* A quién invitas: el selector y, para el cuerpo técnico, si también juega. */
+.kind {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.alsoPlays {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+  min-height: var(--sdl-touch-min);
+  cursor: pointer;
+}
+
+.alsoPlays .muted {
+  display: block;
+}
+
+.itemKind {
+  font-weight: 700;
+}

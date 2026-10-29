@@ -41,12 +41,12 @@ test('el entrenador crea un enlace de invitación', async ({ page, context }) =>
   await signIn(context, coach);
 
   await page.goto('/');
-  // La barra de abajo: Equipo → Invitar jugadores.
+  // La barra de abajo: Equipo → Invitar al equipo.
   await page
     .getByRole('navigation', { name: 'Principal' })
     .getByRole('link', { name: 'Equipo' })
     .click();
-  await page.getByRole('link', { name: 'Invitar jugadores' }).click();
+  await page.getByRole('link', { name: 'Invitar al equipo' }).click();
   await expect(page).toHaveURL(`/equipos/${teamId}/invitar`);
 
   await page.getByRole('button', { name: 'Crear enlace' }).click();

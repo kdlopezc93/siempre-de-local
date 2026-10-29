@@ -39,7 +39,7 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
       <TeamData teamId={teamId} editable={coach || clubAdmin} />
       <ul className={styles.list}>
         {(coach || clubAdmin) && (
-          <Item to={`/equipos/${teamId}/invitar`} icon={UserPlus} title="Invitar jugadores" />
+          <Item to={`/equipos/${teamId}/invitar`} icon={UserPlus} title="Invitar al equipo" />
         )}
         {(coach || clubAdmin) && (
           <Item to={`/equipos/${teamId}/roles`} icon={UsersThree} title="Integrantes y roles" />

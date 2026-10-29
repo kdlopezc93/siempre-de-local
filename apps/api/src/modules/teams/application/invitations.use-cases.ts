@@ -28,9 +28,16 @@ import { TEAMS_REPOSITORY, type TeamsRepository } from './ports/teams.repository
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-/** Invitar jugadores es del coach; invitar cuerpo técnico, del admin del club (04 §2.2). */
-const permissionToInvite = (role: TeamRole): TeamPermission =>
-  role === 'player' ? 'team.players.invite' : 'team.staff.invite';
+/**
+ * Jugadores y asistentes los invitan el coach y el admin del club; entrenador, solo el admin del
+ * club (04 §2.2; asistentes, Kevin 2026-10-29: el coach arma su cuerpo técnico).
+ */
+const INVITE_PERMISSION: Record<TeamRole, TeamPermission> = {
+  player: 'team.players.invite',
+  assistant: 'team.assistants.invite',
+  coach: 'team.staff.invite',
+};
+const permissionToInvite = (role: TeamRole): TeamPermission => INVITE_PERMISSION[role];
 
 const NOT_FOUND = () =>
   new NotFoundError('Esta invitación no existe. Revisa el enlace.', 'INVITATION_NOT_FOUND');
@@ -39,6 +46,7 @@ function toSummary(invitation: InvitationRecord, now: Date): InvitationSummary {
   return {
     id: invitation.id,
     role: invitation.role,
+    alsoPlays: invitation.alsoPlays,
     status: invitationStatus(invitation, now),
     expiresAt: invitation.expiresAt.toISOString(),
     maxUses: invitation.maxUses,
@@ -65,10 +73,13 @@ export class TeamInvitations {
     const invitation = await this.invitations.create({
       teamId,
       role: request.role,
+      // Ser jugador no se "también" juega.
+      alsoPlays: request.role !== 'player' && request.alsoPlays,
       codeHash: hashInvitationCode(code),
       createdBy: actor.userId,
       expiresAt: new Date(now.getTime() + request.expiresInDays * DAY_MS),
-      maxUses: request.maxUses,
+      // Un solo entrenador: su invitación es para una persona.
+      maxUses: request.role === 'coach' ? 1 : request.maxUses,
     });
     return { invitation: toSummary(invitation, now), code };
   }
@@ -119,6 +130,7 @@ export class InvitationRedemption {
       team: { id: invitation.team.id, name: invitation.team.name, format: invitation.team.format },
       club: { name: invitation.team.clubName },
       role: invitation.role,
+      alsoPlays: invitation.alsoPlays,
     };
   }
 
@@ -130,7 +142,7 @@ export class InvitationRedemption {
     }
     const outcome = await this.invitations.redeem(invitation, userId, now);
     if (outcome === 'unavailable') throw unusable('used_up');
-    if (outcome !== 'already-member' && invitation.role === 'player') {
+    if (outcome !== 'already-member' && (invitation.role === 'player' || invitation.alsoPlays)) {
       await this.callToOpenMatches(invitation.teamId, userId, now);
     }
     return {

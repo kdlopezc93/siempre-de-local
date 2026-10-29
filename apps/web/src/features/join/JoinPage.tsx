@@ -94,7 +94,9 @@ export function JoinPage({ code, me }: { code: string; me: Me | null }) {
       <Convocation invitation={invitation} asTitle />
       <div className={styles.body}>
         <p className={styles.lead}>
-          Entras como {ROLE[invitation.role]}. El equipo juega {FORMAT[invitation.team.format]}.
+          Entras como {ROLE[invitation.role]}
+          {invitation.alsoPlays ? ' y jugador' : ''}. El equipo juega{' '}
+          {FORMAT[invitation.team.format]}.
         </p>
         {me ? (
           <SignedInActions

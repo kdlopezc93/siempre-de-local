@@ -6,6 +6,7 @@ export interface InvitationRecord extends InvitationState {
   id: string;
   teamId: string;
   role: TeamRole;
+  alsoPlays: boolean;
   createdAt: Date;
 }
 
@@ -19,6 +20,7 @@ export interface InvitationsRepository {
   create(input: {
     teamId: string;
     role: TeamRole;
+    alsoPlays: boolean;
     codeHash: string;
     createdBy: string;
     expiresAt: Date;
@@ -30,8 +32,10 @@ export interface InvitationsRepository {
   findByCodeHash(codeHash: string): Promise<InvitationWithTeam | null>;
   /**
    * Suma el usuario al equipo con el rol de la invitación y gasta un uso, en una
-   * transacción. Si ya es miembro activo con ese rol no gasta nada. 'unavailable'
-   * si otra persona se llevó el último uso o la invitación dejó de valer.
+   * transacción. Si ya es miembro activo con ese rol (o es el entrenador y la invitación es
+   * de asistente) no gasta nada. 'unavailable' si otra persona se llevó el último uso o la
+   * invitación dejó de valer. Con `alsoPlays`, entra además como jugador. La de entrenador
+   * pasa el mando: el anterior queda de asistente (un solo entrenador por equipo).
    */
   redeem(invitation: InvitationRecord, userId: string, now: Date): Promise<RedeemOutcome>;
 }

@@ -109,10 +109,13 @@ describe('invitaciones', () => {
     expect(JSON.stringify(row)).not.toContain(created.code);
   });
 
-  it('invitar cuerpo técnico es solo del admin del club', async () => {
-    const res = await request('POST', `/teams/${teamId}/invitations`, coach, { role: 'assistant' });
+  it('asistentes los invitan el entrenador y el admin; entrenador, solo el admin (2026-10-29)', async () => {
+    const res = await request('POST', `/teams/${teamId}/invitations`, coach, { role: 'coach' });
     expect(res.statusCode).toBe(403);
+    expect((await invite(coach, { role: 'assistant' })).invitation.role).toBe('assistant');
     expect((await invite(owner, { role: 'assistant' })).invitation.role).toBe('assistant');
+    // La de jugador no "también" juega.
+    expect((await invite(coach, { alsoPlays: true })).invitation.alsoPlays).toBe(false);
   });
 
   it('jugadores y gente de fuera no pueden invitar', async () => {
@@ -133,17 +136,19 @@ describe('invitaciones', () => {
     expect(ErrorBodySchema.parse(res.json()).error.code).toBe('VALIDATION_ERROR');
   });
 
-  it('la lista no trae códigos y el entrenador no ve las de cuerpo técnico', async () => {
+  it('la lista no trae códigos y el entrenador no ve las de entrenador', async () => {
+    await invite(owner, { role: 'coach' });
     const coachList = InvitationListResponseSchema.parse(
       (await request('GET', `/teams/${teamId}/invitations`, coach)).json(),
     );
-    expect(coachList.items.every((i) => i.role === 'player')).toBe(true);
+    expect(coachList.items.some((i) => i.role === 'coach')).toBe(false);
+    expect(coachList.items.some((i) => i.role === 'assistant')).toBe(true);
     expect(JSON.stringify(coachList)).not.toMatch(/code/i);
 
     const ownerList = InvitationListResponseSchema.parse(
       (await request('GET', `/teams/${teamId}/invitations`, owner)).json(),
     );
-    expect(ownerList.items.some((i) => i.role === 'assistant')).toBe(true);
+    expect(ownerList.items.some((i) => i.role === 'coach')).toBe(true);
   });
 
   it('cualquiera ve a qué equipo invita el enlace, sin sesión y escrito como sea', async () => {
@@ -155,6 +160,7 @@ describe('invitaciones', () => {
       team: { id: teamId, name: 'Primer equipo', format: 'F8' },
       club: { name: 'Los del Barrio' },
       role: 'player',
+      alsoPlays: false,
     });
 
     const unknown = await request('GET', '/invitations/AAAAAAAAAA');
@@ -306,5 +312,41 @@ describe('invitaciones', () => {
     const back = await request('POST', `/invitations/${(await invite(coach)).code}/accept`, player);
     expect(back.json()).toMatchObject({ alreadyMember: false });
     expect((await request('GET', `/teams/${teamId}`, player)).statusCode).toBe(200);
+  });
+
+  it('asistente que también juega: entra con los dos roles', async () => {
+    const helper = await newUser();
+    const { code } = await invite(coach, { role: 'assistant', alsoPlays: true });
+    const preview = InvitationPreviewResponseSchema.parse(
+      (await request('GET', `/invitations/${code}`)).json(),
+    );
+    expect(preview).toMatchObject({ role: 'assistant', alsoPlays: true });
+    await request('POST', `/invitations/${code}/accept`, helper);
+    const team = (await request('GET', `/teams/${teamId}`, helper)).json() as { myRoles: string[] };
+    expect(team.myRoles.sort()).toEqual(['assistant', 'player']);
+  });
+
+  // Al final: cambia el entrenador del equipo.
+  it('la de entrenador es para una persona y pasa el mando: el anterior queda de asistente', async () => {
+    const created = await invite(owner, { role: 'coach', maxUses: 30, alsoPlays: true });
+    expect(created.invitation.maxUses).toBe(1);
+    // El entrenador no se acepta una de asistente: ya es del cuerpo técnico.
+    await request('POST', '/me/consent', coach, {
+      policyVersion: POLICY_VERSION,
+      ageConfirmed: true,
+    });
+    const own = await invite(owner, { role: 'assistant' });
+    expect((await request('POST', `/invitations/${own.code}/accept`, coach)).json()).toMatchObject({
+      alreadyMember: true,
+    });
+
+    const next = await newUser();
+    await request('POST', `/invitations/${created.code}/accept`, next);
+    const mine = (await request('GET', `/teams/${teamId}`, next)).json() as { myRoles: string[] };
+    expect(mine.myRoles.sort()).toEqual(['coach', 'player']);
+    const before = (await request('GET', `/teams/${teamId}`, coach)).json() as {
+      myRoles: string[];
+    };
+    expect(before.myRoles).toEqual(['assistant']);
   });
 });
