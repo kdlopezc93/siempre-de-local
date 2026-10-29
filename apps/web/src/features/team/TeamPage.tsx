@@ -42,7 +42,7 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
           <Item to={`/equipos/${teamId}/invitar`} icon={UserPlus} title="Invitar jugadores" />
         )}
         {(coach || clubAdmin) && (
-          <Item to={`/equipos/${teamId}/roles`} icon={UsersThree} title="Cuerpo técnico y roles" />
+          <Item to={`/equipos/${teamId}/roles`} icon={UsersThree} title="Integrantes y roles" />
         )}
         {(staff || clubAdmin) && (
           <Item

@@ -84,6 +84,45 @@ export class ChangeMemberRoles {
   }
 }
 
+/**
+ * Quitar del equipo al que ya no viene (Kevin, 2026-10-24 y 2026-10-29): todas sus filas quedan
+ * con `left_at`, así su historial sigue y deja de contar. Si vuelve con una invitación, recupera
+ * su dorsal. Al entrenador no: primero se pasa el mando.
+ */
+@Injectable()
+export class RemoveMember {
+  constructor(
+    @Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+  ) {}
+
+  async execute(actor: Actor, teamId: string, userId: string, now = new Date()): Promise<void> {
+    await authorize(this.teams, actor, teamId);
+    const roles = await rolesOf(this.teams, teamId, userId);
+    if (roles.includes('coach')) {
+      throw new BusinessRuleError(
+        'Al entrenador no se le quita: primero pásale el mando a otro',
+        'COACH_CANNOT_BE_REMOVED',
+      );
+    }
+    // Si vuelve, no vuelve lesionado de hace meses.
+    if (roles.includes('player')) await this.teams.setInjury(teamId, userId, null);
+    await this.teams.changeRoles(
+      teamId,
+      roles.map((role) => ({ userId, role, active: false })),
+      now,
+    );
+    await this.audit.record({
+      actorUserId: actor.userId,
+      action: 'team.member_removed',
+      entity: 'team_membership',
+      entityId: userId,
+      teamId,
+      meta: { roles },
+    });
+  }
+}
+
 /** Un solo entrenador por equipo: el anterior queda de asistente (Kevin, 2026-10-29). */
 @Injectable()
 export class TransferCoach {

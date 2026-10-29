@@ -87,6 +87,11 @@ export async function updateMemberRoles(
   });
 }
 
+/** Quitar del equipo: sale con su historial (coach y admin del club). */
+export async function removeMember(teamId: string, userId: string): Promise<void> {
+  await apiFetch(`/api/v1/teams/${teamId}/members/${userId}`, { method: 'DELETE' });
+}
+
 /** Pasar el mando de entrenador; el anterior queda de asistente. */
 export async function transferCoach(teamId: string, userId: string): Promise<void> {
   await apiFetch(`/api/v1/teams/${teamId}/coach`, {

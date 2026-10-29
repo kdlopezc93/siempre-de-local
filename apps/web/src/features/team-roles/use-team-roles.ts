@@ -2,7 +2,7 @@ import type { UpdateMemberRolesRequest } from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { fetchTeamMembers } from '../../shared/api/squad';
-import { transferCoach, updateMemberRoles } from '../../shared/api/teams';
+import { removeMember, transferCoach, updateMemberRoles } from '../../shared/api/teams';
 import { SESSION_KEY } from '../auth/use-session';
 
 /** Los integrantes, con la misma llave que Equipo → Integrantes. */
@@ -36,6 +36,14 @@ export function useTransferCoach(teamId: string) {
   const refresh = useRefresh(teamId);
   return useMutation({
     mutationFn: (userId: string) => transferCoach(teamId, userId),
+    onSuccess: refresh,
+  });
+}
+
+export function useRemoveMember(teamId: string) {
+  const refresh = useRefresh(teamId);
+  return useMutation({
+    mutationFn: (userId: string) => removeMember(teamId, userId),
     onSuccess: refresh,
   });
 }

@@ -151,3 +151,33 @@
   outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
   outline-offset: var(--sdl-focus-offset);
 }
+
+.sheetText {
+  color: var(--sdl-fg-muted);
+}
+
+/* Quitar: discreto y abajo a la derecha, en el color de peligro; pide confirmar. */
+.remove {
+  align-self: flex-end;
+  min-height: var(--sdl-touch-min);
+  padding: 0 var(--sdl-space-2);
+  border: 0;
+  background: none;
+  color: var(--sdl-danger-fg);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.remove:focus-visible {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+  border-radius: var(--sdl-radius-sm);
+}
+
+.remove:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

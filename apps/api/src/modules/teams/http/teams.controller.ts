@@ -14,7 +14,11 @@ import { CurrentActor } from '../../../shared/authz/current-actor.decorator.js';
 import type { Actor } from '../../../shared/authz/policy.js';
 import { parseInput } from '../../../shared/http/validation.js';
 import { GetTeam, SetInjury, UpdateMember, UpdateTeam } from '../application/get-team.use-case.js';
-import { ChangeMemberRoles, TransferCoach } from '../application/member-roles.use-cases.js';
+import {
+  ChangeMemberRoles,
+  RemoveMember,
+  TransferCoach,
+} from '../application/member-roles.use-cases.js';
 
 @Controller('teams')
 export class TeamsController {
@@ -25,6 +29,7 @@ export class TeamsController {
     private readonly setInjury: SetInjury,
     private readonly changeRoles: ChangeMemberRoles,
     private readonly transferCoach: TransferCoach,
+    private readonly removeMember: RemoveMember,
   ) {}
 
   @Get(':teamId')
@@ -76,6 +81,18 @@ export class TeamsController {
       parseInput(z.uuid(), userId),
       parseInput(UpdateMemberRolesRequestSchema, body),
     );
+  }
+
+  /** Quitar del equipo (2026-10-29): sale con su historial; al entrenador no. */
+  @Delete(':teamId/members/:userId')
+  @Can('team.members.manage', { teamParam: 'teamId' })
+  @HttpCode(204)
+  async remove(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string,
+  ): Promise<void> {
+    await this.removeMember.execute(actor, teamId, parseInput(z.uuid(), userId));
   }
 
   /** Pasar el mando de entrenador (2026-10-29). */
