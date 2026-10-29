@@ -161,7 +161,7 @@ Elegidos por Kevin el 2026-10-23, antes del staging o la Fase 8: cosas chicas qu
 | 7 | Los asistentes valoran al entrenador que también juega | #99 ✔ |
 | 8 | Al que entra tarde le llega la convocatoria de los partidos abiertos | #100 ✔ |
 | 9 | El cuerpo técnico les recuerda el test a los que no lo han hecho | #101 ✔ |
-| 10 | Tipo de convocatoria (Kevin, 2026-10-28): campeonato (con su torneo, obligatorio), amistoso o entrenamiento (solo convocatoria y asistencia: sin rival, alineación, resultado ni evaluaciones). Tabla `tournament` por equipo, pensada para relacionarla después con los cobros. Balance separado por tipo. Los partidos anteriores quedan de campeonato y el cuerpo técnico les asigna el torneo después (02 §13) | API #118 ✔, app #119 |
+| 10 | Tipo de convocatoria (Kevin, 2026-10-28): campeonato (con su torneo, obligatorio), amistoso o entrenamiento (solo convocatoria y asistencia: sin rival, alineación, resultado ni evaluaciones). Tabla `tournament` por equipo, pensada para relacionarla después con los cobros. Balance separado por tipo. Los partidos anteriores quedan de campeonato y el cuerpo técnico les asigna el torneo después (02 §13) | API #118 ✔, app #119 ✔ |
 
 ### Fase 6b · Identidad v3 "Escuelas Deportivas"
 **Cerrada el 2026-10-28** (#102–#117). La v2 "pizarra táctica" se veía hecha con IA; Kevin pasó el kit original del sistema de diseño y se migraron todas las pantallas (`design-system.md`, v3: cobalto + volt, Plus Jakarta Sans y Space Grotesk, claro y oscuro).
