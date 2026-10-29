@@ -101,7 +101,7 @@ describe('partidos en la app (Fase 7)', () => {
       },
     });
     renderAt('/p', [{ path: '/p', element: <MatchesPage me={ME_TWO_TEAMS} teamId={TEAM_A} /> }]);
-    expect(await screen.findByRole('link', { name: /Convocar partido/ })).toHaveAttribute(
+    expect(await screen.findByRole('link', { name: /Convocar/ })).toHaveAttribute(
       'href',
       `/equipos/${TEAM_A}/partidos/nuevo`,
     );
@@ -275,6 +275,7 @@ describe('partidos en la app (Fase 7)', () => {
     const router = renderAt('/n', [
       { path: '/n', element: <MatchFormPage me={ME_TWO_TEAMS} teamId={TEAM_A} /> },
     ]);
+    await userEvent.click(screen.getByRole('button', { name: 'Amistoso' }));
     await userEvent.click(screen.getByRole('button', { name: 'Convocar' }));
     expect(screen.getByRole('alert')).toHaveTextContent('Pon la fecha y la hora del partido.');
 
@@ -288,9 +289,70 @@ describe('partidos en la app (Fase 7)', () => {
     await vi.waitFor(() =>
       expect(router.state.location.pathname).toBe(`/equipos/${TEAM_A}/partidos/${M1}`),
     );
-    expect(body).toMatchObject({ opponent: 'Los Pibes', format: 'F11' });
+    expect(body).toMatchObject({
+      kind: 'friendly',
+      opponent: 'Los Pibes',
+      format: 'F11',
+      tournamentId: null,
+    });
     const sent = new Date(body!.startsAt);
     expect([sent.getHours(), sent.getMinutes()]).toEqual([15, 30]);
+  });
+
+  const fillWhenAndWhere = async () => {
+    const day = new Date(Date.now() + 3 * 86_400_000);
+    const date = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
+    await userEvent.type(screen.getByLabelText('Fecha'), date);
+    await userEvent.type(screen.getByLabelText('Hora'), '15:30');
+    await userEvent.type(screen.getByRole('textbox', { name: 'Lugar' }), 'Cancha de La 14');
+  };
+
+  it('convocar de campeonato: elige el torneo o crea uno nuevo (2026-10-28)', async () => {
+    const T1 = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fd1';
+    let tournament: unknown;
+    let body: unknown;
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/tournaments`]: { status: 200, body: { items: [] } },
+      [`POST /api/v1/teams/${TEAM_A}/tournaments`]: (init) => {
+        tournament = JSON.parse(init.body as string);
+        return {
+          status: 201,
+          body: { tournament: { id: T1, name: 'Liga del barrio', createdAt: future(0) } },
+        };
+      },
+      [`POST /api/v1/teams/${TEAM_A}/matches`]: (init) => {
+        body = JSON.parse(init.body as string);
+        return { status: 201, body: { match: match(), roster: [] } };
+      },
+    });
+    renderAt('/n', [{ path: '/n', element: <MatchFormPage me={ME_TWO_TEAMS} teamId={TEAM_A} /> }]);
+    await userEvent.type(screen.getByRole('textbox', { name: 'Rival' }), 'Los Pibes');
+    await fillWhenAndWhere();
+    // Sin torneos todavía, el campo del nuevo aparece solo; vacío, no deja convocar.
+    await userEvent.click(screen.getByRole('button', { name: 'Convocar' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('Escribe el nombre del torneo.');
+    await userEvent.type(await screen.findByRole('textbox', { name: 'Torneo' }), 'Liga del barrio');
+    await userEvent.click(screen.getByRole('button', { name: 'Convocar' }));
+    await vi.waitFor(() => expect(body).toBeDefined());
+    expect(tournament).toEqual({ name: 'Liga del barrio' });
+    expect(body).toMatchObject({ kind: 'championship', tournamentId: T1, opponent: 'Los Pibes' });
+  });
+
+  it('convocar a entrenar: sin rival (2026-10-28)', async () => {
+    let body: unknown;
+    fakeApi({
+      [`POST /api/v1/teams/${TEAM_A}/matches`]: (init) => {
+        body = JSON.parse(init.body as string);
+        return { status: 201, body: { match: match(), roster: [] } };
+      },
+    });
+    renderAt('/n', [{ path: '/n', element: <MatchFormPage me={ME_TWO_TEAMS} teamId={TEAM_A} /> }]);
+    await userEvent.click(screen.getByRole('button', { name: 'Entreno' }));
+    expect(screen.queryByRole('textbox', { name: 'Rival' })).toBeNull();
+    await fillWhenAndWhere();
+    await userEvent.click(screen.getByRole('button', { name: 'Convocar' }));
+    await vi.waitFor(() => expect(body).toBeDefined());
+    expect(body).toMatchObject({ kind: 'training', opponent: null, tournamentId: null });
   });
 
   it('el cuerpo técnico arma la alineación desde el partido y publica una de las guardadas', async () => {

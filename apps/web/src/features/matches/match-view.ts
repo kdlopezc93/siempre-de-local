@@ -1,5 +1,13 @@
 import type { Match } from '@sdl/contracts';
-import { POSITIONS } from '@sdl/domain';
+import { MATCH_KIND_LABELS, POSITIONS } from '@sdl/domain';
+
+/** El título de una convocatoria: el rival, o "Entrenamiento" (no tiene rival, 2026-10-28). */
+export const matchTitle = (m: Pick<Match, 'kind' | 'opponent'>) =>
+  m.opponent ?? MATCH_KIND_LABELS[m.kind];
+
+/** "Campeonato, Liga del barrio 2026", "Amistoso", "Entrenamiento". */
+export const matchKindLine = (m: Pick<Match, 'kind' | 'tournament'>) =>
+  m.tournament ? `${MATCH_KIND_LABELS[m.kind]}, ${m.tournament.name}` : MATCH_KIND_LABELS[m.kind];
 
 const WHEN = new Intl.DateTimeFormat('es-419', {
   weekday: 'short',

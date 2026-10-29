@@ -1,22 +1,30 @@
 import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
 import type { Match, MatchRoster } from '@sdl/contracts';
-import { findFormation } from '@sdl/domain';
+import { findFormation, isGame } from '@sdl/domain';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
+import { Chips } from '../../shared/ui/Chips';
 import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import { Sheet } from '../../shared/ui/Sheet';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import { usePublishLineup, useLineups } from '../lineup/use-lineups';
 import { AfterMatch, MatchResultView } from './AfterMatch';
-import { matchWhen, slotName } from './match-view';
+import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
 import styles from './Matches.module.css';
-import { useMatch, usePublishedLineup, useReplyMatch, useUpdateMatch } from './use-matches';
+import {
+  useCreateTournament,
+  useMatch,
+  usePublishedLineup,
+  useReplyMatch,
+  useTournaments,
+  useUpdateMatch,
+} from './use-matches';
 import { Badge } from '../../shared/ui/Badge';
 import { StatGrid, StatTile } from '../../shared/ui/StatTile';
 import { Avatar } from '../../shared/ui/Avatar';
@@ -61,7 +69,9 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
   const { match, roster } = data.data;
   // Ya jugado (D18): el cuerpo técnico carga el resultado y evalúa; el resto lo ve. Las
   // respuestas (voy / no voy) ya no hacen falta.
-  const played = match.status === 'scheduled' && !match.open;
+  // El entreno (2026-10-28) es convocatoria y asistencia: sin resultado ni alineación.
+  const game = isGame(match.kind);
+  const played = game && match.status === 'scheduled' && !match.open;
   const teamName = membership?.team.name ?? 'Nosotros';
 
   return (
@@ -77,18 +87,30 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
             </Badge>
           )}
         </div>
-        <p className={styles.heroOverline}>Partido contra</p>
-        <h1 className={styles.heroTitle}>{match.opponent}</h1>
+        <p className={styles.heroOverline}>
+          {game ? `${matchKindLine(match)}, contra` : 'Convocatoria a'}
+        </p>
+        <h1 className={styles.heroTitle}>{game ? match.opponent : 'Entrenar'}</h1>
         <p className={styles.heroMeta}>
           <MapPin size={16} aria-hidden="true" />
           {match.place}, {FORMAT_LABEL[match.format]}
         </p>
         {!match.open && (
           <p className={styles.heroMeta}>
-            {match.status === 'cancelled' ? 'Partido cancelado.' : 'El partido ya empezó.'}
+            {match.status === 'cancelled'
+              ? game
+                ? 'Partido cancelado.'
+                : 'Entreno cancelado.'
+              : game
+                ? 'El partido ya empezó.'
+                : 'El entreno ya empezó.'}
           </p>
         )}
       </header>
+
+      {staff && match.kind === 'championship' && !match.tournament && (
+        <AssignTournament teamId={teamId} matchId={match.id} />
+      )}
 
       {played &&
         (staff && roster ? (
@@ -101,7 +123,7 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         <PublishedSection teamId={teamId} match={match} meId={me.user.id} player={player} />
       )}
 
-      {!played && player && <ReplyButtons teamId={teamId} match={match} />}
+      {!played && player && match.open && <ReplyButtons teamId={teamId} match={match} />}
 
       {!played && (
         <StatGrid columns={match.replies.injured > 0 ? 4 : 3}>
@@ -114,13 +136,90 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         </StatGrid>
       )}
 
-      {staff && <MatchLineups teamId={teamId} match={match} />}
+      {staff && game && <MatchLineups teamId={teamId} match={match} />}
       {roster && !played && <Roster roster={roster} />}
       {/* Hasta cargar el resultado, aunque ya pasó la hora: corregir la hora o cancelarlo. */}
       {staff && match.editable && <StaffActions teamId={teamId} match={match} />}
     </Screen>
   );
 }
+
+/**
+ * Los partidos de antes del 2026-10-28 quedaron de campeonato sin torneo (Kevin): el cuerpo
+ * técnico se lo asigna aquí, aunque el partido ya tenga resultado.
+ */
+function AssignTournament({ teamId, matchId }: { teamId: string; matchId: string }) {
+  const tournaments = useTournaments(teamId);
+  const create = useCreateTournament(teamId);
+  const update = useUpdateMatch(teamId, matchId);
+  const [choice, setChoice] = useState('');
+  const [name, setName] = useState('');
+  const known = tournaments.data?.items ?? [];
+  const creating = choice === NEW || known.length === 0;
+  const failed = create.error ?? update.error;
+
+  async function save() {
+    let tournamentId = creating ? '' : choice;
+    if (creating) {
+      if (!name.trim()) return;
+      try {
+        tournamentId = (await create.mutateAsync(name.trim())).tournament.id;
+      } catch {
+        return;
+      }
+    }
+    if (tournamentId) update.mutate({ tournamentId });
+  }
+
+  return (
+    <section aria-labelledby="sin-torneo" className={styles.assign}>
+      <h2 id="sin-torneo" className={styles.assignTitle}>
+        ¿De qué torneo es?
+      </h2>
+      <p className={styles.muted}>Es de campeonato y todavía no tiene torneo.</p>
+      {known.length > 0 && (
+        <Chips
+          label="Torneo"
+          options={[
+            ...known.map((t) => ({ value: t.id, label: t.name })),
+            { value: NEW, label: 'Nuevo torneo' },
+          ]}
+          selected={new Set([choice])}
+          onToggle={setChoice}
+        />
+      )}
+      {creating && (
+        <input
+          name="tournament"
+          aria-label="Nombre del torneo"
+          autoComplete="off"
+          maxLength={80}
+          className={styles.input}
+          placeholder="Ej.: Liga del barrio 2026…"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+      )}
+      {failed && (
+        <p role="alert" className={styles.error}>
+          {failed instanceof ApiError && failed.status < 500
+            ? failed.message
+            : 'No pudimos guardar. Revisa tu conexión e intenta de nuevo.'}
+        </p>
+      )}
+      <Button
+        variant="secondary"
+        busy={create.isPending || update.isPending}
+        disabled={creating ? !name.trim() : !choice}
+        onClick={() => void save()}
+      >
+        Guardar torneo
+      </Button>
+    </section>
+  );
+}
+
+const NEW = 'nuevo';
 
 function ReplyButtons({ teamId, match }: { teamId: string; match: Match }) {
   const reply = useReplyMatch(teamId, match.id);

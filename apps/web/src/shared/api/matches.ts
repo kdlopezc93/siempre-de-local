@@ -4,6 +4,8 @@ import {
   MatchResponseSchema,
   PlayerMatchRatingsResponseSchema,
   PublishedLineupResponseSchema,
+  TournamentListResponseSchema,
+  TournamentResponseSchema,
   type CreateMatchRequest,
   type MatchListResponse,
   type MatchRatingRequest,
@@ -13,6 +15,8 @@ import {
   type MatchResultRequest,
   type PlayerMatchRatingsResponse,
   type PublishedLineupResponse,
+  type TournamentListResponse,
+  type TournamentResponse,
   type UpdateMatchRequest,
 } from '@sdl/contracts';
 
@@ -111,4 +115,16 @@ export function fetchPlayerMatchRatings(
     `/api/v1/teams/${teamId}/players/${playerId}/match-ratings`,
     PlayerMatchRatingsResponseSchema,
   );
+}
+
+/** Los torneos del equipo (2026-10-28): los partidos de campeonato son de uno. */
+export function fetchTournaments(teamId: string): Promise<TournamentListResponse> {
+  return apiRequest(`/api/v1/teams/${teamId}/tournaments`, TournamentListResponseSchema);
+}
+
+export function createTournament(teamId: string, name: string): Promise<TournamentResponse> {
+  return apiRequest(`/api/v1/teams/${teamId}/tournaments`, TournamentResponseSchema, {
+    method: 'POST',
+    body: JSON.stringify({ name }),
+  });
 }

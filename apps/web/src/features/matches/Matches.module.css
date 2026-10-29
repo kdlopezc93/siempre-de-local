@@ -415,3 +415,39 @@
   outline: none;
   background: var(--sdl-surface);
 }
+
+/* Asignar el torneo a uno de campeonato de antes (2026-10-28): una tarjeta con su pregunta. */
+.assign {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.assignTitle {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+/* El icono del tipo en su mosaico de color: campeonato en sol, amistoso en agua, entreno en volt. */
+.kindIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-tint-2);
+  color: var(--sdl-on-tint);
+}
+
+.kindIcon[data-kind='friendly'] {
+  background: var(--sdl-tint-5);
+}
+
+.kindIcon[data-kind='training'] {
+  background: var(--sdl-tint-1);
+}

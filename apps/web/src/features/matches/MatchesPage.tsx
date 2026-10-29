@@ -1,13 +1,19 @@
 import type { Match } from '@sdl/contracts';
-import { matchTally } from '@sdl/domain';
-import { CalendarBlank } from '@phosphor-icons/react/dist/csr/CalendarBlank';
+import { isGame, matchTallyByKind } from '@sdl/domain';
+import type { Icon } from '@phosphor-icons/react';
+import { Barbell } from '@phosphor-icons/react/dist/csr/Barbell';
+import { Handshake } from '@phosphor-icons/react/dist/csr/Handshake';
+import { Trophy } from '@phosphor-icons/react/dist/csr/Trophy';
 import { Strategy } from '@phosphor-icons/react/dist/csr/Strategy';
+
+import { useState } from 'react';
 
 import type { Me } from '../../shared/api/auth';
 import { Row } from '../../shared/ui/Row';
+import { Segmented } from '../../shared/ui/Segmented';
 import { Screen } from '../../shared/ui/Screen';
 import { LeadTask } from '../../shared/ui/TaskCard';
-import { matchWhen, splitMatches } from './match-view';
+import { matchKindLine, matchTitle, matchWhen, splitMatches } from './match-view';
 import styles from './Matches.module.css';
 import { useMatches } from './use-matches';
 import { PageTitle } from '../../shared/ui/PageTitle';
@@ -27,9 +33,9 @@ export function MatchesPage({ me, teamId }: { me: Me; teamId: string }) {
       {staff && (
         <LeadTask
           to={`/equipos/${teamId}/partidos/nuevo`}
-          title="Convocar partido"
-          detail="Fecha, hora, lugar y rival; el equipo responde si va"
-          overline="Nuevo partido"
+          title="Convocar"
+          detail="Un partido de campeonato, un amistoso o un entreno"
+          overline="Nueva convocatoria"
         />
       )}
       {matches.isPending ? (
@@ -118,10 +124,30 @@ function MatchList({
   );
 }
 
-/** El balance: ganados, empatados y perdidos entre los jugados, y cuántos se cancelaron. */
+/** El icono de cada tipo: trofeo, apretón de manos, pesa (2026-10-28). */
+const KIND_ICON: Record<Match['kind'], Icon> = {
+  championship: Trophy,
+  friendly: Handshake,
+  training: Barbell,
+};
+
+const TALLY_KINDS = [
+  { value: 'championship', label: 'Campeonato' },
+  { value: 'friendly', label: 'Amistosos' },
+] as const;
+
+/**
+ * El balance por tipo (2026-10-28): ganados, empatados y perdidos entre los jugados, y cuántos
+ * se cancelaron; campeonato y amistosos por separado, los entrenos no suman.
+ */
 function Tally({ items }: { items: Match[] }) {
-  const tally = matchTally(items);
-  if (tally.played + tally.cancelled === 0) return null;
+  const byKind = matchTallyByKind(items);
+  const has = (k: 'championship' | 'friendly') => byKind[k].played + byKind[k].cancelled > 0;
+  const [kind, setKind] = useState<'championship' | 'friendly'>(
+    has('championship') || !has('friendly') ? 'championship' : 'friendly',
+  );
+  if (!has('championship') && !has('friendly')) return null;
+  const tally = byKind[kind];
   const tiles = [
     ['Ganados', tally.won],
     ['Empatados', tally.drawn],
@@ -136,6 +162,9 @@ function Tally({ items }: { items: Match[] }) {
           ({tally.played} {tally.played === 1 ? 'jugado' : 'jugados'})
         </span>
       </h2>
+      {has('championship') && has('friendly') && (
+        <Segmented label="Balance de" options={TALLY_KINDS} value={kind} onChange={setKind} />
+      )}
       <StatGrid columns={2}>
         {tiles.map(([label, value]) => (
           <StatTile
@@ -162,16 +191,24 @@ function MatchRow({
   staff: boolean;
   player: boolean;
 }) {
+  const KindIcon = KIND_ICON[match.kind];
   return (
     <Row
       to={`/equipos/${teamId}/partidos/${match.id}`}
       leading={
-        <span className={styles.icon} aria-hidden="true">
-          <CalendarBlank size={22} />
+        <span className={styles.kindIcon} data-kind={match.kind} aria-hidden="true">
+          <KindIcon size={22} />
         </span>
       }
-      title={match.opponent}
-      meta={`${matchWhen(match.startsAt)}, ${match.place}`}
+      title={matchTitle(match)}
+      meta={
+        <>
+          {matchWhen(match.startsAt)}
+          <br />
+          {/* El entreno ya lo dice el título: abajo, dónde. */}
+          {isGame(match.kind) ? matchKindLine(match) : match.place}
+        </>
+      }
       trailing={<RowStatus match={match} staff={staff} player={player} />}
     />
   );
@@ -192,7 +229,10 @@ function RowStatus({ match, staff, player }: { match: Match; staff: boolean; pla
       </span>
     );
   }
-  if (staff && !match.open) return <Badge tone="warning">Cargar resultado</Badge>;
+  // El entreno no tiene resultado (2026-10-28).
+  if (staff && !match.open && isGame(match.kind)) {
+    return <Badge tone="warning">Cargar resultado</Badge>;
+  }
   if (player && match.open && !match.myReply) return <Badge tone="warning">Responder</Badge>;
   if (player && match.myReply) {
     return match.myReply === 'yes' ? (
