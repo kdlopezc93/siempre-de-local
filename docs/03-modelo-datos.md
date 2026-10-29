@@ -53,7 +53,7 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 
 ## 3. Organización y membresías
 
-**club** — `id, name, slug unique`
+**club** — `id, name, slug unique, city text null`. `city` (ciudad o barrio, migración `0026_club_city_team_category`, 2026-10-29) la pide "Crear mi club"; null en los de antes. El slug lo arma la app con el nombre (sin tildes, minúsculas y guiones) y, si ya existe, le suma `-2`, `-3`…
 
 **club_membership** — `club_id, user_id, role club_role ('owner','admin')` · PK (club_id, user_id)
 
@@ -67,6 +67,7 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 | name | text | |
 | format | enum `match_format` (`F8`,`F11`) | |
 | season | text | |
+| category | text null | Categoría libre ("Veteranos", "Femenino"…), 2026-10-29, migración `0026` |
 | ratings_visible_to_players | boolean default true | ¿el jugador ve su tarjeta? (D8) |
 | match_ratings_visible_to_players | boolean default true | ¿el jugador ve su evaluación de cada partido? (D18) |
 | archived_at | timestamptz null | |

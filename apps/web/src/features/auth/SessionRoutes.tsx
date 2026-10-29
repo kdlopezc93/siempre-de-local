@@ -27,6 +27,7 @@ const screens = {
   invite: () => import('../team-admin/InvitePage'),
   roles: () => import('../team-roles/TeamRolesPage'),
   clubCodes: () => import('../platform/ClubCodesPage'),
+  createClub: () => import('../create-club/CreateClubPage'),
   squad: () => import('../squad/SquadPage'),
   assess: () => import('../squad/AssessPage'),
   playerProfile: () => import('../squad/PlayerProfilePage'),
@@ -57,6 +58,9 @@ const ProfilePage = lazy(() => screens.profile().then((m) => ({ default: m.Profi
 const InvitePage = lazy(() => screens.invite().then((m) => ({ default: m.InvitePage })));
 const TeamRolesPage = lazy(() => screens.roles().then((m) => ({ default: m.TeamRolesPage })));
 const ClubCodesPage = lazy(() => screens.clubCodes().then((m) => ({ default: m.ClubCodesPage })));
+const CreateClubPage = lazy(() =>
+  screens.createClub().then((m) => ({ default: m.CreateClubPage })),
+);
 const SquadPage = lazy(() => screens.squad().then((m) => ({ default: m.SquadPage })));
 const AssessPage = lazy(() => screens.assess().then((m) => ({ default: m.AssessPage })));
 const PlayerProfilePage = lazy(() =>
@@ -175,6 +179,19 @@ export function JoinRoute() {
   return (
     <Suspense fallback={<SessionPending />}>
       <JoinPage code={code} me={session.data} />
+    </Suspense>
+  );
+}
+
+/** "/crear-club/:code?" — crear mi club con un código de alta; con o sin sesión, como unirse. */
+export function CreateClubRoute() {
+  const { code = '' } = useParams();
+  const session = useSession();
+  if (session.isPending) return <SessionPending />;
+  if (session.isError) return <SessionError retry={() => void session.refetch()} />;
+  return (
+    <Suspense fallback={<SessionPending />}>
+      <CreateClubPage code={code} me={session.data} />
     </Suspense>
   );
 }

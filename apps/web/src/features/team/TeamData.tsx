@@ -37,7 +37,7 @@ export function TeamData({ teamId, editable }: { teamId: string; editable: boole
       {editing ? (
         <TeamDataForm
           teamId={teamId}
-          initial={{ name: t.name, format: t.format, formats: t.formats }}
+          initial={{ name: t.name, category: t.category, format: t.format, formats: t.formats }}
           onDone={() => setEditing(false)}
         />
       ) : (
@@ -46,6 +46,18 @@ export function TeamData({ teamId, editable }: { teamId: string; editable: boole
             <dt>Nombre</dt>
             <dd>{t.name}</dd>
           </div>
+          {t.category && (
+            <div>
+              <dt>Categoría</dt>
+              <dd>{t.category}</dd>
+            </div>
+          )}
+          {t.club.city && (
+            <div>
+              <dt>Ciudad o barrio</dt>
+              <dd>{t.club.city}</dd>
+            </div>
+          )}
           <div>
             <dt>Juega</dt>
             <dd>{formatsLabel(t.formats, t.format)}</dd>
@@ -72,20 +84,23 @@ function TeamDataForm({
   onDone,
 }: {
   teamId: string;
-  initial: { name: string; format: MatchFormat; formats: MatchFormat[] };
+  initial: { name: string; category: string | null; format: MatchFormat; formats: MatchFormat[] };
   onDone: () => void;
 }) {
   const update = useUpdateTeam(teamId);
   const queryClient = useQueryClient();
   const [name, setName] = useState(initial.name);
+  const [category, setCategory] = useState(initial.category ?? '');
   const [formats, setFormats] = useState<MatchFormat[]>(initial.formats);
   const [format, setFormat] = useState<MatchFormat>(initial.format);
   const [invalid, setInvalid] = useState<string | null>(null);
   const nameId = useId();
+  const categoryId = useId();
   // El principal siempre entre los marcados.
   const principal = formats.includes(format) ? format : (formats[0] ?? format);
   const guard = useUnsavedChanges(
     name !== initial.name ||
+      category.trim() !== (initial.category ?? '') ||
       principal !== initial.format ||
       formats.join() !== initial.formats.join(),
   );
@@ -104,7 +119,13 @@ function TeamDataForm({
     if (formats.length === 0) return setInvalid('Marca al menos un formato.');
     setInvalid(null);
     update.mutate(
-      { name: name.trim(), formats, format: principal },
+      {
+        name: name.trim(),
+        // Solo si cambió; vacía la quita.
+        ...(category.trim() !== (initial.category ?? '') ? { category: category.trim() } : {}),
+        formats,
+        format: principal,
+      },
       {
         onSuccess: () => {
           // El nombre y los formatos también salen en el encabezado (vienen de /me).
@@ -138,6 +159,18 @@ function TeamDataForm({
         className={styles.input}
         value={name}
         onChange={(e) => setName(e.target.value)}
+      />
+      <label htmlFor={categoryId} className={styles.label}>
+        Categoría <span className={styles.hint}>Opcional: libre, veteranos, femenino…</span>
+      </label>
+      <input
+        id={categoryId}
+        name="category"
+        autoComplete="off"
+        maxLength={40}
+        className={styles.input}
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
       />
       <fieldset className={styles.fieldset}>
         <legend className={styles.label}>Formatos en que juega</legend>

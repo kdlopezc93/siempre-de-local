@@ -88,3 +88,13 @@
   outline: none;
   background: var(--sdl-surface);
 }
+
+/* Armar su propio club (2026-10-29): discreto, debajo de la invitación. */
+.createLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--sdl-touch-min);
+  color: var(--sdl-fg);
+  text-underline-offset: 4px;
+  touch-action: manipulation;
+}

@@ -87,7 +87,8 @@ describe('GET /api/v1/teams/:teamId', () => {
         format: 'F11',
         formats: ['F11'],
         season: '2026',
-        club: { id: expect.any(String), name: 'Los del Barrio' },
+        category: null,
+        club: { id: expect.any(String), name: 'Los del Barrio', city: null },
         ratingsVisibleToPlayers: true,
         matchRatingsVisibleToPlayers: true,
       },
@@ -121,6 +122,12 @@ describe('GET /api/v1/teams/:teamId', () => {
     expect(orphan.json()).toMatchObject({ error: { code: 'TEAM_FORMAT_NOT_PLAYED' } });
     const switched = await patch(teamId, coach, { format: 'F8', formats: ['F8'] });
     expect(switched.json()).toMatchObject({ team: { format: 'F8', formats: ['F8'] } });
+
+    // La categoría (2026-10-29): libre; vacía la quita.
+    const veterans = await patch(teamId, coach, { category: ' Veteranos ' });
+    expect(TeamResponseSchema.parse(veterans.json()).team.category).toBe('Veteranos');
+    const cleared = await patch(teamId, coach, { category: '' });
+    expect(TeamResponseSchema.parse(cleared.json()).team.category).toBeNull();
 
     // Lo deja como estaba para los demás tests.
     await patch(teamId, coach, { name: 'Primer equipo', format: 'F11', formats: ['F11'] });

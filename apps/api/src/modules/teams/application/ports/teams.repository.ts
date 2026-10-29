@@ -6,7 +6,8 @@ export interface TeamRecord {
   format: MatchFormat;
   formats: MatchFormat[];
   season: string;
-  club: { id: string; name: string };
+  category: string | null;
+  club: { id: string; name: string; city: string | null };
   ratingsVisibleToPlayers: boolean;
   matchRatingsVisibleToPlayers: boolean;
 }
@@ -15,7 +16,12 @@ export interface TeamRecord {
 export type TeamSettings = Partial<
   Pick<
     TeamRecord,
-    'ratingsVisibleToPlayers' | 'matchRatingsVisibleToPlayers' | 'name' | 'format' | 'formats'
+    | 'ratingsVisibleToPlayers'
+    | 'matchRatingsVisibleToPlayers'
+    | 'name'
+    | 'category'
+    | 'format'
+    | 'formats'
   >
 >;
 

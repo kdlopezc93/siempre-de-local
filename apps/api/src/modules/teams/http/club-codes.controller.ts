@@ -1,17 +1,32 @@
-import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import {
   type ClubCodeListResponse,
+  type ClubCodePreviewResponse,
   CreateClubCodeRequestSchema,
   type CreateClubCodeResponse,
+  CreateClubRequestSchema,
+  type CreateClubResponse,
 } from '@sdl/contracts';
 import { z } from 'zod';
 
 import { ENV } from '../../../config/config.module.js';
 import type { Env } from '../../../config/env.js';
 import { CurrentSession } from '../../../shared/authz/current-session.decorator.js';
+import { Public } from '../../../shared/authz/public.decorator.js';
 import { parseInput } from '../../../shared/http/validation.js';
 import type { AuthSession } from '../../identity/application/ports/identity-provider.port.js';
-import { ClubCodes } from '../application/club-codes.use-cases.js';
+import { ClubCodes, CreateClub } from '../application/club-codes.use-cases.js';
 
 const actorOf = (session: AuthSession) => ({
   userId: session.user.id,
@@ -46,5 +61,26 @@ export class ClubCodesController {
   @HttpCode(204)
   async revoke(@CurrentSession() session: AuthSession, @Param('id') id: string): Promise<void> {
     await this.codes.revoke(actorOf(session), parseInput(z.uuid(), id));
+  }
+}
+
+/** Ver si un código de alta sirve y crear el club con él; 20 por minuto y por IP. */
+@Controller()
+@UseGuards(ThrottlerGuard)
+export class CreateClubController {
+  constructor(private readonly createClub: CreateClub) {}
+
+  @Public()
+  @Get('club-codes/:code')
+  preview(@Param('code') code: string): Promise<ClubCodePreviewResponse> {
+    return this.createClub.preview(code);
+  }
+
+  @Post('clubs')
+  create(
+    @CurrentSession() session: AuthSession,
+    @Body() body: unknown,
+  ): Promise<CreateClubResponse> {
+    return this.createClub.execute(session.user.id, parseInput(CreateClubRequestSchema, body));
   }
 }

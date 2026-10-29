@@ -3,7 +3,11 @@ import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import {
   ClubCodeListResponseSchema,
   CreateClubCodeResponseSchema,
+  CreateClubResponseSchema,
+  ErrorBodySchema,
   MeResponseSchema,
+  POLICY_VERSION,
+  TeamResponseSchema,
 } from '@sdl/contracts';
 import { eq } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
@@ -13,7 +17,7 @@ import { bootApp, TEST_ENV } from '../../../test/app.js';
 import { startMigratedPostgres } from '../../../test/postgres.js';
 import { seedUserWithSession, type SeededUser } from '../../../test/sessions.js';
 import { user } from '../../identity/infrastructure/schema.js';
-import { clubSignupCode } from '../infrastructure/schema.js';
+import { club, clubSignupCode } from '../infrastructure/schema.js';
 
 describe('códigos de alta de clubes (2026-10-29)', () => {
   let container: StartedPostgreSqlContainer;
@@ -117,5 +121,100 @@ describe('códigos de alta de clubes (2026-10-29)', () => {
     expect((await app.inject({ method: 'GET', url: '/api/v1/admin/club-codes' })).statusCode).toBe(
       401,
     );
+  });
+
+  describe('crear mi club con el código', () => {
+    const newCode = async () =>
+      CreateClubCodeResponseSchema.parse(
+        (await call('POST', '/admin/club-codes', admin, {})).json(),
+      ).code;
+    const form = (code: string, extra: object = {}) => ({
+      code,
+      clubName: 'Los Tigres del Sur',
+      city: 'Bosa',
+      teamName: 'Tigres',
+      category: 'Veteranos',
+      format: 'F8',
+      season: '2026',
+      alsoPlays: true,
+      ...extra,
+    });
+    const code4 = (res: { json: () => unknown }) => ErrorBodySchema.parse(res.json()).error.code;
+
+    it('sin sesión ve si el código sirve; con uno que no existe, 404', async () => {
+      const code = await newCode();
+      const ok = await app.inject({
+        method: 'GET',
+        url: `/api/v1/club-codes/${code.toLowerCase()}`,
+      });
+      expect(ok.statusCode).toBe(200);
+      const missing = await app.inject({ method: 'GET', url: '/api/v1/club-codes/AAAAAAAAAA' });
+      expect(missing.statusCode).toBe(404);
+      expect(code4(missing)).toBe('CLUB_CODE_NOT_FOUND');
+    });
+
+    it('sin la política aceptada no lo crea', async () => {
+      const res = await call('POST', '/clubs', someone, form(await newCode()));
+      expect(res.statusCode).toBe(403);
+      expect(code4(res)).toBe('CONSENT_REQUIRED');
+    });
+
+    it('crea el club y su equipo: dueño, entrenador y jugador; el código queda usado', async () => {
+      await call('POST', '/me/consent', someone, {
+        policyVersion: POLICY_VERSION,
+        ageConfirmed: true,
+      });
+      const code = await newCode();
+      const res = await call('POST', '/clubs', someone, form(code));
+      expect(res.statusCode).toBe(201);
+      const { clubId, teamId } = CreateClubResponseSchema.parse(res.json());
+
+      const me = MeResponseSchema.parse((await call('GET', '/me', someone)).json());
+      expect(me.clubs).toEqual([{ id: clubId, name: 'Los Tigres del Sur', role: 'owner' }]);
+      expect(me.teams.find((t) => t.team.id === teamId)?.roles.sort()).toEqual(['coach', 'player']);
+      const team = TeamResponseSchema.parse(
+        (await call('GET', `/teams/${teamId}`, someone)).json(),
+      );
+      expect(team.team).toMatchObject({
+        name: 'Tigres',
+        format: 'F8',
+        formats: ['F8'],
+        season: '2026',
+      });
+      const [row] = await connection.db.select().from(club).where(eq(club.id, clubId));
+      expect(row).toMatchObject({ slug: 'los-tigres-del-sur', city: 'Bosa' });
+
+      const list = ClubCodeListResponseSchema.parse(
+        (await call('GET', '/admin/club-codes', admin)).json(),
+      );
+      expect(list.items.find((c) => c.club?.id === clubId)?.status).toBe('used');
+      const again = await call('POST', '/clubs', admin, form(code));
+      expect(again.statusCode).toBe(422);
+      expect(code4(again)).toBe('CLUB_CODE_USED');
+    });
+
+    it('dueño de un solo club: el segundo no gasta el código', async () => {
+      const code = await newCode();
+      const res = await call('POST', '/clubs', someone, form(code, { clubName: 'Otro' }));
+      expect(res.statusCode).toBe(409);
+      expect(code4(res)).toBe('CLUB_LIMIT_REACHED');
+      expect(
+        (await app.inject({ method: 'GET', url: `/api/v1/club-codes/${code}` })).statusCode,
+      ).toBe(200);
+    });
+
+    it('el nombre repetido recibe otro slug; valida el formulario', async () => {
+      await call('POST', '/me/consent', admin, {
+        policyVersion: POLICY_VERSION,
+        ageConfirmed: true,
+      });
+      const res = await call('POST', '/clubs', admin, form(await newCode(), { alsoPlays: false }));
+      const { clubId } = CreateClubResponseSchema.parse(res.json());
+      const [row] = await connection.db.select().from(club).where(eq(club.id, clubId));
+      expect(row!.slug).toBe('los-tigres-del-sur-2');
+      expect((await call('POST', '/clubs', admin, form('X', { format: 'F5' }))).statusCode).toBe(
+        400,
+      );
+    });
   });
 });

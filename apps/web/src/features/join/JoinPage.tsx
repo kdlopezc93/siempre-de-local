@@ -138,7 +138,8 @@ function Convocation({
   );
 }
 
-function SignInActions({ returnTo }: { returnTo: string }) {
+/** Entrar con Google y volver a `returnTo` (también lo usa Crear mi club). */
+export function SignInActions({ returnTo }: { returnTo: string }) {
   const [params] = useSearchParams();
   const signIn = useGoogleSignIn(returnTo);
   const opening = signIn.isPending || signIn.isSuccess;

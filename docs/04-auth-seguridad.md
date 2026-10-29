@@ -34,7 +34,7 @@ No hay registro abierto. Se entra por **invitación**:
 
 Implementación: código de 10 caracteres sin caracteres ambiguos (~50 bits), guardado solo como hash; caducidad de 1–30 días (7 por defecto) y usos de 1–100. **Límite de peticiones:** `GET /invitations/:code` y `POST /invitations/:code/accept` admiten 20 peticiones por minuto y por IP (`@nestjs/throttler`, en memoria; con varias instancias del API habría que pasar a un almacén compartido). Con 31^10 códigos posibles, adivinar uno es inviable a ese ritmo.
 
-Los admins de club se crean por script al inicio; ellos crean equipos e invitan entrenadores.
+Los clubes se crean con un **código de alta** (2026-10-29): el administrador de la plataforma lo genera en la app y quien lo usa crea su club y su primer equipo, y queda de dueño y entrenador (`POST /clubs`). `admin:bootstrap-team` sigue sirviendo para altas a mano. Los dueños y admins del club invitan entrenadores.
 
 ## 2. Autorización (qué puedes hacer)
 
