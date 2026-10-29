@@ -47,7 +47,8 @@ export const MyDataExportSchema = z.object({
   matches: z.array(
     z.object({
       team: z.string(),
-      opponent: z.string(),
+      /** null en los entrenamientos (2026-10-28). */
+      opponent: z.string().nullable(),
       startsAt: z.iso.datetime(),
       reply: z.enum(['yes', 'no']).nullable(),
       rating: z.int().nullable(),

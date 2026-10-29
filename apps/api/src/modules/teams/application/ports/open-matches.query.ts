@@ -6,7 +6,7 @@ export interface OpenMatchesQuery {
   openMatches(
     teamId: string,
     now: Date,
-  ): Promise<{ id: string; opponent: string; startsAt: Date }[]>;
+  ): Promise<{ id: string; opponent: string | null; startsAt: Date }[]>;
 }
 
 export const OPEN_MATCHES_QUERY = Symbol('OPEN_MATCHES_QUERY');

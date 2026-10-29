@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import {
   CreateMatchRequestSchema,
+  CreateTournamentRequestSchema,
   type MatchListResponse,
   MatchRatingRequestSchema,
   type MatchRatingsResponse,
@@ -8,6 +9,8 @@ import {
   type MatchResponse,
   MatchResultRequestSchema,
   type PlayerMatchRatingsResponse,
+  type TournamentListResponse,
+  type TournamentResponse,
   UpdateMatchRequestSchema,
 } from '@sdl/contracts';
 import { z } from 'zod';
@@ -159,5 +162,31 @@ export class PlayerMatchRatingsController {
     @Param('playerId') playerId: string,
   ): Promise<PlayerMatchRatingsResponse> {
     return this.matches.playerRatings(actor, teamId, parseInput(z.uuid(), playerId));
+  }
+}
+
+/** Los torneos del equipo (2026-10-28): los partidos de campeonato son de uno. */
+@Controller('teams/:teamId/tournaments')
+export class TournamentsController {
+  constructor(private readonly matches: Matches) {}
+
+  @Get()
+  @Can('team.read', { teamParam: 'teamId' })
+  async list(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+  ): Promise<TournamentListResponse> {
+    return { items: await this.matches.tournaments(actor, teamId) };
+  }
+
+  @Post()
+  @Can('team.matches.write', { teamParam: 'teamId' })
+  async create(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Body() body: unknown,
+  ): Promise<TournamentResponse> {
+    const { name } = parseInput(CreateTournamentRequestSchema, body);
+    return { tournament: await this.matches.createTournament(actor, teamId, name) };
   }
 }

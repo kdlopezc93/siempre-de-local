@@ -146,9 +146,10 @@ export class InvitationRedemption {
    */
   private async callToOpenMatches(teamId: string, userId: string, now: Date) {
     for (const match of await this.matches.openMatches(teamId, now)) {
+      // Sin rival es un entrenamiento (2026-10-28): su propio aviso.
       await this.notifier.notifyUsers([userId], {
-        kind: 'match-called',
-        opponent: match.opponent,
+        kind: match.opponent === null ? 'training-called' : 'match-called',
+        opponent: match.opponent ?? 'Entrenamiento',
         startsAt: match.startsAt.toISOString(),
         url: `/equipos/${teamId}/partidos/${match.id}`,
       });

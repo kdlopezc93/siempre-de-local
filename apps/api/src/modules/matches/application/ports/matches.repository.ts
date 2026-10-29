@@ -1,12 +1,22 @@
-import type { MatchFormat, MatchRatingValue, MatchReply, MatchStatus } from '@sdl/contracts';
+import type {
+  MatchFormat,
+  MatchKind,
+  MatchRatingValue,
+  MatchReply,
+  MatchStatus,
+} from '@sdl/contracts';
 
 export interface MatchRecord {
   id: string;
   teamId: string;
+  kind: MatchKind;
+  /** El torneo, en los de campeonato (null en los de antes hasta asignarlo). */
+  tournament: { id: string; name: string } | null;
   format: MatchFormat;
   startsAt: Date;
   place: string;
-  opponent: string;
+  /** null en los entrenamientos. */
+  opponent: string | null;
   status: MatchStatus;
   createdBy: { id: string; name: string } | null;
   lineupId: string | null;
@@ -42,18 +52,22 @@ export interface PlayerMatchRatingRecord {
   note: string | null;
 }
 
+export interface TournamentRecord {
+  id: string;
+  name: string;
+  createdAt: Date;
+}
+
+/** Lo que se guarda al convocar o editar (el torneo, por su id). */
+export type MatchData = Pick<MatchRecord, 'kind' | 'format' | 'startsAt' | 'place' | 'opponent'> & {
+  tournamentId: string | null;
+};
+
 export interface MatchesRepository {
-  create(
-    teamId: string,
-    createdBy: string,
-    data: Pick<MatchRecord, 'format' | 'startsAt' | 'place' | 'opponent'>,
-  ): Promise<string>;
+  create(teamId: string, createdBy: string, data: MatchData): Promise<string>;
   find(teamId: string, matchId: string): Promise<MatchRecord | null>;
   listByTeam(teamId: string): Promise<MatchRecord[]>;
-  update(
-    matchId: string,
-    patch: Partial<Pick<MatchRecord, 'format' | 'startsAt' | 'place' | 'opponent' | 'status'>>,
-  ): Promise<void>;
+  update(matchId: string, patch: Partial<MatchData & Pick<MatchRecord, 'status'>>): Promise<void>;
   /** Respuestas por partido: partido → jugador → voy / no voy. */
   replies(matchIds: string[]): Promise<Map<string, Map<string, MatchReply>>>;
   setReply(matchId: string, userId: string, reply: MatchReply): Promise<void>;
@@ -70,6 +84,15 @@ export interface MatchesRepository {
   deleteRating(matchId: string, playerId: string): Promise<void>;
   /** Cómo le fue a un jugador en los partidos del equipo, del más reciente al más antiguo. */
   playerRatings(teamId: string, playerId: string): Promise<PlayerMatchRatingRecord[]>;
+  /** Los torneos del equipo, el más nuevo primero (2026-10-28). */
+  tournaments(teamId: string): Promise<TournamentRecord[]>;
+  findTournament(teamId: string, tournamentId: string): Promise<TournamentRecord | null>;
+  /** 'name-taken' si el equipo ya tiene uno con ese nombre (sin importar mayúsculas). */
+  createTournament(
+    teamId: string,
+    createdBy: string,
+    name: string,
+  ): Promise<TournamentRecord | 'name-taken'>;
 }
 
 export const MATCHES_REPOSITORY = Symbol('MATCHES_REPOSITORY');

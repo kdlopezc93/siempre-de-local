@@ -21,6 +21,8 @@ function noticeText(data, when) {
   switch (data.kind) {
     case 'match-called':
       return { title: `Te convocaron: ${data.opponent}`, body: `${when}. ¿Vas?` };
+    case 'training-called':
+      return { title: 'Te convocaron a entrenar', body: `${when}. ¿Vas?` };
     case 'lineup-published':
       return {
         title: `Ya está la alineación: ${data.opponent}`,

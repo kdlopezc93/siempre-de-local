@@ -2,6 +2,8 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import {
   MatchListResponseSchema,
+  TournamentListResponseSchema,
+  TournamentResponseSchema,
   MatchRatingsResponseSchema,
   MatchResponseSchema,
   PlayerMatchRatingsResponseSchema,
@@ -74,6 +76,7 @@ describe('partidos: convocar y responder (Fase 7)', () => {
     });
   const convocar = (over: object = {}) =>
     call('POST', '', coach, {
+      kind: 'friendly',
       format: 'F11',
       startsAt: inDays(3),
       place: 'Cancha de La 14',
@@ -127,6 +130,7 @@ describe('partidos: convocar y responder (Fase 7)', () => {
     expect(
       (
         await call('POST', '', ana, {
+          kind: 'friendly',
           format: 'F11',
           startsAt: inDays(3),
           place: 'X',
@@ -354,5 +358,101 @@ describe('partidos: convocar y responder (Fase 7)', () => {
         ratedBy: 'coach',
       }),
     );
+  });
+
+  it('torneos del equipo: el cuerpo técnico los crea, el nombre no se repite y todos los ven', async () => {
+    const tournaments = (method: 'GET' | 'POST', who: SeededUser, body?: object) =>
+      call(method, '', who, body, `/teams/${teamId}/tournaments`);
+    const created = await tournaments('POST', coach, { name: 'Liga del barrio 2026' });
+    expect(created.statusCode).toBe(201);
+    const { tournament } = TournamentResponseSchema.parse(created.json());
+    expect(tournament.name).toBe('Liga del barrio 2026');
+    // Sin importar mayúsculas.
+    const again = await tournaments('POST', coach, { name: 'liga del barrio 2026' });
+    expect(again.statusCode).toBe(409);
+    expect(again.json()).toMatchObject({ error: { code: 'TOURNAMENT_NAME_TAKEN' } });
+    expect((await tournaments('POST', ana, { name: 'Copa' })).statusCode).toBe(403);
+    const list = TournamentListResponseSchema.parse((await tournaments('GET', ana)).json());
+    expect(list.items.map((t) => t.name)).toContain('Liga del barrio 2026');
+  });
+
+  it('tipo de convocatoria: campeonato con su torneo, amistoso sin torneo, entreno sin rival', async () => {
+    const { tournament } = TournamentResponseSchema.parse(
+      (
+        await call('POST', '', coach, { name: 'Copa del barrio' }, `/teams/${teamId}/tournaments`)
+      ).json(),
+    );
+    const sinTorneo = await convocar({ kind: 'championship' });
+    expect(sinTorneo.statusCode).toBe(422);
+    expect(sinTorneo.json()).toMatchObject({
+      error: { code: 'MATCH_KIND_FIELDS', message: 'Elige el torneo.' },
+    });
+    const campeonato = MatchResponseSchema.parse(
+      (await convocar({ kind: 'championship', tournamentId: tournament.id })).json(),
+    ).match;
+    expect(campeonato).toMatchObject({
+      kind: 'championship',
+      tournament: { id: tournament.id, name: 'Copa del barrio' },
+    });
+    expect((await convocar({ tournamentId: tournament.id })).json()).toMatchObject({
+      error: { code: 'MATCH_KIND_FIELDS', message: 'Un amistoso no es de un torneo.' },
+    });
+
+    // El entreno: sin rival; con rival, no.
+    expect((await convocar({ kind: 'training' })).json()).toMatchObject({
+      error: { code: 'MATCH_KIND_FIELDS', message: 'Un entrenamiento no tiene rival.' },
+    });
+    const entreno = MatchResponseSchema.parse(
+      (await convocar({ kind: 'training', opponent: null })).json(),
+    ).match;
+    expect(entreno).toMatchObject({ kind: 'training', opponent: null, tournament: null });
+    // Se responde voy / no voy como siempre.
+    await call('PUT', `/${entreno.id}/reply`, ana, { reply: 'yes' });
+    // Pero no lleva resultado ni evaluaciones, ni aunque ya haya pasado la hora.
+    await connection.db
+      .update(teamMatch)
+      .set({ startsAt: new Date(Date.now() - 60_000) })
+      .where(eq(teamMatch.id, entreno.id));
+    const resultado = await call('PUT', `/${entreno.id}/result`, coach, {
+      goalsFor: 1,
+      goalsAgainst: 0,
+      figurePlayerId: null,
+    });
+    expect(resultado.json()).toMatchObject({ error: { code: 'MATCH_IS_TRAINING' } });
+    expect(
+      (await call('PUT', `/${entreno.id}/ratings/${ana.userId}`, coach, { rating: 4 })).json(),
+    ).toMatchObject({ error: { code: 'MATCH_IS_TRAINING' } });
+  });
+
+  it('los partidos de antes quedaron de campeonato sin torneo: se les asigna aunque tengan resultado', async () => {
+    const [viejo] = await connection.db
+      .insert(teamMatch)
+      .values({
+        teamId,
+        kind: 'championship',
+        format: 'F11',
+        startsAt: new Date(Date.now() - 7 * 86_400_000),
+        place: 'La 14',
+        opponent: 'Veteranos',
+        goalsFor: 2,
+        goalsAgainst: 1,
+        resultAt: new Date(),
+      })
+      .returning({ id: teamMatch.id });
+    const { tournament } = TournamentResponseSchema.parse(
+      (
+        await call('POST', '', coach, { name: 'Liga de antes' }, `/teams/${teamId}/tournaments`)
+      ).json(),
+    );
+    const asignado = await call('PATCH', `/${viejo!.id}`, coach, { tournamentId: tournament.id });
+    expect(asignado.statusCode).toBe(200);
+    expect(MatchResponseSchema.parse(asignado.json()).match.tournament).toEqual({
+      id: tournament.id,
+      name: 'Liga de antes',
+    });
+    // Lo demás sigue cerrado: tiene resultado.
+    expect((await call('PATCH', `/${viejo!.id}`, coach, { place: 'Otra' })).json()).toMatchObject({
+      error: { code: 'MATCH_CLOSED' },
+    });
   });
 });

@@ -2,17 +2,28 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { MatchRatingValue, MatchReply } from '@sdl/contracts';
 import { and, asc, desc, eq, gt, inArray, ne } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
+import { DatabaseError } from 'pg';
 
 import type { DbConnection } from '../../../shared/db/client.js';
 import { DB_CONNECTION } from '../../../shared/db/db.module.js';
 import { user } from '../../identity/infrastructure/schema.js';
 import type { OpenMatchesQuery } from '../../teams/application/ports/open-matches.query.js';
 import type {
+  MatchData,
   MatchesRepository,
   MatchRecord,
   MatchResultData,
 } from '../application/ports/matches.repository.js';
-import { matchRating, matchReply, teamMatch } from './schema.js';
+import { matchRating, matchReply, teamMatch, tournament } from './schema.js';
+
+const UNIQUE_VIOLATION = '23505';
+
+/** Drizzle envuelve el error de Postgres en `cause`. */
+function isUniqueViolation(error: unknown): boolean {
+  const cause =
+    error instanceof Error && error.cause instanceof DatabaseError ? error.cause : error;
+  return cause instanceof DatabaseError && cause.code === UNIQUE_VIOLATION;
+}
 
 const figure = alias(user, 'figure');
 const rater = alias(user, 'rater');
@@ -27,6 +38,9 @@ export class DrizzleMatchesRepository implements MatchesRepository, OpenMatchesQ
       .select({
         id: teamMatch.id,
         teamId: teamMatch.teamId,
+        kind: teamMatch.kind,
+        tournamentId: tournament.id,
+        tournamentName: tournament.name,
         format: teamMatch.format,
         startsAt: teamMatch.startsAt,
         place: teamMatch.place,
@@ -44,25 +58,24 @@ export class DrizzleMatchesRepository implements MatchesRepository, OpenMatchesQ
       })
       .from(teamMatch)
       .leftJoin(user, eq(teamMatch.createdBy, user.id))
-      .leftJoin(figure, eq(teamMatch.figurePlayerId, figure.id));
+      .leftJoin(figure, eq(teamMatch.figurePlayerId, figure.id))
+      .leftJoin(tournament, eq(teamMatch.tournamentId, tournament.id));
   }
 
   private toRecord(
     row: Awaited<ReturnType<DrizzleMatchesRepository['select']>>[number],
   ): MatchRecord {
-    const { creatorId, creatorName, figureId, figureName, ...rest } = row;
+    const { creatorId, creatorName, figureId, figureName, tournamentId, tournamentName, ...rest } =
+      row;
     return {
       ...rest,
+      tournament: tournamentId ? { id: tournamentId, name: tournamentName! } : null,
       createdBy: creatorId ? { id: creatorId, name: creatorName! } : null,
       figure: figureId ? { id: figureId, name: figureName! } : null,
     };
   }
 
-  async create(
-    teamId: string,
-    createdBy: string,
-    data: Pick<MatchRecord, 'format' | 'startsAt' | 'place' | 'opponent'>,
-  ) {
+  async create(teamId: string, createdBy: string, data: MatchData) {
     const [row] = await this.connection.db
       .insert(teamMatch)
       .values({ teamId, createdBy, ...data })
@@ -99,10 +112,7 @@ export class DrizzleMatchesRepository implements MatchesRepository, OpenMatchesQ
       .orderBy(asc(teamMatch.startsAt));
   }
 
-  async update(
-    matchId: string,
-    patch: Partial<Pick<MatchRecord, 'format' | 'startsAt' | 'place' | 'opponent' | 'status'>>,
-  ) {
+  async update(matchId: string, patch: Partial<MatchData & Pick<MatchRecord, 'status'>>) {
     await this.connection.db.update(teamMatch).set(patch).where(eq(teamMatch.id, matchId));
   }
 
@@ -211,6 +221,40 @@ export class DrizzleMatchesRepository implements MatchesRepository, OpenMatchesQ
         ),
       )
       .orderBy(desc(teamMatch.startsAt));
-    return rows.map((row) => ({ ...row, rating: row.rating as MatchRatingValue }));
+    // Solo los partidos tienen evaluaciones: los entrenamientos (sin rival) no llegan aquí.
+    return rows.map((row) => ({
+      ...row,
+      opponent: row.opponent ?? '',
+      rating: row.rating as MatchRatingValue,
+    }));
+  }
+
+  async tournaments(teamId: string) {
+    return this.connection.db
+      .select({ id: tournament.id, name: tournament.name, createdAt: tournament.createdAt })
+      .from(tournament)
+      .where(eq(tournament.teamId, teamId))
+      .orderBy(desc(tournament.createdAt));
+  }
+
+  async findTournament(teamId: string, tournamentId: string) {
+    const [row] = await this.connection.db
+      .select({ id: tournament.id, name: tournament.name, createdAt: tournament.createdAt })
+      .from(tournament)
+      .where(and(eq(tournament.teamId, teamId), eq(tournament.id, tournamentId)));
+    return row ?? null;
+  }
+
+  async createTournament(teamId: string, createdBy: string, name: string) {
+    try {
+      const [row] = await this.connection.db
+        .insert(tournament)
+        .values({ teamId, createdBy, name })
+        .returning({ id: tournament.id, name: tournament.name, createdAt: tournament.createdAt });
+      return row!;
+    } catch (error) {
+      if (isUniqueViolation(error)) return 'name-taken' as const;
+      throw error;
+    }
   }
 }

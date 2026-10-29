@@ -10,9 +10,17 @@ import type {
   MatchResultRequest,
   PlayerMatchRatingsResponse,
   Profile,
+  Tournament,
   UpdateMatchRequest,
 } from '@sdl/contracts';
-import { hasMatchStarted, isMatchEditable, isMatchOpen, replySummary } from '@sdl/domain';
+import {
+  hasMatchStarted,
+  isGame,
+  isMatchEditable,
+  isMatchOpen,
+  matchKindProblem,
+  replySummary,
+} from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
 import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
@@ -42,9 +50,17 @@ import {
 } from '../../teams/application/ports/teams.repository.js';
 import {
   MATCHES_REPOSITORY,
+  type MatchData,
   type MatchesRepository,
   type MatchRecord,
+  type TournamentRecord,
 } from './ports/matches.repository.js';
+
+const toTournament = (t: TournamentRecord): Tournament => ({
+  id: t.id,
+  name: t.name,
+  createdAt: t.createdAt.toISOString(),
+});
 
 const toEditable = (m: MatchRecord) => ({ status: m.status, hasResult: m.resultAt !== null });
 
@@ -56,6 +72,24 @@ const byJerseyThenName = (
 ) =>
   (a.jerseyNumber ?? 1000) - (b.jerseyNumber ?? 1000) ||
   a.displayName.localeCompare(b.displayName, 'es');
+
+/** El aviso de la convocatoria: el rival en los partidos; en el entreno, que es entreno. */
+function calledMessage(data: Pick<MatchData, 'kind' | 'opponent' | 'startsAt'>, url: string) {
+  return isGame(data.kind)
+    ? {
+        kind: 'match-called' as const,
+        opponent: data.opponent ?? '',
+        startsAt: data.startsAt.toISOString(),
+        url,
+      }
+    : {
+        kind: 'training-called' as const,
+        // El service worker viejo no conoce este aviso: muestra "Novedades del partido: Entrenamiento".
+        opponent: 'Entrenamiento',
+        startsAt: data.startsAt.toISOString(),
+        url,
+      };
+}
 
 /**
  * Partidos (Fase 7): el cuerpo técnico convoca, edita o cancela (hasta cargar el resultado);
@@ -123,15 +157,25 @@ export class Matches {
     if (startsAt <= now) {
       throw new BusinessRuleError('El partido tiene que ser más adelante.', 'MATCH_IN_PAST');
     }
-    const id = await this.matches.create(teamId, actor.userId, { ...request, startsAt });
-    await this.record(actor, teamId, id, 'match.created', { startsAt: request.startsAt });
-    // D16: también aparece en "lo que toca"; el aviso es un extra que no puede fallar esto.
-    await this.notifier.notifyUsers(await this.activePlayerIds(teamId), {
-      kind: 'match-called',
-      opponent: request.opponent,
-      startsAt: startsAt.toISOString(),
-      url: `/equipos/${teamId}/partidos/${id}`,
+    const data: MatchData = {
+      kind: request.kind,
+      format: request.format,
+      startsAt,
+      place: request.place,
+      opponent: request.opponent ?? null,
+      tournamentId: request.tournamentId ?? null,
+    };
+    await this.requireKindFields(teamId, data);
+    const id = await this.matches.create(teamId, actor.userId, data);
+    await this.record(actor, teamId, id, 'match.created', {
+      startsAt: request.startsAt,
+      kind: request.kind,
     });
+    // D16: también aparece en "lo que toca"; el aviso es un extra que no puede fallar esto.
+    await this.notifier.notifyUsers(
+      await this.activePlayerIds(teamId),
+      calledMessage(data, `/equipos/${teamId}/partidos/${id}`),
+    );
     return this.get(actor, teamId, id, now);
   }
 
@@ -144,8 +188,21 @@ export class Matches {
   ) {
     const team = await this.authorize(actor, teamId, 'team.matches.write');
     const record = await this.findOr404(teamId, matchId);
-    this.requireEditable(record);
+    // Asignarle el torneo a uno de campeonato se puede siempre, aunque ya tenga resultado: los de
+    // antes del 2026-10-28 quedaron sin torneo (Kevin). Lo demás, solo mientras sea editable.
+    const onlyTournament =
+      Object.keys(patch).length === 1 && patch.tournamentId && record.kind === 'championship';
+    if (!onlyTournament) this.requireEditable(record);
     if (patch.format) this.requirePlayedFormat(team, patch.format);
+    if ('kind' in patch || 'opponent' in patch || 'tournamentId' in patch) {
+      const kind = patch.kind ?? record.kind;
+      await this.requireKindFields(teamId, {
+        kind,
+        opponent: patch.opponent !== undefined ? patch.opponent : record.opponent,
+        tournamentId:
+          patch.tournamentId !== undefined ? patch.tournamentId : (record.tournament?.id ?? null),
+      });
+    }
     const startsAt = patch.startsAt ? new Date(patch.startsAt) : undefined;
     // Uno por jugar no se pasa al pasado; uno que ya pasó sí se corrige a otra hora pasada.
     if (startsAt && startsAt <= now && isMatchOpen(record, now)) {
@@ -189,6 +246,7 @@ export class Matches {
   ): Promise<MatchResponse> {
     await this.authorize(actor, teamId, 'team.matches.write');
     const record = await this.findOr404(teamId, matchId);
+    this.requireGame(record);
     this.requireStarted(record, now);
     if (request.figurePlayerId) await this.requirePlayer(teamId, request.figurePlayerId);
     await this.matches.setResult(matchId, { ...request, resultAt: now });
@@ -201,7 +259,7 @@ export class Matches {
     if (request.figurePlayerId && request.figurePlayerId !== record.figure?.id) {
       await this.notifier.notifyUsers([request.figurePlayerId], {
         kind: 'match-figure',
-        opponent: record.opponent,
+        opponent: record.opponent ?? '',
         startsAt: record.startsAt.toISOString(),
         url: `/equipos/${teamId}/partidos/${matchId}`,
       });
@@ -246,6 +304,7 @@ export class Matches {
   ): Promise<MatchRatingsResponse> {
     await this.authorize(actor, teamId, 'team.ratings.write');
     const record = await this.findOr404(teamId, matchId);
+    this.requireGame(record);
     this.requireStarted(record, now);
     await this.requirePlayer(teamId, playerId);
     await this.requireRatable(actor, teamId, playerId);
@@ -284,6 +343,32 @@ export class Matches {
     return { items: rows.map((r) => ({ ...r, startsAt: r.startsAt.toISOString() })) };
   }
 
+  /** Los torneos del equipo (2026-10-28): para elegir uno al convocar de campeonato. */
+  async tournaments(actor: Actor, teamId: string): Promise<Tournament[]> {
+    await this.authorize(actor, teamId, 'team.read');
+    return (await this.matches.tournaments(teamId)).map(toTournament);
+  }
+
+  async createTournament(actor: Actor, teamId: string, name: string): Promise<Tournament> {
+    await this.authorize(actor, teamId, 'team.matches.write');
+    const created = await this.matches.createTournament(teamId, actor.userId, name);
+    if (created === 'name-taken') {
+      throw new ConflictError(
+        'El equipo ya tiene un torneo con ese nombre.',
+        'TOURNAMENT_NAME_TAKEN',
+      );
+    }
+    await this.audit.record({
+      actorUserId: actor.userId,
+      action: 'tournament.created',
+      entity: 'tournament',
+      entityId: created.id,
+      teamId,
+      meta: {},
+    });
+    return toTournament(created);
+  }
+
   private async toMatches(
     records: MatchRecord[],
     actor: Actor,
@@ -305,10 +390,12 @@ export class Matches {
       const summary = replySummary(playerIds, matchReplies, injured);
       return {
         id: m.id,
+        kind: m.kind,
         format: m.format,
         startsAt: m.startsAt.toISOString(),
         place: m.place,
         opponent: m.opponent,
+        tournament: m.tournament,
         status: m.status,
         open: isMatchOpen(m, now),
         editable: isMatchEditable(toEditable(m)),
@@ -367,6 +454,28 @@ export class Matches {
     const staff = await this.players.activeStaff(teamId);
     if (!ratableBy(actor, teamId, staff)(playerId)) {
       throw new ForbiddenError(cannotRateMessage(actor, playerId), 'CANNOT_RATE_PLAYER');
+    }
+  }
+
+  /** Rival y torneo según el tipo (dominio), y que el torneo sea de este equipo. */
+  private async requireKindFields(
+    teamId: string,
+    data: Pick<MatchData, 'kind' | 'opponent' | 'tournamentId'>,
+  ) {
+    const problem = matchKindProblem(data);
+    if (problem) throw new BusinessRuleError(problem, 'MATCH_KIND_FIELDS');
+    if (data.tournamentId && !(await this.matches.findTournament(teamId, data.tournamentId))) {
+      throw new BusinessRuleError('Ese torneo no es del equipo.', 'TOURNAMENT_NOT_FOUND');
+    }
+  }
+
+  /** Un entrenamiento es convocatoria y asistencia: sin resultado ni evaluaciones. */
+  private requireGame(record: MatchRecord) {
+    if (!isGame(record.kind)) {
+      throw new BusinessRuleError(
+        'Un entrenamiento no tiene resultado ni evaluaciones.',
+        'MATCH_IS_TRAINING',
+      );
     }
   }
 

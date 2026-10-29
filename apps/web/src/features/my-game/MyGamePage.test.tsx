@@ -152,6 +152,8 @@ describe('Mi juego (07 §4.3)', () => {
   it('tus últimos partidos: el marcador, cómo jugaste y si fuiste la figura (D18)', async () => {
     const played = (id: string, opponent: string, over: object) => ({
       id,
+      kind: 'friendly',
+      tournament: null,
       format: 'F11',
       startsAt: '2026-11-01T15:00:00.000Z',
       place: 'La 14',

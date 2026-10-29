@@ -217,7 +217,7 @@ function ResultBoard({
         <span className={styles.dash} aria-hidden="true">
           –
         </span>
-        <Goals side={match.opponent} value={goalsAgainst} onChange={setGoalsAgainst} />
+        <Goals side={match.opponent ?? ''} value={goalsAgainst} onChange={setGoalsAgainst} />
       </div>
 
       <div className={styles.figure}>
@@ -368,7 +368,7 @@ export function MatchResultView({
         <span className={styles.dash} aria-hidden="true">
           –
         </span>
-        <Goals side={match.opponent} value={result.goalsAgainst} />
+        <Goals side={match.opponent ?? ''} value={result.goalsAgainst} />
       </div>
       {result.figure && (
         <div className={styles.figure}>

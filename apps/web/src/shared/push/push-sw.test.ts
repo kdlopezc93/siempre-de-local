@@ -59,6 +59,23 @@ describe('avisos en el service worker', () => {
     expect(calls[0]![1].data.url).toBe('/equipos/t/partidos/m');
   });
 
+  it('la convocatoria a entrenar no habla de rival (2026-10-28)', async () => {
+    const { fire, showNotification } = loadWorker();
+    await fire(
+      'push',
+      push({
+        kind: 'training-called',
+        opponent: 'Entrenamiento',
+        startsAt: '2026-11-01T15:00:00.000Z',
+        url: '/equipos/t/partidos/m',
+      }),
+    );
+    expect(showNotification).toHaveBeenCalledWith(
+      'Te convocaron a entrenar',
+      expect.objectContaining({ body: expect.stringMatching(/¿Vas\?$/) }),
+    );
+  });
+
   it('la figura del partido: la felicitación (D18)', async () => {
     const { fire, showNotification } = loadWorker();
     await fire(

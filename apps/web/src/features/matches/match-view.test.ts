@@ -5,6 +5,8 @@ import { fromLocalInputs, splitMatches, toLocalInputs } from './match-view';
 
 const match = (id: string, startsAt: string, open: boolean): Match => ({
   id,
+  kind: 'friendly',
+  tournament: null,
   format: 'F11',
   startsAt,
   place: 'La 14',

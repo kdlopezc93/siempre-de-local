@@ -4,8 +4,11 @@
  */
 export type PushMessage =
   | {
-      /** Convocatoria, alineación publicada o figura del partido (felicitación, D18). */
-      kind: 'match-called' | 'lineup-published' | 'match-figure';
+      /**
+       * Convocatoria (a un partido o a un entreno), alineación publicada o figura del partido
+       * (felicitación, D18).
+       */
+      kind: 'match-called' | 'training-called' | 'lineup-published' | 'match-figure';
       /** El rival: lo único del partido que viaja (la hora la formatea el celular). */
       opponent: string;
       startsAt: string;
