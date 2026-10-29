@@ -15,7 +15,7 @@ import { KnowledgePage } from './KnowledgePage';
 const TEAM_ID = uuid(9);
 const EXAM_ID = uuid(50);
 const me: Me = {
-  user: { id: uuid(8), name: 'Ana', email: 'ana@example.com' },
+  user: { id: uuid(8), name: 'Ana', email: 'ana@example.com', platformAdmin: false },
   consent: { policyVersion: 'x', acceptedAt: '2026-10-21T10:00:00.000Z' },
   teams: [
     {

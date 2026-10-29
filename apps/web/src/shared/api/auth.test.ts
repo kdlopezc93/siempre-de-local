@@ -10,7 +10,12 @@ function jsonResponse(status: number, body: unknown): Response {
   });
 }
 
-const USER = { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f70', name: 'Kevin', email: 'k@example.com' };
+const USER = {
+  id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f70',
+  name: 'Kevin',
+  email: 'k@example.com',
+  platformAdmin: false,
+};
 
 describe('cliente de identidad', () => {
   afterEach(() => vi.unstubAllGlobals());

@@ -17,6 +17,7 @@
     "quiz:lint": "tsc -p tsconfig.build.json && node dist/scripts/lint-orientation.js",
     "admin:bootstrap-team": "node --env-file-if-exists=.env dist/scripts/bootstrap-team.js",
     "admin:seed-demo": "node --env-file-if-exists=.env dist/scripts/seed-demo.js",
+    "admin:platform-admin": "node --env-file-if-exists=.env dist/scripts/platform-admin.js",
     "db:migrate:prod": "node dist/scripts/migrate.js"
   },
   "dependencies": {

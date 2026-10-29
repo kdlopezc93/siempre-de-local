@@ -162,17 +162,19 @@ Elegidos por Kevin el 2026-10-23, antes del staging o la Fase 8: cosas chicas qu
 | 8 | Al que entra tarde le llega la convocatoria de los partidos abiertos | #100 ✔ |
 | 9 | El cuerpo técnico les recuerda el test a los que no lo han hecho | #101 ✔ |
 | 10 | Tipo de convocatoria (Kevin, 2026-10-28): campeonato (con su torneo, obligatorio), amistoso o entrenamiento (solo convocatoria y asistencia: sin rival, alineación, resultado ni evaluaciones). Tabla `tournament` por equipo, pensada para relacionarla después con los cobros. Balance separado por tipo. Los partidos anteriores quedan de campeonato y el cuerpo técnico les asigna el torneo después (02 §13) | API #118 ✔, app #119 ✔ |
-| 11 | Posición de la tarjeta elegida aparte (Kevin, 2026-10-29): campo nuevo en la foto, elegido al puntuar (viene la anterior o la de su valoración); la tarjeta la encabeza y dice su mejor media aparte (02 §7.4) | |
+| 11 | Posición de la tarjeta elegida aparte (Kevin, 2026-10-29): campo nuevo en la foto, elegido al puntuar (viene la anterior o la de su valoración); la tarjeta la encabeza y dice su mejor media aparte (02 §7.4) | #121 ✔ |
 
 ### Módulo de equipos (Kevin, 2026-10-29)
 Gestionar el equipo desde la app, sin `admin:bootstrap-team` ni cambios a mano en la base. Decidido con Kevin: el entrenador y el admin del club arman el cuerpo técnico; hay un solo entrenador y, al pasar el mando, el anterior queda de asistente; los roles de jugador y de asistente van aparte (alguien del cuerpo técnico puede jugar). Editar el nombre y los formatos ya estaba (Equipo → Datos).
 
 | # | PR | Estado |
 |---|---|---|
-| 1 | Cuerpo técnico y roles: interruptores "Juega" y "Asistente" por persona, y pasar el mando (04 §2.2) | #122 |
-| 2 | Quitar del equipo: el que ya no viene sale con `left_at` y conserva su historial (era "Quitar jugadores"); la pantalla pasa a llamarse "Integrantes y roles" | #123 |
-| 3 | Invitar al cuerpo técnico: el admin del club elige asistente o entrenador y "También juega en el equipo"; quien acepta entra con los dos roles | |
-| 4 | Crear club y equipo desde la app: quién puede y con qué límites (toca la monetización) | |
+| 1 | Cuerpo técnico y roles: interruptores "Juega" y "Asistente" por persona, y pasar el mando (04 §2.2) | #122 ✔ |
+| 2 | Quitar del equipo: el que ya no viene sale con `left_at` y conserva su historial (era "Quitar jugadores"); la pantalla pasa a llamarse "Integrantes y roles" | #123 ✔ |
+| 3 | Invitar al cuerpo técnico: el admin del club elige asistente o entrenador y "También juega en el equipo"; quien acepta entra con los dos roles | #124 ✔ |
+| 4a | Códigos de alta: el administrador de la plataforma los genera en Tu cuenta y los manda por WhatsApp; cada código sirve para un club y vence en 14 días (Kevin, 2026-10-29) | |
+| 4b | Crear mi club con un código: nombre y ciudad o barrio del club, nombre, categoría, formato y temporada del equipo; queda de dueño y entrenador ("También juego"). Límite: dueño de un solo club | |
+| 4c | Más equipos en el club: el dueño o admin crea otro (hasta 3 activos) y elige si lo entrena él o invita a un entrenador | |
 
 ### Fase 6b · Identidad v3 "Escuelas Deportivas"
 **Cerrada el 2026-10-28** (#102–#117). La v2 "pizarra táctica" se veía hecha con IA; Kevin pasó el kit original del sistema de diseño y se migraron todas las pantallas (`design-system.md`, v3: cobalto + volt, Plus Jakarta Sans y Space Grotesk, claro y oscuro).

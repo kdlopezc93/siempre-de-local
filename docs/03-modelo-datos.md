@@ -79,6 +79,8 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 - `also_plays` (migración `0024_invitation_also_plays`, 2026-10-29): la de cuerpo técnico que también juega; al aceptar, entra además como jugador. La de entrenador es para una persona y, al aceptarla, pasa el mando (el anterior queda de asistente).
 - Aceptar gasta un uso con un `UPDATE … WHERE used_count < max_uses` condicionado, dentro de la misma transacción que crea o reactiva la membresía.
 
+**club_signup_code** — `id, code_hash unique, note null, created_by (set null), expires_at, club_id null, used_by (set null), used_at, revoked_at, created_at`. Código de alta (2026-10-29, migración `0025_club_signup_codes`): lo genera el administrador de la plataforma (`user.platform_admin`) y sirve para crear **un** club desde la app; `club_id`, `used_by` y `used_at` se llenan al usarlo. Mismo formato que las invitaciones (hash SHA-256, el código en claro no se guarda), en otra tabla para que un código de equipo no abra un club.
+
 Implementado en `apps/api/src/modules/teams/infrastructure/schema.ts`, migraciones `0002_teams` y `0003_invitations`. Además: `team` es único por `(club_id, name, season)`; `club_membership` y `team_membership` tienen índice por `user_id` y se borran en cascada con el usuario. Un miembro que sale del equipo conserva su fila con `left_at` y deja de contar para los permisos. `jersey_number` (0–99) lo pone el cuerpo técnico y **no es único**: dos jugadores pueden compartir camiseta (decidido el 2026-10-22). `injured_at` / `injury_return_on` (migración `0021_injuries`, 2026-10-24): lesionado desde y vuelta estimada, solo en la fila de jugador; sin nota de qué tiene (02 §14).
 
 ## 4. Perfil del jugador

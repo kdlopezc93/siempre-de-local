@@ -1,5 +1,6 @@
 import type { TeamRole } from '@sdl/contracts';
 import { NotePencil } from '@phosphor-icons/react/dist/csr/NotePencil';
+import { Ticket } from '@phosphor-icons/react/dist/csr/Ticket';
 import { useId, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 
@@ -69,6 +70,20 @@ export function AccountPage({ me }: { me: Me }) {
             meta="Cómo te dicen, tu pie, tus posiciones"
           />
         </li>
+        {me.user.platformAdmin && (
+          <li>
+            <Row
+              to="/plataforma/codigos"
+              leading={
+                <span className={styles.icon} aria-hidden="true">
+                  <Ticket size={22} />
+                </span>
+              }
+              title="Códigos de alta"
+              meta="Para que otros creen su club"
+            />
+          </li>
+        )}
       </ul>
 
       <section aria-labelledby="equipos" className={styles.section}>
