@@ -110,7 +110,7 @@ Agregada el 2026-10-22, al cerrar la Fase 5, por los comentarios del equipo: "no
 | # | PR | Estado |
 |---|---|---|
 | 1 | Auditoría, nueva estructura y plan (`07-experiencia.md`) | #55 ✔ |
-| 2 | Sistema de diseño v2 (contraste verificado; se conservan el icono y las animaciones de entrar) | #56 ✔ |
+| 2 | Sistema de diseño v2 (contraste verificado; se conservan el icono y las animaciones de entrar). Retirado el 2026-10-27 por la v3, ver Fase 6b | #56 ✔ |
 | 3 | Armazón: encabezado de equipo y barra inferior por rol | #58 ✔ |
 | 4 | Inicio "lo que toca" | #59 ✔ |
 | 5 | Plantilla: lista compacta, búsqueda, filtros y vista Pizarra | #60 ✔ |
@@ -155,6 +155,24 @@ Elegidos por Kevin el 2026-10-23, antes del staging o la Fase 8: cosas chicas qu
 | 1 | Integrantes en Equipo para todos: cuerpo técnico y jugadores con su mejor banda (D11, sin puntaje) | #79 ✔ |
 | 2 | Avisar antes de salir con cambios sin guardar (formularios y el marcador del partido) | #80 |
 | 3 | El nombre del revisor en los bancos del examen (D10): Kevin dio el visto bueno a todos y figura él (2026-10-23); si después revisa otro entrenador, se cambia `review` | #92 |
+| 4 | Quién valora a quién en el cuerpo técnico | #95 ✔ |
+| 5 | Marcar lesionados | #97 ✔ |
+| 6 | Corregir o cancelar un partido hasta cargar el resultado | #98 ✔ |
+| 7 | Los asistentes valoran al entrenador que también juega | #99 ✔ |
+| 8 | Al que entra tarde le llega la convocatoria de los partidos abiertos | #100 ✔ |
+| 9 | El cuerpo técnico les recuerda el test a los que no lo han hecho | #101 ✔ |
+| 10 | Tipo de convocatoria (Kevin, 2026-10-28): campeonato (con su torneo, obligatorio), amistoso o entrenamiento (solo convocatoria y asistencia: sin rival, alineación, resultado ni evaluaciones). Tabla `tournament` por equipo, pensada para relacionarla después con los cobros. Balance separado por tipo. Los partidos anteriores quedan de campeonato y el cuerpo técnico les asigna el torneo después (02 §13) | API #118 ✔, app #119 ✔ |
+
+### Fase 6b · Identidad v3 "Escuelas Deportivas"
+**Cerrada el 2026-10-28** (#102–#117). La v2 "pizarra táctica" se veía hecha con IA; Kevin pasó el kit original del sistema de diseño y se migraron todas las pantallas (`design-system.md`, v3: cobalto + volt, Plus Jakarta Sans y Space Grotesk, claro y oscuro).
+
+| # | PR | Estado |
+|---|---|---|
+| 1 | Identidad nueva y base del sistema (tokens, tipografías, icono) | #102 ✔ |
+| 2 | Pantallas al estilo nuevo: entrada, test y resultado, examen, ficha 0–99 y plantilla, planificador, partidos y equipo | #103–#107 ✔ |
+| 3 | Los componentes del kit original (título de dos pesos, estadísticas, insignias, filas, avatares) en inicio, Mi juego, plantilla, ficha, partidos y equipo | #109–#113 ✔ |
+| 4 | Comentarios de Kevin en el celular: avatares con el dorsal, insignias de estado, más color, el conocimiento de su posición, deslizadores por nivel y porteros primero | #114, #115 ✔ |
+| 5 | Auditoría del sistema de diseño en todas las pantallas | #117 ✔ |
 
 ### Fase 8 · Contenido, psicometría y medición
 Empezada el 2026-10-23 por lo que no necesita datos reales. Kevin eligió primero el test de orientación a ~40 preguntas (las revisa él; no depende del entrenador revisor de D10).
@@ -190,7 +208,7 @@ Anotados para cuando toque, sin orden ni fase todavía. Cada uno pide decidir el
 | Módulo de equipos | Crear clubes y equipos desde la app (quién puede, límites), editar sus datos y **gestionar los roles** (subir a asistente, pasar el mando de entrenador, varios equipos por club) | Los equipos se crean con `admin:bootstrap-team` y los roles se cambian a mano en la base |
 | Monetizar | Definir cómo se sostiene la app (hosting, dominio, almacenamiento de fotos) sin perder el tono de barrio. Opciones a evaluar: plan gratis por equipo con extras de pago (fotos, más de un equipo, pruebas de campo); plan por club o liga; patrocinio de comercios del barrio en la página del equipo; donaciones o aporte voluntario | Nada todavía. Depende de tener equipos usándola (staging, D5) y de la política de datos (D7) |
 | Posición de la tarjeta elegida aparte (Kevin, 2026-10-28) | Al puntuar la tarjeta 0–99, la posición que se muestra sale de los valores (la media por posición más alta). Kevin quiere que el entrenador **elija la posición** aparte de los valores, y que la tarjeta la muestre aunque su media más alta sea otra | La valoración ("Valorar") ya elige la posición aparte (`primaryPosition`, a ciegas); la tarjeta encabeza con su mejor media (02 §7.3). Decidir: usar la posición de la valoración del mismo entrenador, o un campo nuevo en la puntuación (esquema, contrato y 02) |
-| Tipo de convocatoria: campeonato, amistoso o entrenamiento (Kevin, 2026-10-28) | Al convocar, decir si es un partido de **campeonato**, un **amistoso** o un **entrenamiento**; que se vea en la lista, en "lo que toca" y en el balance (los entrenos no suman al balance) | Un partido no tiene tipo. Se cruza con "Mi torneo" (historial por rival, etapa 1 de 08) y con los entrenos con convocatoria y asistencia (decisión 3 de 08, "más adelante"): conviene decidir el tipo antes de "Mi torneo" |
+| Cobros por torneo (Kevin, 2026-10-28) | Relacionar los cobros del equipo (inscripción, cuotas) con cada torneo | Los torneos ya existen como tabla (`tournament`, Pendientes sueltos 10); no hay nada de cobros |
 
 ## Pendientes heredados del prototipo → dónde quedan
 
