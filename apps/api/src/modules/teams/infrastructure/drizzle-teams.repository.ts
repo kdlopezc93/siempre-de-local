@@ -11,6 +11,7 @@ import type { MembershipsQuery } from '../../identity/application/ports/membersh
 import { user } from '../../identity/infrastructure/schema.js';
 import type { TeamPlayersQuery } from '../../squad/application/ports/squad.ports.js';
 import type {
+  RoleChange,
   TeamRecord,
   TeamSettings,
   TeamsRepository,
@@ -180,6 +181,63 @@ export class DrizzleTeamsRepository
       teams.set(row.team.id, entry);
     }
     return { teams: [...teams.values()], clubs: clubRows };
+  }
+
+  async activeRoles(teamId: string, userId: string): Promise<TeamRole[]> {
+    const rows = await this.connection.db
+      .select({ role: teamMembership.role })
+      .from(teamMembership)
+      .where(
+        and(
+          eq(teamMembership.teamId, teamId),
+          eq(teamMembership.userId, userId),
+          isNull(teamMembership.leftAt),
+        ),
+      );
+    return rows.map((r) => r.role);
+  }
+
+  async activeCoaches(teamId: string): Promise<string[]> {
+    const rows = await this.connection.db
+      .select({ userId: teamMembership.userId })
+      .from(teamMembership)
+      .where(
+        and(
+          eq(teamMembership.teamId, teamId),
+          eq(teamMembership.role, 'coach'),
+          isNull(teamMembership.leftAt),
+        ),
+      );
+    return rows.map((r) => r.userId);
+  }
+
+  async changeRoles(teamId: string, changes: RoleChange[], now: Date): Promise<void> {
+    await this.connection.db.transaction(async (tx) => {
+      for (const { userId, role, active } of changes) {
+        const key = and(
+          eq(teamMembership.teamId, teamId),
+          eq(teamMembership.userId, userId),
+          eq(teamMembership.role, role),
+        );
+        if (!active) {
+          await tx
+            .update(teamMembership)
+            .set({ leftAt: now })
+            .where(and(key, isNull(teamMembership.leftAt)));
+          continue;
+        }
+        const [existing] = await tx
+          .select({ leftAt: teamMembership.leftAt })
+          .from(teamMembership)
+          .where(key)
+          .for('update');
+        if (!existing) {
+          await tx.insert(teamMembership).values({ teamId, userId, role, joinedAt: now });
+        } else if (existing.leftAt) {
+          await tx.update(teamMembership).set({ leftAt: null, joinedAt: now }).where(key);
+        }
+      }
+    });
   }
 
   async activeStaff(teamId: string) {

@@ -39,6 +39,22 @@ export const UpdateMemberRequestSchema = z.object({
 export type UpdateMemberRequest = z.infer<typeof UpdateMemberRequestSchema>;
 
 /**
+ * PATCH /api/v1/teams/:teamId/members/:userId/roles — prende o apaga sus roles de jugador y
+ * de asistente (coach y admin del club). Solo lo que cambia; tiene que quedar con alguno.
+ */
+export const UpdateMemberRolesRequestSchema = z
+  .object({ player: z.boolean(), assistant: z.boolean() })
+  .partial()
+  .refine((patch) => Object.keys(patch).length > 0, 'Nada que cambiar');
+
+export type UpdateMemberRolesRequest = z.infer<typeof UpdateMemberRolesRequestSchema>;
+
+/** PUT /api/v1/teams/:teamId/coach — pasa el mando; el entrenador anterior queda de asistente. */
+export const TransferCoachRequestSchema = z.object({ userId: z.uuid() });
+
+export type TransferCoachRequest = z.infer<typeof TransferCoachRequestSchema>;
+
+/**
  * Lesionado (2026-10-24): lo marca el cuerpo técnico, con una vuelta estimada opcional. No se
  * guarda qué tiene. `since` lo pone el servidor.
  */

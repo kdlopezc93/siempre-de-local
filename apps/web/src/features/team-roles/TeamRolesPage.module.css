@@ -1,0 +1,153 @@
+.screen {
+  gap: var(--sdl-space-6);
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: var(--sdl-touch-min);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  text-underline-offset: 4px;
+  touch-action: manipulation;
+}
+
+.lead {
+  margin-top: var(--sdl-space-2);
+  color: var(--sdl-fg-muted);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.sectionTitle {
+  font-family: var(--sdl-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.muted {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.error {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}
+
+.name {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+/* El entrenador y cada integrante, en tarjetas blancas como las del sistema. */
+.coach,
+.person {
+  display: flex;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-4);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.coach {
+  align-items: center;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.person {
+  flex-direction: column;
+}
+
+.personHead {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+}
+
+/* Los dos interruptores en fila; si no caben, uno debajo del otro. */
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sdl-space-2) var(--sdl-space-5);
+}
+
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  min-height: var(--sdl-touch-min);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.toggle:has(input:disabled) {
+  cursor: not-allowed;
+}
+
+.toggle:has(input:disabled) span {
+  color: var(--sdl-fg-muted);
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  max-height: 50dvh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border: 0;
+}
+
+.choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+  min-height: var(--sdl-touch-min);
+  padding: var(--sdl-space-2) var(--sdl-space-3);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.choice input {
+  position: absolute;
+  opacity: 0;
+}
+
+/* Elegido: relleno de tinta, como al valorar. */
+.choice:has(input:checked) {
+  background: var(--sdl-fg);
+  color: var(--sdl-bg);
+}
+
+.choice:has(input:focus-visible) {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+}

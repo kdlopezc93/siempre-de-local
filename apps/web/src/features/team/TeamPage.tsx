@@ -2,6 +2,7 @@ import type { Icon } from '@phosphor-icons/react';
 import { ChartLineUp } from '@phosphor-icons/react/dist/csr/ChartLineUp';
 import { Question } from '@phosphor-icons/react/dist/csr/Question';
 import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
+import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
 
 import type { Me } from '../../shared/api/auth';
 import { Row } from '../../shared/ui/Row';
@@ -39,6 +40,9 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
       <ul className={styles.list}>
         {(coach || clubAdmin) && (
           <Item to={`/equipos/${teamId}/invitar`} icon={UserPlus} title="Invitar jugadores" />
+        )}
+        {(coach || clubAdmin) && (
+          <Item to={`/equipos/${teamId}/roles`} icon={UsersThree} title="Cuerpo técnico y roles" />
         )}
         {(staff || clubAdmin) && (
           <Item
