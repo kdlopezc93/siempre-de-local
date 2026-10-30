@@ -13,10 +13,9 @@ primary_region = "iad"
 [env]
   NODE_ENV = "production"
   PORT = "3000"
-  # Al tener el dominio (docs/deploy.md, paso 4):
-  # BETTER_AUTH_URL = "https://api.<dominio>"
-  # WEB_ORIGIN = "https://app.<dominio>"
-  # COOKIE_DOMAIN = "<dominio>"
+  BETTER_AUTH_URL = "https://api.siempredelocal.app"
+  WEB_ORIGIN = "https://app.siempredelocal.app"
+  COOKIE_DOMAIN = "siempredelocal.app"
 
 [http_service]
   internal_port = 3000
