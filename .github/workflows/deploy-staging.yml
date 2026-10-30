@@ -1,8 +1,16 @@
 name: Desplegar staging
 
-# Manual hasta que staging exista (docs/deploy.md, paso 8). Luego: `push: branches: [main]`.
+# Despliega el API cuando la CI de main pasa (docs/deploy.md, paso 8); la PWA la despliega
+# Cloudflare Pages por su cuenta. A mano: Actions → "Desplegar staging" → Run workflow.
 on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: staging
@@ -11,10 +19,17 @@ concurrency:
 jobs:
   api:
     name: API en Fly.io
+    # Solo si la CI de un push a main salió en verde (no la de un PR desde una rama llamada main).
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          # El commit que pasó la CI, no lo último de main.
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: superfly/flyctl-actions/setup-flyctl@v1
       # La imagen se construye en Fly; release_command migra y siembra antes del cambio.
       - run: flyctl deploy --remote-only
