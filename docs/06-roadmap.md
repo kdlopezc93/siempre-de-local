@@ -275,7 +275,7 @@ Anotados para cuando toque, sin orden ni fase todavía. Cada uno pide decidir el
 | D4 | ¿Cuántos intentos del test cuentan? | Todos se guardan; panel usa el último oficial; el entrenador puede anular |
 | D5 | Dominio y hosting | Elegir al cerrar la Fase 2, antes del primer equipo. Comparativa de oct-2026: Cloudflare (dominio, DNS, Pages) + Fly.io (API en `iad`) + Neon (`us-east-1`), ≈ US$0–4/mes en staging; dominio candidato `siempredelocal.app`. Revisar precios al momento |
 | D6 | Adjuntar `planificador-partido.jsx` | **Resuelto** (2026-10-22): se conserva su mecánica y se cambia su puntaje por el encaje v2 (`02` §9.5) |
-| D7 | Revisión legal de la política de datos | Antes de usar con equipos reales. Borrador en `docs/legal/politica-tratamiento-datos.md`: completar los `[…]` (responsable, contacto, plazos) y revisar la transferencia internacional (art. 26) |
+| D7 | Revisión legal de la política de datos | **Publicada sin revisión legal** (2026-10-30, versión `2026-10-30`): responsable Kevin López (persona natural, Bogotá), contacto `datos@siempredelocal.app`, datos en EE. UU. (Neon, Fly.io, Cloudflare), borrado en el momento o en 30 días. Falta la revisión de un abogado, sobre todo la transferencia internacional (art. 26) |
 | D8 | ¿El jugador ve su tarjeta 0–99? | **Decidido: sí, configurable por equipo** (`team.ratings_visible_to_players`, interruptor del entrenador) (2026-10-22) |
 | D9 | Vigencia del puntaje de conocimiento | **Decidido: no caduca.** Un intento por posición cada 30 días. Reabrir solo si se ve que puntajes viejos no reflejan la realidad |
 | D10 | ¿Quién escribe los bancos de conocimiento? | Kevin + un entrenador revisor por posición; nunca un entrenador cuyos jugadores vayan a examinarse sin rotar revisores |

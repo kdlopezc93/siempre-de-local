@@ -1,14 +1,12 @@
 # Política de tratamiento de datos personales — Siempre de Local
 
-> **BORRADOR `2026-10-borrador-4` — pendiente de revisión legal (D7).** No usar con equipos reales hasta que lo revise alguien que conozca la Ley 1581 de 2012 y el Decreto 1377 de 2013. Al publicar la versión revisada cambia `POLICY_VERSION` en `packages/contracts/src/consent.ts` y todos vuelven a aceptarla.
->
-> Los textos entre corchetes `[…]` hay que completarlos antes de publicar.
+> **Publicada el 2026-10-30 sin revisión legal (D7)**, completa para staging y para publicar el inicio de sesión con Google. Falta que la revise alguien que conozca la Ley 1581 de 2012 y el Decreto 1377 de 2013, sobre todo la transferencia internacional (art. 26). Cada cambio de texto cambia `POLICY_VERSION` en `packages/contracts/src/consent.ts` y todos vuelven a aceptarla.
 
-**Versión:** 2026-10-borrador-4 · **Vigente desde:** [fecha de publicación]
+**Versión:** 2026-10-30 · **Vigente desde:** 30 de octubre de 2026
 
 ## 1. Quién es responsable de tus datos
 
-[Nombre completo o razón social del responsable], identificado con [cédula/NIT], con domicilio en [ciudad], Colombia. Contacto para todo lo relacionado con tus datos: **[correo de contacto]**.
+Kevin López, persona natural, con domicilio en Bogotá, Colombia. Contacto para todo lo relacionado con tus datos: **datos@siempredelocal.app**.
 
 ## 2. Qué datos guardamos
 
@@ -41,7 +39,7 @@ No vendemos tus datos ni los usamos para publicidad.
 
 ## 5. Dónde se guardan
 
-Tus datos se guardan en servidores de proveedores de nube que pueden estar fuera de Colombia, [principalmente en Estados Unidos]. Al aceptar esta política autorizas esa transferencia, que solo se hace con proveedores que protegen los datos con medidas de seguridad adecuadas. [Revisar con el abogado: transferencia internacional, art. 26 de la Ley 1581.]
+Tus datos se guardan en servidores de proveedores de nube que están fuera de Colombia, en **Estados Unidos**: la base de datos (Neon), el servidor de la app (Fly.io) y la página y el dominio (Cloudflare). Al aceptar esta política autorizas esa transferencia, que solo se hace con proveedores que protegen los datos con medidas de seguridad adecuadas: conexiones cifradas y acceso restringido.
 
 ## 6. Es una herramienta, no un veredicto
 
@@ -57,11 +55,11 @@ Como titular de tus datos puedes, en cualquier momento y sin costo:
 - **Pedir prueba** de que nos diste esta autorización.
 - **Presentar una queja** ante la Superintendencia de Industria y Comercio si consideras que no respetamos tus derechos, después de habernos escrito.
 
-Para ejercerlos escribe a **[correo de contacto]**. Respondemos consultas en máximo 10 días hábiles y reclamos en máximo 15 días hábiles, como manda la ley.
+Para ejercerlos escribe a **datos@siempredelocal.app**. Respondemos consultas en máximo 10 días hábiles y reclamos en máximo 15 días hábiles, como manda la ley.
 
 ## 8. Cuánto tiempo los guardamos
 
-Mientras tengas tu cuenta. Si la borras, eliminamos tus datos personales en [plazo] días, salvo copias de seguridad que se sobrescriben en [plazo] días. Los resultados pueden conservarse solo de forma anónima para estadísticas.
+Mientras tengas tu cuenta. Si la borras desde la app, eliminamos tus datos personales en el momento; si nos lo pides por correo, en máximo 30 días. Las copias de seguridad se sobrescriben en máximo 30 días. Los resultados pueden conservarse solo de forma anónima para estadísticas.
 
 ## 9. Mayoría de edad
 

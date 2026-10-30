@@ -35,4 +35,8 @@ describe('parsePolicy', () => {
       parsePolicy(policy).some((b) => b.kind === 'paragraph' && b.text.includes('BORRADOR')),
     ).toBe(false);
   });
+
+  it('no quedan huecos `[…]` por llenar', () => {
+    expect(policy).not.toMatch(/\[[^\]]*\]/);
+  });
 });
