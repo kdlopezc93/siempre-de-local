@@ -1,4 +1,4 @@
-import { POSITIONS } from '@sdl/domain';
+import { positionName } from '@sdl/domain';
 import { Link } from 'react-router';
 
 import { ButtonLink } from '../../shared/ui/ButtonLink';
@@ -97,7 +97,7 @@ export function StaffCardPage({ teamId, playerId }: { teamId: string; playerId: 
                     </span>
                     {shown && (
                       <span className={styles.historyBest}>
-                        {shown.value} {POSITIONS[shown.pos].name}
+                        {shown.value} {positionName(shown.pos, format)}
                       </span>
                     )}
                   </div>

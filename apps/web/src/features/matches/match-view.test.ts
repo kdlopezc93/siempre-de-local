@@ -1,7 +1,7 @@
 import type { Match } from '@sdl/contracts';
 import { describe, expect, it } from 'vitest';
 
-import { fromLocalInputs, splitMatches, toLocalInputs } from './match-view';
+import { fromLocalInputs, slotName, splitMatches, toLocalInputs } from './match-view';
 
 const match = (id: string, startsAt: string, open: boolean): Match => ({
   id,
@@ -39,5 +39,14 @@ describe('partidos en la app', () => {
     expect(toLocalInputs(iso)).toEqual({ date: '2026-11-01', time: '15:30' });
     expect(fromLocalInputs('2026-11-01', '')).toBeNull();
     expect(fromLocalInputs('mañana', '15:30')).toBeNull();
+  });
+});
+
+describe('el puesto en palabras', () => {
+  it('con su banda, y en F5 con los nombres de micro (2026-10-29)', () => {
+    expect(slotName({ position: 'LAT', side: 'izquierda' })).toBe('Lateral por la izquierda');
+    expect(slotName({ position: 'EXT', side: 'derecha' }, 'F5')).toBe('Ala por la derecha');
+    expect(slotName({ position: 'DFC' }, 'F5')).toBe('Cierre');
+    expect(slotName({ position: 'DFC' }, 'F8')).toBe('Defensa central');
   });
 });

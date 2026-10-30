@@ -4,8 +4,8 @@ import {
   ELIGIBLE_POSITIONS,
   GOALKEEPER_ATTRIBUTES,
   OUTFIELD_ATTRIBUTES,
-  POSITIONS,
   positionAverages,
+  positionName,
   RATING_ATTRIBUTES,
   type RatingAttributeCode,
 } from '@sdl/domain';
@@ -233,7 +233,7 @@ function RateForm({
           <ol className={styles.previewList}>
             {preview.map(({ pos, value }) => (
               <li key={pos}>
-                <span className={styles.previewValue}>{value}</span> {POSITIONS[pos].name}
+                <span className={styles.previewValue}>{value}</span> {positionName(pos, format)}
               </li>
             ))}
           </ol>
@@ -251,7 +251,7 @@ function RateForm({
                   checked={position === pos}
                   onChange={() => setPicked(pos)}
                 />
-                <span className={styles.choiceName}>{POSITIONS[pos].name}</span>
+                <span className={styles.choiceName}>{positionName(pos, format)}</span>
                 <span className={styles.choiceValue}>
                   <span className="sr-only">, media </span>
                   {averages[pos]}

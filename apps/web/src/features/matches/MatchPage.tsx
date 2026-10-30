@@ -429,7 +429,7 @@ function PublishedSection({
       {player && (
         <p className={styles.myPlace}>
           {slot
-            ? `Eres titular: ${slotName(slot)}.`
+            ? `Eres titular: ${slotName(slot, formation?.format)}.`
             : onBench
               ? 'Vas al banco.'
               : 'Esta vez no estás en la lista.'}

@@ -1,5 +1,5 @@
 import type { CertPositionsResponse, MatchFormat, PositionCode } from '@sdl/contracts';
-import { BAND_LABELS, POSITIONS } from '@sdl/domain';
+import { BAND_LABELS, positionName, POSITIONS } from '@sdl/domain';
 import { NotePencil } from '@phosphor-icons/react/dist/csr/NotePencil';
 import { Link } from 'react-router';
 
@@ -198,7 +198,9 @@ function PositionSection({ me, teamId }: { me: Me; teamId: string }) {
                 return (
                   <li key={pos}>
                     <Token text={String(i + 1)} line={lineOfPosition(pos)} size="sm" />
-                    <span className={styles.podiumName}>{POSITIONS[pos].name}</span>
+                    <span className={styles.podiumName}>
+                      {positionName(pos, latest.result.format)}
+                    </span>
                     {pct !== undefined && <span className={styles.muted}>{percent(pct)}</span>}
                   </li>
                 );

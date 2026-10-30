@@ -1,5 +1,5 @@
 import type { MatchFormat, PositionCode, SquadPlayer } from '@sdl/contracts';
-import { POSITIONS } from '@sdl/domain';
+import { positionName } from '@sdl/domain';
 
 import { lineOfPosition, type TokenLine } from '../../shared/ui/Token';
 import { cardHeadline } from '../card/card-view';
@@ -106,7 +106,7 @@ export function filterCounts(players: readonly SquadPlayer[]): Record<SquadFilte
 }
 
 /** "Defensa central" o, sin dato, "Sin posición". */
-export const positionLabel = (player: SquadPlayer) => {
+export const positionLabel = (player: SquadPlayer, format?: MatchFormat) => {
   const pos = shownPosition(player);
-  return pos ? POSITIONS[pos].name : 'Sin posición';
+  return pos ? positionName(pos, format) : 'Sin posición';
 };

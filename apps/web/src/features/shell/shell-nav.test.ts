@@ -54,5 +54,6 @@ describe('navegación por rol (07 §4.2)', () => {
   it('los formatos en palabras, el principal primero', () => {
     expect(formatsLabel(['F11'], 'F11')).toBe('Fútbol 11');
     expect(formatsLabel(['F11', 'F8'], 'F8')).toBe('Fútbol 8 y 11');
+    expect(formatsLabel(['F11', 'F8', 'F5'], 'F5')).toBe('Fútbol 5, 11 y 8');
   });
 });

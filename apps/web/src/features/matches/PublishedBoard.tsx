@@ -25,7 +25,7 @@ export function PublishedBoard({
   const describe = formation.slots
     .map((slot) => {
       const player = at.get(slot.id);
-      return `${slotName(slot)}: ${player?.displayName ?? 'vacío'}`;
+      return `${slotName(slot, formation.format)}: ${player?.displayName ?? 'vacío'}`;
     })
     .join('; ');
   return (

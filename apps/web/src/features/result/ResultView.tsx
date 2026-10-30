@@ -1,5 +1,5 @@
 import type { MatchFormat, PositionCode } from '@sdl/contracts';
-import { POSITIONS } from '@sdl/domain';
+import { positionName, POSITIONS } from '@sdl/domain';
 import type { CSSProperties } from 'react';
 
 import { Pitch } from '../../shared/ui/Pitch';
@@ -23,7 +23,7 @@ export function ResultView({ format, podium, provisional }: ResultData) {
   const [first] = podium;
   if (!first) return null;
   const copy = POSITION_COPY[first.pos];
-  const names = podium.map((entry) => POSITIONS[entry.pos].name);
+  const names = podium.map((entry) => positionName(entry.pos, format));
 
   return (
     <article className={styles.result}>
@@ -37,7 +37,7 @@ export function ResultView({ format, podium, provisional }: ResultData) {
             {POSITIONS[first.pos].number}
           </span>
           <div>
-            <h1 className={styles.name}>{POSITIONS[first.pos].name}</h1>
+            <h1 className={styles.name}>{positionName(first.pos, format)}</h1>
             <p className={styles.tagline}>{copy.tagline}</p>
           </div>
         </div>
@@ -65,7 +65,7 @@ export function ResultView({ format, podium, provisional }: ResultData) {
               style={{ '--reveal': podium.length - 1 - i } as CSSProperties}
             >
               <span className={styles.rank}>{i + 1}</span>
-              <span className={styles.rowName}>{POSITIONS[entry.pos].name}</span>
+              <span className={styles.rowName}>{positionName(entry.pos, format)}</span>
               <span className={styles.bar} aria-hidden="true">
                 <span style={{ transform: `scaleX(${entry.pct})` }} />
               </span>
