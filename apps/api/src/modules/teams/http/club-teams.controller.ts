@@ -1,5 +1,6 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import {
+  AddClubAdminRequestSchema,
   type ClubResponse,
   CreateTeamRequestSchema,
   type CreateTeamResponse,
@@ -13,6 +14,7 @@ import { parseInput } from '../../../shared/http/validation.js';
 import type { AuthSession } from '../../identity/application/ports/identity-provider.port.js';
 import {
   ArchiveTeam,
+  ClubAdmins,
   CreateTeam,
   GetClub,
   UpdateClub,
@@ -28,6 +30,7 @@ export class ClubTeamsController {
     private readonly updateClub: UpdateClub,
     private readonly createTeam: CreateTeam,
     private readonly archiveTeam: ArchiveTeam,
+    private readonly admins: ClubAdmins,
   ) {}
 
   @Get()
@@ -76,6 +79,32 @@ export class ClubTeamsController {
       parseInput(ClubId, clubId),
       parseInput(z.uuid(), teamId),
       parseInput(UpdateClubTeamRequestSchema, body),
+    );
+  }
+
+  @Post('admins')
+  addAdmin(
+    @CurrentSession() session: AuthSession,
+    @Param('clubId') clubId: string,
+    @Body() body: unknown,
+  ): Promise<ClubResponse> {
+    return this.admins.add(
+      session.user.id,
+      parseInput(ClubId, clubId),
+      parseInput(AddClubAdminRequestSchema, body),
+    );
+  }
+
+  @Delete('admins/:userId')
+  removeAdmin(
+    @CurrentSession() session: AuthSession,
+    @Param('clubId') clubId: string,
+    @Param('userId') userId: string,
+  ): Promise<ClubResponse> {
+    return this.admins.remove(
+      session.user.id,
+      parseInput(ClubId, clubId),
+      parseInput(z.uuid(), userId),
     );
   }
 }

@@ -278,6 +278,52 @@ export class DrizzleTeamsRepository
     return rows;
   }
 
+  async clubAdmins(clubId: string) {
+    return this.connection.db
+      .select({ userId: user.id, name: user.name, role: clubMembership.role })
+      .from(clubMembership)
+      .innerJoin(user, eq(clubMembership.userId, user.id))
+      .where(eq(clubMembership.clubId, clubId))
+      .orderBy(sql`${clubMembership.role} <> 'owner'`, asc(user.name));
+  }
+
+  async clubCandidates(clubId: string) {
+    return this.connection.db
+      .selectDistinct({ userId: user.id, name: user.name })
+      .from(teamMembership)
+      .innerJoin(team, and(eq(teamMembership.teamId, team.id), isNull(team.archivedAt)))
+      .innerJoin(user, eq(teamMembership.userId, user.id))
+      .leftJoin(
+        clubMembership,
+        and(eq(clubMembership.clubId, clubId), eq(clubMembership.userId, user.id)),
+      )
+      .where(
+        and(eq(team.clubId, clubId), isNull(teamMembership.leftAt), isNull(clubMembership.userId)),
+      )
+      .orderBy(asc(user.name));
+  }
+
+  async addClubAdmin(clubId: string, userId: string) {
+    await this.connection.db
+      .insert(clubMembership)
+      .values({ clubId, userId, role: 'admin' })
+      .onConflictDoNothing();
+  }
+
+  async removeClubAdmin(clubId: string, userId: string) {
+    const removed = await this.connection.db
+      .delete(clubMembership)
+      .where(
+        and(
+          eq(clubMembership.clubId, clubId),
+          eq(clubMembership.userId, userId),
+          eq(clubMembership.role, 'admin'),
+        ),
+      )
+      .returning({ userId: clubMembership.userId });
+    return removed.length > 0;
+  }
+
   async updateClub(clubId: string, patch: Partial<Pick<ClubRecord, 'name' | 'city'>>) {
     await this.connection.db.update(club).set(patch).where(eq(club.id, clubId));
   }

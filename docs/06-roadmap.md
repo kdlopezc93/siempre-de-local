@@ -176,8 +176,8 @@ Gestionar el equipo desde la app, sin `admin:bootstrap-team` ni cambios a mano e
 | 4b | Crear mi club con un código: nombre y ciudad o barrio del club, nombre, categoría, formato y temporada del equipo; queda de dueño y entrenador ("También juego"). Límite: dueño de un solo club. La categoría se edita en Equipo → Datos | #126 ✔ |
 | 4c | Más equipos en el club: el dueño o admin crea otro (hasta 3 activos) desde Equipo → Nuevo equipo del club. Queda de entrenador; si lo entrena otra persona, sigue a invitarla como entrenador y al aceptar se pasa el mando (así ningún equipo queda sin quien lo maneje) | #127 ✔ |
 | 5 | La pantalla del club (Kevin, 2026-10-29): sus datos (nombre y ciudad o barrio, editables por el dueño y los admins) y sus equipos, con "Nuevo equipo" ahí. Se llega desde Equipo y desde Tu cuenta | #128 |
-| 6 | Archivar un equipo que ya no juega: deja de verse y de dar acceso a sus integrantes, sus invitaciones no sirven, libera cupo y sus datos quedan; se desarchiva desde el club si hay cupo | |
-| 7 | Admins del club: el dueño nombra o quita admins entre los integrantes de sus equipos | |
+| 6 | Archivar un equipo que ya no juega: deja de verse y de dar acceso a sus integrantes, sus invitaciones no sirven, libera cupo y sus datos quedan; se desarchiva desde el club si hay cupo | #129 |
+| 7 | Admins del club: el dueño nombra o quita admins entre los integrantes de sus equipos activos; al dueño no se le quita | |
 
 ### Siguiente: fútbol 5 (Kevin, 2026-10-29)
 **Lo próximo que se hace, antes del staging.** Sumar **F5** como tercer formato, junto a F8 y F11 (D14: un equipo juega en uno o varios, con uno principal). Hay que decidir el alcance antes de escribir código; lo que toca, como mínimo:

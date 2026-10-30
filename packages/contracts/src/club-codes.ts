@@ -107,6 +107,12 @@ export const ClubResponseSchema = z.object({
       members: z.int(),
     }),
   ),
+  /** El dueño y los admins del club (2026-10-29). */
+  admins: z.array(
+    z.object({ userId: z.uuid(), name: z.string(), role: z.enum(['owner', 'admin']) }),
+  ),
+  /** Quiénes se pueden nombrar admin: integrantes de sus equipos activos que aún no lo son. */
+  candidates: z.array(z.object({ userId: z.uuid(), name: z.string() })),
 });
 
 /** PATCH /api/v1/clubs/:clubId — nombre y ciudad o barrio; solo lo que cambia. */
@@ -125,3 +131,8 @@ export type UpdateClubRequest = z.infer<typeof UpdateClubRequestSchema>;
 export const UpdateClubTeamRequestSchema = z.object({ archived: z.boolean() });
 
 export type UpdateClubTeamRequest = z.infer<typeof UpdateClubTeamRequestSchema>;
+
+/** POST /api/v1/clubs/:clubId/admins — el dueño nombra admin a un integrante (2026-10-29). */
+export const AddClubAdminRequestSchema = z.object({ userId: z.uuid() });
+
+export type AddClubAdminRequest = z.infer<typeof AddClubAdminRequestSchema>;
