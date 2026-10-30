@@ -1,5 +1,5 @@
 import { useId, useRef, useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 
 import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
@@ -69,6 +69,12 @@ export function NoTeamPage({ email }: { email: string }) {
             Usar código
           </Button>
         </form>
+        <p className={styles.note}>
+          ¿Vas a armar tu propio equipo?{' '}
+          <Link to="/crear-club" className={styles.createLink}>
+            Tengo un código para crear mi club
+          </Link>
+        </p>
       </div>
 
       <div className={styles.footer}>

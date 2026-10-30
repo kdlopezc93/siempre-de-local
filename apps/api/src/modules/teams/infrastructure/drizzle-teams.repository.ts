@@ -41,7 +41,8 @@ export class DrizzleTeamsRepository
         format: team.format,
         formats: team.formats,
         season: team.season,
-        club: { id: club.id, name: club.name },
+        category: team.category,
+        club: { id: club.id, name: club.name, city: club.city },
         ratingsVisibleToPlayers: team.ratingsVisibleToPlayers,
         matchRatingsVisibleToPlayers: team.matchRatingsVisibleToPlayers,
       })

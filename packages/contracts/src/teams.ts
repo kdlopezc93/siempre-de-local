@@ -16,7 +16,14 @@ export const TeamResponseSchema = z.object({
     /** Los formatos en que juega; el planificador elige entre estos por partido. */
     formats: z.array(MatchFormatSchema).min(1),
     season: z.string(),
-    club: z.object({ id: z.uuid(), name: z.string() }),
+    /** Categoría libre ("Veteranos"…), o null (2026-10-29). */
+    category: z.string().nullable().default(null),
+    club: z.object({
+      id: z.uuid(),
+      name: z.string(),
+      /** Ciudad o barrio, o null en los clubes de antes (2026-10-29). */
+      city: z.string().nullable().default(null),
+    }),
     /** ¿El jugador ve su tarjeta 0–99? (D8) */
     ratingsVisibleToPlayers: z.boolean(),
     /** ¿El jugador ve su evaluación de cada partido? (D18) */

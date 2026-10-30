@@ -3,8 +3,9 @@ import type {
   SetInjuryRequest,
   TeamResponse,
   UpdateMemberRequest,
-  UpdateTeamRequest,
+  UpdateTeamRequestSchema,
 } from '@sdl/contracts';
+import type { z } from 'zod';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
 import {
@@ -42,7 +43,11 @@ export class UpdateTeam {
     @Inject(AUDIT_LOG) private readonly audit: AuditLog,
   ) {}
 
-  async execute(actor: Actor, teamId: string, patch: UpdateTeamRequest): Promise<TeamResponse> {
+  async execute(
+    actor: Actor,
+    teamId: string,
+    patch: z.output<typeof UpdateTeamRequestSchema>,
+  ): Promise<TeamResponse> {
     const team = await this.teams.findById(teamId);
     if (!team) throw new NotFoundError('Equipo no encontrado');
     if (!can(actor, 'team.settings.write', { teamId: team.id, clubId: team.club.id })) {

@@ -31,6 +31,8 @@ export const club = pgTable('club', {
   id: id(),
   name: text().notNull(),
   slug: text().notNull().unique(),
+  /** Ciudad o barrio (2026-10-29): todos sus equipos son de ahí. Null en los de antes. */
+  city: text(),
   createdAt: createdAt(),
 });
 
@@ -62,6 +64,8 @@ export const team = pgTable(
     /** Los formatos en que juega (el principal entre ellos); el planificador elige por partido. */
     formats: matchFormat().array().notNull(),
     season: text().notNull(),
+    /** Categoría, libre (2026-10-29): "Libre", "Veteranos", "Femenino"… Null en los de antes. */
+    category: text(),
     /** ¿El jugador ve su tarjeta 0–99? (D8) */
     ratingsVisibleToPlayers: boolean().notNull().default(true),
     /** ¿El jugador ve su evaluación de cada partido? (D18) */

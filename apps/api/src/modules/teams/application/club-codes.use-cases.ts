@@ -1,9 +1,22 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { ClubCodeStatus, ClubCodeSummary, CreateClubCodeRequestSchema } from '@sdl/contracts';
+import type {
+  ClubCodePreviewResponse,
+  ClubCodeStatus,
+  ClubCodeSummary,
+  CreateClubCodeRequestSchema,
+  CreateClubRequestSchema,
+  CreateClubResponse,
+} from '@sdl/contracts';
 import type { z } from 'zod';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
-import { ForbiddenError, NotFoundError } from '../../../shared/errors/application-errors.js';
+import { CONSENT_CHECKER, type ConsentChecker } from '../../../shared/consent/consent.port.js';
+import {
+  BusinessRuleError,
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../../shared/errors/application-errors.js';
 import { generateInvitationCode, hashInvitationCode } from './invitation-code.js';
 import {
   CLUB_CODES_REPOSITORY,
@@ -82,6 +95,90 @@ export class ClubCodes {
     if (!code) throw new NotFoundError('Ese código no existe', 'CLUB_CODE_NOT_FOUND');
     if (!code.revokedAt && !code.usedAt) await this.codes.revoke(id, now);
   }
+}
+
+/**
+ * Crear mi club con un código de alta (Kevin, 2026-10-29): el club con su ciudad, su primer
+ * equipo, y quien lo crea de dueño y entrenador. Dueño de un solo club.
+ */
+@Injectable()
+export class CreateClub {
+  constructor(
+    @Inject(CLUB_CODES_REPOSITORY) private readonly codes: ClubCodesRepository,
+    @Inject(CONSENT_CHECKER) private readonly consent: ConsentChecker,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+  ) {}
+
+  /** Público: si el código sirve, antes de llenar el formulario. */
+  async preview(code: string, now = new Date()): Promise<ClubCodePreviewResponse> {
+    const found = await this.usable(code, now);
+    return { expiresAt: found.expiresAt.toISOString() };
+  }
+
+  async execute(
+    userId: string,
+    request: z.output<typeof CreateClubRequestSchema>,
+    now = new Date(),
+  ): Promise<CreateClubResponse> {
+    const code = await this.usable(request.code, now);
+    // Ley 1581: sin autorización previa no se guarda nada de su equipo (04 §1.2).
+    if (!(await this.consent.hasCurrentConsent(userId))) {
+      throw new ForbiddenError(
+        'Antes de crear tu club acepta la política de datos.',
+        'CONSENT_REQUIRED',
+      );
+    }
+    const outcome = await this.codes.createClub(
+      code.id,
+      userId,
+      {
+        clubName: request.clubName,
+        city: request.city,
+        teamName: request.teamName,
+        category: request.category || null,
+        format: request.format,
+        season: request.season,
+        alsoPlays: request.alsoPlays,
+      },
+      now,
+    );
+    if (outcome === 'unavailable') throw unusable('used');
+    if (outcome === 'limit') {
+      throw new ConflictError(
+        'Ya eres dueño de un club. Para abrir otro equipo, créalo dentro de tu club.',
+        'CLUB_LIMIT_REACHED',
+      );
+    }
+    await this.audit.record({
+      actorUserId: userId,
+      action: 'club.created',
+      entity: 'club',
+      entityId: outcome.clubId,
+      teamId: outcome.teamId,
+      meta: { clubCodeId: code.id },
+    });
+    return outcome;
+  }
+
+  private async usable(raw: string, now: Date) {
+    const code = await this.codes.findByCodeHash(hashInvitationCode(raw));
+    if (!code) {
+      throw new NotFoundError('Este código no existe. Revisa el mensaje.', 'CLUB_CODE_NOT_FOUND');
+    }
+    const status = clubCodeStatus(code, now);
+    if (status !== 'active') throw unusable(status);
+    return code;
+  }
+}
+
+function unusable(status: 'expired' | 'used' | 'revoked'): BusinessRuleError {
+  const messages = {
+    expired: ['Este código ya venció. Pide uno nuevo.', 'CLUB_CODE_EXPIRED'],
+    used: ['Este código ya se usó para crear un club. Pide uno nuevo.', 'CLUB_CODE_USED'],
+    revoked: ['Este código fue anulado. Pide uno nuevo.', 'CLUB_CODE_REVOKED'],
+  } as const;
+  const [message, code] = messages[status];
+  return new BusinessRuleError(message, code);
 }
 
 function assertPlatformAdmin(actor: PlatformActor) {

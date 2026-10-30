@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { MatchFormatSchema } from './teams.js';
+
 /**
  * Códigos de alta (2026-10-29): para crear un club desde la app hace falta uno, y los genera el
  * administrador de la plataforma. Cada código sirve para un club y vence.
@@ -40,3 +42,30 @@ export type ClubCodeStatus = z.infer<typeof ClubCodeStatusSchema>;
 export type ClubCodeSummary = z.infer<typeof ClubCodeSummarySchema>;
 export type CreateClubCodeResponse = z.infer<typeof CreateClubCodeResponseSchema>;
 export type ClubCodeListResponse = z.infer<typeof ClubCodeListResponseSchema>;
+
+/** GET /api/v1/club-codes/:code — público: si el código sirve, antes de llenar el formulario. */
+export const ClubCodePreviewResponseSchema = z.object({ expiresAt: z.iso.datetime() });
+
+const Name = z.string().trim().min(2).max(60);
+
+/**
+ * POST /api/v1/clubs — crear mi club con un código de alta (2026-10-29): el club con su ciudad o
+ * barrio, y su primer equipo. Quien lo crea queda de dueño del club y entrenador del equipo (y
+ * jugador, con `alsoPlays`). Es dueño de un solo club.
+ */
+export const CreateClubRequestSchema = z.object({
+  code: z.string().trim().min(1).max(40),
+  clubName: Name,
+  city: Name,
+  teamName: Name,
+  category: z.string().trim().max(40).optional(),
+  format: MatchFormatSchema,
+  season: z.string().trim().min(4).max(9),
+  alsoPlays: z.boolean().default(false),
+});
+
+export const CreateClubResponseSchema = z.object({ clubId: z.uuid(), teamId: z.uuid() });
+
+export type ClubCodePreviewResponse = z.infer<typeof ClubCodePreviewResponseSchema>;
+export type CreateClubRequest = z.input<typeof CreateClubRequestSchema>;
+export type CreateClubResponse = z.infer<typeof CreateClubResponseSchema>;

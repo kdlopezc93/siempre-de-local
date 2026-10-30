@@ -95,6 +95,13 @@ export const UpdateTeamRequestSchema = z
     ratingsVisibleToPlayers: z.boolean(),
     matchRatingsVisibleToPlayers: z.boolean(),
     name: z.string().trim().min(2).max(60),
+    /** Categoría libre; vacía la quita (2026-10-29). */
+    category: z
+      .string()
+      .trim()
+      .max(40)
+      .transform((value) => value || null)
+      .nullable(),
     format: MatchFormatSchema,
     formats: z
       .array(MatchFormatSchema)
@@ -112,4 +119,4 @@ export type RatingResponse = z.infer<typeof RatingResponseSchema>;
 export type RatingHistoryResponse = z.infer<typeof RatingHistoryResponseSchema>;
 export type MyCardResponse = z.infer<typeof MyCardResponseSchema>;
 export type RatingAttributesResponse = z.infer<typeof RatingAttributesResponseSchema>;
-export type UpdateTeamRequest = z.infer<typeof UpdateTeamRequestSchema>;
+export type UpdateTeamRequest = z.input<typeof UpdateTeamRequestSchema>;
