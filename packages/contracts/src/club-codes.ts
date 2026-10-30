@@ -87,3 +87,33 @@ export const CreateTeamResponseSchema = z.object({ teamId: z.uuid() });
 
 export type CreateTeamRequest = z.input<typeof CreateTeamRequestSchema>;
 export type CreateTeamResponse = z.infer<typeof CreateTeamResponseSchema>;
+
+/**
+ * GET /api/v1/clubs/:clubId — la pantalla del club (dueño y admins, 2026-10-29): sus datos y sus
+ * equipos, activos y archivados.
+ */
+export const ClubResponseSchema = z.object({
+  club: z.object({ id: z.uuid(), name: z.string(), city: z.string().nullable() }),
+  myRole: z.enum(['owner', 'admin']),
+  teams: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string(),
+      category: z.string().nullable(),
+      format: MatchFormatSchema,
+      season: z.string(),
+      archived: z.boolean(),
+      /** Personas activas en el equipo (cada una una vez, aunque tenga varios roles). */
+      members: z.int(),
+    }),
+  ),
+});
+
+/** PATCH /api/v1/clubs/:clubId — nombre y ciudad o barrio; solo lo que cambia. */
+export const UpdateClubRequestSchema = z
+  .object({ name: Name, city: Name })
+  .partial()
+  .refine((patch) => Object.keys(patch).length > 0, 'Nada que cambiar');
+
+export type ClubResponse = z.infer<typeof ClubResponseSchema>;
+export type UpdateClubRequest = z.infer<typeof UpdateClubRequestSchema>;

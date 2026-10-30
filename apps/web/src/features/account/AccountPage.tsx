@@ -118,6 +118,9 @@ export function AccountPage({ me }: { me: Me }) {
                   En sus equipos: ve los resultados, invita jugadores y cuerpo técnico, anula
                   exámenes, pide re-evaluaciones y cambia los ajustes.
                 </p>
+                <Link to={`/clubes/${c.id}`} className={styles.quiet}>
+                  Ver el club
+                </Link>
               </div>
             </li>
           ))}

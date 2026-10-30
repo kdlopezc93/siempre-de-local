@@ -82,6 +82,7 @@ Los clubes se crean con un **código de alta** (2026-10-29): el administrador de
 | Pasar el mando de entrenador; el anterior queda de asistente (`team.members.manage`) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Exportar datos del equipo (CSV) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Gestionar cuestionarios y bancos de certificación | ✘ | ✘ | ✘ | ✘ | ✔ |
+| Ver el club y editar su nombre y su ciudad o barrio (2026-10-29) | ✘ | ✘ | ✘ | ✔ | ✘ |
 | Crear otro equipo del club (hasta 3 activos; quien lo crea queda de entrenador, 2026-10-29) | ✘ | ✘ | ✘ | ✔ | ✘ |
 | Generar y anular códigos de alta de clubes (2026-10-29; se da con `pnpm admin:platform-admin`) | ✘ | ✘ | ✘ | ✘ | ✔ |
 | Revisar contenido de un banco (sin publicar) | ✘ | ✘ | ✔ si se le asigna como revisor | ✘ | ✔ |

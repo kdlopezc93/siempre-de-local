@@ -1,0 +1,121 @@
+.screen {
+  gap: var(--sdl-space-6);
+}
+
+.lead {
+  margin-top: var(--sdl-space-2);
+  color: var(--sdl-fg-muted);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionTitle {
+  font-family: var(--sdl-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.textButton {
+  min-height: var(--sdl-touch-min);
+  padding: 0 var(--sdl-space-2);
+  border: 0;
+  background: none;
+  color: var(--sdl-primary);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.textButton:focus-visible {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+  border-radius: var(--sdl-radius-sm);
+}
+
+/* Los datos como en Equipo: etiqueta a la izquierda, valor a la derecha. */
+.facts {
+  margin: 0;
+}
+
+.facts div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-3) 0;
+  border-bottom: 1px dashed var(--sdl-border);
+}
+
+.facts dt {
+  color: var(--sdl-fg-muted);
+}
+
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  text-align: right;
+  font-weight: 600;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.label {
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}
+
+.input {
+  min-height: 52px;
+  padding-inline: var(--sdl-space-3);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
+  color: var(--sdl-fg);
+  font: inherit;
+  font-size: var(--sdl-text-base);
+}
+
+.input:focus-visible {
+  border-color: var(--sdl-focus-ring);
+  outline: none;
+}
+
+.formActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.error {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}
+
+.muted {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

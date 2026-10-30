@@ -1,17 +1,20 @@
 import {
   ClubCodeListResponseSchema,
   ClubCodePreviewResponseSchema,
+  ClubResponseSchema,
   CreateClubCodeResponseSchema,
   CreateClubResponseSchema,
   CreateTeamResponseSchema,
   type ClubCodeListResponse,
   type ClubCodePreviewResponse,
+  type ClubResponse,
   type CreateClubCodeRequest,
   type CreateClubCodeResponse,
   type CreateClubRequest,
   type CreateClubResponse,
   type CreateTeamRequest,
   type CreateTeamResponse,
+  type UpdateClubRequest,
 } from '@sdl/contracts';
 
 import { apiFetch, apiRequest } from './http';
@@ -56,5 +59,17 @@ export function createTeam(
   return apiRequest(`/api/v1/clubs/${clubId}/teams`, CreateTeamResponseSchema, {
     method: 'POST',
     body: JSON.stringify(request),
+  });
+}
+
+/** La pantalla del club (dueño y admins). */
+export function fetchClub(clubId: string): Promise<ClubResponse> {
+  return apiRequest(`/api/v1/clubs/${clubId}`, ClubResponseSchema);
+}
+
+export function updateClub(clubId: string, patch: UpdateClubRequest): Promise<ClubResponse> {
+  return apiRequest(`/api/v1/clubs/${clubId}`, ClubResponseSchema, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
   });
 }

@@ -29,6 +29,7 @@ const screens = {
   clubCodes: () => import('../platform/ClubCodesPage'),
   createClub: () => import('../create-club/CreateClubPage'),
   newTeam: () => import('../create-club/NewTeamPage'),
+  club: () => import('../club/ClubPage'),
   squad: () => import('../squad/SquadPage'),
   assess: () => import('../squad/AssessPage'),
   playerProfile: () => import('../squad/PlayerProfilePage'),
@@ -63,6 +64,7 @@ const CreateClubPage = lazy(() =>
   screens.createClub().then((m) => ({ default: m.CreateClubPage })),
 );
 const NewTeamPage = lazy(() => screens.newTeam().then((m) => ({ default: m.NewTeamPage })));
+const ClubPage = lazy(() => screens.club().then((m) => ({ default: m.ClubPage })));
 const SquadPage = lazy(() => screens.squad().then((m) => ({ default: m.SquadPage })));
 const AssessPage = lazy(() => screens.assess().then((m) => ({ default: m.AssessPage })));
 const PlayerProfilePage = lazy(() =>
@@ -196,6 +198,12 @@ export function CreateClubRoute() {
       <CreateClubPage code={code} me={session.data} />
     </Suspense>
   );
+}
+
+/** "/clubes/:clubId" — el club: sus datos y sus equipos (dueño o admin). */
+export function ClubRoute() {
+  const { clubId = '' } = useParams();
+  return <ShellRoute>{(me) => <ClubPage me={me} clubId={clubId} />}</ShellRoute>;
 }
 
 /** "/clubes/:clubId/nuevo-equipo" — otro equipo del club (dueño o admin). */

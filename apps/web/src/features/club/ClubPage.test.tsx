@@ -1,0 +1,116 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { createMemoryRouter, RouterProvider } from 'react-router';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+import { fakeApi } from '../../test/fake-api';
+import { ME_TWO_TEAMS, TEAM_A } from '../../test/me-two-teams';
+import { ClubPage } from './ClubPage';
+
+const CLUB = ME_TWO_TEAMS.clubs[0]!.id;
+const OTHER = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f99';
+const team = (id: string, name: string, extra: object = {}) => ({
+  id,
+  name,
+  category: null,
+  format: 'F8',
+  season: '2026',
+  archived: false,
+  members: 12,
+  ...extra,
+});
+const club = (extra: object = {}) => ({
+  club: { id: CLUB, name: 'Los del Barrio', city: null, ...extra },
+  myRole: 'owner',
+  teams: [team(TEAM_A, 'Primer equipo', { category: 'Libre' }), team(OTHER, 'Los del jueves')],
+});
+
+function renderPage() {
+  const router = createMemoryRouter(
+    [{ path: '/c', element: <ClubPage me={ME_TWO_TEAMS} clubId={CLUB} /> }],
+    { initialEntries: ['/c'] },
+  );
+  render(
+    <QueryClientProvider
+      client={
+        new QueryClient({
+          defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+        })
+      }
+    >
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  );
+}
+
+describe('el club (2026-10-29)', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('muestra sus equipos y abre los tuyos; con cupo, deja crear otro', async () => {
+    fakeApi({ [`GET /api/v1/clubs/${CLUB}`]: { status: 200, body: club() } });
+    renderPage();
+    expect(await screen.findByRole('heading', { name: 'Equipos (2 de 3)' })).toBeInTheDocument();
+    expect(screen.getByText('Sin ciudad todavía')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Primer equipo/ })).toHaveAttribute(
+      'href',
+      `/equipos/${TEAM_A}/equipo`,
+    );
+    // En "Los del jueves" no estás: no se abre desde aquí.
+    expect(screen.queryByRole('link', { name: /Los del jueves/ })).toBeNull();
+    expect(screen.getByText(/Fútbol 8 · Libre · 2026 · 12 personas/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Nuevo equipo' })).toHaveAttribute(
+      'href',
+      `/clubes/${CLUB}/nuevo-equipo`,
+    );
+  });
+
+  it('edita el nombre y la ciudad', async () => {
+    let body: unknown;
+    fakeApi({
+      [`GET /api/v1/clubs/${CLUB}`]: { status: 200, body: club() },
+      [`PATCH /api/v1/clubs/${CLUB}`]: (init) => {
+        body = JSON.parse(init.body as string);
+        return { status: 200, body: club({ city: 'Bosa' }) };
+      },
+    });
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Editar' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('Escribe la ciudad o el barrio.');
+    await userEvent.type(screen.getByLabelText('Ciudad o barrio'), 'Bosa');
+    await userEvent.click(screen.getByRole('button', { name: 'Guardar' }));
+    expect(await screen.findByText('Bosa', { selector: 'dd' })).toBeInTheDocument();
+    expect(body).toEqual({ name: 'Los del Barrio', city: 'Bosa' });
+  });
+
+  it('con 3 equipos activos ya no ofrece crear otro', async () => {
+    fakeApi({
+      [`GET /api/v1/clubs/${CLUB}`]: {
+        status: 200,
+        body: {
+          ...club(),
+          teams: [
+            team(TEAM_A, 'A'),
+            team(OTHER, 'B'),
+            team('0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f98', 'C'),
+          ],
+        },
+      },
+    });
+    renderPage();
+    expect(await screen.findByText(/ya tiene 3 equipos/)).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Nuevo equipo' })).toBeNull();
+  });
+
+  it('a quien no es del club le explica', async () => {
+    fakeApi({
+      [`GET /api/v1/clubs/${CLUB}`]: {
+        status: 403,
+        body: { error: { code: 'FORBIDDEN', message: 'x' } },
+      },
+    });
+    renderPage();
+    expect(await screen.findByRole('alert')).toHaveTextContent('Solo el dueño y los admins');
+  });
+});

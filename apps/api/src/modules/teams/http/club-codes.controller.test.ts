@@ -2,6 +2,7 @@ import type { NestFastifyApplication } from '@nestjs/platform-fastify';
 import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
 import {
   ClubCodeListResponseSchema,
+  ClubResponseSchema,
   CreateClubCodeResponseSchema,
   CreateClubResponseSchema,
   CreateTeamResponseSchema,
@@ -27,7 +28,7 @@ describe('códigos de alta de clubes (2026-10-29)', () => {
   let admin: SeededUser, someone: SeededUser;
 
   const call = (
-    method: 'GET' | 'POST' | 'DELETE',
+    method: 'GET' | 'POST' | 'DELETE' | 'PATCH',
     path: string,
     who: SeededUser,
     payload?: object,
@@ -255,6 +256,44 @@ describe('códigos de alta de clubes (2026-10-29)', () => {
       // El dueño de otro club no crea equipos en este.
       expect((await newTeam(admin, clubId, 'Intrusos')).statusCode).toBe(403);
       expect((await newTeam(someone, clubId, 'X', { format: 'F5' })).statusCode).toBe(400);
+    });
+  });
+
+  describe('la pantalla del club', () => {
+    it('el dueño ve sus datos y sus equipos, y cambia el nombre y la ciudad', async () => {
+      const me = MeResponseSchema.parse((await call('GET', '/me', someone)).json());
+      const clubId = me.clubs[0]!.id;
+      const res = await call('GET', `/clubs/${clubId}`, someone);
+      expect(res.statusCode).toBe(200);
+      const club = ClubResponseSchema.parse(res.json());
+      expect(club.club).toEqual({ id: clubId, name: 'Los Tigres del Sur', city: 'Bosa' });
+      expect(club.myRole).toBe('owner');
+      expect(club.teams.map((t) => [t.name, t.members, t.archived])).toEqual([
+        ['Tigres', 1, false],
+        ['Tigres B', 1, false],
+        ['Tigres C', 1, false],
+      ]);
+
+      const patched = await call('PATCH', `/clubs/${clubId}`, someone, {
+        name: ' Tigres del Sur FC ',
+        city: 'Kennedy',
+      });
+      expect(ClubResponseSchema.parse(patched.json()).club).toMatchObject({
+        name: 'Tigres del Sur FC',
+        city: 'Kennedy',
+      });
+      const after = MeResponseSchema.parse((await call('GET', '/me', someone)).json());
+      expect(after.clubs[0]!.name).toBe('Tigres del Sur FC');
+
+      expect((await call('PATCH', `/clubs/${clubId}`, someone, {})).statusCode).toBe(400);
+      expect((await call('PATCH', `/clubs/${clubId}`, someone, { city: 'X' })).statusCode).toBe(
+        400,
+      );
+      // Quien no es del club, nada.
+      expect((await call('GET', `/clubs/${clubId}`, admin)).statusCode).toBe(403);
+      expect((await call('PATCH', `/clubs/${clubId}`, admin, { city: 'Suba' })).statusCode).toBe(
+        403,
+      );
     });
   });
 });
