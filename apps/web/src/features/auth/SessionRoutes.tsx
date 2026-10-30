@@ -26,6 +26,7 @@ const screens = {
   profile: () => import('../player-profile/ProfilePage'),
   invite: () => import('../team-admin/InvitePage'),
   roles: () => import('../team-roles/TeamRolesPage'),
+  clubCodes: () => import('../platform/ClubCodesPage'),
   squad: () => import('../squad/SquadPage'),
   assess: () => import('../squad/AssessPage'),
   playerProfile: () => import('../squad/PlayerProfilePage'),
@@ -55,6 +56,7 @@ const SciencePage = lazy(() => screens.science().then((m) => ({ default: m.Scien
 const ProfilePage = lazy(() => screens.profile().then((m) => ({ default: m.ProfilePage })));
 const InvitePage = lazy(() => screens.invite().then((m) => ({ default: m.InvitePage })));
 const TeamRolesPage = lazy(() => screens.roles().then((m) => ({ default: m.TeamRolesPage })));
+const ClubCodesPage = lazy(() => screens.clubCodes().then((m) => ({ default: m.ClubCodesPage })));
 const SquadPage = lazy(() => screens.squad().then((m) => ({ default: m.SquadPage })));
 const AssessPage = lazy(() => screens.assess().then((m) => ({ default: m.AssessPage })));
 const PlayerProfilePage = lazy(() =>
@@ -299,6 +301,11 @@ export function MyGameRoute() {
 export function TeamRoute() {
   const { teamId = '' } = useParams();
   return <ShellRoute>{(me) => <TeamPage me={me} teamId={teamId} />}</ShellRoute>;
+}
+
+/** "/plataforma/codigos" — los códigos de alta de clubes (administrador de la plataforma). */
+export function ClubCodesRoute() {
+  return <ShellRoute>{(me) => <ClubCodesPage me={me} />}</ShellRoute>;
 }
 
 /** "/cuenta" — tú: perfil, tus equipos y roles, cerrar sesión. */

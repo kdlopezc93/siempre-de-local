@@ -7,7 +7,12 @@ const CLUB = { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f72', name: 'Los del Barrio
 
 /** Kevin: entrenador y jugador en el primer equipo, solo jugador en el de los jueves. */
 export const ME_TWO_TEAMS: Me = {
-  user: { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f70', name: 'Kevin López', email: 'k@example.com' },
+  user: {
+    id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f70',
+    name: 'Kevin López',
+    email: 'k@example.com',
+    platformAdmin: false,
+  },
   consent: { policyVersion: 'x', acceptedAt: '2026-10-21T10:00:00.000Z' },
   profile: DEFAULT_PROFILE,
   teams: [

@@ -124,3 +124,22 @@ export const invitation = pgTable(
     check('invitation_uses_in_range', sql`${t.usedCount} >= 0 and ${t.usedCount} <= ${t.maxUses}`),
   ],
 );
+
+/**
+ * Código de alta de un club (2026-10-29): lo genera el administrador de la plataforma y sirve
+ * para crear un club desde la app. Un uso; el código en claro no se guarda.
+ */
+export const clubSignupCode = pgTable('club_signup_code', {
+  id: id(),
+  codeHash: text().notNull().unique(),
+  /** Para quién es, para reconocerlo en la lista. */
+  note: text(),
+  createdBy: uuid().references(() => user.id, { onDelete: 'set null' }),
+  expiresAt: timestamp({ withTimezone: true }).notNull(),
+  /** El club que se creó con él (lo llena "Crear mi club"). */
+  clubId: uuid().references(() => club.id),
+  usedBy: uuid().references(() => user.id, { onDelete: 'set null' }),
+  usedAt: timestamp({ withTimezone: true }),
+  revokedAt: timestamp({ withTimezone: true }),
+  createdAt: createdAt(),
+});

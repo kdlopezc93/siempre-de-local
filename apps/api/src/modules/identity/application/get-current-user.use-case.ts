@@ -15,14 +15,14 @@ export class GetCurrentUser {
   ) {}
 
   async execute(session: AuthSession): Promise<MeResponse> {
-    const { id, name, email } = session.user;
+    const { id, name, email, platformAdmin } = session.user;
     const [consent, memberships, profile] = await Promise.all([
       this.consents.findActive(id, POLICY_VERSION),
       this.memberships.listForUser(id),
       this.profiles.profileOf({ id, name }),
     ]);
     return {
-      user: { id, name, email },
+      user: { id, name, email, platformAdmin },
       profile,
       consent: consent && {
         policyVersion: consent.policyVersion,

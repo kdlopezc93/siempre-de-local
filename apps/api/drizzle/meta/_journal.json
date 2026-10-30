@@ -176,6 +176,13 @@
       "when": 1793294520657,
       "tag": "0024_invitation_also_plays",
       "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1793308822471,
+      "tag": "0025_club_signup_codes",
+      "breakpoints": true
     }
   ]
 }

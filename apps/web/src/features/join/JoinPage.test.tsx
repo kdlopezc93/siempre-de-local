@@ -16,7 +16,12 @@ const PREVIEW = {
   role: 'player',
   alsoPlays: false,
 };
-const USER = { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f70', name: 'Kevin', email: 'k@example.com' };
+const USER = {
+  id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f70',
+  name: 'Kevin',
+  email: 'k@example.com',
+  platformAdmin: false,
+};
 const CONSENT = { policyVersion: POLICY_VERSION, acceptedAt: '2026-10-21T10:00:00.000Z' };
 
 function renderJoin() {

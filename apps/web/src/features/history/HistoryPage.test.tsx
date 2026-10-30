@@ -15,7 +15,7 @@ import { DEFAULT_PROFILE } from '../../test/me-fixture';
 
 const TEAM_ID = uuid(9);
 const ME: Me = {
-  user: { id: uuid(8), name: 'Kevin', email: 'k@example.com' },
+  user: { id: uuid(8), name: 'Kevin', email: 'k@example.com', platformAdmin: false },
   consent: { policyVersion: 'x', acceptedAt: '2026-10-21T10:00:00.000Z' },
   teams: [
     {

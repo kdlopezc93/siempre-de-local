@@ -14,6 +14,8 @@ export const MeResponseSchema = z.object({
     id: z.uuid(),
     name: z.string(),
     email: z.email(),
+    /** Administra la plataforma: genera los códigos de alta de clubes (2026-10-29). */
+    platformAdmin: z.boolean(),
   }),
   /** Con valores por defecto si todavía no lo editó (nombre visible = el de Google). */
   profile: ProfileSchema,

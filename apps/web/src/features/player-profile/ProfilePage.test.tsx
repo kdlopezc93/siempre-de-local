@@ -13,7 +13,7 @@ import { ProfilePage } from './ProfilePage';
 import { togglePreference } from './use-profile';
 
 const ME: Me = {
-  user: { id: uuid(8), name: 'Kevin López', email: 'k@example.com' },
+  user: { id: uuid(8), name: 'Kevin López', email: 'k@example.com', platformAdmin: false },
   profile: { ...DEFAULT_PROFILE, preferredPositions: ['MC'] },
   consent: { policyVersion: 'x', acceptedAt: '2026-10-21T10:00:00.000Z' },
   teams: [],

@@ -82,6 +82,7 @@ Los admins de club se crean por script al inicio; ellos crean equipos e invitan 
 | Pasar el mando de entrenador; el anterior queda de asistente (`team.members.manage`) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Exportar datos del equipo (CSV) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Gestionar cuestionarios y bancos de certificación | ✘ | ✘ | ✘ | ✘ | ✔ |
+| Generar y anular códigos de alta de clubes (2026-10-29; se da con `pnpm admin:platform-admin`) | ✘ | ✘ | ✘ | ✘ | ✔ |
 | Revisar contenido de un banco (sin publicar) | ✘ | ✘ | ✔ si se le asigna como revisor | ✘ | ✔ |
 
 \* Acceso de soporte solo con registro en `audit_log`.
