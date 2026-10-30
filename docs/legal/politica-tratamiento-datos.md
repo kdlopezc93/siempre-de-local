@@ -18,7 +18,7 @@ Solo los necesarios para que la app funcione:
 - **Los cobros del equipo:** lo que te toca pagar (la vaca, la inscripción, una multa…) y lo que pagaste o avisaste que pagaste, con el medio (efectivo, Nequi, Daviplata, transferencia) y la fecha. La plata no pasa por la app: no guardamos datos bancarios, de tarjetas ni comprobantes.
 - **Lo que registra tu cuerpo técnico sobre ti:** la tarjeta de atributos (0–99), su valoración de tu posición, cómo jugaste cada partido (de "Flojo" a "Figura") y las notas que escriba.
 - **Técnicos:** fecha de tus sesiones y el navegador desde el que entras, para mantener tu sesión segura.
-- **Si activas los avisos:** la dirección que tu navegador nos da para mandarte notificaciones (convocatorias, alineaciones y, si fuiste la figura del partido, la felicitación). Los avisos pasan por el servicio de notificaciones de tu navegador (Google, Apple o Mozilla) y llevan solo el rival y la hora del partido. Los apagas cuando quieras en Tu cuenta.
+- **Si activas los avisos:** la dirección que tu navegador nos da para mandarte notificaciones (convocatorias, alineaciones, cobros nuevos del equipo y, si fuiste la figura del partido, la felicitación). Los avisos pasan por el servicio de notificaciones de tu navegador (Google, Apple o Mozilla) y llevan solo el rival y la hora del partido, o de qué es el cobro (nunca cuánto). Los apagas cuando quieras en Tu cuenta.
 
 No pedimos documento de identidad, dirección, teléfono ni fecha de nacimiento.
 

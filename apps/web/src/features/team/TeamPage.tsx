@@ -1,4 +1,5 @@
 import type { Icon } from '@phosphor-icons/react';
+import type { ReactNode } from 'react';
 import { ChartLineUp } from '@phosphor-icons/react/dist/csr/ChartLineUp';
 import { Question } from '@phosphor-icons/react/dist/csr/Question';
 import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
@@ -7,6 +8,8 @@ import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
 import { Wallet } from '@phosphor-icons/react/dist/csr/Wallet';
 
 import type { Me } from '../../shared/api/auth';
+import { Badge } from '../../shared/ui/Badge';
+import { useCharges } from '../charges/use-charges';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
 import { formatsLabel } from '../shell/shell-nav';
@@ -28,6 +31,8 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
   const staff = coach || roles.includes('assistant');
   // Los cobros (`06` Cobros): cuerpo técnico, tesorero y admin del club.
   const money = staff || roles.includes('treasurer') || clubAdmin;
+  const charges = useCharges(teamId, money);
+  const reported = charges.data?.items.reduce((n, c) => n + (c.cancelled ? 0 : c.reported), 0) ?? 0;
 
   return (
     <Screen className={styles.screen}>
@@ -48,7 +53,20 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
         {(coach || clubAdmin) && (
           <Item to={`/equipos/${teamId}/roles`} icon={UsersThree} title="Integrantes y roles" />
         )}
-        {money && <Item to={`/equipos/${teamId}/cobros`} icon={Wallet} title="Cobros" />}
+        {money && (
+          <Item
+            to={`/equipos/${teamId}/cobros`}
+            icon={Wallet}
+            title="Cobros"
+            trailing={
+              reported > 0 ? (
+                <Badge tone="brand" size="sm">
+                  {reported} por confirmar
+                </Badge>
+              ) : undefined
+            }
+          />
+        )}
         {(staff || clubAdmin) && (
           <Item
             to={`/equipos/${teamId}/validacion`}
@@ -71,7 +89,18 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
   );
 }
 
-function Item({ to, icon: Glyph, title }: { to: string; icon: Icon; title: string }) {
+function Item({
+  to,
+  icon: Glyph,
+  title,
+  trailing,
+}: {
+  to: string;
+  icon: Icon;
+  title: string;
+  /** Un pendiente a la derecha ("2 por confirmar"). */
+  trailing?: ReactNode;
+}) {
   return (
     <li>
       <Row
@@ -82,6 +111,7 @@ function Item({ to, icon: Glyph, title }: { to: string; icon: Icon; title: strin
           </span>
         }
         title={title}
+        trailing={trailing}
       />
     </li>
   );

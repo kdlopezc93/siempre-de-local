@@ -37,6 +37,7 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
   const membership = me.teams.find((t) => t.team.id === teamId);
   const charges = useMyCharges(teamId);
   const owed = charges.data?.owed ?? 0;
+  const unpaid = charges.data?.items.filter((i) => i.status !== 'paid').length ?? 0;
   return (
     <Screen className={styles.screen}>
       <PageTitle
@@ -73,6 +74,13 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
               }
               title="Tus cuentas"
               meta={owed > 0 ? `Debes ${pesos(owed)}` : 'Estás al día'}
+              trailing={
+                unpaid > 0 ? (
+                  <Badge tone="danger" size="sm">
+                    {unpaid} por pagar
+                  </Badge>
+                ) : undefined
+              }
             />
           </li>
         )}

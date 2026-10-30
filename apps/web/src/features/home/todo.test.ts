@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { arrange, lastLineup, matchTodos, playerTodos, staffTodos } from './todo';
+import { arrange, chargeTodos, lastLineup, matchTodos, playerTodos, staffTodos } from './todo';
 
 const NOW = new Date('2026-10-22T12:00:00Z');
 const bank = {
@@ -252,5 +252,27 @@ describe('lo que toca: partidos (D16)', () => {
       ['Veteranos: 2 a 1', 'Mira cómo jugaste.'],
     ]);
     expect(arrange(todos).lead!.title).toBe('¡Fuiste la figura contra Pibes!');
+  });
+});
+
+describe('lo que toca: cobros (06 Cobros)', () => {
+  it('al jugador, lo que debe; a quien cobra, los pagos por confirmar', () => {
+    const todos = chargeTodos({ teamId: 't', mine: { owed: 38_400, open: 2 }, reported: 3 });
+    expect(todos.map((t) => [t.who, t.title, t.detail, t.to])).toEqual([
+      [
+        'player',
+        'Debes $38.400',
+        'En 2 cobros del equipo. Avisa cuando pagues.',
+        '/equipos/t/mis-cuentas',
+      ],
+      [
+        'staff',
+        'Confirma 3 pagos',
+        'Dicen que pagaron: revisa que te haya llegado.',
+        '/equipos/t/cobros',
+      ],
+    ]);
+    expect(chargeTodos({ teamId: 't', mine: { owed: 0, open: 0 }, reported: 0 })).toEqual([]);
+    expect(chargeTodos({ teamId: 't', mine: null, reported: null })).toEqual([]);
   });
 });

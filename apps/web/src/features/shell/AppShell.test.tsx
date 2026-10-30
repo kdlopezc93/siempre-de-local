@@ -1,8 +1,10 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { fakeApi } from '../../test/fake-api';
 import { ME_TWO_TEAMS, TEAM_A, TEAM_B } from '../../test/me-two-teams';
 import { AppShell } from './AppShell';
 
@@ -20,13 +22,25 @@ function renderAt(path: string) {
     ],
     { initialEntries: [path] },
   );
-  render(<RouterProvider router={router} />);
+  render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  );
   return router;
 }
 
 describe('armazón: equipo arriba, pestañas del rol abajo (07 §4)', () => {
-  beforeEach(() => localStorage.clear());
-  afterEach(() => localStorage.clear());
+  beforeEach(() => {
+    localStorage.clear();
+    fakeApi({});
+  });
+  afterEach(() => {
+    localStorage.clear();
+    vi.unstubAllGlobals();
+  });
 
   it('muestra el equipo de la URL y las pestañas de tu rol en él', () => {
     renderAt(`/equipos/${TEAM_A}/plantilla`);

@@ -23,10 +23,11 @@ import {
 export const chargesKey = (teamId: string) => ['team', teamId, 'charges'] as const;
 const myChargesKey = (teamId: string) => ['team', teamId, 'my-charges'] as const;
 
-export function useCharges(teamId: string) {
+export function useCharges(teamId: string, enabled = true) {
   return useQuery({
     queryKey: chargesKey(teamId),
     queryFn: () => fetchCharges(teamId),
+    enabled,
     networkMode: 'offlineFirst',
   });
 }

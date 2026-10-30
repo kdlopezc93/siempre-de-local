@@ -7,6 +7,7 @@ import { FirstAid } from '@phosphor-icons/react/dist/csr/FirstAid';
 import { IdentificationCard } from '@phosphor-icons/react/dist/csr/IdentificationCard';
 import { SoccerBall } from '@phosphor-icons/react/dist/csr/SoccerBall';
 import { Strategy } from '@phosphor-icons/react/dist/csr/Strategy';
+import { Wallet } from '@phosphor-icons/react/dist/csr/Wallet';
 import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 
 import type { Me } from '../../shared/api/auth';
@@ -31,6 +32,7 @@ const TINTS: Record<TodoIcon, 1 | 2 | 3 | 4 | 5 | 6> = {
   lineup: 6,
   match: 1,
   injury: 3,
+  money: 2,
 };
 
 const TODAY = new Intl.DateTimeFormat('es-419', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -48,6 +50,7 @@ const ICONS: Record<TodoIcon, Icon> = {
   lineup: Strategy,
   match: CalendarCheck,
   injury: FirstAid,
+  money: Wallet,
 };
 
 /**
@@ -62,7 +65,7 @@ export function HomePage({ me }: { me: Me }) {
   const displayName = me.profile.displayName;
   const firstName = displayName.split(' ')[0] || displayName;
   const { lead, rest } = arrange(home.todos);
-  const both = home.staff && home.player;
+  const both = (home.staff || home.money) && home.player;
   const staffRows = rest.filter((t) => t.who === 'staff');
   if (home.shortcut) staffRows.push(home.shortcut);
   const playerRows = rest.filter((t) => t.who === 'player');
@@ -98,7 +101,10 @@ export function HomePage({ me }: { me: Me }) {
               Estás al día.
             </p>
           )}
-          <Group title={both ? 'Del cuerpo técnico' : null} todos={staffRows} />
+          <Group
+            title={both ? (home.staff ? 'Del cuerpo técnico' : 'Como tesorero') : null}
+            todos={staffRows}
+          />
           <Group title={both ? 'Como jugador' : null} todos={playerRows} />
           {home.isError && (
             <p role="alert" className={styles.muted}>

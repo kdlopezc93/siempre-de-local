@@ -26,6 +26,15 @@ export type PushMessage =
        */
       opponent: string;
       url: string;
+    }
+  | {
+      /** Un cobro nuevo del equipo (2026-10-30, `06` Cobros): sin el valor, solo de qué es. */
+      kind: 'charge-created';
+      /** "Vaca", "Inscripción" o el nombre que le pusieron. */
+      charge: string;
+      /** Lo mismo, para el service worker viejo (muestra el neutro con `opponent`). */
+      opponent: string;
+      url: string;
     };
 
 export interface Notifier {

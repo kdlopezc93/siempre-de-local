@@ -19,6 +19,7 @@ import {
   type TabId,
 } from './shell-nav';
 import { useActiveTeam } from './use-active-team';
+import { useNavBadges } from './use-nav-badges';
 
 const ICONS = {
   inicio: House,
@@ -45,6 +46,7 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
   const { active, choose } = useActiveTeam(me);
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const badges = useNavBadges(active?.team.id ?? '', active?.roles ?? []);
   // Admin de club sin rol en ningún equipo: todavía no hay equipo que mostrar.
   if (!active) return <>{children}</>;
 
@@ -76,7 +78,12 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
         {children}
       </Suspense>
       <BottomNav
-        items={tabs.map((t) => ({ to: t.to, label: t.label, icon: ICONS[t.id] }))}
+        items={tabs.map((t) => ({
+          to: t.to,
+          label: t.label,
+          icon: ICONS[t.id],
+          ...(badges[t.id] ? { badge: badges[t.id] } : {}),
+        }))}
         current={current?.to}
       />
     </div>
