@@ -7,6 +7,7 @@ import { AssessmentsModule } from './modules/assessments/assessments.module.js';
 import { RatingsModule } from './modules/ratings/ratings.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
 import { CertificationModule } from './modules/certification/certification.module.js';
+import { ChargesModule } from './modules/charges/charges.module.js';
 import { LineupsModule } from './modules/lineups/lineups.module.js';
 import { MatchesModule } from './modules/matches/matches.module.js';
 import { NotificationsModule } from './modules/notifications/notifications.module.js';
@@ -39,6 +40,7 @@ import { DbModule } from './shared/db/db.module.js';
     CertificationModule,
     LineupsModule,
     MatchesModule,
+    ChargesModule,
     TeamDataModule,
     SquadModule,
     HealthModule,

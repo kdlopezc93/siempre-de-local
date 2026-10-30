@@ -69,6 +69,9 @@ Los clubes se crean con un **código de alta** (2026-10-29): el administrador de
 | Convocar, editar o cancelar partidos (`team.matches.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Marcar o desmarcar lesionados (`team.injuries.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Pasar lista: "¿Quién vino?" (`team.attendance.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
+| Ver los cobros del equipo y quién debe (`team.charges.read`, 2026-10-30) | ✘ (solo lo suyo) | ✔ | ✔ | ✔ | ✘ |
+| Crear, ajustar y anular cobros; registrar y confirmar pagos (`team.charges.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
+| Ver lo que debe y pagó, y reportar "Ya pagué" (`team.read`, solo lo propio) | ✔ propio | ✔ propio | ✔ propio | – | ✘ |
 | Recordarles el test a los que no lo han hecho (`team.reminders.send`) | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Responder voy / no voy | ✔ propio | – | – | – | – |
 | Ver quién respondió qué | ✘ (solo cuántos) | ✔ | ✔ | ✔ | ✘ |

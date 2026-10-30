@@ -281,6 +281,12 @@ Implementado en `apps/api/src/modules/assessments/infrastructure/schema.ts` (mig
 
 **match_attendance** — `match_id (cascade), user_id (cascade), marked_by (set null), marked_at` · PK (match_id, user_id). "¿Quién vino?" (2026-10-30): la lista del partido, que se reemplaza entera al guardarla; `team_match.attendance_taken_at` (null = sin lista: cuentan los que dijeron voy) dice desde cuándo hay lista. Migración `0028_match_attendance`.
 
+**charge** — `id, team_id, kind charge_kind ('registration','referee','vaca','fee','fine','uniform','other'), title text null, match_id (team_match) null, tournament_id (tournament) null, split charge_split ('per_person','total'), amount integer, due_on date null, created_by (set null), created_at, cancelled_at null`. Índice `(team_id, created_at)`; checks: `amount` entre 1 y 100.000.000 (pesos enteros), y no de partido y torneo a la vez. Cobros del equipo (2026-10-30, `02` §15, migración `0030_charges`): `amount` es el valor por persona o el total que se repartió; se anula, no se borra.
+
+**charge_share** — `charge_id (cascade), user_id (cascade), amount integer (0–100.000.000), note text null` · PK (charge_id, user_id), índice `(user_id)`. Lo que debe cada uno; el ajuste por persona cambia `amount`.
+
+**payment** — `id, charge_id + user_id (→ charge_share, cascade), amount integer (1–100.000.000), method payment_method ('cash','nequi','daviplata','transfer','other'), paid_on date, status payment_status ('reported','confirmed','rejected'), reported_by (set null), reviewed_by (set null), created_at, reviewed_at null`. Índice `(charge_id)`. Un pago o abono: confirmado si lo registra el tesorero o el cuerpo técnico; reportado ("Ya pagué") hasta que lo revisen.
+
 **match_rating** — `match_id (cascade), player_user_id (cascade), rating smallint 1–5 (check), note text null, rated_by (set null), rated_at` · PK (match_id, player_user_id), índice `(player_user_id)`. La evaluación del partido (D18): una por jugador, quien la corrige la reemplaza; migración `0020_match_result`.
 
 **push_subscription** — `id, user_id (cascade), endpoint unique, p256dh, auth, created_at`. Una por navegador: si el celular cambia de cuenta, pasa a la nueva; se borra al apagar los avisos, si el servicio responde 404/410, o con la cuenta (migración `0019_push_subscriptions`).

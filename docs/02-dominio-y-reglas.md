@@ -418,3 +418,17 @@ Revisadas el 2026-10-22 (Fase 6, PR 11). La app no promete lo que no mide:
 - **Sin tiempos no medidos:** se quitó "toma unos 5 minutos" hasta medirlo con datos reales (`quiz_attempt.started_at` / `submitted_at`).
 - **Sin envío en segundo plano:** la cola sin conexión envía con la app abierta (`use-outbox`), así que se dice "cuando tengas señal y abras la app".
 - **La afinidad compara las respuestas** con lo que pide cada posición, no "tu forma de jugar".
+
+## 15. Cobros (2026-10-30)
+
+La plata del equipo: la vaca, la inscripción, el arbitraje, las multas, los uniformes y las cuotas (`06` Cobros, decisiones en `08` §7). **La app lleva la cuenta; la plata se paga por fuera** (efectivo, Nequi, Daviplata, transferencia). Sin pasarela. Reglas en `packages/domain/src/charges.ts`.
+
+- **Quién:** el cuerpo técnico y el **tesorero** crean cobros, ajustan lo de cada uno, registran pagos y confirman los "Ya pagué" (`team.charges.write`). El admin del club los ve. **Quién debe** no lo ven los compañeros: cada jugador ve solo lo suyo.
+- **Un cobro** es de un **partido**, de un **torneo** o **suelto** (no de partido y torneo a la vez: el torneo se ve por el partido). Tipo: inscripción, arbitraje, vaca, cuota, multa, uniforme u otro; título y fecha límite opcionales. **Todo a mano:** nada se cobra solo, ni los partidos de un torneo.
+- **A quién:** lo elige quien lo crea (desde el partido, por defecto los que vinieron según "¿Quién vino?", §13; todos; o a mano). Solo jugadores activos. **Una multa es de una sola persona.**
+- **Cuánto:** un **valor por persona**, o un **total que se reparte**: cada parte sube a los **$100 siguientes** y se muestra lo que sobra (`splitTotal`; 70.000 entre 13 = 5.400 y sobran 200; Kevin, 2026-10-30). Pesos enteros, hasta 100 millones.
+- **Ajuste por persona:** se cambia lo que debe alguien (con nota, p. ej. "Media beca") o se suma a alguien después. Nunca por debajo de lo que ya pagó.
+- **Pagos y abonos:** se puede pagar por partes. El que **registra el tesorero** queda **confirmado**; el **"Ya pagué"** del jugador queda **reportado** hasta que lo confirmen o lo rechacen. Nadie paga más de lo que falta (`payable`: lo que debe menos lo confirmado y lo reportado).
+- **Estado de cada uno** (`shareStatus`, solo con lo confirmado): **pagó**, **abonó** o **debe**. **Saldo** (`chargeBalance`): cobrado, entró y falta; el del equipo no cuenta los anulados.
+- **Anular, no borrar:** un cobro anulado queda en la lista, sale del saldo y de lo que debe cada uno, y ya no recibe pagos. Todo lo de plata queda en la auditoría.
+
