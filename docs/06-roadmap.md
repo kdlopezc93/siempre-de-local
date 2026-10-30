@@ -165,6 +165,7 @@ Elegidos por Kevin el 2026-10-23, antes del staging o la Fase 8: cosas chicas qu
 | 11 | Posición de la tarjeta elegida aparte (Kevin, 2026-10-29): campo nuevo en la foto, elegido al puntuar (viene la anterior o la de su valoración); la tarjeta la encabeza y dice su mejor media aparte (02 §7.4) | #121 ✔ |
 
 ### Módulo de equipos (Kevin, 2026-10-29)
+**Cerrado el 2026-10-29** (#122–#130).
 Gestionar el equipo desde la app, sin `admin:bootstrap-team` ni cambios a mano en la base. Decidido con Kevin: el entrenador y el admin del club arman el cuerpo técnico; hay un solo entrenador y, al pasar el mando, el anterior queda de asistente; los roles de jugador y de asistente van aparte (alguien del cuerpo técnico puede jugar). Editar el nombre y los formatos ya estaba (Equipo → Datos).
 
 | # | PR | Estado |
@@ -175,12 +176,12 @@ Gestionar el equipo desde la app, sin `admin:bootstrap-team` ni cambios a mano e
 | 4a | Códigos de alta: el administrador de la plataforma los genera en Tu cuenta y los manda por WhatsApp; cada código sirve para un club y vence en 14 días (Kevin, 2026-10-29) | #125 ✔ |
 | 4b | Crear mi club con un código: nombre y ciudad o barrio del club, nombre, categoría, formato y temporada del equipo; queda de dueño y entrenador ("También juego"). Límite: dueño de un solo club. La categoría se edita en Equipo → Datos | #126 ✔ |
 | 4c | Más equipos en el club: el dueño o admin crea otro (hasta 3 activos) desde Equipo → Nuevo equipo del club. Queda de entrenador; si lo entrena otra persona, sigue a invitarla como entrenador y al aceptar se pasa el mando (así ningún equipo queda sin quien lo maneje) | #127 ✔ |
-| 5 | La pantalla del club (Kevin, 2026-10-29): sus datos (nombre y ciudad o barrio, editables por el dueño y los admins) y sus equipos, con "Nuevo equipo" ahí. Se llega desde Equipo y desde Tu cuenta | #128 |
-| 6 | Archivar un equipo que ya no juega: deja de verse y de dar acceso a sus integrantes, sus invitaciones no sirven, libera cupo y sus datos quedan; se desarchiva desde el club si hay cupo | #129 |
-| 7 | Admins del club: el dueño nombra o quita admins entre los integrantes de sus equipos activos; al dueño no se le quita | |
+| 5 | La pantalla del club (Kevin, 2026-10-29): sus datos (nombre y ciudad o barrio, editables por el dueño y los admins) y sus equipos, con "Nuevo equipo" ahí. Se llega desde Equipo y desde Tu cuenta | #128 ✔ |
+| 6 | Archivar un equipo que ya no juega: deja de verse y de dar acceso a sus integrantes, sus invitaciones no sirven, libera cupo y sus datos quedan; se desarchiva desde el club si hay cupo | #129 ✔ |
+| 7 | Admins del club: el dueño nombra o quita admins entre los integrantes de sus equipos activos; al dueño no se le quita | #130 ✔ |
 
-### Siguiente: fútbol 5 (Kevin, 2026-10-29)
-**Lo próximo que se hace, antes del staging.** Sumar **F5** como tercer formato, junto a F8 y F11 (D14: un equipo juega en uno o varios, con uno principal). Hay que decidir el alcance antes de escribir código; lo que toca, como mínimo:
+### Fútbol 5 (Kevin, 2026-10-29)
+**Cerrado el 2026-10-29** (#131, #132), antes del staging. Sumar **F5** como tercer formato, junto a F8 y F11 (D14: un equipo juega en uno o varios, con uno principal). Hay que decidir el alcance antes de escribir código; lo que toca, como mínimo:
 - **Dominio:** posiciones elegibles y plegado del test en F5 (como F8 pliega pivote → mediocentro y mediapunta → delantero, §4 de `02`), formaciones de F5 con sus coordenadas para el planificador y la pizarra, y medias de la tarjeta por posición.
 - **Esquema y contratos:** el enum `match_format` (migración), `MatchFormatSchema` y las validaciones que hoy asumen F8 u F11.
 - **App:** selectores de formato (Datos del equipo, crear club y equipo, convocatoria, planificador) y textos ("Fútbol 5").
@@ -190,8 +191,8 @@ Decidido con Kevin (2026-10-29): portero, cierre, alas y pívot como en micro (l
 
 | # | PR | Estado |
 |---|---|---|
-| 1 | Dominio, contratos y base: el formato F5 (migración `0027`), plegado, posiciones elegibles, nombres de micro, pizarra, las 4 formaciones y las señales del planificador | #131 |
-| 2 | La app: "Fútbol 5" en los selectores (datos del equipo, crear club y equipo, convocatoria, planificador) y los nombres de micro en las pantallas (tarjeta, puntuar, valorar, plantilla, alineaciones, partido, resultado e historial del test); los bancos del examen y las posiciones preferidas siguen con su nombre de siempre | |
+| 1 | Dominio, contratos y base: el formato F5 (migración `0027`), plegado, posiciones elegibles, nombres de micro, pizarra, las 4 formaciones y las señales del planificador | #131 ✔ |
+| 2 | La app: "Fútbol 5" en los selectores (datos del equipo, crear club y equipo, convocatoria, planificador) y los nombres de micro en las pantallas (tarjeta, puntuar, valorar, plantilla, alineaciones, partido, resultado e historial del test); los bancos del examen y las posiciones preferidas siguen con su nombre de siempre | #132 ✔ |
 
 ### Fase 6b · Identidad v3 "Escuelas Deportivas"
 **Cerrada el 2026-10-28** (#102–#117). La v2 "pizarra táctica" se veía hecha con IA; Kevin pasó el kit original del sistema de diseño y se migraron todas las pantallas (`design-system.md`, v3: cobalto + volt, Plus Jakarta Sans y Space Grotesk, claro y oscuro).
