@@ -113,7 +113,8 @@ export const TeamMembersResponseSchema = z.object({
     z.object({
       userId: z.uuid(),
       displayName: z.string(),
-      role: z.enum(['coach', 'assistant']),
+      /** El tesorero (2026-10-30) va con el cuerpo técnico, aunque no evalúa ni arma alineaciones. */
+      role: z.enum(['coach', 'assistant', 'treasurer']),
     }),
   ),
   players: z.array(

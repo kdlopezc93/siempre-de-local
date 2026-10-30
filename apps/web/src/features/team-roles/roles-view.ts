@@ -7,6 +7,8 @@ export interface TeamPerson {
   coach: boolean;
   assistant: boolean;
   player: boolean;
+  /** Tesorero (2026-10-30): maneja los cobros y pasa lista. */
+  treasurer: boolean;
 }
 
 /**
@@ -26,6 +28,7 @@ export function teamPeople({ staff, players }: TeamMembersResponse): TeamPerson[
       coach: false,
       assistant: false,
       player: false,
+      treasurer: false,
     };
     people.set(userId, created);
     return created;

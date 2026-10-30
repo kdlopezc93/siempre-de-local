@@ -17,6 +17,8 @@ export interface TeamPlayersQuery {
   activeStaff(
     teamId: string,
   ): Promise<{ userId: string; name: string; role: 'coach' | 'assistant' }[]>;
+  /** Los tesoreros activos (2026-10-30): van con el cuerpo técnico en Integrantes. */
+  activeTreasurers(teamId: string): Promise<{ userId: string; name: string }[]>;
 }
 export const TEAM_PLAYERS_QUERY = Symbol('TEAM_PLAYERS_QUERY');
 

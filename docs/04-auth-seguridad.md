@@ -79,7 +79,7 @@ Los clubes se crean con un **código de alta** (2026-10-29): el administrador de
 | Invitar asistentes, que pueden también jugar (`team.assistants.invite`, Kevin 2026-10-29) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Invitar entrenadores (`team.staff.invite`): una persona; al entrar pasa el mando | ✘ | ✘ | ✘ | ✔ | ✘ |
 | Quitar del equipo (`team.members.manage`): sale con su historial; al entrenador no, primero se pasa el mando | ✘ | ✘ | ✔ | ✔ | ✘ |
-| Subir a asistente o quitárselo, marcar quién juega (`team.members.manage`, Kevin 2026-10-29) | ✘ | ✘ | ✔ | ✔ | ✘ |
+| Subir a asistente o quitárselo, marcar quién juega, nombrar tesorero (`team.members.manage`, Kevin 2026-10-29 y 2026-10-30) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Pasar el mando de entrenador; el anterior queda de asistente (`team.members.manage`) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Exportar datos del equipo (CSV) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Gestionar cuestionarios y bancos de certificación | ✘ | ✘ | ✘ | ✘ | ✔ |
@@ -91,6 +91,8 @@ Los clubes se crean con un **código de alta** (2026-10-29): el administrador de
 | Revisar contenido de un banco (sin publicar) | ✘ | ✘ | ✔ si se le asigna como revisor | ✘ | ✔ |
 
 \* Acceso de soporte solo con registro en `audit_log`.
+
+**Tesorero** (`treasurer`, 2026-10-30; no tiene columna para no repetir la matriz): es miembro del equipo (`team.read`); **pasa lista** (`team.attendance.write`) y por eso ve quién respondió qué en el partido; **maneja los cobros** (`team.charges.read` / `team.charges.write`, que también tienen coach y assistant; el admin del club solo los ve). No arma alineaciones, no evalúa ni puntúa, no carga el resultado ni ve los resultados de los tests. Si además juega, tiene todo lo del jugador. Lo nombran el coach o el admin del club en Roles; no se entra de tesorero con invitación.
 
 **Quién valora a quién** (tarjeta 0–99, valoración de posición y evaluación del partido; Kevin, 2026-10-24): nadie se valora a sí mismo; el **coach** valora a todos los demás; el **assistant**, a todos menos a otros asistentes. **Al coach que también juega lo valoran los asistentes** (Kevin, 2026-10-25: con la regla anterior, al entrenador no lo valoraba nadie). Importa porque alguien del cuerpo técnico puede ser también jugador del equipo. Lo decide `canRate` en `shared/authz/policy.ts` (403 `CANNOT_RATE_PLAYER`), y el API lo dice por jugador (`canRate`) en la plantilla, la ficha y la lista del partido. A quien no puede valorar, su test se le muestra sin más: no hay valoración a ciegas que cuidar.
 

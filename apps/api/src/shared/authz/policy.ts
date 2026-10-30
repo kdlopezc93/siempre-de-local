@@ -4,7 +4,7 @@
  */
 
 export type ClubRole = 'owner' | 'admin';
-export type TeamRole = 'coach' | 'assistant' | 'player';
+export type TeamRole = 'coach' | 'assistant' | 'player' | 'treasurer';
 
 /** Quién pide, con sus membresías activas. */
 export interface Actor {
@@ -22,7 +22,9 @@ export interface TeamScope {
 }
 
 const STAFF: readonly TeamRole[] = ['coach', 'assistant'];
-const MEMBERS: readonly TeamRole[] = ['coach', 'assistant', 'player'];
+const MEMBERS: readonly TeamRole[] = ['coach', 'assistant', 'player', 'treasurer'];
+/** Maneja la plata (2026-10-30): el cuerpo técnico y el tesorero. */
+const MONEY: readonly TeamRole[] = ['coach', 'assistant', 'treasurer'];
 
 /**
  * Acciones sobre un equipo y quién puede hacerlas. `clubAdmin` = owner o admin del club
@@ -39,8 +41,11 @@ const TEAM_PERMISSIONS = {
   'team.lineups.write': { roles: STAFF, clubAdmin: false },
   /** Convocar, editar o cancelar partidos (Fase 7). */
   'team.matches.write': { roles: STAFF, clubAdmin: false },
-  /** "¿Quién vino?": pasar lista desde la hora del partido (2026-10-30; el tesorero, después). */
-  'team.attendance.write': { roles: STAFF, clubAdmin: false },
+  /** "¿Quién vino?": pasar lista desde la hora del partido (2026-10-30), también el tesorero. */
+  'team.attendance.write': { roles: MONEY, clubAdmin: false },
+  /** Cobros y pagos del equipo (`06` Cobros): quién debe lo ven el cuerpo técnico y el tesorero. */
+  'team.charges.read': { roles: MONEY, clubAdmin: true },
+  'team.charges.write': { roles: MONEY, clubAdmin: false },
   /** Marcar o desmarcar lesionados (2026-10-24). */
   'team.injuries.write': { roles: STAFF, clubAdmin: false },
   /** Recordarles el test a los que no lo han hecho (2026-10-26). */

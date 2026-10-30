@@ -4,7 +4,7 @@ import type {
   CreateInvitationRequestSchema,
   InvitationPreviewResponse,
   InvitationSummary,
-  TeamRole,
+  InvitationRole,
 } from '@sdl/contracts';
 import type { z } from 'zod';
 
@@ -32,12 +32,12 @@ const DAY_MS = 24 * 60 * 60 * 1000;
  * Jugadores y asistentes los invitan el coach y el admin del club; entrenador, solo el admin del
  * club (04 §2.2; asistentes, Kevin 2026-10-29: el coach arma su cuerpo técnico).
  */
-const INVITE_PERMISSION: Record<TeamRole, TeamPermission> = {
+const INVITE_PERMISSION: Record<InvitationRole, TeamPermission> = {
   player: 'team.players.invite',
   assistant: 'team.assistants.invite',
   coach: 'team.staff.invite',
 };
-const permissionToInvite = (role: TeamRole): TeamPermission => INVITE_PERMISSION[role];
+const permissionToInvite = (role: InvitationRole): TeamPermission => INVITE_PERMISSION[role];
 
 const NOT_FOUND = () =>
   new NotFoundError('Esta invitación no existe. Revisa el enlace.', 'INVITATION_NOT_FOUND');

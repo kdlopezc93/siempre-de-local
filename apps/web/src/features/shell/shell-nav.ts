@@ -25,8 +25,9 @@ export function tabsFor(teamId: string, roles: readonly TeamRole[]): Tab[] {
       match: [`${team}/plantilla`],
     });
   }
-  // Partidos: la convocatoria, responder y (adentro) las alineaciones. Para todos.
-  if (staff || player) {
+  // Partidos: la convocatoria, responder y (adentro) las alineaciones. Para todos; el tesorero
+  // pasa lista ahí (2026-10-30).
+  if (staff || player || roles.includes('treasurer')) {
     tabs.push({
       id: 'partidos',
       label: 'Partidos',
@@ -83,6 +84,7 @@ const ROLE_LABEL: Record<TeamRole, string> = {
   coach: 'Entrenador',
   assistant: 'Asistente',
   player: 'Jugador',
+  treasurer: 'Tesorero',
 };
 
 /** "Entrenador y jugador". */

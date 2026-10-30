@@ -204,6 +204,13 @@
       "when": 1793394617305,
       "tag": "0028_match_attendance",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1793395858172,
+      "tag": "0029_team_role_treasurer",
+      "breakpoints": true
     }
   ]
 }

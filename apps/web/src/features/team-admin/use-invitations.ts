@@ -1,4 +1,4 @@
-import type { CreateInvitationRequest, TeamRole, TeamResponse } from '@sdl/contracts';
+import type { CreateInvitationRequest, InvitationRole, TeamResponse } from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -36,7 +36,7 @@ export function useRevokeInvitation(teamId: string) {
 }
 
 /** A quién invita el enlace (2026-10-29): jugadores, o alguien del cuerpo técnico. */
-export type InviteKind = TeamRole;
+export type InviteKind = InvitationRole;
 
 export const INVITE_KINDS: Record<InviteKind, { label: string; what: string }> = {
   player: { label: 'Jugadores', what: 'Sirve 7 días y para hasta 30 personas.' },
@@ -53,7 +53,7 @@ export function invitationRequest(kind: InviteKind, alsoPlays: boolean): CreateI
 }
 
 /** Cómo se nombra una invitación en la lista. */
-export function invitationLabel({ role, alsoPlays }: { role: TeamRole; alsoPlays: boolean }) {
+export function invitationLabel({ role, alsoPlays }: { role: InvitationRole; alsoPlays: boolean }) {
   if (role === 'player') return 'Para jugadores';
   return `${role === 'coach' ? 'Entrenador' : 'Asistente'}${alsoPlays ? ' que también juega' : ''}`;
 }
@@ -62,7 +62,7 @@ export function invitationLabel({ role, alsoPlays }: { role: TeamRole; alsoPlays
 export function invitationMessage(
   team: TeamResponse['team'],
   joinUrl: string,
-  role: TeamRole = 'player',
+  role: InvitationRole = 'player',
 ): string {
   if (role === 'player') {
     return `Te convoco a ${team.name} (${team.club.name}). Entra con este enlace para unirte: ${joinUrl}`;

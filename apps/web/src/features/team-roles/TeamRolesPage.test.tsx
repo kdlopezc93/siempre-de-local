@@ -91,6 +91,20 @@ describe('cuerpo técnico y roles (2026-10-29)', () => {
     await vi.waitFor(() => expect(body).toEqual({ assistant: true }));
   });
 
+  it('tesorero: se le prende a cualquiera menos al entrenador (2026-10-30)', async () => {
+    let body: unknown;
+    renderPage(['coach', 'player'], {
+      [`PATCH /api/v1/teams/${TEAM_A}/members/${ANA}/roles`]: (init) => {
+        body = JSON.parse(init.body as string);
+        return { status: 204 };
+      },
+    });
+    expect(await screen.findByRole('switch', { name: 'Tesorero: Ana' })).not.toBeChecked();
+    expect(screen.queryByRole('switch', { name: 'Tesorero: Kevin López' })).toBeNull();
+    await userEvent.click(screen.getByRole('switch', { name: 'Tesorero: Ana' }));
+    await vi.waitFor(() => expect(body).toEqual({ treasurer: true }));
+  });
+
   it('pasar el mando: elige a quién y dice que el anterior queda de asistente', async () => {
     let body: unknown;
     renderPage(['coach', 'player'], {

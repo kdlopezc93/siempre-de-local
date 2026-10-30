@@ -34,6 +34,7 @@ const CAN: Record<TeamRole, string> = {
     'valora, puntúa la tarjeta, arma alineaciones, invita jugadores, anula exámenes y pide re-evaluaciones',
   assistant: 'valora, puntúa la tarjeta y arma alineaciones',
   player: 'hace el test y los exámenes; ve su tarjeta si el equipo lo permite',
+  treasurer: 'pasa lista en los partidos y maneja los cobros del equipo',
 };
 
 /**

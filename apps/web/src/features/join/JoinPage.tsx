@@ -1,4 +1,4 @@
-import type { InvitationPreviewResponse, TeamRole } from '@sdl/contracts';
+import type { InvitationPreviewResponse, InvitationRole } from '@sdl/contracts';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
@@ -12,7 +12,7 @@ import { ConsentForm } from '../consent/ConsentForm';
 import styles from './JoinPage.module.css';
 import { errorMessage, useInvitationPreview, useJoinTeam } from './use-join';
 
-const ROLE: Record<TeamRole, string> = {
+const ROLE: Record<InvitationRole, string> = {
   player: 'jugador',
   assistant: 'asistente técnico',
   coach: 'entrenador',
