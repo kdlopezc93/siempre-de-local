@@ -158,3 +158,60 @@
   flex-direction: column;
   gap: var(--sdl-space-3);
 }
+
+/* El dueño y los admins, en tarjetas como las filas. */
+.admin {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+  padding: 12px 14px;
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.adminName {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+.choices {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  max-height: 50dvh;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  border: 0;
+}
+
+.choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+  min-height: var(--sdl-touch-min);
+  padding: var(--sdl-space-2) var(--sdl-space-3);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.choice input {
+  position: absolute;
+  opacity: 0;
+}
+
+.choice:has(input:checked) {
+  background: var(--sdl-fg);
+  color: var(--sdl-bg);
+}
+
+.choice:has(input:focus-visible) {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+}

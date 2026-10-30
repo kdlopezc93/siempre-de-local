@@ -9,6 +9,7 @@ import { GetTeam, SetInjury, UpdateMember, UpdateTeam } from './application/get-
 import { ClubCodes, CreateClub } from './application/club-codes.use-cases.js';
 import {
   ArchiveTeam,
+  ClubAdmins,
   CreateTeam,
   GetClub,
   UpdateClub,
@@ -65,6 +66,7 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
     GetClub,
     UpdateClub,
     ArchiveTeam,
+    ClubAdmins,
     GetTeam,
     UpdateTeam,
     UpdateMember,

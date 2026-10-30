@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type {
+  AddClubAdminRequest,
   ClubResponse,
   CreateTeamRequestSchema,
   CreateTeamResponse,
@@ -14,6 +15,7 @@ import {
   type AuthorizationReader,
 } from '../../../shared/authz/actor.port.js';
 import {
+  BusinessRuleError,
   ConflictError,
   ForbiddenError,
   NotFoundError,
@@ -102,7 +104,12 @@ export class GetClub {
     const myRole = await clubRoleOf(this.memberships, userId, clubId);
     const club = await this.teams.findClub(clubId);
     if (!club) throw new NotFoundError('Club no encontrado');
-    return { club, myRole, teams: await this.teams.clubTeams(clubId) };
+    const [teams, admins, candidates] = await Promise.all([
+      this.teams.clubTeams(clubId),
+      this.teams.clubAdmins(clubId),
+      this.teams.clubCandidates(clubId),
+    ]);
+    return { club, myRole, teams, admins, candidates };
   }
 }
 
@@ -169,5 +176,58 @@ export class ArchiveTeam {
       meta: { clubId },
     });
     return new GetClub(this.teams, this.memberships).execute(userId, clubId);
+  }
+}
+
+/**
+ * Admins del club (Kevin, 2026-10-29): el dueño los nombra entre los integrantes de sus equipos
+ * activos y los quita. Al dueño no se le quita. Un admin ve todos los equipos del club, invita
+ * entrenadores, crea y archiva equipos y edita el club (04 §2.2).
+ */
+@Injectable()
+export class ClubAdmins {
+  constructor(
+    @Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository,
+    @Inject(AUTHORIZATION_READER) private readonly memberships: AuthorizationReader,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+  ) {}
+
+  async add(userId: string, clubId: string, { userId: target }: AddClubAdminRequest) {
+    await this.assertOwner(userId, clubId);
+    const candidates = await this.teams.clubCandidates(clubId);
+    if (!candidates.some((c) => c.userId === target)) {
+      throw new BusinessRuleError(
+        'Solo puedes nombrar admin a alguien de los equipos del club que todavía no lo sea',
+        'NOT_A_CLUB_CANDIDATE',
+      );
+    }
+    await this.teams.addClubAdmin(clubId, target);
+    await this.record(userId, clubId, target, 'club.admin_added');
+    return new GetClub(this.teams, this.memberships).execute(userId, clubId);
+  }
+
+  async remove(userId: string, clubId: string, target: string) {
+    await this.assertOwner(userId, clubId);
+    if (!(await this.teams.removeClubAdmin(clubId, target))) {
+      throw new NotFoundError('Esa persona no es admin del club', 'NOT_A_CLUB_ADMIN');
+    }
+    await this.record(userId, clubId, target, 'club.admin_removed');
+    return new GetClub(this.teams, this.memberships).execute(userId, clubId);
+  }
+
+  private async assertOwner(userId: string, clubId: string) {
+    if ((await clubRoleOf(this.memberships, userId, clubId)) !== 'owner') {
+      throw new ForbiddenError('Solo el dueño del club nombra o quita admins');
+    }
+  }
+
+  private record(userId: string, clubId: string, target: string, action: string) {
+    return this.audit.record({
+      actorUserId: userId,
+      action,
+      entity: 'club_membership',
+      entityId: target,
+      meta: { clubId },
+    });
   }
 }

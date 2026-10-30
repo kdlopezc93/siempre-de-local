@@ -358,4 +358,45 @@ describe('códigos de alta de clubes (2026-10-29)', () => {
       ).toBe(404);
     });
   });
+
+  describe('admins del club', () => {
+    it('el dueño nombra admin a un integrante y lo quita; al dueño no', async () => {
+      const me = MeResponseSchema.parse((await call('GET', '/me', someone)).json());
+      const clubId = me.clubs[0]!.id;
+      const club = ClubResponseSchema.parse(
+        (await call('GET', `/clubs/${clubId}`, someone)).json(),
+      );
+      expect(club.admins).toEqual([{ userId: someone.userId, name: 'Pedro', role: 'owner' }]);
+      // El jugador que entró antes a uno de sus equipos.
+      expect(club.candidates).toEqual([{ userId: admin.userId, name: 'Kevin' }]);
+
+      const added = await call('POST', `/clubs/${clubId}/admins`, someone, {
+        userId: admin.userId,
+      });
+      expect(ClubResponseSchema.parse(added.json()).admins.map((a) => a.role)).toEqual([
+        'owner',
+        'admin',
+      ]);
+      // Como admin ve el club, pero no nombra ni quita admins.
+      const asAdmin = ClubResponseSchema.parse(
+        (await call('GET', `/clubs/${clubId}`, admin)).json(),
+      );
+      expect(asAdmin.myRole).toBe('admin');
+      expect(
+        (await call('DELETE', `/clubs/${clubId}/admins/${someone.userId}`, admin)).statusCode,
+      ).toBe(403);
+
+      // Solo integrantes de sus equipos, y al dueño no se le quita.
+      const outsider = await call('POST', `/clubs/${clubId}/admins`, someone, {
+        userId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f00',
+      });
+      expect(ErrorBodySchema.parse(outsider.json()).error.code).toBe('NOT_A_CLUB_CANDIDATE');
+      const owner = await call('DELETE', `/clubs/${clubId}/admins/${someone.userId}`, someone);
+      expect(ErrorBodySchema.parse(owner.json()).error.code).toBe('NOT_A_CLUB_ADMIN');
+
+      const removed = await call('DELETE', `/clubs/${clubId}/admins/${admin.userId}`, someone);
+      expect(ClubResponseSchema.parse(removed.json()).admins).toHaveLength(1);
+      expect((await call('GET', `/clubs/${clubId}`, admin)).statusCode).toBe(403);
+    });
+  });
 });

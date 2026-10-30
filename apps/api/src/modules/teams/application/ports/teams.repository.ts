@@ -52,6 +52,11 @@ export interface ClubTeamRecord {
   members: number;
 }
 
+export interface ClubPerson {
+  userId: string;
+  name: string;
+}
+
 /** Prender (`active`) o apagar un rol de alguien en el equipo. */
 export interface RoleChange {
   userId: string;
@@ -87,6 +92,13 @@ export interface TeamsRepository {
   findClub(clubId: string): Promise<ClubRecord | null>;
   /** Los equipos del club: primero los activos, por nombre. */
   clubTeams(clubId: string): Promise<ClubTeamRecord[]>;
+  /** El dueño y los admins del club: primero el dueño, después por nombre. */
+  clubAdmins(clubId: string): Promise<(ClubPerson & { role: 'owner' | 'admin' })[]>;
+  /** Integrantes activos de los equipos activos del club que no son dueño ni admin. */
+  clubCandidates(clubId: string): Promise<ClubPerson[]>;
+  addClubAdmin(clubId: string, userId: string): Promise<void>;
+  /** Quita a un admin (nunca al dueño); false si no era admin. */
+  removeClubAdmin(clubId: string, userId: string): Promise<boolean>;
   updateClub(clubId: string, patch: Partial<Pick<ClubRecord, 'name' | 'city'>>): Promise<void>;
   /** Archiva o desarchiva un equipo del club; desarchivar respeta el límite de activos. */
   setArchived(

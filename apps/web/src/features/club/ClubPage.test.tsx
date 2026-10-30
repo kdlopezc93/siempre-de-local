@@ -24,6 +24,8 @@ const club = (extra: object = {}) => ({
   club: { id: CLUB, name: 'Los del Barrio', city: null, ...extra },
   myRole: 'owner',
   teams: [team(TEAM_A, 'Primer equipo', { category: 'Libre' }), team(OTHER, 'Los del jueves')],
+  admins: [{ userId: ME_TWO_TEAMS.user.id, name: 'Kevin López', role: 'owner' }],
+  candidates: [{ userId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f55', name: 'Stiven Rios' }],
 });
 
 function renderPage() {
@@ -143,6 +145,39 @@ describe('el club (2026-10-29)', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Desarchivar Los del jueves' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Archiva otro antes');
+  });
+
+  it('el dueño nombra admin a un integrante y se lo quita', async () => {
+    const STIVEN = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f55';
+    const withAdmin = {
+      ...club(),
+      admins: [
+        { userId: ME_TWO_TEAMS.user.id, name: 'Kevin López', role: 'owner' },
+        { userId: STIVEN, name: 'Stiven Rios', role: 'admin' },
+      ],
+      candidates: [],
+    };
+    const { calls } = fakeApi({
+      [`GET /api/v1/clubs/${CLUB}`]: { status: 200, body: club() },
+      [`POST /api/v1/clubs/${CLUB}/admins`]: { status: 201, body: withAdmin },
+      [`DELETE /api/v1/clubs/${CLUB}/admins/${STIVEN}`]: { status: 200, body: club() },
+    });
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Nombrar admin' }));
+    const sheet = screen.getByRole('dialog', { name: '¿A quién nombras admin?' });
+    await userEvent.click(within(sheet).getByRole('radio', { name: 'Stiven Rios' }));
+    await userEvent.click(
+      within(sheet).getByRole('button', { name: 'Nombrar admin a Stiven Rios' }),
+    );
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Quitar admin a Stiven Rios' }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Sí, quitar' }));
+    await vi.waitFor(() =>
+      expect(calls).toContain(`DELETE /api/v1/clubs/${CLUB}/admins/${STIVEN}`),
+    );
+    // Al dueño no se le quita.
+    expect(screen.queryByRole('button', { name: /Quitar admin a Kevin/ })).toBeNull();
   });
 
   it('a quien no es del club le explica', async () => {

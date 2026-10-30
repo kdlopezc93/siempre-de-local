@@ -1,7 +1,13 @@
 import type { UpdateClubRequest } from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { fetchClub, setTeamArchived, updateClub } from '../../shared/api/club-codes';
+import {
+  addClubAdmin,
+  fetchClub,
+  removeClubAdmin,
+  setTeamArchived,
+  updateClub,
+} from '../../shared/api/club-codes';
 import { SESSION_KEY } from '../auth/use-session';
 
 const clubKey = (clubId: string) => ['club', clubId] as const;
@@ -38,5 +44,15 @@ export function useArchiveTeam(clubId: string) {
         queryClient.invalidateQueries({ queryKey: ['team'] }),
       ]);
     },
+  });
+}
+
+/** Nombrar o quitar un admin del club (dueño). */
+export function useClubAdmin(clubId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ userId, admin }: { userId: string; admin: boolean }) =>
+      admin ? addClubAdmin(clubId, userId) : removeClubAdmin(clubId, userId),
+    onSuccess: (club) => queryClient.setQueryData(clubKey(clubId), club),
   });
 }

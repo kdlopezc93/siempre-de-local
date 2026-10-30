@@ -85,3 +85,18 @@ export function setTeamArchived(
     body: JSON.stringify({ archived }),
   });
 }
+
+/** El dueño nombra admin a un integrante de sus equipos. */
+export function addClubAdmin(clubId: string, userId: string): Promise<ClubResponse> {
+  return apiRequest(`/api/v1/clubs/${clubId}/admins`, ClubResponseSchema, {
+    method: 'POST',
+    body: JSON.stringify({ userId }),
+  });
+}
+
+/** El dueño quita a un admin (al dueño no). */
+export function removeClubAdmin(clubId: string, userId: string): Promise<ClubResponse> {
+  return apiRequest(`/api/v1/clubs/${clubId}/admins/${userId}`, ClubResponseSchema, {
+    method: 'DELETE',
+  });
+}
