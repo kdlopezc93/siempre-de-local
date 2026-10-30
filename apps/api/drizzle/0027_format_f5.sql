@@ -1,0 +1,1 @@
+ALTER TYPE "public"."match_format" ADD VALUE 'F5';

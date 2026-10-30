@@ -43,8 +43,37 @@ function formation(key: string, label: string, format: MatchFormat, raw: Raw[]):
 /**
  * F8: las 4 formaciones del planificador del prototipo (D6), con sus coordenadas.
  * F11: las cuatro más usadas en el fútbol amateur (decidido el 2026-10-22).
+ * F5: las cuatro que eligió Kevin (2026-10-29), con cierre (DFC), alas (EXT) y pívot (DC).
  */
 export const FORMATIONS: readonly Formation[] = [
+  formation('1-1-2-1', '1-1-2-1 (rombo)', 'F5', [
+    ['POR', [50, 139]],
+    ['DFC', [50, 112]],
+    ['EXT', [18, 82], 'izquierda'],
+    ['EXT', [82, 82], 'derecha'],
+    ['DC', [50, 44]],
+  ]),
+  formation('1-2-2', '1-2-2 (cuadrado)', 'F5', [
+    ['POR', [50, 139]],
+    ['DFC', [30, 110], 'izquierda'],
+    ['DFC', [70, 110], 'derecha'],
+    ['DC', [30, 52], 'izquierda'],
+    ['DC', [70, 52], 'derecha'],
+  ]),
+  formation('1-2-1-1', '1-2-1-1 (Y)', 'F5', [
+    ['POR', [50, 139]],
+    ['DFC', [30, 112], 'izquierda'],
+    ['DFC', [70, 112], 'derecha'],
+    ['EXT', [50, 80]],
+    ['DC', [50, 40]],
+  ]),
+  formation('1-3-1', '1-3-1', 'F5', [
+    ['POR', [50, 139]],
+    ['EXT', [16, 100], 'izquierda'],
+    ['DFC', [50, 104]],
+    ['EXT', [84, 100], 'derecha'],
+    ['DC', [50, 44]],
+  ]),
   formation('1-3-3-1', '1-3-3-1', 'F8', [
     ['POR', [50, 139]],
     ['LAT', [16, 112], 'izquierda'],
@@ -140,6 +169,7 @@ export const FORMATIONS: readonly Formation[] = [
 ];
 
 export const DEFAULT_FORMATION: Readonly<Record<MatchFormat, string>> = {
+  F5: '1-1-2-1',
   F8: '1-3-3-1',
   F11: '1-4-3-3',
 };

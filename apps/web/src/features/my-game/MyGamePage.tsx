@@ -1,4 +1,4 @@
-import type { CertPositionsResponse, PositionCode } from '@sdl/contracts';
+import type { CertPositionsResponse, MatchFormat, PositionCode } from '@sdl/contracts';
 import { BAND_LABELS, POSITIONS } from '@sdl/domain';
 import { NotePencil } from '@phosphor-icons/react/dist/csr/NotePencil';
 import { Link } from 'react-router';
@@ -96,7 +96,7 @@ function SeasonSection({ meId, teamId }: { meId: string; teamId: string }) {
   );
 }
 
-function CardSection({ teamId, format }: { teamId: string; format: 'F11' | 'F8' }) {
+function CardSection({ teamId, format }: { teamId: string; format: MatchFormat }) {
   const card = useMyCard(teamId);
   if (card.isPending) {
     return (

@@ -9,7 +9,7 @@ export const BootstrapTeamInputSchema = z.object({
   clubName: z.string().trim().min(2),
   clubSlug: z.string().regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, 'solo minúsculas, números y guiones'),
   teamName: z.string().trim().min(2),
-  format: z.enum(['F8', 'F11']),
+  format: z.enum(['F5', 'F8', 'F11']),
   season: z.string().trim().min(4),
   ownerEmail: z.email(),
   coachEmail: z.email(),

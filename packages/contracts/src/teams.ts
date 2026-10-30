@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const MatchFormatSchema = z.enum(['F8', 'F11']);
+export const MatchFormatSchema = z.enum(['F5', 'F8', 'F11']);
 export const TeamRoleSchema = z.enum(['coach', 'assistant', 'player']);
 
 export type MatchFormat = z.infer<typeof MatchFormatSchema>;

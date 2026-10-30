@@ -215,7 +215,7 @@ describe('códigos de alta de clubes (2026-10-29)', () => {
       const { clubId } = CreateClubResponseSchema.parse(res.json());
       const [row] = await connection.db.select().from(club).where(eq(club.id, clubId));
       expect(row!.slug).toBe('los-tigres-del-sur-2');
-      expect((await call('POST', '/clubs', admin, form('X', { format: 'F5' }))).statusCode).toBe(
+      expect((await call('POST', '/clubs', admin, form('X', { format: 'F7' }))).statusCode).toBe(
         400,
       );
     });
@@ -256,7 +256,7 @@ describe('códigos de alta de clubes (2026-10-29)', () => {
 
       // El dueño de otro club no crea equipos en este.
       expect((await newTeam(admin, clubId, 'Intrusos')).statusCode).toBe(403);
-      expect((await newTeam(someone, clubId, 'X', { format: 'F5' })).statusCode).toBe(400);
+      expect((await newTeam(someone, clubId, 'X', { format: 'F7' })).statusCode).toBe(400);
     });
   });
 

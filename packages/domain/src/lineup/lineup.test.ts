@@ -57,7 +57,7 @@ describe('húngaro', () => {
 describe('formaciones', () => {
   it('cada una tiene los jugadores de su formato, puestos válidos e ids únicos', () => {
     for (const f of FORMATIONS) {
-      expect(f.slots, f.key).toHaveLength(f.format === 'F8' ? 8 : 11);
+      expect(f.slots, f.key).toHaveLength({ F5: 5, F8: 8, F11: 11 }[f.format]);
       expect(new Set(f.slots.map((s) => s.id)).size, f.key).toBe(f.slots.length);
       expect(
         f.slots.filter((s) => s.position === 'POR'),
@@ -71,6 +71,8 @@ describe('formaciones', () => {
       '1-3-4',
       '1-2-3-2',
     ]);
+    expect(formationsFor('F5').map((f) => f.key)).toEqual(['1-1-2-1', '1-2-2', '1-2-1-1', '1-3-1']);
+    expect(findFormation(DEFAULT_FORMATION.F5)?.format).toBe('F5');
     expect(findFormation(DEFAULT_FORMATION.F11)?.format).toBe('F11');
     expect(findFormation('1-4-4-2')!.slots.map((s) => s.id)).toContain('DFC-2');
   });
@@ -255,5 +257,19 @@ describe('adaptar las señales a F8 (un equipo de F11 que juega un torneo de F8)
     expect(f8.rating).toEqual({ MC: 65, DC: 55 });
     // En F11 no cambia nada.
     expect(adaptSignals(p, 'F11')).toBe(p);
+  });
+
+  it('en F5 todo cae en portero, cierre, ala o pívot; vale el mejor (2026-10-29)', () => {
+    const p: PlayerSignals = {
+      playerId: 'b',
+      affinity: { LAT: 0.4, MCD: 0.8, MC: 0.6, EXT: 0.5, MP: 0.3, DC: 0.2 },
+      assessment: { primary: 'MC', secondary: ['EXT', 'LAT'] },
+      rating: { LAT: 70, DFC: 60, MC: 65, EXT: 62, DC: 55 },
+    };
+    const f5 = adaptSignals(p, 'F5');
+    expect(f5.affinity).toEqual({ DFC: 0.8, EXT: 0.6, DC: 0.3 });
+    expect(f5.assessment).toEqual({ primary: 'EXT', secondary: ['DFC'] });
+    // La tarjeta usa las medias de las posiciones de F5 tal cual.
+    expect(f5.rating).toEqual({ DFC: 60, EXT: 62, DC: 55 });
   });
 });

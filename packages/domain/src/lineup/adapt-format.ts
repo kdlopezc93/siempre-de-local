@@ -1,19 +1,21 @@
-import { F8_FOLD, type MatchFormat, type PositionCode } from '../positions.js';
+import { FORMAT_FOLD, type MatchFormat, type PositionCode } from '../positions.js';
 import type { PlayerSignals } from './fit.js';
 
 /**
  * Adapta las señales de un jugador al formato del partido. Un equipo puede jugar la liga
- * en F11 y un torneo en F8: en F8 no hay pivote ni mediapunta, que cuentan como
- * mediocentro y delantero (igual que el plegado del test, 02 §4).
+ * en F11 y un torneo en F8 o en F5: en F8 no hay pivote ni mediapunta, que cuentan como
+ * mediocentro y delantero; en F5, lateral y pivote cuentan como cierre, mediocentro como ala y
+ * mediapunta como pívot (igual que el plegado del test, 02 §4).
  *
  * - Test, valoración y conocimiento: en la posición plegada vale **el mejor** de los dos.
  *   (Con solo el % de cada posición no se puede rehacer el plegado exacto del test.)
- * - Tarjeta: sus medias de mediocentro y delantero tal cual (02 §7.3).
- * De F8 a F11 no hay nada que hacer: lo que falta (pivote, mediapunta) se excluye solo.
+ * - Tarjeta: las medias de las posiciones del formato tal cual (02 §7.3).
+ * En F11 no hay nada que hacer: están todas las posiciones.
  */
 export function adaptSignals<T extends PlayerSignals>(player: T, format: MatchFormat): T {
-  if (format !== 'F8') return player;
-  const fold = (pos: PositionCode): PositionCode => F8_FOLD[pos] ?? pos;
+  const folds = FORMAT_FOLD[format];
+  if (Object.keys(folds).length === 0) return player;
+  const fold = (pos: PositionCode): PositionCode => folds[pos] ?? pos;
   const foldMax = <V>(
     record: Partial<Record<PositionCode, V>> | undefined,
     value: (v: V) => number,
@@ -36,7 +38,7 @@ export function adaptSignals<T extends PlayerSignals>(player: T, format: MatchFo
   const rating =
     player.rating &&
     (Object.fromEntries(
-      Object.entries(player.rating).filter(([pos]) => !(pos in F8_FOLD)),
+      Object.entries(player.rating).filter(([pos]) => !(pos in folds)),
     ) as Partial<Record<PositionCode, number>>);
   return {
     ...player,

@@ -186,6 +186,13 @@ Gestionar el equipo desde la app, sin `admin:bootstrap-team` ni cambios a mano e
 - **App:** selectores de formato (Datos del equipo, crear club y equipo, convocatoria, planificador) y textos ("Fútbol 5").
 - **Docs:** `02` (plegado y formaciones), `03`, `05` y D14.
 
+Decidido con Kevin (2026-10-29): portero, cierre, alas y pívot como en micro (lateral y pivote → cierre, mediocentro → ala, mediapunta → pívot), con los nombres de micro cuando el formato es F5; formaciones 1-1-2-1, 1-2-2, 1-2-1-1 y 1-3-1.
+
+| # | PR | Estado |
+|---|---|---|
+| 1 | Dominio, contratos y base: el formato F5 (migración `0027`), plegado, posiciones elegibles, nombres de micro, pizarra, las 4 formaciones y las señales del planificador | |
+| 2 | La app: "Fútbol 5" en los selectores (datos del equipo, crear club y equipo, convocatoria, planificador) y los nombres de micro en las pantallas | |
+
 ### Fase 6b · Identidad v3 "Escuelas Deportivas"
 **Cerrada el 2026-10-28** (#102–#117). La v2 "pizarra táctica" se veía hecha con IA; Kevin pasó el kit original del sistema de diseño y se migraron todas las pantallas (`design-system.md`, v3: cobalto + volt, Plus Jakarta Sans y Space Grotesk, claro y oscuro).
 
@@ -274,7 +281,7 @@ Anotados para cuando toque, sin orden ni fase todavía. Cada uno pide decidir el
 | D11 | ¿Los compañeros ven el conocimiento de otros? | Solo la banda, sin puntaje. **Hecho** (2026-10-23): la mejor banda con su posición, en Integrantes; "Insuficiente" no se muestra a los compañeros |
 | D12 | Formación por defecto para F8 y F11 en el planificador | **Decidido** (2026-10-22): F8 1-3-3-1 (más 1-2-4-1, 1-3-4, 1-2-3-2, del prototipo); F11 1-4-3-3 (más 1-4-4-2, 1-4-2-3-1, 1-3-5-2) |
 | D13 | Plazo por defecto para presentar una re-evaluación | 14 días; al vencer, C = 0 en el planificador hasta que presente |
-| D14 | Equipos que juegan varios formatos: qué formato usa cada cosa | **Decidido** (2026-10-22, Kevin): el test, la valoración y la tarjeta usan el **principal** (`team.format`); el planificador elige por partido entre los formatos del equipo (`team.formats`) |
+| D14 | Equipos que juegan varios formatos: qué formato usa cada cosa | **Decidido** (2026-10-22, Kevin): el test, la valoración y la tarjeta usan el **principal** (`team.format`); el planificador elige por partido entre los formatos del equipo (`team.formats`). F5 se sumó el 2026-10-29 como tercer formato |
 | D15 | Dónde se guardan las fotos | **Decidido** (2026-10-22, Kevin): Cloudflare R2 (junto con el hosting de D5), servidas por el API del mismo dominio. En local, el disco, detrás del mismo puerto. Exige actualizar la política de datos (D7) |
 | D16 | Cómo llegan los avisos de la Fase 7 (convocatoria, alineación publicada) | **Decidido** (2026-10-22, Kevin): **primero en el inicio** ("lo que toca"); las **notificaciones push** (Web Push; en iPhone solo con la app instalada, iOS 16.4+) en un PR propio al final de la fase. Sin WhatsApp ni correo |
 | D17 | Alineación publicada: quién la ve y si se puede cambiar | **Decidido** (2026-10-22, Kevin): la ve **todo el equipo**, sin el desglose del encaje; el cuerpo técnico puede **republicarla** (avisa de nuevo) **hasta la hora del partido**; después queda fija |

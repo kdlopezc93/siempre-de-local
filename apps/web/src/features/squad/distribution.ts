@@ -1,5 +1,5 @@
 import type { MatchFormat, PositionCode, SquadPlayer } from '@sdl/contracts';
-import { ELIGIBLE_POSITIONS, F8_FOLD } from '@sdl/domain';
+import { ELIGIBLE_POSITIONS, foldPosition } from '@sdl/domain';
 
 /** De dónde sale la posición de cada jugador al armar el reparto. */
 export type DistributionSource = 'staff' | 'test' | 'preferred';
@@ -32,7 +32,7 @@ export function distribution(
       unknown++;
       continue;
     }
-    const pos = format === 'F8' ? (F8_FOLD[raw] ?? raw) : raw;
+    const pos = foldPosition(raw, format);
     roster[pos].push(player.displayName);
   }
   return { roster, gaps: eligible.filter((pos) => roster[pos].length === 0), unknown };

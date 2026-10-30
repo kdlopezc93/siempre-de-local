@@ -91,7 +91,11 @@ export function rolesLabel(roles: readonly TeamRole[]): string {
   return words.length > 1 ? `${words.slice(0, -1).join(', ')} y ${words.at(-1)}` : (words[0] ?? '');
 }
 
-export const FORMAT_LABEL: Record<MatchFormat, string> = { F11: 'Fútbol 11', F8: 'Fútbol 8' };
+export const FORMAT_LABEL: Record<MatchFormat, string> = {
+  F11: 'Fútbol 11',
+  F8: 'Fútbol 8',
+  F5: 'Fútbol 5',
+};
 
 /** "Fútbol 11" o, si juega los dos, "Fútbol 11 y 8" (el principal primero). */
 export function formatsLabel(formats: readonly MatchFormat[], principal: MatchFormat): string {

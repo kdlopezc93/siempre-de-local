@@ -65,7 +65,7 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 | id | uuid PK | |
 | club_id | uuid FK | |
 | name | text | |
-| format | enum `match_format` (`F8`,`F11`) | |
+| format | enum `match_format` (`F8`,`F11`,`F5`) | `F5` desde la migración `0027_format_f5` (2026-10-29) |
 | season | text | |
 | category | text null | Categoría libre ("Veteranos", "Femenino"…), 2026-10-29, migración `0026` |
 | ratings_visible_to_players | boolean default true | ¿el jugador ve su tarjeta? (D8) |

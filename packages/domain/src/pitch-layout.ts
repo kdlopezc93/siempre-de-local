@@ -25,4 +25,11 @@ export const PITCH_LAYOUT: Readonly<
     EXT: [73, 72],
     DC: [50, 42],
   },
+  // Portero, cierre, ala y pívot (2026-10-29).
+  F5: {
+    POR: [50, 139],
+    DFC: [50, 112],
+    EXT: [78, 82],
+    DC: [50, 46],
+  },
 };
