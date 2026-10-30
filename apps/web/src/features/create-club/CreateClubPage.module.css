@@ -164,3 +164,18 @@
   text-underline-offset: 4px;
   touch-action: manipulation;
 }
+
+.backButton {
+  align-self: flex-start;
+  min-height: var(--sdl-touch-min);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sdl-fg-muted);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  touch-action: manipulation;
+}

@@ -1,4 +1,3 @@
-import type { MatchFormat } from '@sdl/contracts';
 import { useId, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 
@@ -6,13 +5,12 @@ import type { Me } from '../../shared/api/auth';
 import { Button } from '../../shared/ui/Button';
 import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
-import { Segmented } from '../../shared/ui/Segmented';
-import switchStyles from '../../shared/ui/Switch.module.css';
 import { ConsentForm } from '../consent/ConsentForm';
 import { errorMessage } from '../join/use-join';
 import { SignInActions } from '../join/JoinPage';
 import styles from './CreateClubPage.module.css';
-import { CATEGORY_SUGGESTIONS, useClubCodePreview, useCreateClub } from './use-create-club';
+import { emptyTeam, TeamFields, teamProblem, teamRequest } from './TeamFields';
+import { useClubCodePreview, useCreateClub } from './use-create-club';
 
 /** El código se escribe como venga: minúsculas, espacios o guiones. */
 const normalize = (raw: string) => raw.toUpperCase().replace(/[^0-9A-Z]/g, '');
@@ -108,32 +106,20 @@ function ClubForm({
 }) {
   const [clubName, setClubName] = useState('');
   const [city, setCity] = useState('');
-  const [teamName, setTeamName] = useState('');
-  const [category, setCategory] = useState('');
-  const [format, setFormat] = useState<MatchFormat>('F8');
-  const [season, setSeason] = useState(String(new Date().getFullYear()));
-  const [alsoPlays, setAlsoPlays] = useState(true);
+  const [team, setTeam] = useState(emptyTeam);
   const [step, setStep] = useState<'form' | 'consent'>('form');
   const [invalid, setInvalid] = useState<string | null>(null);
-  const ids = { club: useId(), city: useId(), team: useId(), category: useId(), season: useId() };
+  const ids = { club: useId(), city: useId() };
 
-  const request = {
-    code,
-    clubName: clubName.trim(),
-    city: city.trim(),
-    teamName: teamName.trim(),
-    category: category.trim() || undefined,
-    format,
-    season: season.trim(),
-    alsoPlays,
-  };
+  const { name: teamName, ...teamRest } = teamRequest(team);
+  const request = { code, clubName: clubName.trim(), city: city.trim(), teamName, ...teamRest };
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (request.clubName.length < 2) return setInvalid('Escribe el nombre del club.');
     if (request.city.length < 2) return setInvalid('Escribe la ciudad o el barrio.');
-    if (request.teamName.length < 2) return setInvalid('Escribe el nombre del equipo.');
-    if (request.season.length < 4) return setInvalid('Escribe la temporada, por ejemplo 2026.');
+    const problem = teamProblem(team);
+    if (problem) return setInvalid(problem);
     setInvalid(null);
     // Sin la política aceptada, primero la acepta (el mismo toque que al unirse).
     if (!me.consent) return setStep('consent');
@@ -195,80 +181,7 @@ function ClubForm({
 
         <fieldset className={styles.card}>
           <legend className={styles.legend}>Tu primer equipo</legend>
-          <label htmlFor={ids.team} className={styles.label}>
-            Nombre del equipo
-          </label>
-          <input
-            id={ids.team}
-            className={styles.input}
-            value={teamName}
-            maxLength={60}
-            autoComplete="off"
-            placeholder="Ej.: Primer equipo"
-            onChange={(event) => setTeamName(event.target.value)}
-          />
-          <label htmlFor={ids.category} className={styles.label}>
-            Categoría (opcional)
-          </label>
-          <input
-            id={ids.category}
-            className={styles.input}
-            value={category}
-            maxLength={40}
-            autoComplete="off"
-            placeholder="Ej.: Veteranos"
-            onChange={(event) => setCategory(event.target.value)}
-          />
-          <div className={styles.suggestions} role="group" aria-label="Sugerencias de categoría">
-            {CATEGORY_SUGGESTIONS.map((s) => (
-              <button
-                key={s}
-                type="button"
-                className={styles.suggestion}
-                aria-pressed={category.trim() === s}
-                onClick={() => setCategory(s)}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-          <span className={styles.label}>Formato</span>
-          <Segmented
-            label="Formato"
-            options={[
-              { value: 'F8', label: 'Fútbol 8' },
-              { value: 'F11', label: 'Fútbol 11' },
-            ]}
-            value={format}
-            onChange={setFormat}
-          />
-          <label htmlFor={ids.season} className={styles.label}>
-            Temporada
-          </label>
-          <input
-            id={ids.season}
-            className={styles.input}
-            value={season}
-            maxLength={9}
-            inputMode="numeric"
-            autoComplete="off"
-            onChange={(event) => setSeason(event.target.value)}
-          />
-          <label className={styles.toggle}>
-            <input
-              type="checkbox"
-              role="switch"
-              className={switchStyles.switch}
-              checked={alsoPlays}
-              onChange={(event) => setAlsoPlays(event.target.checked)}
-            />
-            <span>
-              También juego en el equipo
-              <span className={styles.hint}>
-                {alsoPlays ? 'Eres entrenador y jugador.' : 'Solo entrenador.'}
-              </span>
-            </span>
-          </label>
+          <TeamFields value={team} onChange={setTeam} />
         </fieldset>
 
         <p className={styles.hint}>

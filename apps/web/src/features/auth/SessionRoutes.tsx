@@ -28,6 +28,7 @@ const screens = {
   roles: () => import('../team-roles/TeamRolesPage'),
   clubCodes: () => import('../platform/ClubCodesPage'),
   createClub: () => import('../create-club/CreateClubPage'),
+  newTeam: () => import('../create-club/NewTeamPage'),
   squad: () => import('../squad/SquadPage'),
   assess: () => import('../squad/AssessPage'),
   playerProfile: () => import('../squad/PlayerProfilePage'),
@@ -61,6 +62,7 @@ const ClubCodesPage = lazy(() => screens.clubCodes().then((m) => ({ default: m.C
 const CreateClubPage = lazy(() =>
   screens.createClub().then((m) => ({ default: m.CreateClubPage })),
 );
+const NewTeamPage = lazy(() => screens.newTeam().then((m) => ({ default: m.NewTeamPage })));
 const SquadPage = lazy(() => screens.squad().then((m) => ({ default: m.SquadPage })));
 const AssessPage = lazy(() => screens.assess().then((m) => ({ default: m.AssessPage })));
 const PlayerProfilePage = lazy(() =>
@@ -194,6 +196,12 @@ export function CreateClubRoute() {
       <CreateClubPage code={code} me={session.data} />
     </Suspense>
   );
+}
+
+/** "/clubes/:clubId/nuevo-equipo" — otro equipo del club (dueño o admin). */
+export function NewTeamRoute() {
+  const { clubId = '' } = useParams();
+  return <ShellRoute>{(me) => <NewTeamPage me={me} clubId={clubId} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/invitar" — el API decide si puede (coach o admin del club). */

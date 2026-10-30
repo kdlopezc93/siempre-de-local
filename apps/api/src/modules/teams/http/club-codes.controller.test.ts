@@ -4,6 +4,7 @@ import {
   ClubCodeListResponseSchema,
   CreateClubCodeResponseSchema,
   CreateClubResponseSchema,
+  CreateTeamResponseSchema,
   ErrorBodySchema,
   MeResponseSchema,
   POLICY_VERSION,
@@ -215,6 +216,45 @@ describe('códigos de alta de clubes (2026-10-29)', () => {
       expect((await call('POST', '/clubs', admin, form('X', { format: 'F5' }))).statusCode).toBe(
         400,
       );
+    });
+  });
+
+  describe('más equipos en el club', () => {
+    const newTeam = (who: SeededUser, clubId: string, name: string, extra: object = {}) =>
+      call('POST', `/clubs/${clubId}/teams`, who, {
+        name,
+        format: 'F11',
+        season: '2026',
+        ...extra,
+      });
+
+    it('el dueño crea hasta 3 equipos y queda de entrenador; nadie más', async () => {
+      const me = MeResponseSchema.parse((await call('GET', '/me', someone)).json());
+      const clubId = me.clubs[0]!.id;
+
+      const second = await newTeam(someone, clubId, 'Tigres B', { category: 'Libre' });
+      expect(second.statusCode).toBe(201);
+      const { teamId } = CreateTeamResponseSchema.parse(second.json());
+      const team = TeamResponseSchema.parse(
+        (await call('GET', `/teams/${teamId}`, someone)).json(),
+      );
+      expect(team).toMatchObject({
+        team: { name: 'Tigres B', category: 'Libre' },
+        myRoles: ['coach'],
+      });
+
+      const taken = await newTeam(someone, clubId, 'Tigres B');
+      expect(taken.statusCode).toBe(409);
+      expect(ErrorBodySchema.parse(taken.json()).error.code).toBe('TEAM_NAME_TAKEN');
+
+      expect((await newTeam(someone, clubId, 'Tigres C')).statusCode).toBe(201);
+      const fourth = await newTeam(someone, clubId, 'Tigres D');
+      expect(fourth.statusCode).toBe(409);
+      expect(ErrorBodySchema.parse(fourth.json()).error.code).toBe('TEAM_LIMIT_REACHED');
+
+      // El dueño de otro club no crea equipos en este.
+      expect((await newTeam(admin, clubId, 'Intrusos')).statusCode).toBe(403);
+      expect((await newTeam(someone, clubId, 'X', { format: 'F5' })).statusCode).toBe(400);
     });
   });
 });

@@ -69,3 +69,21 @@ export const CreateClubResponseSchema = z.object({ clubId: z.uuid(), teamId: z.u
 export type ClubCodePreviewResponse = z.infer<typeof ClubCodePreviewResponseSchema>;
 export type CreateClubRequest = z.input<typeof CreateClubRequestSchema>;
 export type CreateClubResponse = z.infer<typeof CreateClubResponseSchema>;
+
+/**
+ * POST /api/v1/clubs/:clubId/teams — otro equipo del club (dueño o admin, 2026-10-29). Quien lo
+ * crea queda de entrenador (y jugador, con `alsoPlays`); si lo va a entrenar otra persona, la
+ * invita como entrenador y al aceptar se pasa el mando. Hasta 3 equipos activos por club.
+ */
+export const CreateTeamRequestSchema = z.object({
+  name: Name,
+  category: z.string().trim().max(40).optional(),
+  format: MatchFormatSchema,
+  season: z.string().trim().min(4).max(9),
+  alsoPlays: z.boolean().default(false),
+});
+
+export const CreateTeamResponseSchema = z.object({ teamId: z.uuid() });
+
+export type CreateTeamRequest = z.input<typeof CreateTeamRequestSchema>;
+export type CreateTeamResponse = z.infer<typeof CreateTeamResponseSchema>;

@@ -34,13 +34,13 @@ const summary = (id: string, status: string, usedCount = 0) => ({
 });
 const ACTIVE_ID = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f80';
 
-function renderPage() {
+function renderPage(path = '/') {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
   render(
     <QueryClientProvider client={client}>
-      <MemoryRouter>
+      <MemoryRouter initialEntries={[path]}>
         <InvitePage teamId={TEAM_ID} />
       </MemoryRouter>
     </QueryClientProvider>,
@@ -165,6 +165,28 @@ describe('InvitePage', () => {
     expect(await screen.findByRole('link', { name: 'Compartir por WhatsApp' })).toHaveAttribute(
       'href',
       expect.stringContaining(encodeURIComponent('cuerpo técnico de Primer equipo')),
+    );
+  });
+
+  it('desde "Nuevo equipo" llega con entrenador elegido (solo el admin del club)', async () => {
+    fakeApi({
+      [`GET /api/v1/me`]: {
+        status: 200,
+        body: {
+          ...ME_TWO_TEAMS,
+          clubs: [{ id: TEAM.team.club.id, name: 'Los del Barrio', role: 'owner' }],
+        },
+      },
+      [`GET /api/v1/teams/${TEAM_ID}`]: { status: 200, body: TEAM },
+      [`GET /api/v1/teams/${TEAM_ID}/invitations`]: { status: 200, body: { items: [] } },
+    });
+    renderPage('/?para=entrenador');
+    const kinds = await screen.findByRole('group', { name: 'A quién invitas' });
+    await vi.waitFor(() =>
+      expect(within(kinds).getByRole('button', { name: 'Entrenador' })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      ),
     );
   });
 

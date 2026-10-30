@@ -3,12 +3,15 @@ import {
   ClubCodePreviewResponseSchema,
   CreateClubCodeResponseSchema,
   CreateClubResponseSchema,
+  CreateTeamResponseSchema,
   type ClubCodeListResponse,
   type ClubCodePreviewResponse,
   type CreateClubCodeRequest,
   type CreateClubCodeResponse,
   type CreateClubRequest,
   type CreateClubResponse,
+  type CreateTeamRequest,
+  type CreateTeamResponse,
 } from '@sdl/contracts';
 
 import { apiFetch, apiRequest } from './http';
@@ -40,6 +43,17 @@ export function fetchClubCodePreview(code: string): Promise<ClubCodePreviewRespo
 /** Crear mi club con el código: queda de dueño del club y entrenador del equipo. */
 export function createClub(request: CreateClubRequest): Promise<CreateClubResponse> {
   return apiRequest('/api/v1/clubs', CreateClubResponseSchema, {
+    method: 'POST',
+    body: JSON.stringify(request),
+  });
+}
+
+/** Otro equipo del club (dueño o admin): queda de entrenador. */
+export function createTeam(
+  clubId: string,
+  request: CreateTeamRequest,
+): Promise<CreateTeamResponse> {
+  return apiRequest(`/api/v1/clubs/${clubId}/teams`, CreateTeamResponseSchema, {
     method: 'POST',
     body: JSON.stringify(request),
   });
