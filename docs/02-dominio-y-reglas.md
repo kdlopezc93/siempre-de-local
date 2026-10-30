@@ -430,5 +430,6 @@ La plata del equipo: la vaca, la inscripción, el arbitraje, las multas, los uni
 - **Ajuste por persona:** se cambia lo que debe alguien (con nota, p. ej. "Media beca") o se suma a alguien después. Nunca por debajo de lo que ya pagó.
 - **Pagos y abonos:** se puede pagar por partes. El que **registra el tesorero** queda **confirmado**; el **"Ya pagué"** del jugador queda **reportado** hasta que lo confirmen o lo rechacen. Nadie paga más de lo que falta (`payable`: lo que debe menos lo confirmado y lo reportado).
 - **Estado de cada uno** (`shareStatus`, solo con lo confirmado): **pagó**, **abonó** o **debe**. **Saldo** (`chargeBalance`): cobrado, entró y falta; el del equipo no cuenta los anulados.
+- **Avisos y pendientes** (2026-10-30, Kevin): al crear un cobro, a cada persona le llega el aviso push "Nuevo cobro del equipo: Vaca" (sin el valor; no a quien lo creó) y lleva a **Tus cuentas**. En el inicio, al jugador le aparece "Debes $X" y a quien cobra "Confirma N pagos". La barra de abajo lleva globos con lo pendiente: en **Partidos**, las convocatorias abiertas sin responder; en **Mi juego**, los cobros por pagar; en **Equipo**, los "Ya pagué" por confirmar.
 - **Anular, no borrar:** un cobro anulado queda en la lista, sale del saldo y de lo que debe cada uno, y ya no recibe pagos. Todo lo de plata queda en la auditoría.
 

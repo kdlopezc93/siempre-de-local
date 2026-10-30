@@ -11,9 +11,17 @@ import type {
   ShareRequest,
   UpdateChargeRequest,
 } from '@sdl/contracts';
-import { chargeBalance, chargeProblem, payable, shareAmount, shareStatus } from '@sdl/domain';
+import {
+  CHARGE_KIND_LABELS,
+  chargeBalance,
+  chargeProblem,
+  payable,
+  shareAmount,
+  shareStatus,
+} from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
+import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
 import { can, type Actor, type TeamPermission } from '../../../shared/authz/policy.js';
 import {
   BusinessRuleError,
@@ -107,6 +115,7 @@ export class Charges {
     @Inject(TEAM_PLAYERS_QUERY) private readonly players: TeamPlayersQuery,
     @Inject(PROFILES_QUERY) private readonly profiles: ProfilesQuery,
     @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+    @Inject(NOTIFIER) private readonly notifier: Notifier,
   ) {}
 
   async list(actor: Actor, teamId: string): Promise<ChargeListResponse> {
@@ -217,6 +226,17 @@ export class Charges {
       amount: request.amount,
       people: playerIds.length,
     });
+    // A cada uno le llega el aviso (2026-10-30, Kevin), menos a quien lo creó; sin el valor.
+    const what = request.title ?? CHARGE_KIND_LABELS[request.kind];
+    await this.notifier.notifyUsers(
+      playerIds.filter((id) => id !== actor.userId),
+      {
+        kind: 'charge-created',
+        charge: what,
+        opponent: what,
+        url: `/equipos/${teamId}/mis-cuentas`,
+      },
+    );
     return this.get(actor, teamId, chargeId);
   }
 

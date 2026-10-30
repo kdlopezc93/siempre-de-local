@@ -15,6 +15,7 @@ import { startMigratedPostgres } from '../../../test/postgres.js';
 import { seedUserWithSession, type SeededUser } from '../../../test/sessions.js';
 import { bootstrapTeam } from '../../teams/infrastructure/bootstrap-team.js';
 import { teamMembership } from '../../teams/infrastructure/schema.js';
+import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
 
 const inDays = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString();
 
@@ -99,8 +100,17 @@ describe('cobros del equipo (06 Cobros)', () => {
     };
     // Un jugador no cobra; la tesorera sí.
     expect((await call('POST', '/charges', ana, vaca)).statusCode).toBe(403);
+    const notify = vi.spyOn(app.get<Notifier>(NOTIFIER, { strict: false }), 'notifyUsers');
     const created = await call('POST', '/charges', tesorera, vaca);
     expect(created.statusCode).toBe(201);
+    // A cada uno le llega el aviso, sin el valor.
+    expect(notify).toHaveBeenCalledWith([ana.userId, beto.userId, ciro.userId], {
+      kind: 'charge-created',
+      charge: 'Vaca',
+      opponent: 'Vaca',
+      url: `/equipos/${teamId}/mis-cuentas`,
+    });
+    notify.mockRestore();
     const { charge, shares } = ChargeResponseSchema.parse(created.json());
     expect(charge).toMatchObject({
       kind: 'vaca',

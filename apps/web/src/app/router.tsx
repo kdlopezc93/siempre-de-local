@@ -3,6 +3,10 @@ import { createBrowserRouter, Navigate } from 'react-router';
 
 import {
   AssessRoute,
+  ChargeRoute,
+  ChargesRoute,
+  MyChargesRoute,
+  NewChargeRoute,
   ExamRoute,
   KnowledgeRoute,
   MyCardRoute,
@@ -83,6 +87,10 @@ export const router = createBrowserRouter([
   { path: '/equipos/:teamId/tarjeta', element: <MyCardRoute /> },
   { path: '/equipos/:teamId/mi-juego', element: <MyGameRoute /> },
   { path: '/equipos/:teamId/equipo', element: <TeamRoute /> },
+  { path: '/equipos/:teamId/cobros', element: <ChargesRoute /> },
+  { path: '/equipos/:teamId/cobros/nuevo', element: <NewChargeRoute /> },
+  { path: '/equipos/:teamId/cobros/:chargeId', element: <ChargeRoute /> },
+  { path: '/equipos/:teamId/mis-cuentas', element: <MyChargesRoute /> },
   { path: '/conocimiento', element: <KnowledgeRoute /> },
   { path: '/conocimiento/examen/:examId', element: <ExamRoute /> },
   { path: '/equipos/:teamId/test', element: <QuizRoute /> },
