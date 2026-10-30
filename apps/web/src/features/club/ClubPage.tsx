@@ -5,6 +5,7 @@ import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
 import { ButtonLink } from '../../shared/ui/ButtonLink';
+import { Sheet } from '../../shared/ui/Sheet';
 import { PageTitle } from '../../shared/ui/PageTitle';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
@@ -13,7 +14,14 @@ import { initialsOf } from '../../shared/ui/TeamHeader';
 import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import styles from './ClubPage.module.css';
-import { useClub, useUpdateClub } from './use-club';
+import { useArchiveTeam, useClub, useUpdateClub } from './use-club';
+
+/** A quién deja de vérsele el equipo al archivarlo. */
+function archivedFor(members: number): string {
+  if (members === 0) return 'No tiene integrantes';
+  if (members === 1) return 'Deja de verse para su único integrante';
+  return `Deja de verse para sus ${members} integrantes`;
+}
 
 /** Hasta 3 equipos activos por club (como el API). */
 const TEAMS_PER_CLUB = 3;
@@ -185,14 +193,27 @@ function ClubTeams({
 }) {
   const active = teams.filter((t) => !t.archived);
   const mine = new Set(me.teams.map((t) => t.team.id));
+  const archive = useArchiveTeam(clubId);
+  const [archiving, setArchiving] = useState<ClubResponse['teams'][number] | null>(null);
+  // Al cerrar, la hoja sigue mostrando cuál mientras baja.
+  const [shown, setShown] = useState(archiving);
+  if (archiving && archiving !== shown) setShown(archiving);
+  const pending = archive.isPending ? archive.variables.teamId : null;
   return (
     <section aria-labelledby="equipos-club" className={styles.section}>
       <h2 id="equipos-club" className={styles.sectionTitle}>
         Equipos ({active.length} de {TEAMS_PER_CLUB})
       </h2>
+      {archive.isError && !archiving && (
+        <p role="alert" className={styles.error}>
+          {archive.error instanceof ApiError && archive.error.status < 500
+            ? archive.error.message
+            : 'No pudimos cambiarlo. Revisa tu conexión e intenta de nuevo.'}
+        </p>
+      )}
       <ul className={styles.list}>
         {teams.map((t) => (
-          <li key={t.id}>
+          <li key={t.id} className={styles.teamItem}>
             <Row
               // Solo abre los equipos donde estás: el encabezado de la app es de esos.
               {...(mine.has(t.id) ? { to: `/equipos/${t.id}/equipo` } : {})}
@@ -208,9 +229,53 @@ function ClubTeams({
                 .filter(Boolean)
                 .join(' · ')}
             />
+            <button
+              type="button"
+              className={styles.teamAction}
+              aria-label={`${t.archived ? 'Desarchivar' : 'Archivar'} ${t.name}`}
+              disabled={pending === t.id}
+              onClick={() =>
+                t.archived ? archive.mutate({ teamId: t.id, archived: false }) : setArchiving(t)
+              }
+            >
+              {t.archived ? 'Desarchivar' : 'Archivar'}
+            </button>
           </li>
         ))}
       </ul>
+      <Sheet
+        open={archiving !== null}
+        onClose={() => setArchiving(null)}
+        title={`¿Archivar ${shown?.name ?? ''}?`}
+      >
+        <div className={styles.sheet}>
+          <p className={styles.muted}>
+            {archivedFor(shown?.members ?? 0)}. Libera un cupo del club y sus datos quedan
+            guardados: lo puedes desarchivar desde aquí.
+          </p>
+          {archive.isError && (
+            <p role="alert" className={styles.error}>
+              No pudimos archivarlo. Revisa tu conexión e intenta de nuevo.
+            </p>
+          )}
+          <Button
+            variant="danger"
+            busy={archive.isPending}
+            onClick={() =>
+              shown &&
+              archive.mutate(
+                { teamId: shown.id, archived: true },
+                { onSuccess: () => setArchiving(null) },
+              )
+            }
+          >
+            Sí, archivar
+          </Button>
+          <Button variant="ghost" disabled={archive.isPending} onClick={() => setArchiving(null)}>
+            Cancelar
+          </Button>
+        </div>
+      </Sheet>
       {active.length < TEAMS_PER_CLUB ? (
         <ButtonLink to={`/clubes/${clubId}/nuevo-equipo`} variant="secondary">
           Nuevo equipo

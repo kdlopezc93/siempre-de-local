@@ -171,6 +171,12 @@ export class InvitationRedemption {
   private async usable(code: string, now: Date) {
     const invitation = await this.invitations.findByCodeHash(hashInvitationCode(code));
     if (!invitation) throw NOT_FOUND();
+    if (invitation.team.archived) {
+      throw new BusinessRuleError(
+        'Este equipo ya no está activo. Pregúntale a tu entrenador.',
+        'INVITATION_TEAM_ARCHIVED',
+      );
+    }
     const status = invitationStatus(invitation, now);
     if (status !== 'active') throw unusable(status);
     return invitation;

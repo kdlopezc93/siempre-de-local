@@ -73,3 +73,15 @@ export function updateClub(clubId: string, patch: UpdateClubRequest): Promise<Cl
     body: JSON.stringify(patch),
   });
 }
+
+/** Archivar o desarchivar un equipo del club (dueño o admin). */
+export function setTeamArchived(
+  clubId: string,
+  teamId: string,
+  archived: boolean,
+): Promise<ClubResponse> {
+  return apiRequest(`/api/v1/clubs/${clubId}/teams/${teamId}`, ClubResponseSchema, {
+    method: 'PATCH',
+    body: JSON.stringify({ archived }),
+  });
+}

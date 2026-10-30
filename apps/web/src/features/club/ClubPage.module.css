@@ -119,3 +119,42 @@
   padding: 0;
   list-style: none;
 }
+
+/* Cada equipo: su fila y, debajo a la derecha, archivar o desarchivar. */
+.teamItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.teamAction {
+  align-self: flex-end;
+  min-height: var(--sdl-touch-min);
+  padding: 0 var(--sdl-space-2);
+  border: 0;
+  background: none;
+  color: var(--sdl-fg-muted);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.teamAction:focus-visible {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+  border-radius: var(--sdl-radius-sm);
+}
+
+.teamAction:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
