@@ -190,6 +190,13 @@
       "when": 1793312419967,
       "tag": "0026_club_city_team_category",
       "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1793329738377,
+      "tag": "0027_format_f5",
+      "breakpoints": true
     }
   ]
 }

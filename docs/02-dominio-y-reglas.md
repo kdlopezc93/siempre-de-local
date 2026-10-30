@@ -6,16 +6,18 @@
 
 ## 1. Posiciones
 
-| Clave | Nombre | Dorsal | F11 | F8 |
-|---|---|---|---|---|
-| POR | Portero | 1 | ✔ | ✔ |
-| LAT | Lateral | 2 | ✔ | ✔ |
-| DFC | Defensa central | 4 | ✔ | ✔ |
-| MCD | Pivote | 6 | ✔ | → MC |
-| MC | Mediocentro | 8 | ✔ | ✔ |
-| MP | Mediapunta | 10 | ✔ | → DC |
-| EXT | Extremo | 7 | ✔ | ✔ |
-| DC | Delantero centro | 9 | ✔ | ✔ |
+| Clave | Nombre | Dorsal | F11 | F8 | F5 |
+|---|---|---|---|---|---|
+| POR | Portero | 1 | ✔ | ✔ | ✔ |
+| LAT | Lateral | 2 | ✔ | ✔ | → DFC |
+| DFC | Defensa central | 4 | ✔ | ✔ | ✔ **Cierre** |
+| MCD | Pivote | 6 | ✔ | → MC | → DFC |
+| MC | Mediocentro | 8 | ✔ | ✔ | → EXT |
+| MP | Mediapunta | 10 | ✔ | → DC | → DC |
+| EXT | Extremo | 7 | ✔ | ✔ | ✔ **Ala** |
+| DC | Delantero centro | 9 | ✔ | ✔ | ✔ **Pívot** |
+
+**F5** (Kevin, 2026-10-29): se juega con portero, cierre, alas y pívot, como en micro. Por dentro son los mismos códigos (DFC, EXT, DC), así que el test, los bancos y la tarjeta no cambian; solo **se nombran distinto cuando el formato es F5** (`positionName(pos, format)`: Cierre, Ala, Pívot; en F8 y F11, los nombres de siempre). `FORMAT_FOLD` dice qué se pliega en cada formato y `foldPosition(pos, format)` en cuál cuenta cada una.
 
 Orden canónico: `POR, LAT, DFC, MCD, MC, MP, EXT, DC`.
 
@@ -23,6 +25,7 @@ Coordenadas de pizarra (viewBox 100×150, portería propia abajo), **fuente úni
 
 - F11: POR 50,139 · LAT 20,113 · DFC 50,116 · MCD 50,97 · MC 64,80 · MP 36,60 · EXT 80,64 · DC 50,36
 - F8: POR 50,139 · LAT 26,113 · DFC 60,115 · MC 42,86 · EXT 73,72 · DC 50,42
+- F5: POR 50,139 · DFC 50,112 · EXT 78,82 · DC 50,46
 
 > En el prototipo el panel tenía su propia copia de `POSITIONS` con coordenadas distintas. Se elimina.
 
@@ -66,12 +69,14 @@ afinidad(p) = maxp(p) > 0 ? earned(p) / maxp(p) : 0
 
 **Plegado F8** (antes de rankear): `earned/maxp` de MCD → MC y de MP → DC. Solo compiten las 6 elegibles.
 
+**Plegado F5** (2026-10-29): LAT y MCD → DFC (cierre), MC → EXT (ala) y MP → DC (pívot). Compiten las 4 elegibles: POR, DFC, EXT, DC.
+
 **Ranking:** descendente por afinidad. **Empates:** mayor `earned` absoluto; si persiste, orden canónico. Determinista para que cliente y servidor coincidan. *(El prototipo desempataba solo por orden canónico; es el único cambio frente a él y lo cubren los tests de paridad de `position-scoring.test.ts`.)*
 
 **Podio:** las 3 primeras del ranking. La primera es la "ganadora", pero la app presenta las tres como opciones: el test orienta, no encasilla.
 
 ```ts
-scorePosition(items: ServedPositionItem[], answers: OptionId[], format: 'F8' | 'F11'): RankingEntry[]
+scorePosition(items: ServedPositionItem[], answers: OptionId[], format: 'F5' | 'F8' | 'F11'): RankingEntry[]
 ```
 
 Versión del algoritmo: `orientation-v2` (`ORIENTATION_SCORING_VERSION`), que se guarda en `attempt_result.scoring_version`. La afinidad se calcula igual que en `orientation-v1`; cambió el test (sin preparación).
@@ -236,7 +241,7 @@ La UI muestra estas anclas al puntuar.
 
 POR (atributos de portero): Estirada .20 · Manejo .20 · Reflejos .25 · Colocación .20 · Saque .10 · Velocidad de reacción .05. Si el jugador no tiene atributos de portero, `MP(POR)` no existe.
 
-En F8 se usan MC y DC como en F11 (el plegado solo afecta al test).
+En F8 se usan MC y DC como en F11, y en F5 las medias de DFC, EXT y DC (el plegado solo afecta al test).
 
 Los pesos viven en código versionado (`rating-formula-v1`), no en la BD, igual que el algoritmo del test.
 
@@ -245,7 +250,7 @@ La tarjeta encabeza con **la posición que le pone quien puntúa**, aunque su me
 - **Al puntuar** se elige entre las posiciones del formato del equipo que tienen media (portero, solo con sus atributos: 422 `RATING_POSITION_WITHOUT_AVERAGE`). Viene puesta la de su foto anterior; si no tiene, la principal de su última valoración; si tampoco, sigue a su mejor media mientras se mueven los valores.
 - **La tarjeta** muestra en grande esa posición con su media y, si su mejor media es otra y más alta, debajo "Su mejor media: Extremo 78". En la lista de medias se resalta la elegida.
 - **Las fotos de antes** no tienen posición (`null`): encabezan con su mejor media, como hasta ahora.
-- **En F8**, pivote y mediapunta se muestran como mediocentro y delantero (§4).
+- **En F8**, pivote y mediapunta se muestran como mediocentro y delantero (§4). **En F5**, lateral y pivote como cierre, mediocentro como ala y mediapunta como pívot.
 - La posición es parte de la foto (no se edita, como los valores) y la ve el jugador en su tarjeta (D8). La plantilla y la ficha usan esa media. **No cambia** el planificador ni la validación: siguen con todas las medias (§9, §11).
 
 ## 8. Pruebas de campo (futuro — diseño preliminar, no implementar aún)
@@ -314,10 +319,10 @@ El prototipo `planificador-partido.jsx` (solo F8) puntuaba en tres niveles (posi
 - **Se conserva:** el húngaro (portado tal cual y verificado contra fuerza bruta), las 4 formaciones de F8 con sus coordenadas, la **prioridad por línea** (esa línea se resuelve primero con toda la plantilla), la convocatoria, el armado a mano (ubicar e intercambiar) y la banca.
 - **Se reemplaza:** los tres niveles por el encaje A/V/C/R. La estimación física desaparece (no guardamos altura ni peso); las posiciones afines quedan cubiertas por la valoración secundaria, la afinidad del test en todas las posiciones y las medias de la tarjeta.
 - **Modos:** dos controles independientes: los pesos (Equilibrado / Rendimiento / Desarrollo) y la línea que se arma primero (ninguna / defensa / ataque). Manual es siempre posible tocando la pizarra.
-- **F11:** 1-4-3-3 (por defecto), 1-4-4-2, 1-4-2-3-1 y 1-3-5-2. **F8:** 1-3-3-1 (por defecto), 1-2-4-1, 1-3-4 y 1-2-3-2 (D12).
+- **F11:** 1-4-3-3 (por defecto), 1-4-4-2, 1-4-2-3-1 y 1-3-5-2. **F8:** 1-3-3-1 (por defecto), 1-2-4-1, 1-3-4 y 1-2-3-2 (D12). **F5** (Kevin, 2026-10-29): 1-1-2-1 rombo (por defecto: cierre, dos alas y pívot), 1-2-2 cuadrado, 1-2-1-1 Y y 1-3-1.
 - **A ciegas:** para quien todavía no valoró a un jugador, su test (A) no se usa: se excluye y se renormaliza.
 - **Dónde se calcula:** en el celular (el dominio es compartido), así funciona sin señal en la cancha; el servidor guarda las alineaciones.
-- **Formato por partido** (2026-10-22): un equipo puede jugar la liga en F11 y un torneo en F8. El planificador deja elegir el formato del partido (por defecto, el del equipo) y la alineación guardada es del formato de su formación. Para F8, `adaptSignals` pliega las señales: pivote → mediocentro y mediapunta → delantero en test, valoración y conocimiento (vale el mejor de los dos; con solo el % por posición no se puede rehacer el plegado exacto del test), y la tarjeta usa sus medias de mediocentro y delantero tal cual (§7.3).
+- **Formato por partido** (2026-10-22): un equipo puede jugar la liga en F11 y un torneo en F8. El planificador deja elegir el formato del partido (por defecto, el del equipo) y la alineación guardada es del formato de su formación. Para F8, `adaptSignals` pliega las señales: pivote → mediocentro y mediapunta → delantero en test, valoración y conocimiento (vale el mejor de los dos; con solo el % por posición no se puede rehacer el plegado exacto del test), y la tarjeta usa sus medias de mediocentro y delantero tal cual (§7.3). Para F5, igual con su plegado (§1): todo cae en portero, cierre, ala o pívot.
 
 Implementado en `@sdl/domain/lineup` (`fit-v1`):
 

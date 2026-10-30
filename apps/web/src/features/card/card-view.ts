@@ -1,5 +1,5 @@
 import type { MatchFormat, PositionCode } from '@sdl/contracts';
-import { ELIGIBLE_POSITIONS, F8_FOLD } from '@sdl/domain';
+import { ELIGIBLE_POSITIONS, foldPosition } from '@sdl/domain';
 
 export interface PositionAverage {
   pos: PositionCode;
@@ -17,9 +17,9 @@ export function rankedAverages(
     .sort((a, b) => b.value - a.value);
 }
 
-/** La posición de la tarjeta en el formato: en F8, pivote y mediapunta se pliegan (02 §4). */
+/** La posición de la tarjeta en el formato: en F8 y F5 algunas se pliegan (02 §4). */
 export function cardPositionIn(position: PositionCode, format: MatchFormat): PositionCode {
-  return format === 'F8' ? (F8_FOLD[position] ?? position) : position;
+  return foldPosition(position, format);
 }
 
 /**

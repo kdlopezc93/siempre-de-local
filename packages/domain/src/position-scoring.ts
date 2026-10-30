@@ -1,6 +1,6 @@
 import {
   ELIGIBLE_POSITIONS,
-  F8_FOLD,
+  FORMAT_FOLD,
   POSITION_CODES,
   type MatchFormat,
   type PositionCode,
@@ -65,11 +65,9 @@ export function scorePosition(
     }
   });
 
-  if (format === 'F8') {
-    for (const [from, to] of Object.entries(F8_FOLD) as [PositionCode, PositionCode][]) {
-      earned[to] += earned[from];
-      maxp[to] += maxp[from];
-    }
+  for (const [from, to] of Object.entries(FORMAT_FOLD[format]) as [PositionCode, PositionCode][]) {
+    earned[to] += earned[from];
+    maxp[to] += maxp[from];
   }
 
   return ELIGIBLE_POSITIONS[format]

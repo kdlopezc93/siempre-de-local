@@ -81,6 +81,22 @@ describe('scorePosition', () => {
     ]);
   });
 
+  it('F5: lateral y pivote al cierre, mediocentro al ala, mediapunta al pívot (2026-10-29)', () => {
+    const f11 = scorePosition(PROTOTYPE_ITEMS, ANSWERS, 'F11');
+    const at = (pos: string) => f11.find((r) => r.pos === pos)!;
+    const sum = (...ps: string[]) => ({
+      earned: ps.reduce((n, p) => n + at(p).earned, 0),
+      maxp: ps.reduce((n, p) => n + at(p).maxp, 0),
+    });
+    const f5 = scorePosition(PROTOTYPE_ITEMS, ANSWERS, 'F5');
+    expect(f5.map((r) => r.pos).sort()).toEqual(['DC', 'DFC', 'EXT', 'POR']);
+    const get = (pos: string) => f5.find((r) => r.pos === pos)!;
+    expect(get('DFC')).toMatchObject(sum('DFC', 'LAT', 'MCD'));
+    expect(get('EXT')).toMatchObject(sum('EXT', 'MC'));
+    expect(get('DC')).toMatchObject(sum('DC', 'MP'));
+    expect(get('POR')).toMatchObject(sum('POR'));
+  });
+
   it('una posición sin exposición tiene afinidad 0, no NaN', () => {
     const ranking = scorePosition([PROTOTYPE_ITEMS[2]!], ['a'], 'F11');
     expect(ranking.find((r) => r.pos === 'POR')).toEqual({

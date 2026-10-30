@@ -17,7 +17,7 @@ const ROLE: Record<TeamRole, string> = {
   assistant: 'asistente técnico',
   coach: 'entrenador',
 };
-const FORMAT = { F8: 'fútbol 8', F11: 'fútbol 11' } as const;
+const FORMAT = { F5: 'fútbol 5', F8: 'fútbol 8', F11: 'fútbol 11' } as const;
 
 /** /unirse/:code — la convocatoria del entrenador. `me` es null si no hay sesión. */
 export function JoinPage({ code, me }: { code: string; me: Me | null }) {
