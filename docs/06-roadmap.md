@@ -176,6 +176,13 @@ Gestionar el equipo desde la app, sin `admin:bootstrap-team` ni cambios a mano e
 | 4b | Crear mi club con un código: nombre y ciudad o barrio del club, nombre, categoría, formato y temporada del equipo; queda de dueño y entrenador ("También juego"). Límite: dueño de un solo club. La categoría se edita en Equipo → Datos | #126 |
 | 4c | Más equipos en el club: el dueño o admin crea otro (hasta 3 activos) desde Equipo → Nuevo equipo del club. Queda de entrenador; si lo entrena otra persona, sigue a invitarla como entrenador y al aceptar se pasa el mando (así ningún equipo queda sin quien lo maneje) | |
 
+### Siguiente: fútbol 5 (Kevin, 2026-10-29)
+**Lo próximo que se hace, antes del staging.** Sumar **F5** como tercer formato, junto a F8 y F11 (D14: un equipo juega en uno o varios, con uno principal). Hay que decidir el alcance antes de escribir código; lo que toca, como mínimo:
+- **Dominio:** posiciones elegibles y plegado del test en F5 (como F8 pliega pivote → mediocentro y mediapunta → delantero, §4 de `02`), formaciones de F5 con sus coordenadas para el planificador y la pizarra, y medias de la tarjeta por posición.
+- **Esquema y contratos:** el enum `match_format` (migración), `MatchFormatSchema` y las validaciones que hoy asumen F8 u F11.
+- **App:** selectores de formato (Datos del equipo, crear club y equipo, convocatoria, planificador) y textos ("Fútbol 5").
+- **Docs:** `02` (plegado y formaciones), `03`, `05` y D14.
+
 ### Fase 6b · Identidad v3 "Escuelas Deportivas"
 **Cerrada el 2026-10-28** (#102–#117). La v2 "pizarra táctica" se veía hecha con IA; Kevin pasó el kit original del sistema de diseño y se migraron todas las pantallas (`design-system.md`, v3: cobalto + volt, Plus Jakarta Sans y Space Grotesk, claro y oscuro).
 
