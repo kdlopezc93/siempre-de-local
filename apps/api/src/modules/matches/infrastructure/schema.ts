@@ -71,6 +71,8 @@ export const teamMatch = pgTable(
     goalsAgainst: smallint(),
     figurePlayerId: uuid().references(() => user.id, { onDelete: 'set null' }),
     resultAt: timestamp({ withTimezone: true }),
+    /** "¿Quién vino?" (2026-10-30): desde cuándo hay lista; null = cuentan los que dijeron voy. */
+    attendanceTakenAt: timestamp({ withTimezone: true }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true })
       .notNull()
@@ -108,6 +110,25 @@ export const matchReply = pgTable(
       .notNull()
       .defaultNow()
       .$onUpdate(() => new Date()),
+  },
+  (t) => [primaryKey({ columns: [t.matchId, t.userId] })],
+);
+
+/**
+ * "¿Quién vino?" (2026-10-30, `02` §13): la lista que pasa el cuerpo técnico desde la hora del
+ * partido. Se reemplaza entera al guardarla; manda en las evaluaciones y en los cobros.
+ */
+export const matchAttendance = pgTable(
+  'match_attendance',
+  {
+    matchId: uuid()
+      .notNull()
+      .references(() => teamMatch.id, { onDelete: 'cascade' }),
+    userId: uuid()
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    markedBy: uuid().references(() => user.id, { onDelete: 'set null' }),
+    markedAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [primaryKey({ columns: [t.matchId, t.userId] })],
 );

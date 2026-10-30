@@ -26,6 +26,8 @@ export interface MatchRecord {
   goalsAgainst: number | null;
   figure: { id: string; name: string } | null;
   resultAt: Date | null;
+  /** "¿Quién vino?" (2026-10-30): desde cuándo hay lista; null = cuentan los que dijeron voy. */
+  attendanceTakenAt: Date | null;
 }
 
 export interface MatchResultData {
@@ -71,6 +73,10 @@ export interface MatchesRepository {
   /** Respuestas por partido: partido → jugador → voy / no voy. */
   replies(matchIds: string[]): Promise<Map<string, Map<string, MatchReply>>>;
   setReply(matchId: string, userId: string, reply: MatchReply): Promise<void>;
+  /** La lista de "¿Quién vino?" (vacía si todavía no la pasaron). */
+  attendance(matchId: string): Promise<Set<string>>;
+  /** Reemplaza la lista entera y marca el partido con lista. */
+  setAttendance(matchId: string, userIds: string[], markedBy: string, at: Date): Promise<void>;
   setResult(matchId: string, result: MatchResultData): Promise<void>;
   /** Las evaluaciones del partido, con nota y autor. */
   ratings(matchId: string): Promise<MatchRatingRecord[]>;

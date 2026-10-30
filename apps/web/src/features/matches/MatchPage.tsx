@@ -14,6 +14,7 @@ import { Sheet } from '../../shared/ui/Sheet';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import { usePublishLineup, useLineups } from '../lineup/use-lineups';
 import { AfterMatch, MatchResultView } from './AfterMatch';
+import { WhoCameAlone } from './WhoCame';
 import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
 import styles from './Matches.module.css';
@@ -71,7 +72,10 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
   // respuestas (voy / no voy) ya no hacen falta.
   // El entreno (2026-10-28) es convocatoria y asistencia: sin resultado ni alineación.
   const game = isGame(match.kind);
-  const played = game && match.status === 'scheduled' && !match.open;
+  const started = match.status === 'scheduled' && !match.open;
+  const played = game && started;
+  // En el entreno, desde la hora, el cuerpo técnico pasa lista ("¿Quién vino?", 2026-10-30).
+  const trainingList = staff && roster !== null && !game && started;
   const teamName = membership?.team.name ?? 'Nosotros';
 
   return (
@@ -123,6 +127,8 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         <PublishedSection teamId={teamId} match={match} meId={me.user.id} player={player} />
       )}
 
+      {trainingList && <WhoCameAlone teamId={teamId} match={match} roster={roster} />}
+
       {!played && player && match.open && <ReplyButtons teamId={teamId} match={match} />}
 
       {!played && (
@@ -137,7 +143,7 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
       )}
 
       {staff && game && <MatchLineups teamId={teamId} match={match} />}
-      {roster && !played && <Roster roster={roster} />}
+      {roster && !played && !trainingList && <Roster roster={roster} />}
       {/* Hasta cargar el resultado, aunque ya pasó la hora: corregir la hora o cancelarlo. */}
       {staff && match.editable && <StaffActions teamId={teamId} match={match} />}
     </Screen>

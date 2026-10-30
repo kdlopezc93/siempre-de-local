@@ -360,6 +360,69 @@ describe('partidos: convocar y responder (Fase 7)', () => {
     );
   });
 
+  it('¿quién vino?: lista desde la hora, también en entrenos; reemplaza a los que dijeron voy', async () => {
+    const { match } = MatchResponseSchema.parse((await convocar()).json());
+    await call('PUT', `/${match.id}/reply`, ana, { reply: 'yes' });
+    await call('PUT', `/${match.id}/reply`, beto, { reply: 'no' });
+    const early = await call('PUT', `/${match.id}/attendance`, coach, { playerIds: [] });
+    expect(early.statusCode).toBe(409);
+    expect(early.json()).toMatchObject({ error: { code: 'MATCH_NOT_STARTED' } });
+
+    await connection.db
+      .update(teamMatch)
+      .set({ startsAt: new Date(Date.now() - 60_000) })
+      .where(eq(teamMatch.id, match.id));
+
+    // Sin lista, vinieron los que dijeron voy.
+    const before = MatchResponseSchema.parse((await call('GET', `/${match.id}`, coach)).json());
+    expect(before.match.attendanceTaken).toBe(false);
+    expect(before.roster!.map((r) => [r.displayName, r.came])).toEqual([
+      ['ana', true],
+      ['beto', false],
+    ]);
+
+    // Solo el cuerpo técnico pasa lista, y solo con jugadores del equipo.
+    const list = { playerIds: [beto.userId] };
+    expect((await call('PUT', `/${match.id}/attendance`, ana, list)).statusCode).toBe(403);
+    expect(
+      (
+        await call('PUT', `/${match.id}/attendance`, coach, { playerIds: [outsider.userId] })
+      ).json(),
+    ).toMatchObject({ error: { code: 'PLAYER_NOT_IN_TEAM' } });
+
+    // La lista manda: llegó beto (había dicho que no) y ana no apareció.
+    const taken = await call('PUT', `/${match.id}/attendance`, coach, list);
+    expect(taken.statusCode).toBe(200);
+    const after = MatchResponseSchema.parse(taken.json());
+    expect(after.match.attendanceTaken).toBe(true);
+    expect(after.roster!.map((r) => [r.displayName, r.came])).toEqual([
+      ['ana', false],
+      ['beto', true],
+    ]);
+    // Se corrige sin plazo, y la lista entera reemplaza la anterior.
+    const fixed = MatchResponseSchema.parse(
+      (
+        await call('PUT', `/${match.id}/attendance`, coach, {
+          playerIds: [ana.userId, beto.userId, ana.userId],
+        })
+      ).json(),
+    );
+    expect(fixed.roster!.every((r) => r.came)).toBe(true);
+
+    // En el entreno también se pasa lista.
+    const training = MatchResponseSchema.parse(
+      (await convocar({ kind: 'training', opponent: null })).json(),
+    ).match;
+    await connection.db
+      .update(teamMatch)
+      .set({ startsAt: new Date(Date.now() - 60_000) })
+      .where(eq(teamMatch.id, training.id));
+    expect(
+      (await call('PUT', `/${training.id}/attendance`, coach, { playerIds: [ana.userId] }))
+        .statusCode,
+    ).toBe(200);
+  });
+
   it('torneos del equipo: el cuerpo técnico los crea, el nombre no se repite y todos los ven', async () => {
     const tournaments = (method: 'GET' | 'POST', who: SeededUser, body?: object) =>
       call(method, '', who, body, `/teams/${teamId}/tournaments`);

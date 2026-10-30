@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import type {
   CreateMatchRequest,
   Match,
+  MatchAttendanceRequest,
   MatchRatingRequest,
   MatchRatingsResponse,
   MatchRatingValue,
@@ -20,6 +21,7 @@ import {
   isMatchOpen,
   matchKindProblem,
   replySummary,
+  whoCame,
 } from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
@@ -130,12 +132,14 @@ export class Matches {
     if (!can(actor, 'team.results.read', { teamId, clubId: team.club.id })) {
       return { match: match!, roster: null };
     }
-    const [allReplies, profiles, staff] = await Promise.all([
+    const [allReplies, attendance, profiles, staff] = await Promise.all([
       this.matches.replies([matchId]),
+      this.matches.attendance(matchId),
       this.profiles.profilesOf(players.map((p) => ({ id: p.userId, name: p.name }))),
       this.players.activeStaff(teamId),
     ]);
     const replies = allReplies.get(matchId)!;
+    const came = whoCame(replies, record.attendanceTakenAt ? attendance : null);
     const ratable = ratableBy(actor, teamId, staff);
     const roster = players
       .map((p) => ({
@@ -145,6 +149,7 @@ export class Matches {
         reply: replies.get(p.userId) ?? null,
         canRate: ratable(p.userId),
         injured: p.injuredAt !== null,
+        came: came.has(p.userId),
       }))
       .sort(byJerseyThenName);
     return { match: match!, roster };
@@ -264,6 +269,39 @@ export class Matches {
         url: `/equipos/${teamId}/partidos/${matchId}`,
       });
     }
+    return this.get(actor, teamId, matchId, now);
+  }
+
+  /**
+   * "¿Quién vino?" (2026-10-30): el cuerpo técnico pasa lista desde la hora del partido, también
+   * en los entrenos. La lista reemplaza la anterior y se corrige sin plazo.
+   */
+  async takeAttendance(
+    actor: Actor,
+    teamId: string,
+    matchId: string,
+    request: MatchAttendanceRequest,
+    now = new Date(),
+  ): Promise<MatchResponse> {
+    await this.authorize(actor, teamId, 'team.attendance.write');
+    const record = await this.findOr404(teamId, matchId);
+    if (!hasMatchStarted(record, now)) {
+      throw new ConflictError(
+        record.status === 'cancelled'
+          ? 'El partido fue cancelado.'
+          : 'La lista se pasa desde la hora del partido.',
+        'MATCH_NOT_STARTED',
+      );
+    }
+    const playerIds = [...new Set(request.playerIds)];
+    const active = new Set(await this.activePlayerIds(teamId));
+    if (playerIds.some((id) => !active.has(id))) {
+      throw new BusinessRuleError('No es jugador de este equipo.', 'PLAYER_NOT_IN_TEAM');
+    }
+    await this.matches.setAttendance(matchId, playerIds, actor.userId, now);
+    await this.record(actor, teamId, matchId, 'match.attendance_taken', {
+      came: playerIds.length,
+    });
     return this.get(actor, teamId, matchId, now);
   }
 
@@ -427,6 +465,7 @@ export class Matches {
               }
             : null,
         myRating: myRatings.get(m.id) ?? null,
+        attendanceTaken: m.attendanceTakenAt !== null,
       };
     });
   }

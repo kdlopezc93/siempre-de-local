@@ -68,6 +68,7 @@ Los clubes se crean con un **código de alta** (2026-10-29): el administrador de
 | Crear/editar alineaciones | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Convocar, editar o cancelar partidos (`team.matches.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Marcar o desmarcar lesionados (`team.injuries.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
+| Pasar lista: "¿Quién vino?" (`team.attendance.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Recordarles el test a los que no lo han hecho (`team.reminders.send`) | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Responder voy / no voy | ✔ propio | – | – | – | – |
 | Ver quién respondió qué | ✘ (solo cuántos) | ✔ | ✔ | ✔ | ✘ |

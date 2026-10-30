@@ -30,6 +30,7 @@ const match = (over: object = {}) => ({
   published: null,
   result: null,
   myRating: null,
+  attendanceTaken: false,
   ...over,
 });
 const ROSTER = [
@@ -40,6 +41,8 @@ const ROSTER = [
     reply: 'yes',
     canRate: true,
     injured: false,
+    // Sin lista, vino el que dijo "voy" (lo calcula el API).
+    came: true,
   },
   {
     playerId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fb2',
@@ -48,6 +51,7 @@ const ROSTER = [
     reply: 'no',
     canRate: true,
     injured: false,
+    came: false,
   },
   {
     playerId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fb3',
@@ -56,6 +60,7 @@ const ROSTER = [
     reply: null,
     canRate: true,
     injured: false,
+    came: false,
   },
 ];
 
@@ -559,9 +564,51 @@ describe('partidos en la app (Fase 7)', () => {
       'true',
     );
     expect(within(ratings).getByText('1 de 1')).toBeInTheDocument();
-    expect(
-      within(ratings).getByRole('button', { name: 'Agregar a otro que jugó' }),
-    ).toBeInTheDocument();
+  });
+
+  it('¿quién vino?: arranca con los que dijeron voy; la lista guardada decide a quién evaluar', async () => {
+    const [ANA, BETO] = [ROSTER[0]!.playerId, ROSTER[1]!.playerId];
+    let sent: unknown;
+    const played = match({ open: false, startsAt: future(-1) });
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: { match: played, roster: ROSTER },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/lineups`]: { status: 200, body: { items: [] } },
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}/ratings`]: { status: 200, body: { items: [] } },
+      [`PUT /api/v1/teams/${TEAM_A}/matches/${M1}/attendance`]: (init) => {
+        sent = JSON.parse(init.body as string);
+        const ids = (sent as { playerIds: string[] }).playerIds;
+        return {
+          status: 200,
+          body: {
+            match: { ...played, attendanceTaken: true },
+            roster: ROSTER.map((p) => ({ ...p, came: ids.includes(p.playerId) })),
+          },
+        };
+      },
+    });
+    const user = userEvent.setup();
+    renderAt('/p', [
+      { path: '/p', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+
+    const list = await screen.findByRole('region', { name: '¿Quién vino?' });
+    expect(within(list).getByRole('checkbox', { name: /Ana/ })).toBeChecked();
+    expect(within(list).getByRole('checkbox', { name: /Beto/ })).not.toBeChecked();
+    expect(within(list).getByText('1 de 3')).toBeInTheDocument();
+
+    // Beto dijo que no, pero llegó.
+    await user.click(within(list).getByRole('checkbox', { name: /Beto/ }));
+    expect(within(list).getByText('2 de 3')).toBeInTheDocument();
+    await user.click(within(list).getByRole('button', { name: 'Guardar la lista' }));
+    await vi.waitFor(() => expect(sent).toEqual({ playerIds: [ANA, BETO] }));
+
+    expect(await within(list).findByText(/Lista guardada/)).toBeInTheDocument();
+    const ratings = screen.getByRole('region', { name: 'Cómo jugó cada uno' });
+    expect(await within(ratings).findByRole('group', { name: 'Cómo jugó Beto' })).toBeVisible();
+    expect(within(list).queryByRole('button', { name: 'Guardar la lista' })).toBeNull();
   });
 
   it('a quien no evalúa (otro asistente) lo muestra sin las cinco palabras (04 §2.2)', async () => {

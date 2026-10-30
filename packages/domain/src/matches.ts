@@ -95,6 +95,19 @@ export function hasMatchStarted(
   return match.status === 'scheduled' && now >= match.startsAt;
 }
 
+/**
+ * "¿Quién vino?" (2026-10-30, `02` §13): desde la hora del partido el cuerpo técnico pasa lista.
+ * Mientras no la pase, cuentan los que dijeron "voy"; con lista, cuenta la lista (aunque alguien
+ * haya dicho que no iba o no haya respondido). Manda en las evaluaciones y en los cobros.
+ */
+export function whoCame(
+  replies: ReadonlyMap<string, MatchReply>,
+  attendance: ReadonlySet<string> | null,
+): Set<string> {
+  if (attendance) return new Set(attendance);
+  return new Set([...replies].filter(([, reply]) => reply === 'yes').map(([id]) => id));
+}
+
 /** Evaluación del partido: 1 a 5 con palabras (D18). */
 export type MatchRating = 1 | 2 | 3 | 4 | 5;
 export const MATCH_RATING_LABELS: Readonly<Record<MatchRating, string>> = {
