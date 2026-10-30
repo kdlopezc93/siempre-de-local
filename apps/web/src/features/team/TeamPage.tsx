@@ -2,7 +2,7 @@ import type { Icon } from '@phosphor-icons/react';
 import { ChartLineUp } from '@phosphor-icons/react/dist/csr/ChartLineUp';
 import { Question } from '@phosphor-icons/react/dist/csr/Question';
 import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
-import { PlusCircle } from '@phosphor-icons/react/dist/csr/PlusCircle';
+import { Buildings } from '@phosphor-icons/react/dist/csr/Buildings';
 import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
 
 import type { Me } from '../../shared/api/auth';
@@ -54,9 +54,9 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
         )}
         {clubAdmin && membership && (
           <Item
-            to={`/clubes/${membership.club.id}/nuevo-equipo`}
-            icon={PlusCircle}
-            title="Nuevo equipo del club"
+            to={`/clubes/${membership.club.id}`}
+            icon={Buildings}
+            title={`Club ${membership.club.name}`}
           />
         )}
         <Item to="/bases" icon={Question} title="En qué se basa el test" />

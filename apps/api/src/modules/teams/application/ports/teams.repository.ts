@@ -36,6 +36,22 @@ export interface NewTeam {
 /** `limit`: el club ya tiene sus equipos activos; `name-taken`: ese nombre ya está esta temporada. */
 export type CreateTeamOutcome = { teamId: string } | 'limit' | 'name-taken';
 
+export interface ClubRecord {
+  id: string;
+  name: string;
+  city: string | null;
+}
+
+export interface ClubTeamRecord {
+  id: string;
+  name: string;
+  category: string | null;
+  format: MatchFormat;
+  season: string;
+  archived: boolean;
+  members: number;
+}
+
 /** Prender (`active`) o apagar un rol de alguien en el equipo. */
 export interface RoleChange {
   userId: string;
@@ -68,6 +84,10 @@ export interface TeamsRepository {
    * Otro equipo del club, con quien lo crea de entrenador (y jugador), en una transacción que
    * bloquea el club: dos equipos a la vez no pasan del límite.
    */
+  findClub(clubId: string): Promise<ClubRecord | null>;
+  /** Los equipos del club: primero los activos, por nombre. */
+  clubTeams(clubId: string): Promise<ClubTeamRecord[]>;
+  updateClub(clubId: string, patch: Partial<Pick<ClubRecord, 'name' | 'city'>>): Promise<void>;
   createTeam(
     clubId: string,
     userId: string,

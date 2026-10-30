@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { MeResponse } from '@sdl/contracts';
-import { and, asc, count, eq, inArray, isNull } from 'drizzle-orm';
+import { and, asc, count, countDistinct, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { DatabaseError } from 'pg';
 
 import type { AuthorizationReader } from '../../../shared/authz/actor.port.js';
@@ -11,6 +11,8 @@ import type { MembershipsQuery } from '../../identity/application/ports/membersh
 import { user } from '../../identity/infrastructure/schema.js';
 import type { TeamPlayersQuery } from '../../squad/application/ports/squad.ports.js';
 import type {
+  ClubRecord,
+  ClubTeamRecord,
   CreateTeamOutcome,
   NewTeam,
   RoleChange,
@@ -241,6 +243,40 @@ export class DrizzleTeamsRepository
         }
       }
     });
+  }
+
+  async findClub(clubId: string): Promise<ClubRecord | null> {
+    const [row] = await this.connection.db
+      .select({ id: club.id, name: club.name, city: club.city })
+      .from(club)
+      .where(eq(club.id, clubId));
+    return row ?? null;
+  }
+
+  async clubTeams(clubId: string): Promise<ClubTeamRecord[]> {
+    const rows = await this.connection.db
+      .select({
+        id: team.id,
+        name: team.name,
+        category: team.category,
+        format: team.format,
+        season: team.season,
+        archived: sql<boolean>`${team.archivedAt} is not null`,
+        members: countDistinct(teamMembership.userId),
+      })
+      .from(team)
+      .leftJoin(
+        teamMembership,
+        and(eq(teamMembership.teamId, team.id), isNull(teamMembership.leftAt)),
+      )
+      .where(eq(team.clubId, clubId))
+      .groupBy(team.id)
+      .orderBy(sql`${team.archivedAt} is not null`, asc(team.name));
+    return rows;
+  }
+
+  async updateClub(clubId: string, patch: Partial<Pick<ClubRecord, 'name' | 'city'>>) {
+    await this.connection.db.update(club).set(patch).where(eq(club.id, clubId));
   }
 
   async createTeam(

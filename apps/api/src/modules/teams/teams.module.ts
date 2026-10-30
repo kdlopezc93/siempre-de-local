@@ -7,7 +7,7 @@ import { MatchesModule } from '../matches/matches.module.js';
 import { TEAM_PLAYERS_QUERY } from '../squad/application/ports/squad.ports.js';
 import { GetTeam, SetInjury, UpdateMember, UpdateTeam } from './application/get-team.use-case.js';
 import { ClubCodes, CreateClub } from './application/club-codes.use-cases.js';
-import { CreateTeam } from './application/club-teams.use-cases.js';
+import { CreateTeam, GetClub, UpdateClub } from './application/club-teams.use-cases.js';
 import { InvitationRedemption, TeamInvitations } from './application/invitations.use-cases.js';
 import { CLUB_CODES_REPOSITORY } from './application/ports/club-codes.repository.js';
 import {
@@ -57,6 +57,8 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
     ClubCodes,
     CreateClub,
     CreateTeam,
+    GetClub,
+    UpdateClub,
     GetTeam,
     UpdateTeam,
     UpdateMember,

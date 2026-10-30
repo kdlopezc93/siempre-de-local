@@ -1,5 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { CreateTeamRequestSchema, CreateTeamResponse } from '@sdl/contracts';
+import type {
+  ClubResponse,
+  CreateTeamRequestSchema,
+  CreateTeamResponse,
+  UpdateClubRequest,
+} from '@sdl/contracts';
 import type { z } from 'zod';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
@@ -7,7 +12,11 @@ import {
   AUTHORIZATION_READER,
   type AuthorizationReader,
 } from '../../../shared/authz/actor.port.js';
-import { ConflictError, ForbiddenError } from '../../../shared/errors/application-errors.js';
+import {
+  ConflictError,
+  ForbiddenError,
+  NotFoundError,
+} from '../../../shared/errors/application-errors.js';
 import { TEAMS_REPOSITORY, type TeamsRepository } from './ports/teams.repository.js';
 
 /** Hasta 3 equipos activos por club (Kevin, 2026-10-29); más, cuando haya plan pago. */
@@ -70,5 +79,54 @@ export class CreateTeam {
       meta: { clubId },
     });
     return outcome;
+  }
+}
+
+/** El rol de quien pide en el club, o 403: el club lo manejan su dueño y sus admins. */
+async function clubRoleOf(memberships: AuthorizationReader, userId: string, clubId: string) {
+  const role = (await memberships.loadMemberships(userId)).clubs.get(clubId);
+  if (!role) throw new ForbiddenError('Solo el dueño y los admins del club lo manejan');
+  return role;
+}
+
+/** La pantalla del club (2026-10-29): sus datos y sus equipos. */
+@Injectable()
+export class GetClub {
+  constructor(
+    @Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository,
+    @Inject(AUTHORIZATION_READER) private readonly memberships: AuthorizationReader,
+  ) {}
+
+  async execute(userId: string, clubId: string): Promise<ClubResponse> {
+    const myRole = await clubRoleOf(this.memberships, userId, clubId);
+    const club = await this.teams.findClub(clubId);
+    if (!club) throw new NotFoundError('Club no encontrado');
+    return { club, myRole, teams: await this.teams.clubTeams(clubId) };
+  }
+}
+
+/** Nombre y ciudad o barrio del club (dueño o admin, 2026-10-29). El slug no cambia. */
+@Injectable()
+export class UpdateClub {
+  constructor(
+    @Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository,
+    @Inject(AUTHORIZATION_READER) private readonly memberships: AuthorizationReader,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+  ) {}
+
+  async execute(userId: string, clubId: string, patch: UpdateClubRequest): Promise<ClubResponse> {
+    await clubRoleOf(this.memberships, userId, clubId);
+    const changes = Object.fromEntries(
+      Object.entries(patch).filter(([, value]) => value !== undefined),
+    ) as Partial<{ name: string; city: string }>;
+    await this.teams.updateClub(clubId, changes);
+    await this.audit.record({
+      actorUserId: userId,
+      action: 'club.updated',
+      entity: 'club',
+      entityId: clubId,
+      meta: { ...changes },
+    });
+    return new GetClub(this.teams, this.memberships).execute(userId, clubId);
   }
 }
