@@ -1,6 +1,7 @@
 import type { CertPositionsResponse, MatchFormat, PositionCode } from '@sdl/contracts';
 import { BAND_LABELS, positionName, POSITIONS } from '@sdl/domain';
 import { NotePencil } from '@phosphor-icons/react/dist/csr/NotePencil';
+import { Wallet } from '@phosphor-icons/react/dist/csr/Wallet';
 import { Link } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
@@ -16,6 +17,8 @@ import { useCertPositions } from '../knowledge/use-knowledge';
 import { ratingLabel } from '../matches/after-match';
 import { matchDay } from '../matches/match-view';
 import { useMatches } from '../matches/use-matches';
+import { pesos } from '../charges/charge-view';
+import { useMyCharges } from '../charges/use-charges';
 import styles from './MyGamePage.module.css';
 import { percent } from '../../shared/format';
 import { Avatar } from '../../shared/ui/Avatar';
@@ -32,6 +35,8 @@ const DAY = new Intl.DateTimeFormat('es-419', { day: 'numeric', month: 'short' }
  */
 export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
   const membership = me.teams.find((t) => t.team.id === teamId);
+  const charges = useMyCharges(teamId);
+  const owed = charges.data?.owed ?? 0;
   return (
     <Screen className={styles.screen}>
       <PageTitle
@@ -56,6 +61,21 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
       <MatchesSection meId={me.user.id} teamId={teamId} />
       <KnowledgeSection me={me} teamId={teamId} />
       <ul className={styles.list}>
+        {/* Los cobros del equipo (`06` Cobros): solo lo tuyo. */}
+        {(charges.data?.items.length ?? 0) > 0 && (
+          <li>
+            <Row
+              to={`/equipos/${teamId}/mis-cuentas`}
+              leading={
+                <span className={styles.icon} data-tint="2" aria-hidden="true">
+                  <Wallet size={22} />
+                </span>
+              }
+              title="Tus cuentas"
+              meta={owed > 0 ? `Debes ${pesos(owed)}` : 'Estás al día'}
+            />
+          </li>
+        )}
         <li>
           <Row
             to="/perfil"

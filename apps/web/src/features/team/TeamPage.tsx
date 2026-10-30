@@ -4,6 +4,7 @@ import { Question } from '@phosphor-icons/react/dist/csr/Question';
 import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
 import { Buildings } from '@phosphor-icons/react/dist/csr/Buildings';
 import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
+import { Wallet } from '@phosphor-icons/react/dist/csr/Wallet';
 
 import type { Me } from '../../shared/api/auth';
 import { Row } from '../../shared/ui/Row';
@@ -25,6 +26,8 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
   const roles = membership?.roles ?? [];
   const coach = roles.includes('coach');
   const staff = coach || roles.includes('assistant');
+  // Los cobros (`06` Cobros): cuerpo técnico, tesorero y admin del club.
+  const money = staff || roles.includes('treasurer') || clubAdmin;
 
   return (
     <Screen className={styles.screen}>
@@ -45,6 +48,7 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
         {(coach || clubAdmin) && (
           <Item to={`/equipos/${teamId}/roles`} icon={UsersThree} title="Integrantes y roles" />
         )}
+        {money && <Item to={`/equipos/${teamId}/cobros`} icon={Wallet} title="Cobros" />}
         {(staff || clubAdmin) && (
           <Item
             to={`/equipos/${teamId}/validacion`}

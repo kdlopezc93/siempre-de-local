@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, type ReactNode } from 'react';
-import { Navigate, useParams } from 'react-router';
+import { Navigate, useParams, useSearchParams } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { Button } from '../../shared/ui/Button';
@@ -47,6 +47,10 @@ const screens = {
   matches: () => import('../matches/MatchesPage'),
   match: () => import('../matches/MatchPage'),
   matchForm: () => import('../matches/MatchFormPage'),
+  charges: () => import('../charges/ChargesPage'),
+  charge: () => import('../charges/ChargePage'),
+  newCharge: () => import('../charges/NewChargePage'),
+  myCharges: () => import('../charges/MyChargesPage'),
 };
 
 const JoinPage = lazy(() => screens.join().then((m) => ({ default: m.JoinPage })));
@@ -89,6 +93,10 @@ const MyDataPage = lazy(() => screens.myData().then((m) => ({ default: m.MyDataP
 const MatchesPage = lazy(() => screens.matches().then((m) => ({ default: m.MatchesPage })));
 const MatchPage = lazy(() => screens.match().then((m) => ({ default: m.MatchPage })));
 const MatchFormPage = lazy(() => screens.matchForm().then((m) => ({ default: m.MatchFormPage })));
+const ChargesPage = lazy(() => screens.charges().then((m) => ({ default: m.ChargesPage })));
+const ChargePage = lazy(() => screens.charge().then((m) => ({ default: m.ChargePage })));
+const NewChargePage = lazy(() => screens.newCharge().then((m) => ({ default: m.NewChargePage })));
+const MyChargesPage = lazy(() => screens.myCharges().then((m) => ({ default: m.MyChargesPage })));
 
 /** Precarga las pantallas que se usan desde el inicio cuando el navegador está libre. */
 function usePreloadScreens() {
@@ -376,4 +384,42 @@ export function MatchFormRoute() {
 export function MatchRoute() {
   const { teamId = '', matchId = '' } = useParams();
   return <ShellRoute>{(me) => <MatchPage me={me} teamId={teamId} matchId={matchId} />}</ShellRoute>;
+}
+
+/** "/equipos/:teamId/cobros" — los cobros del equipo (cuerpo técnico y tesorero, `06` Cobros). */
+export function ChargesRoute() {
+  const { teamId = '' } = useParams();
+  return (
+    <ShellRoute>
+      {(me) => (
+        <ChargesPage
+          teamId={teamId}
+          teamName={me.teams.find((t) => t.team.id === teamId)?.team.name ?? 'Equipo'}
+        />
+      )}
+    </ShellRoute>
+  );
+}
+
+/** "/equipos/:teamId/cobros/nuevo[?partido=…]" */
+export function NewChargeRoute() {
+  const { teamId = '' } = useParams();
+  const [params] = useSearchParams();
+  return (
+    <ShellRoute>
+      {() => <NewChargePage teamId={teamId} fromMatch={params.get('partido')} />}
+    </ShellRoute>
+  );
+}
+
+/** "/equipos/:teamId/cobros/:chargeId" */
+export function ChargeRoute() {
+  const { teamId = '', chargeId = '' } = useParams();
+  return <ShellRoute>{() => <ChargePage teamId={teamId} chargeId={chargeId} />}</ShellRoute>;
+}
+
+/** "/equipos/:teamId/mis-cuentas" — lo que debe y pagó cada uno, solo lo suyo. */
+export function MyChargesRoute() {
+  const { teamId = '' } = useParams();
+  return <ShellRoute>{() => <MyChargesPage teamId={teamId} />}</ShellRoute>;
 }

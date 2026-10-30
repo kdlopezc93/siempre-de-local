@@ -239,10 +239,10 @@ La plata del equipo: la vaca, la inscripción, el arbitraje, las multas, los uni
 
 | PR | Qué | Estado |
 |---|---|---|
-| 0 | Docs: `08`, `09` y `10` a `main`, y este plan | Este PR |
-| 1 | **"¿Quién vino?"**: desde la hora del partido (también en entrenos), el cuerpo técnico pasa lista: arranca con los que dijeron voy, agrega o quita, y se corrige sin plazo. Reemplaza "Agregar a otro que jugó" y da la asistencia. Migración nueva | |
-| 2 | **Tesorero**: rol nuevo (`team_role`), que puede ser un jugador. Maneja cobros, confirma pagos y pasa lista; no arma alineaciones ni evalúa. Lo nombran el entrenador o un admin del club desde Roles | |
-| 3 | **Cobros y pagos**: un cobro es de un partido, de un torneo o suelto, de un tipo, a quien se elija (los que vinieron, más la casilla "también los que dijeron voy y no vinieron"; todos; a mano). Puede ser un total que se reparte o un valor por persona, con ajuste por persona. Pagos con abonos: el tesorero registra o confirma el "Ya pagué" del jugador. El jugador ve "Debes $X". La plata va en pesos enteros y queda en la auditoría | |
+| 0 | Docs: `08`, `09` y `10` a `main`, y este plan | #139 ✔ |
+| 1 | **"¿Quién vino?"**: desde la hora del partido (también en entrenos), el cuerpo técnico pasa lista: arranca con los que dijeron voy, agrega o quita, y se corrige sin plazo. Reemplaza "Agregar a otro que jugó" y da la asistencia. Migración nueva | #140 ✔ |
+| 2 | **Tesorero**: rol nuevo (`team_role`), que puede ser un jugador. Maneja cobros, confirma pagos y pasa lista; no arma alineaciones ni evalúa. Lo nombran el entrenador o un admin del club desde Roles | | #141 ✔ |
+| 3 | **Cobros y pagos**: un cobro es de un partido, de un torneo o suelto, de un tipo, a quien se elija (los que vinieron, más la casilla "también los que dijeron voy y no vinieron"; todos; a mano). Puede ser un total que se reparte o un valor por persona, con ajuste por persona. Pagos con abonos: el tesorero registra o confirma el "Ya pagué" del jugador. El jugador ve "Debes $X". La plata va en pesos enteros y queda en la auditoría | | API #142 ✔, app: este PR |
 | 4 | **Patrocinios**: la parte de un jugador la asume otro, o "el equipo". El patrocinado la ve pagada, y quién patrocinó solo lo ven el tesorero y el cuerpo técnico | |
 | 5 | **Recordatorio y saldo**: aviso "Tienes $X pendiente" y saldo del equipo (cobrado, pendiente, por torneo y por tipo) | |
 

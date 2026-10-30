@@ -1,0 +1,434 @@
+/* Cobros (`06` Cobros): el bloque cobalto dice lo que falta; la fila de la vaca, quién pagó. */
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-4);
+}
+
+.back {
+  align-self: flex-start;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sdl-primary);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.back:focus-visible {
+  outline: 2px solid var(--sdl-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .option:not([aria-pressed='true']):hover {
+    background: var(--sdl-surface-hover);
+  }
+}
+
+/* El bloque de la pantalla: lo que falta, grande. */
+.lead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+}
+
+.leadLabel {
+  color: var(--sdl-on-brand-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.leadAmount {
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-number);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.leadSub {
+  color: var(--sdl-on-brand-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.leadSub b {
+  color: var(--sdl-on-brand);
+  font-family: var(--sdl-font-numeric);
+}
+
+/* La fila de la vaca: una marca por persona. */
+.vaca {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mark {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--sdl-on-brand-muted);
+  border-radius: 50%;
+}
+
+.mark[data-mark='paid'] {
+  border-color: var(--sdl-accent);
+  background: var(--sdl-accent);
+}
+
+.mark[data-mark='partial'] {
+  border-color: var(--sdl-accent);
+  background: linear-gradient(90deg, var(--sdl-accent) 50%, transparent 50%);
+}
+
+.vaca[data-size='sm'] .mark {
+  width: 10px;
+  height: 10px;
+  border-width: 1.5px;
+  border-color: var(--sdl-border-control);
+}
+
+.vaca[data-size='sm'] .mark[data-mark='paid'] {
+  border-color: var(--sdl-primary);
+  background: var(--sdl-primary);
+}
+
+.vaca[data-size='sm'] .mark[data-mark='partial'] {
+  border-color: var(--sdl-primary);
+  background: linear-gradient(90deg, var(--sdl-primary) 50%, transparent 50%);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
+  color: var(--sdl-primary);
+}
+
+.amount {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.amount small {
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-body);
+  font-size: var(--sdl-text-xs);
+  font-weight: 500;
+}
+
+.metaLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sdl-space-2);
+}
+
+.muted {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.error {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}
+
+/* Un "Ya pagué" que espera: tarjeta con borde volt y las dos decisiones al pulgar. */
+.reported {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-4);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow:
+    inset 0 0 0 2px var(--sdl-accent),
+    var(--sdl-shadow-card);
+}
+
+.reportedWho {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+}
+
+.reportedWho p {
+  margin: 0;
+}
+
+.money {
+  font-family: var(--sdl-font-numeric);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sdl-space-2);
+}
+
+/* Formularios: campos hundidos del sistema. */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  min-width: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.label {
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}
+
+.input {
+  min-height: 52px;
+  min-width: 0;
+  padding-inline: var(--sdl-space-3);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
+  color: var(--sdl-fg);
+  font: inherit;
+  font-size: var(--sdl-text-base);
+}
+
+.input:focus {
+  border-color: var(--sdl-focus-ring);
+  outline: none;
+  background: var(--sdl-surface);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--sdl-danger);
+}
+
+/* El campo de plata: la cifra grande en Space Grotesk. */
+.moneyInput {
+  min-height: 64px;
+  font-family: var(--sdl-font-numeric);
+  font-size: 30px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  margin: 0;
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.note b {
+  color: var(--sdl-fg);
+  font-family: var(--sdl-font-numeric);
+}
+
+.step {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+/* Elegir a quién: filas-tarjeta con casilla redonda (como "¿Quién vino?"). */
+.pickRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+  min-height: 56px;
+  padding: 10px 14px;
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pickName {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.pickName small {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-xs);
+  font-weight: 500;
+}
+
+.pickInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.pickMark {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--sdl-border-control);
+  border-radius: 50%;
+  color: transparent;
+}
+
+.pickInput:checked ~ .pickMark {
+  border-color: var(--sdl-primary);
+  background: var(--sdl-primary);
+  color: var(--sdl-on-primary);
+}
+
+.pickRow:has(.pickInput:focus-visible) {
+  outline: 2px solid var(--sdl-focus-ring);
+  outline-offset: 2px;
+}
+
+.optIn {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sdl-space-3);
+  min-height: 44px;
+  font-size: var(--sdl-text-sm);
+  cursor: pointer;
+}
+
+.optIn input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  accent-color: var(--sdl-primary);
+}
+
+/* Opciones elegibles (tipo, medio de pago): hundidas y la elegida rellena de tinta. */
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sdl-space-2);
+}
+
+.option {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-surface-sunken);
+  color: var(--sdl-fg);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.option[aria-pressed='true'] {
+  background: var(--sdl-fg);
+  color: var(--sdl-bg);
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--sdl-focus-ring);
+  outline-offset: 2px;
+}
+
+.sheetBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-4);
+}
+
+.quiet {
+  align-self: center;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  color: var(--sdl-danger-fg);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.quiet:focus-visible {
+  outline: 2px solid var(--sdl-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  .pickRow:hover .pickMark {
+    border-color: var(--sdl-primary);
+  }
+}
+
+/* La fila de cada uno en un cobro es un botón: abre su hoja. */
+button.pickRow {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+}
+
+button.pickRow:focus-visible {
+  outline: 2px solid var(--sdl-focus-ring);
+  outline-offset: 2px;
+}
+
+button.pickRow:disabled {
+  cursor: default;
+}
