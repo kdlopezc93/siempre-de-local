@@ -229,6 +229,30 @@ Después, en el orden que se decida: la herramienta de análisis de preguntas. C
 - Usar las evaluaciones de los partidos (D18) en las valoraciones, el planificador y la validación, cuando haya temporada suficiente.
 - **Pruebas de campo** (sprint, conos, tiro, pase, resistencia): protocolo, marcas de referencia, conversión a 0–99.
 
+### Cobros (Kevin, 2026-10-30)
+La plata del equipo: la vaca, la inscripción, el arbitraje, las multas, los uniformes y las cuotas. Las decisiones están en `08` §7: las del 2026-10-26 y las del 2026-10-30.
+
+- **Se registra quién pagó, no se cobra en la app:** se paga por fuera (efectivo, Nequi, Daviplata) y la pasarela llega solo si una escuela la pide.
+- **Todo a mano:** el torneo agrupa sus cobros, pero no los crea.
+- **Se aceptan abonos.**
+- **Quién debe** lo ven el tesorero y el cuerpo técnico; cada jugador, solo lo suyo.
+
+| PR | Qué | Estado |
+|---|---|---|
+| 0 | Docs: `08`, `09` y `10` a `main`, y este plan | Este PR |
+| 1 | **"¿Quién vino?"**: desde la hora del partido (también en entrenos), el cuerpo técnico pasa lista: arranca con los que dijeron voy, agrega o quita, y se corrige sin plazo. Reemplaza "Agregar a otro que jugó" y da la asistencia. Migración nueva | |
+| 2 | **Tesorero**: rol nuevo (`team_role`), que puede ser un jugador. Maneja cobros, confirma pagos y pasa lista; no arma alineaciones ni evalúa. Lo nombran el entrenador o un admin del club desde Roles | |
+| 3 | **Cobros y pagos**: un cobro es de un partido, de un torneo o suelto, de un tipo, a quien se elija (los que vinieron, más la casilla "también los que dijeron voy y no vinieron"; todos; a mano). Puede ser un total que se reparte o un valor por persona, con ajuste por persona. Pagos con abonos: el tesorero registra o confirma el "Ya pagué" del jugador. El jugador ve "Debes $X". La plata va en pesos enteros y queda en la auditoría | |
+| 4 | **Patrocinios**: la parte de un jugador la asume otro, o "el equipo". El patrocinado la ve pagada, y quién patrocinó solo lo ven el tesorero y el cuerpo técnico | |
+| 5 | **Recordatorio y saldo**: aviso "Tienes $X pendiente" y saldo del equipo (cobrado, pendiente, por torneo y por tipo) | |
+
+**Por decidir antes del PR 3:**
+
+- **Redondeo al repartir un total.** La propuesta es subir cada parte a los $100 siguientes, como en una vaca, y mostrar "sobran $X".
+- **Respaldos de la plata.** Neon gratis guarda 6 h de historial. Las opciones son el plan pago de Neon o un `pg_dump` nocturno a un almacenamiento privado.
+
+**Después:** cuotas que se repiten cada mes y mensualidades de escuela (`08` etapa 7), multas ligadas a tarjetas (con goles y tarjetas) y pasarela de pago.
+
 ### A futuro (pedidos de Kevin, 2026-10-24)
 Anotados para cuando toque, sin orden ni fase todavía. Cada uno pide decidir el alcance antes de escribir código.
 
@@ -236,7 +260,7 @@ Anotados para cuando toque, sin orden ni fase todavía. Cada uno pide decidir el
 |---|---|---|
 | Pedir unirse a un equipo | Un jugador busca el equipo por nombre o por quien lo creó y pide entrar; el cuerpo técnico acepta o rechaza. Convive con la invitación por código | Solo se entra con invitación (código o enlace) |
 | Monetizar | Definir cómo se sostiene la app (hosting, dominio, almacenamiento de fotos) sin perder el tono de barrio. Opciones a evaluar: plan gratis por equipo con extras de pago (fotos, más de un equipo, pruebas de campo); plan por club o liga; patrocinio de comercios del barrio en la página del equipo; donaciones o aporte voluntario | Nada todavía. Depende de tener equipos usándola (staging, D5) y de la política de datos (D7) |
-| Cobros por torneo (Kevin, 2026-10-28) | Relacionar los cobros del equipo (inscripción, cuotas) con cada torneo | Los torneos ya existen como tabla (`tournament`, Pendientes sueltos 10); no hay nada de cobros |
+| ~~Cobros por torneo~~ (Kevin, 2026-10-28) | Creció a todos los cobros del equipo: ver **Cobros** arriba | — |
 
 ## Pendientes heredados del prototipo → dónde quedan
 

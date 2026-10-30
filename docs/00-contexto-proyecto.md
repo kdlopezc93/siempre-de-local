@@ -81,6 +81,9 @@ El porqué de cada elección, y por qué no las alternativas, está en `01-arqui
 | `05-api.md` | Contrato REST v1. |
 | `06-roadmap.md` | Fases, pendientes heredados, decisiones abiertas. |
 | `07-experiencia.md` | Auditoría de experiencia, nueva estructura de navegación y plan de la Fase 6. |
+| `08-ecosistema.md` | Visión de ecosistema de módulos deportivos y escuelas deportivas (2026-10-26) y sus decisiones: ideas una por una (incluidos los cobros), las cinco del ecosistema, el orden y la identidad. |
+| `09-estudio-mercado.md` | Estudio de mercado y alternativas de monetización (2026-10-27). |
+| `10-entrevistas-escuelas.md` | Guía de entrevista para dueños de escuelas deportivas (2026-10-27). |
 | `prototipo/` | Código del prototipo (`detector-posicion.jsx`, `panel-resultados.jsx`) y `traspaso-proyecto.md`. Referencia de comportamiento, no se copia tal cual. |
 
 ## 7. Glosario
