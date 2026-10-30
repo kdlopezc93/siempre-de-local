@@ -9,6 +9,9 @@ primary_region = "iad"
 [deploy]
   # Antes de pasar el tráfico a la versión nueva: migraciones y contenido (idempotentes).
   release_command = "sh -c 'node dist/scripts/migrate.js && node dist/scripts/seed.js'"
+  # Sin corte al desplegar: prende la máquina nueva, espera su health check y recién ahí
+  # apaga la vieja. Con una sola máquina, "rolling" deja el API caído uno o dos minutos.
+  strategy = "bluegreen"
 
 [env]
   NODE_ENV = "production"
