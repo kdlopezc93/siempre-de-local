@@ -88,7 +88,7 @@ fly ssh console --app sdl-api-staging -C "node dist/scripts/bootstrap-team.js --
 
 - Entrar como entrenador, crear una invitación y abrirla **con un segundo usuario** (prueba pendiente desde la Fase 0).
 - Repetir la prueba sin conexión en Android y **en iPhone** (`docs/spikes/pwa.md`).
-- Activar el despliegue automático: en `deploy-staging.yml`, cambiar `workflow_dispatch` por `push: branches: [main]` y crear el secreto `FLY_API_TOKEN` (`fly tokens create deploy`) en GitHub.
+- Despliegue automático: `deploy-staging.yml` despliega el API cada vez que la CI de `main` pasa, con el secreto `FLY_API_TOKEN` de GitHub, un token de despliegue limitado a la app: `fly tokens create deploy --app sdl-api-staging --expiry 8760h | gh secret set FLY_API_TOKEN`. **Vence al año:** renovarlo igual antes de que falle el despliegue.
 
 ## 9. Pendiente al tener el dominio
 
