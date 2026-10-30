@@ -3,7 +3,7 @@ import {
   anchorFor,
   GOALKEEPER_ATTRIBUTES,
   OUTFIELD_ATTRIBUTES,
-  POSITIONS,
+  positionName,
   RATING_ATTRIBUTES,
   type RatingAttributeCode,
 } from '@sdl/domain';
@@ -43,12 +43,12 @@ export function PlayerCard({
             <span className={styles.overallValue}>{headline.main.value}</span>
             <span className={styles.overallPos}>
               <span className="sr-only">de media como </span>
-              {POSITIONS[headline.main.pos].name}
+              {positionName(headline.main.pos, format)}
             </span>
           </p>
           {headline.best && (
             <p className={styles.best}>
-              Su mejor media: {POSITIONS[headline.best.pos].name}{' '}
+              Su mejor media: {positionName(headline.best.pos, format)}{' '}
               <span className={styles.bestValue}>{headline.best.value}</span>
             </p>
           )}
@@ -71,7 +71,7 @@ export function PlayerCard({
         <ol className={styles.averages}>
           {ranked.map(({ pos, value }) => (
             <li key={pos} className={pos === headline?.main.pos ? styles.top : undefined}>
-              <span>{POSITIONS[pos].name}</span>
+              <span>{positionName(pos, format)}</span>
               <span className={styles.averageValue}>{value}</span>
             </li>
           ))}

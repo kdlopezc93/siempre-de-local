@@ -96,6 +96,7 @@ export function TeamFields({
       <Segmented
         label="Formato"
         options={[
+          { value: 'F5', label: 'Fútbol 5' },
           { value: 'F8', label: 'Fútbol 8' },
           { value: 'F11', label: 'Fútbol 11' },
         ]}

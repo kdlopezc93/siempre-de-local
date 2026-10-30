@@ -1,5 +1,5 @@
 import type { PositionCode } from '@sdl/contracts';
-import { ELIGIBLE_POSITIONS, POSITIONS } from '@sdl/domain';
+import { ELIGIBLE_POSITIONS, positionName, POSITIONS } from '@sdl/domain';
 import { useId, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 
@@ -71,7 +71,8 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
   }
 
   // En F8 solo se ofrecen las 6 posiciones del formato.
-  const positions = ELIGIBLE_POSITIONS[team.data.team.format];
+  const format = team.data.team.format;
+  const positions = ELIGIBLE_POSITIONS[format];
 
   function choosePrimary(pos: PositionCode) {
     setPrimary(pos);
@@ -158,7 +159,7 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
                   onChange={() => choosePrimary(pos)}
                 />
                 <span className={styles.number}>{POSITIONS[pos].number}</span>
-                <span>{POSITIONS[pos].name}</span>
+                <span>{positionName(pos, format)}</span>
               </label>
             ))}
           </div>
@@ -187,7 +188,7 @@ export function AssessPage({ teamId, playerId }: { teamId: string; playerId: str
                     onClick={() => toggleSecondary(pos)}
                   >
                     <span className={styles.number}>{POSITIONS[pos].number}</span>
-                    <span>{POSITIONS[pos].name}</span>
+                    <span>{positionName(pos, format)}</span>
                   </button>
                 );
               })}

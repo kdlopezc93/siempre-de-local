@@ -1,5 +1,5 @@
 import type { Formation, SlotAssignment } from '@sdl/domain';
-import { POSITIONS } from '@sdl/domain';
+import { positionName } from '@sdl/domain';
 import type { KeyboardEvent } from 'react';
 
 import { PitchLines } from '../../shared/ui/PitchLines';
@@ -58,8 +58,8 @@ export function LineupBoard({
         const jersey = a.playerId ? jerseys.get(a.playerId) : null;
         const tone = fitTone(a.fit);
         const label = name
-          ? `${POSITIONS[slot.position].name}${slot.side ? ` ${slot.side}` : ''}: ${name}, encaje ${percent(a.fit ?? 0)}${pinned.has(slot.id) ? ', fijado' : ''}`
-          : `${POSITIONS[slot.position].name}${slot.side ? ` ${slot.side}` : ''}: vacío`;
+          ? `${positionName(slot.position, formation.format)}${slot.side ? ` ${slot.side}` : ''}: ${name}, encaje ${percent(a.fit ?? 0)}${pinned.has(slot.id) ? ', fijado' : ''}`
+          : `${positionName(slot.position, formation.format)}${slot.side ? ` ${slot.side}` : ''}: vacío`;
         const onKey = (event: KeyboardEvent) => {
           if (event.key === 'Enter' || event.key === ' ') {
             event.preventDefault();

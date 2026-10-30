@@ -97,10 +97,9 @@ export const FORMAT_LABEL: Record<MatchFormat, string> = {
   F5: 'Fútbol 5',
 };
 
-/** "Fútbol 11" o, si juega los dos, "Fútbol 11 y 8" (el principal primero). */
+/** "Fútbol 11", "Fútbol 11 y 8" o "Fútbol 11, 8 y 5" (el principal primero). */
 export function formatsLabel(formats: readonly MatchFormat[], principal: MatchFormat): string {
-  const others = formats.filter((f) => f !== principal).map((f) => f.slice(1));
-  return others.length
-    ? `${FORMAT_LABEL[principal]} y ${others.join(' y ')}`
-    : FORMAT_LABEL[principal];
+  const numbers = [principal, ...formats.filter((f) => f !== principal)].map((f) => f.slice(1));
+  const last = numbers.pop()!;
+  return numbers.length ? `Fútbol ${numbers.join(', ')} y ${last}` : FORMAT_LABEL[principal];
 }

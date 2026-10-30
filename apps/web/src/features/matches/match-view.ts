@@ -1,5 +1,5 @@
 import type { Match } from '@sdl/contracts';
-import { MATCH_KIND_LABELS, POSITIONS } from '@sdl/domain';
+import { MATCH_KIND_LABELS, positionName, type MatchFormat, type PositionCode } from '@sdl/domain';
 
 /** El título de una convocatoria: el rival, o "Entrenamiento" (no tiene rival, 2026-10-28). */
 export const matchTitle = (m: Pick<Match, 'kind' | 'opponent'>) =>
@@ -55,8 +55,14 @@ export function fromLocalInputs(date: string, time: string): string | null {
   return Number.isNaN(local.getTime()) ? null : local.toISOString();
 }
 
-/** "Lateral por la izquierda", "Defensa central": el puesto en palabras (la banda es femenina). */
-export function slotName(slot: { position: keyof typeof POSITIONS; side?: string }): string {
-  const name = POSITIONS[slot.position].name;
+/**
+ * "Lateral por la izquierda", "Defensa central": el puesto en palabras (la banda es femenina). En
+ * F5, con los nombres de micro ("Ala por la derecha").
+ */
+export function slotName(
+  slot: { position: PositionCode; side?: string },
+  format?: MatchFormat,
+): string {
+  const name = positionName(slot.position, format);
   return slot.side ? `${name} por la ${slot.side}` : name;
 }

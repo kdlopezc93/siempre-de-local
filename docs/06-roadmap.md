@@ -190,8 +190,8 @@ Decidido con Kevin (2026-10-29): portero, cierre, alas y pívot como en micro (l
 
 | # | PR | Estado |
 |---|---|---|
-| 1 | Dominio, contratos y base: el formato F5 (migración `0027`), plegado, posiciones elegibles, nombres de micro, pizarra, las 4 formaciones y las señales del planificador | |
-| 2 | La app: "Fútbol 5" en los selectores (datos del equipo, crear club y equipo, convocatoria, planificador) y los nombres de micro en las pantallas | |
+| 1 | Dominio, contratos y base: el formato F5 (migración `0027`), plegado, posiciones elegibles, nombres de micro, pizarra, las 4 formaciones y las señales del planificador | #131 |
+| 2 | La app: "Fútbol 5" en los selectores (datos del equipo, crear club y equipo, convocatoria, planificador) y los nombres de micro en las pantallas (tarjeta, puntuar, valorar, plantilla, alineaciones, partido, resultado e historial del test); los bancos del examen y las posiciones preferidas siguen con su nombre de siempre | |
 
 ### Fase 6b · Identidad v3 "Escuelas Deportivas"
 **Cerrada el 2026-10-28** (#102–#117). La v2 "pizarra táctica" se veía hecha con IA; Kevin pasó el kit original del sistema de diseño y se migraron todas las pantallas (`design-system.md`, v3: cobalto + volt, Plus Jakarta Sans y Space Grotesk, claro y oscuro).

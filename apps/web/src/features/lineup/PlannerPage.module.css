@@ -62,9 +62,12 @@
   padding: 0 var(--sdl-space-4) var(--sdl-space-3);
 }
 
+/* Una persona por fila en el celular; dos columnas solo si caben con su respuesta al lado
+   (con dos fijas, el nombre se partía letra por letra a 360 px). */
 .callList {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+  column-gap: var(--sdl-space-4);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -76,8 +79,14 @@
   gap: var(--sdl-space-2);
   min-height: var(--sdl-touch-min);
   font-size: var(--sdl-text-sm);
-  overflow-wrap: anywhere;
   cursor: pointer;
+}
+
+/* El nombre toma el ancho que queda y solo se parte entre palabras. */
+.callName {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: break-word;
 }
 
 .check input {

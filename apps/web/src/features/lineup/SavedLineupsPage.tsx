@@ -1,4 +1,4 @@
-import { findFormation, MODE_LABELS, POSITIONS } from '@sdl/domain';
+import { findFormation, MODE_LABELS, positionName } from '@sdl/domain';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 
@@ -139,7 +139,7 @@ export function LineupViewPage({ teamId, lineupId }: { teamId: string; lineupId:
       {detail?.playerId && detailSlot && (
         <section aria-labelledby="puesto" className={styles.detail}>
           <h2 id="puesto" className={styles.sectionTitle}>
-            {POSITIONS[detailSlot.position].name}
+            {positionName(detailSlot.position, formation.format)}
             {detailSlot.side ? ` ${detailSlot.side}` : ''}
           </h2>
           <p className={styles.detailHead}>

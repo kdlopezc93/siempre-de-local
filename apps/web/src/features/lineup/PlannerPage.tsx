@@ -6,13 +6,13 @@ import type {
   MatchResponse,
 } from '@sdl/contracts';
 import {
-  formationsFor,
-  lineRatings,
-  MODE_LABELS,
-  POSITIONS,
   type FitMode,
+  formationsFor,
   type LinePriority,
+  lineRatings,
   type LineupWarning,
+  MODE_LABELS,
+  positionName,
 } from '@sdl/domain';
 import { useId, useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router';
@@ -36,6 +36,7 @@ import { PageTitle } from '../../shared/ui/PageTitle';
 const FORMATS: { value: MatchFormat; label: string }[] = [
   { value: 'F11', label: 'Fútbol 11' },
   { value: 'F8', label: 'Fútbol 8' },
+  { value: 'F5', label: 'Fútbol 5' },
 ];
 const PRIORITIES: { value: LinePriority; label: string }[] = [
   { value: 'none', label: 'Ninguna' },
@@ -184,7 +185,7 @@ function Planner({
                     checked={state.available.has(x.playerId)}
                     onChange={() => p.toggleAvailable(x.playerId)}
                   />
-                  <span>
+                  <span className={styles.callName}>
                     {x.jerseyNumber !== null && (
                       <span className={styles.jersey}>{x.jerseyNumber} </span>
                     )}
@@ -327,7 +328,7 @@ function Planner({
       {detail && detailSlot && (
         <section aria-labelledby="puesto" className={styles.detail}>
           <h2 id="puesto" className={styles.sectionTitle}>
-            {POSITIONS[detailSlot.position].name}
+            {positionName(detailSlot.position, formation.format)}
             {detailSlot.side ? ` ${detailSlot.side}` : ''}
           </h2>
           {detail.playerId ? (
@@ -418,7 +419,7 @@ function warningTexts(
 ): string[] {
   const slotName = (slotId: string) => {
     const s = formation.slots.find((x) => x.id === slotId)!;
-    return POSITIONS[s.position].name.toLowerCase();
+    return positionName(s.position, formation.format).toLowerCase();
   };
   const texts = new Set<string>();
   for (const w of warnings) {

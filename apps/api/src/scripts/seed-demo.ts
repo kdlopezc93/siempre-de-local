@@ -1,10 +1,16 @@
 import { randomUUID } from 'node:crypto';
 import { parseArgs } from 'node:util';
 
-import { POLICY_VERSION, type PositionCode, type SubmitAttemptRequest } from '@sdl/contracts';
+import {
+  type MatchFormat,
+  POLICY_VERSION,
+  type PositionCode,
+  type SubmitAttemptRequest,
+} from '@sdl/contracts';
 import {
   bandFor,
   ELIGIBLE_POSITIONS,
+  foldPosition,
   ORIENTATION_SCORING_VERSION,
   positionAverages,
   type RatingValues,
@@ -298,6 +304,18 @@ if (!teamId) {
   console.error('Uso: pnpm admin:seed-demo -- --team-id <uuid> [--coach-email <correo>]');
   process.exit(1);
 }
+/** La mirada del cuerpo técnico en las posiciones del formato, sin repetir la principal. */
+function foldedStaff(
+  staff: { primary: PositionCode; secondary: PositionCode[] },
+  format: MatchFormat,
+): { primary: PositionCode; secondary: PositionCode[] } {
+  const primary = foldPosition(staff.primary, format);
+  const secondary = [...new Set(staff.secondary.map((pos) => foldPosition(pos, format)))].filter(
+    (pos) => pos !== primary,
+  );
+  return { primary, secondary };
+}
+
 if (process.env['NODE_ENV'] === 'production') {
   console.error('Los datos de demostración no se cargan en producción.');
   process.exit(1);
@@ -400,29 +418,30 @@ try {
       tests++;
     }
 
-    // En F8 solo se valoran las posiciones del formato.
-    if (demo.staff && !alreadyAssessed.has(userId) && eligible.has(demo.staff.primary)) {
+    // En F8 y F5 las posiciones se pliegan en las del formato (lateral → cierre en F5…).
+    const staff = demo.staff && foldedStaff(demo.staff, found.format);
+    if (staff && !alreadyAssessed.has(userId) && eligible.has(staff.primary)) {
       await assessments.create({
         teamId: found.id,
         playerUserId: userId,
         coachUserId: assistantId,
-        primaryPosition: demo.staff.primary,
-        secondaryPositions: demo.staff.secondary.filter((pos) => eligible.has(pos)),
-        confidence: demo.staff.confidence,
+        primaryPosition: staff.primary,
+        secondaryPositions: staff.secondary,
+        confidence: demo.staff!.confidence,
         blind: true,
         notes: null,
       });
       rated++;
     }
     // El mismo criterio de primera vista, a nombre del entrenador que lo pidió.
-    if (coach && demo.staff && !coachAssessed.has(userId) && eligible.has(demo.staff.primary)) {
+    if (coach && staff && !coachAssessed.has(userId) && eligible.has(staff.primary)) {
       await assessments.create({
         teamId: found.id,
         playerUserId: userId,
         coachUserId: coach,
-        primaryPosition: demo.staff.primary,
-        secondaryPositions: demo.staff.secondary.filter((pos) => eligible.has(pos)),
-        confidence: demo.staff.confidence,
+        primaryPosition: staff.primary,
+        secondaryPositions: staff.secondary,
+        confidence: demo.staff!.confidence,
         blind: true,
         notes: null,
       });

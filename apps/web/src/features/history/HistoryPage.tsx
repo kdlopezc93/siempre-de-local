@@ -1,4 +1,4 @@
-import { POSITIONS } from '@sdl/domain';
+import { positionName } from '@sdl/domain';
 import { Link } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
@@ -85,8 +85,10 @@ function Entry({
         {when}
         {teamName(entry.result.teamId) && `, ${teamName(entry.result.teamId)}`}
       </p>
-      <p className={styles.first}>{POSITIONS[first!].name}</p>
-      <p className={styles.rest}>{rest.map((pos) => POSITIONS[pos].name).join(' y ')}</p>
+      <p className={styles.first}>{positionName(first!, entry.result.format)}</p>
+      <p className={styles.rest}>
+        {rest.map((pos) => positionName(pos, entry.result.format)).join(' y ')}
+      </p>
     </Link>
   );
 }

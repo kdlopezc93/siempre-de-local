@@ -11,7 +11,7 @@ import { FORMAT_LABEL, formatsLabel } from '../shell/shell-nav';
 import { useTeam } from '../team-admin/use-invitations';
 import styles from './TeamPage.module.css';
 
-const ALL: MatchFormat[] = ['F11', 'F8'];
+const ALL: MatchFormat[] = ['F11', 'F8', 'F5'];
 
 /**
  * Datos del equipo (07 §4.6): nombre y formatos en que juega, con el principal (D14). Los

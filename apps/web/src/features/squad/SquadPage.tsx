@@ -291,7 +291,7 @@ function PlayerRow({
   const status = playerStatus(player);
   // Dos líneas, como las filas del sistema: quién es en la cancha y cómo viene.
   const who = [
-    positionLabel(player),
+    positionLabel(player, format),
     player.jerseyNumber !== null && `dorsal ${player.jerseyNumber}`,
   ]
     .filter(Boolean)
