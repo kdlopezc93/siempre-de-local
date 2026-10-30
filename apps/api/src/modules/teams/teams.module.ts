@@ -7,6 +7,7 @@ import { MatchesModule } from '../matches/matches.module.js';
 import { TEAM_PLAYERS_QUERY } from '../squad/application/ports/squad.ports.js';
 import { GetTeam, SetInjury, UpdateMember, UpdateTeam } from './application/get-team.use-case.js';
 import { ClubCodes, CreateClub } from './application/club-codes.use-cases.js';
+import { CreateTeam } from './application/club-teams.use-cases.js';
 import { InvitationRedemption, TeamInvitations } from './application/invitations.use-cases.js';
 import { CLUB_CODES_REPOSITORY } from './application/ports/club-codes.repository.js';
 import {
@@ -17,6 +18,7 @@ import {
 import { INVITATIONS_REPOSITORY } from './application/ports/invitations.repository.js';
 import { TEAMS_REPOSITORY } from './application/ports/teams.repository.js';
 import { ClubCodesController, CreateClubController } from './http/club-codes.controller.js';
+import { ClubTeamsController } from './http/club-teams.controller.js';
 import { InvitationsController, TeamInvitationsController } from './http/invitations.controller.js';
 import { TeamsController } from './http/teams.controller.js';
 import { DrizzleClubCodesRepository } from './infrastructure/drizzle-club-codes.repository.js';
@@ -42,6 +44,7 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
     InvitationsController,
     ClubCodesController,
     CreateClubController,
+    ClubTeamsController,
   ],
   providers: [
     DrizzleTeamsRepository,
@@ -53,6 +56,7 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
     { provide: CLUB_CODES_REPOSITORY, useClass: DrizzleClubCodesRepository },
     ClubCodes,
     CreateClub,
+    CreateTeam,
     GetTeam,
     UpdateTeam,
     UpdateMember,

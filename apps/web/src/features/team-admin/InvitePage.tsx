@@ -1,6 +1,6 @@
 import type { CreateInvitationResponse, InvitationSummary, TeamResponse } from '@sdl/contracts';
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 
 import { ApiError } from '../../shared/api/http';
 import { Button } from '../../shared/ui/Button';
@@ -34,7 +34,11 @@ export function InvitePage({ teamId }: { teamId: string }) {
   const invitations = useInvitations(teamId);
   const create = useCreateInvitation(teamId);
   const session = useSession();
-  const [kind, setKind] = useState<InviteKind>('player');
+  // Desde "Nuevo equipo" con otra persona de entrenador llega con ?para=entrenador.
+  const [params] = useSearchParams();
+  const [picked, setKind] = useState<InviteKind>(
+    params.get('para') === 'entrenador' ? 'coach' : 'player',
+  );
   const [alsoPlays, setAlsoPlays] = useState(true);
 
   if (team.isPending || invitations.isPending) {
@@ -69,6 +73,8 @@ export function InvitePage({ teamId }: { teamId: string }) {
   const kinds: InviteKind[] = clubAdmin
     ? ['player', 'assistant', 'coach']
     : ['player', 'assistant'];
+  // Si el elegido no se le permite (entrenador, sin ser admin del club), jugadores.
+  const kind = kinds.includes(picked) ? picked : 'player';
 
   return (
     <Screen className={styles.screen}>

@@ -25,6 +25,17 @@ export type TeamSettings = Partial<
   >
 >;
 
+export interface NewTeam {
+  name: string;
+  category: string | null;
+  format: MatchFormat;
+  season: string;
+  alsoPlays: boolean;
+}
+
+/** `limit`: el club ya tiene sus equipos activos; `name-taken`: ese nombre ya está esta temporada. */
+export type CreateTeamOutcome = { teamId: string } | 'limit' | 'name-taken';
+
 /** Prender (`active`) o apagar un rol de alguien en el equipo. */
 export interface RoleChange {
   userId: string;
@@ -53,6 +64,17 @@ export interface TeamsRepository {
    * historial sigue); prender reactiva la anterior (con su dorsal) o crea una nueva.
    */
   changeRoles(teamId: string, changes: RoleChange[], now: Date): Promise<void>;
+  /**
+   * Otro equipo del club, con quien lo crea de entrenador (y jugador), en una transacción que
+   * bloquea el club: dos equipos a la vez no pasan del límite.
+   */
+  createTeam(
+    clubId: string,
+    userId: string,
+    team: NewTeam,
+    maxActive: number,
+    now: Date,
+  ): Promise<CreateTeamOutcome>;
 }
 
 export const TEAMS_REPOSITORY = Symbol('TEAMS_REPOSITORY');

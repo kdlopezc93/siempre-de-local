@@ -173,8 +173,8 @@ Gestionar el equipo desde la app, sin `admin:bootstrap-team` ni cambios a mano e
 | 2 | Quitar del equipo: el que ya no viene sale con `left_at` y conserva su historial (era "Quitar jugadores"); la pantalla pasa a llamarse "Integrantes y roles" | #123 ✔ |
 | 3 | Invitar al cuerpo técnico: el admin del club elige asistente o entrenador y "También juega en el equipo"; quien acepta entra con los dos roles | #124 ✔ |
 | 4a | Códigos de alta: el administrador de la plataforma los genera en Tu cuenta y los manda por WhatsApp; cada código sirve para un club y vence en 14 días (Kevin, 2026-10-29) | #125 |
-| 4b | Crear mi club con un código: nombre y ciudad o barrio del club, nombre, categoría, formato y temporada del equipo; queda de dueño y entrenador ("También juego"). Límite: dueño de un solo club. La categoría se edita en Equipo → Datos | |
-| 4c | Más equipos en el club: el dueño o admin crea otro (hasta 3 activos) y elige si lo entrena él o invita a un entrenador | |
+| 4b | Crear mi club con un código: nombre y ciudad o barrio del club, nombre, categoría, formato y temporada del equipo; queda de dueño y entrenador ("También juego"). Límite: dueño de un solo club. La categoría se edita en Equipo → Datos | #126 |
+| 4c | Más equipos en el club: el dueño o admin crea otro (hasta 3 activos) desde Equipo → Nuevo equipo del club. Queda de entrenador; si lo entrena otra persona, sigue a invitarla como entrenador y al aceptar se pasa el mando (así ningún equipo queda sin quien lo maneje) | |
 
 ### Fase 6b · Identidad v3 "Escuelas Deportivas"
 **Cerrada el 2026-10-28** (#102–#117). La v2 "pizarra táctica" se veía hecha con IA; Kevin pasó el kit original del sistema de diseño y se migraron todas las pantallas (`design-system.md`, v3: cobalto + volt, Plus Jakarta Sans y Space Grotesk, claro y oscuro).

@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { MeResponse } from '@sdl/contracts';
-import { and, asc, eq, inArray, isNull } from 'drizzle-orm';
+import { and, asc, count, eq, inArray, isNull } from 'drizzle-orm';
 import { DatabaseError } from 'pg';
 
 import type { AuthorizationReader } from '../../../shared/authz/actor.port.js';
@@ -11,6 +11,8 @@ import type { MembershipsQuery } from '../../identity/application/ports/membersh
 import { user } from '../../identity/infrastructure/schema.js';
 import type { TeamPlayersQuery } from '../../squad/application/ports/squad.ports.js';
 import type {
+  CreateTeamOutcome,
+  NewTeam,
   RoleChange,
   TeamRecord,
   TeamSettings,
@@ -239,6 +241,49 @@ export class DrizzleTeamsRepository
         }
       }
     });
+  }
+
+  async createTeam(
+    clubId: string,
+    userId: string,
+    input: NewTeam,
+    maxActive: number,
+    now: Date,
+  ): Promise<CreateTeamOutcome> {
+    try {
+      return await this.connection.db.transaction(async (tx) => {
+        await tx.select({ id: club.id }).from(club).where(eq(club.id, clubId)).for('update');
+        const [active] = await tx
+          .select({ n: count() })
+          .from(team)
+          .where(and(eq(team.clubId, clubId), isNull(team.archivedAt)));
+        if (active!.n >= maxActive) return 'limit' as const;
+        const [created] = await tx
+          .insert(team)
+          .values({
+            clubId,
+            name: input.name,
+            category: input.category,
+            format: input.format,
+            formats: [input.format],
+            season: input.season,
+          })
+          .returning({ id: team.id });
+        const teamId = created!.id;
+        await tx
+          .insert(teamMembership)
+          .values([
+            { teamId, userId, role: 'coach', joinedAt: now },
+            ...(input.alsoPlays
+              ? [{ teamId, userId, role: 'player' as const, joinedAt: now }]
+              : []),
+          ]);
+        return { teamId };
+      });
+    } catch (error) {
+      if (isUniqueViolation(error)) return 'name-taken';
+      throw error;
+    }
   }
 
   async activeStaff(teamId: string) {
