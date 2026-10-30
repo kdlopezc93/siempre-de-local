@@ -185,7 +185,7 @@ function Planner({
                     checked={state.available.has(x.playerId)}
                     onChange={() => p.toggleAvailable(x.playerId)}
                   />
-                  <span>
+                  <span className={styles.callName}>
                     {x.jerseyNumber !== null && (
                       <span className={styles.jersey}>{x.jerseyNumber} </span>
                     )}
