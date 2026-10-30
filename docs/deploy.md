@@ -35,6 +35,8 @@ fly secrets set --app sdl-api-staging \
 
 `release_command` (en `fly.toml`) migra y siembra antes de cada versión con la misma `DATABASE_URL`. Si el pooler de Neon diera problemas con las migraciones, usar la cadena directa.
 
+Los despliegues son **blue-green** (`strategy` en `fly.toml`): Fly prende la máquina nueva, espera su health check (`/api/v1/health`) y solo entonces apaga la vieja, así que no hay corte. Si la nueva no pasa el chequeo, la vieja sigue atendiendo. Por eso una migración tiene que ser compatible con la versión anterior del API mientras dura el cambio (agregar antes de quitar).
+
 ## 4. Variables públicas del API
 
 En `fly.toml`, descomentar y completar `[env]`:
