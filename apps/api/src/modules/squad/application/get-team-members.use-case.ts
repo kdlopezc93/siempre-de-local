@@ -20,6 +20,9 @@ import {
 const byName = (a: { displayName: string }, b: { displayName: string }) =>
   a.displayName.localeCompare(b.displayName, 'es');
 
+/** Primero el entrenador, después los asistentes y al final el tesorero. */
+const STAFF_ORDER = { coach: 0, assistant: 1, treasurer: 2 } as const;
+
 /**
  * Los integrantes del equipo (07 §4.6), para todos sus miembros: el cuerpo técnico (primero el
  * entrenador) y los jugadores por dorsal, con su mejor banda de conocimiento (D11).
@@ -39,10 +42,12 @@ export class GetTeamMembers {
     if (!can(actor, 'team.read', { teamId, clubId })) {
       throw new ForbiddenError('No tienes permiso para esto');
     }
-    const [staff, players] = await Promise.all([
+    const [coaches, treasurers, players] = await Promise.all([
       this.members.activeStaff(teamId),
+      this.members.activeTreasurers(teamId),
       this.members.activePlayers(teamId),
     ]);
+    const staff = [...coaches, ...treasurers.map((t) => ({ ...t, role: 'treasurer' as const }))];
     const people = [...staff, ...players].map((p) => ({ id: p.userId, name: p.name }));
     const [profiles, knowledge] = await Promise.all([
       people.length ? this.profiles.profilesOf(people) : new Map(),
@@ -53,7 +58,7 @@ export class GetTeamMembers {
     return {
       staff: staff
         .map((s) => ({ userId: s.userId, displayName: nameOf(s), role: s.role }))
-        .sort((a, b) => (a.role === b.role ? byName(a, b) : a.role === 'coach' ? -1 : 1)),
+        .sort((a, b) => STAFF_ORDER[a.role] - STAFF_ORDER[b.role] || byName(a, b)),
       players: players
         .map((p) => ({
           userId: p.userId,

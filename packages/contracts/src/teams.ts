@@ -1,10 +1,14 @@
 import { z } from 'zod';
 
 export const MatchFormatSchema = z.enum(['F5', 'F8', 'F11']);
-export const TeamRoleSchema = z.enum(['coach', 'assistant', 'player']);
+/** `treasurer` (2026-10-30): maneja los cobros y pasa lista; puede ser también jugador. */
+export const TeamRoleSchema = z.enum(['coach', 'assistant', 'player', 'treasurer']);
+/** Con invitación se entra de jugador, asistente o entrenador; tesorero se nombra en Roles. */
+export const InvitationRoleSchema = TeamRoleSchema.exclude(['treasurer']);
 
 export type MatchFormat = z.infer<typeof MatchFormatSchema>;
 export type TeamRole = z.infer<typeof TeamRoleSchema>;
+export type InvitationRole = z.infer<typeof InvitationRoleSchema>;
 
 /** GET /api/v1/teams/:teamId — miembros del equipo y admins de su club. */
 export const TeamResponseSchema = z.object({
@@ -46,11 +50,11 @@ export const UpdateMemberRequestSchema = z.object({
 export type UpdateMemberRequest = z.infer<typeof UpdateMemberRequestSchema>;
 
 /**
- * PATCH /api/v1/teams/:teamId/members/:userId/roles — prende o apaga sus roles de jugador y
- * de asistente (coach y admin del club). Solo lo que cambia; tiene que quedar con alguno.
+ * PATCH /api/v1/teams/:teamId/members/:userId/roles — prende o apaga sus roles de jugador, de
+ * asistente y de tesorero (coach y admin del club). Solo lo que cambia; tiene que quedar con alguno.
  */
 export const UpdateMemberRolesRequestSchema = z
-  .object({ player: z.boolean(), assistant: z.boolean() })
+  .object({ player: z.boolean(), assistant: z.boolean(), treasurer: z.boolean() })
   .partial()
   .refine((patch) => Object.keys(patch).length > 0, 'Nada que cambiar');
 

@@ -72,7 +72,9 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 | match_ratings_visible_to_players | boolean default true | ¿el jugador ve su evaluación de cada partido? (D18) |
 | archived_at | timestamptz null | Archivado (2026-10-29): sus integrantes dejan de verlo y de tener permisos en él, y sus invitaciones no sirven; no cuenta para el límite de 3 equipos activos por club |
 
-**team_membership** — `team_id, user_id, role team_role ('coach','assistant','player'), jersey_number smallint null, joined_at, left_at, injured_at timestamptz null, injury_return_on date null` · PK (team_id, user_id, role)
+**team_membership** — `team_id, user_id, role team_role ('coach','assistant','player','treasurer'), jersey_number smallint null, joined_at, left_at, injured_at timestamptz null, injury_return_on date null` · PK (team_id, user_id, role)
+
+> **Tesorero** (`treasurer`, 2026-10-30, migración `0029_team_role_treasurer`): maneja los cobros y pasa lista; puede ser también jugador; el entrenador no lo es (ya maneja la plata). No se entra de tesorero con invitación (`invitation.role` sigue siendo jugador, asistente o entrenador): se nombra en Roles.
 
 **invitation** — `id, team_id, role, also_plays boolean (default false), code_hash unique, created_by null, expires_at, max_uses, used_count, revoked_at, created_at` · check `0 ≤ used_count ≤ max_uses`
 - `code_hash` = SHA-256 del código normalizado (10 caracteres de un alfabeto sin 0/O/1/I/L, ~50 bits); el código en claro no se guarda.

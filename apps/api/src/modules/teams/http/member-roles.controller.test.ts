@@ -99,6 +99,23 @@ describe('roles en el equipo y pasar el mando (2026-10-29)', () => {
     expect(code(res)).toBe('COACH_CANNOT_BE_ASSISTANT');
   });
 
+  it('tesorero: un jugador puede serlo, va con el cuerpo técnico; el entrenador no (2026-10-30)', async () => {
+    expect((await roles(coach, beto.userId, { treasurer: true })).statusCode).toBe(204);
+    const now = await members();
+    expect(now.staff.beto).toBe('treasurer');
+    expect(now.players).toContain('beto');
+    const coachToo = await roles(coach, coach.userId, { treasurer: true });
+    expect(coachToo.statusCode).toBe(422);
+    expect(code(coachToo)).toBe('COACH_CANNOT_BE_TREASURER');
+    // Con solo el de tesorero, sigue en el equipo; vuelve a quedar de jugador para lo que sigue.
+    expect((await roles(coach, beto.userId, { player: false })).statusCode).toBe(204);
+    expect((await members()).players).not.toContain('beto');
+    expect((await roles(coach, beto.userId, { player: true, treasurer: false })).statusCode).toBe(
+      204,
+    );
+    expect((await members()).staff.beto).toBeUndefined();
+  });
+
   it('valida: queda con algún rol, está en el equipo, algo que cambiar, y quién puede', async () => {
     const empty = await roles(coach, beto.userId, { player: false });
     expect(empty.statusCode).toBe(422);

@@ -409,6 +409,26 @@ describe('partidos: convocar y responder (Fase 7)', () => {
     );
     expect(fixed.roster!.every((r) => r.came)).toBe(true);
 
+    // El tesorero (2026-10-30) también pasa lista y ve quién respondió qué; el resultado, no.
+    await connection.db
+      .insert(teamMembership)
+      .values({ teamId, userId: outsider.userId, role: 'treasurer' });
+    const asTreasurer = await call('PUT', `/${match.id}/attendance`, outsider, list);
+    expect(asTreasurer.statusCode).toBe(200);
+    expect(MatchResponseSchema.parse(asTreasurer.json()).roster).not.toBeNull();
+    expect(
+      (
+        await call('PUT', `/${match.id}/result`, outsider, {
+          goalsFor: 1,
+          goalsAgainst: 0,
+          figurePlayerId: null,
+        })
+      ).statusCode,
+    ).toBe(403);
+    await connection.db
+      .delete(teamMembership)
+      .where(and(eq(teamMembership.userId, outsider.userId), eq(teamMembership.role, 'treasurer')));
+
     // En el entreno también se pasa lista.
     const training = MatchResponseSchema.parse(
       (await convocar({ kind: 'training', opponent: null })).json(),

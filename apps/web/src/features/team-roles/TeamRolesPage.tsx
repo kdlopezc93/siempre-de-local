@@ -24,9 +24,9 @@ const failed = (error: unknown, fallback: string) =>
   error instanceof ApiError && error.status < 500 ? error.message : fallback;
 
 /**
- * /equipos/:teamId/roles — quién juega y quién es asistente, pasar el mando de entrenador y
- * quitar del equipo al que ya no viene (coach y admin del club; Kevin, 2026-10-29). Alguien del
- * cuerpo técnico también puede jugar.
+ * /equipos/:teamId/roles — quién juega, quién es asistente y quién es tesorero, pasar el mando
+ * de entrenador y quitar del equipo al que ya no viene (coach y admin del club; Kevin,
+ * 2026-10-29). Alguien del cuerpo técnico también puede jugar, y el tesorero también (2026-10-30).
  */
 export function TeamRolesPage({ teamId }: { teamId: string }) {
   const team = useTeam(teamId);
@@ -199,8 +199,11 @@ function PeopleSection({ teamId, people }: { teamId: string; people: TeamPerson[
             coach: p.coach,
             player: patch?.player ?? p.player,
             assistant: patch?.assistant ?? p.assistant,
+            treasurer: patch?.treasurer ?? p.treasurer,
           };
-          const roleCount = [shown.coach, shown.assistant, shown.player].filter(Boolean).length;
+          const roleCount = [shown.coach, shown.assistant, shown.player, shown.treasurer].filter(
+            Boolean,
+          ).length;
           return (
             <li key={p.userId} className={styles.person}>
               <div className={styles.personHead}>
@@ -229,6 +232,18 @@ function PeopleSection({ teamId, people }: { teamId: string; people: TeamPerson[
                     disabled={busy || (shown.assistant && roleCount === 1)}
                     onChange={(assistant) =>
                       update.mutate({ userId: p.userId, patch: { assistant } })
+                    }
+                  />
+                )}
+                {/* El entrenador ya maneja la plata (2026-10-30). */}
+                {!p.coach && (
+                  <RoleSwitch
+                    label="Tesorero"
+                    name={p.displayName}
+                    checked={shown.treasurer}
+                    disabled={busy || (shown.treasurer && roleCount === 1)}
+                    onChange={(treasurer) =>
+                      update.mutate({ userId: p.userId, patch: { treasurer } })
                     }
                   />
                 )}

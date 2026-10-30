@@ -1,11 +1,11 @@
-import type { MatchFormat, TeamRole } from '@sdl/contracts';
+import type { MatchFormat, InvitationRole } from '@sdl/contracts';
 
 import type { InvitationState } from '../invitation-status.js';
 
 export interface InvitationRecord extends InvitationState {
   id: string;
   teamId: string;
-  role: TeamRole;
+  role: InvitationRole;
   alsoPlays: boolean;
   createdAt: Date;
 }
@@ -27,7 +27,7 @@ export type RedeemOutcome = 'joined' | 'already-member' | 'unavailable';
 export interface InvitationsRepository {
   create(input: {
     teamId: string;
-    role: TeamRole;
+    role: InvitationRole;
     alsoPlays: boolean;
     codeHash: string;
     createdBy: string;

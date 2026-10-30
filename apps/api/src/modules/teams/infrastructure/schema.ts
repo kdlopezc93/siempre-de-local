@@ -1,3 +1,4 @@
+import type { InvitationRole } from '@sdl/contracts';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -25,7 +26,8 @@ const id = () =>
 const createdAt = () => timestamp({ withTimezone: true }).notNull().defaultNow();
 
 export const clubRole = pgEnum('club_role', ['owner', 'admin']);
-export const teamRole = pgEnum('team_role', ['coach', 'assistant', 'player']);
+/** `treasurer` (2026-10-30): maneja los cobros y pasa lista; no arma alineaciones ni evalúa. */
+export const teamRole = pgEnum('team_role', ['coach', 'assistant', 'player', 'treasurer']);
 
 export const club = pgTable('club', {
   id: id(),
@@ -110,7 +112,8 @@ export const invitation = pgTable(
     teamId: uuid()
       .notNull()
       .references(() => team.id),
-    role: teamRole().notNull(),
+    // Con invitación no se entra de tesorero: ese rol se nombra en Roles (2026-10-30).
+    role: teamRole().notNull().$type<InvitationRole>(),
     /** Cuerpo técnico que también juega: al aceptar entra además como jugador (2026-10-29). */
     alsoPlays: boolean().notNull().default(false),
     /** SHA-256 del código; el código en claro no se guarda (se muestra una vez). */

@@ -128,8 +128,10 @@ export class Matches {
     const record = await this.findOr404(teamId, matchId);
     const players = await this.players.activePlayers(teamId);
     const [match] = await this.toMatches([record], actor, team, players, now);
-    // Quién respondió qué lo ve el cuerpo técnico (y el admin del club), no los compañeros.
-    if (!can(actor, 'team.results.read', { teamId, clubId: team.club.id })) {
+    // Quién respondió qué lo ve el cuerpo técnico (y el admin del club), no los compañeros; el
+    // tesorero también, porque pasa lista (2026-10-30).
+    const scope = { teamId, clubId: team.club.id };
+    if (!can(actor, 'team.results.read', scope) && !can(actor, 'team.attendance.write', scope)) {
       return { match: match!, roster: null };
     }
     const [allReplies, attendance, profiles, staff] = await Promise.all([

@@ -39,6 +39,8 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
   const roles = membership?.roles ?? [];
   const staff = roles.includes('coach') || roles.includes('assistant');
   const player = roles.includes('player');
+  // El tesorero pasa lista (2026-10-30), aunque no carga el resultado ni evalúa.
+  const takesList = staff || roles.includes('treasurer');
   const data = useMatch(teamId, matchId);
   const back = (
     <Link to={`/equipos/${teamId}/partidos`} className={styles.back}>
@@ -74,8 +76,9 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
   const game = isGame(match.kind);
   const started = match.status === 'scheduled' && !match.open;
   const played = game && started;
-  // En el entreno, desde la hora, el cuerpo técnico pasa lista ("¿Quién vino?", 2026-10-30).
-  const trainingList = staff && roster !== null && !game && started;
+  // "¿Quién vino?" (2026-10-30) va sola en el entreno, y en el partido para el tesorero; al
+  // cuerpo técnico, en el partido, le llega dentro de "después del partido".
+  const listAlone = takesList && roster !== null && started && !(staff && game);
   const teamName = membership?.team.name ?? 'Nosotros';
 
   return (
@@ -127,7 +130,7 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         <PublishedSection teamId={teamId} match={match} meId={me.user.id} player={player} />
       )}
 
-      {trainingList && <WhoCameAlone teamId={teamId} match={match} roster={roster} />}
+      {listAlone && <WhoCameAlone teamId={teamId} match={match} roster={roster} />}
 
       {!played && player && match.open && <ReplyButtons teamId={teamId} match={match} />}
 
@@ -143,7 +146,7 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
       )}
 
       {staff && game && <MatchLineups teamId={teamId} match={match} />}
-      {roster && !played && !trainingList && <Roster roster={roster} />}
+      {roster && !played && !listAlone && <Roster roster={roster} />}
       {/* Hasta cargar el resultado, aunque ya pasó la hora: corregir la hora o cancelarlo. */}
       {staff && match.editable && <StaffActions teamId={teamId} match={match} />}
     </Screen>

@@ -32,8 +32,9 @@ async function rolesOf(teams: TeamsRepository, teamId: string, userId: string) {
 }
 
 /**
- * Jugador y asistente se prenden y se apagan aparte: alguien del cuerpo técnico puede jugar.
- * El de entrenador no: ese se pasa (`TransferCoach`).
+ * Jugador, asistente y tesorero se prenden y se apagan aparte: alguien del cuerpo técnico puede
+ * jugar, y el tesorero puede ser un jugador (2026-10-30). El de entrenador no: ese se pasa
+ * (`TransferCoach`); el entrenador ya maneja la plata, así que tampoco es tesorero.
  */
 @Injectable()
 export class ChangeMemberRoles {
@@ -57,7 +58,13 @@ export class ChangeMemberRoles {
         'COACH_CANNOT_BE_ASSISTANT',
       );
     }
-    const changes = (['player', 'assistant'] as const)
+    if (request.treasurer && current.includes('coach')) {
+      throw new BusinessRuleError(
+        'El entrenador ya maneja los cobros',
+        'COACH_CANNOT_BE_TREASURER',
+      );
+    }
+    const changes = (['player', 'assistant', 'treasurer'] as const)
       .filter((role) => request[role] !== undefined && request[role] !== current.includes(role))
       .map((role): RoleChange => ({ userId, role, active: request[role]! }));
     const next = new Set<TeamRole>(current);

@@ -6,7 +6,7 @@ import { Row } from '../../shared/ui/Row';
 import styles from './TeamPage.module.css';
 import { Avatar } from '../../shared/ui/Avatar';
 
-const ROLE = { coach: 'Entrenador', assistant: 'Asistente' } as const;
+const ROLE = { coach: 'Entrenador', assistant: 'Asistente', treasurer: 'Tesorero' } as const;
 
 /**
  * Integrantes (07 §4.6): el cuerpo técnico y los jugadores, con su dorsal y su mejor banda de

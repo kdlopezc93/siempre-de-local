@@ -417,6 +417,20 @@ export class DrizzleTeamsRepository
     return rows as { userId: string; name: string; role: 'coach' | 'assistant' }[];
   }
 
+  activeTreasurers(teamId: string) {
+    return this.connection.db
+      .select({ userId: teamMembership.userId, name: user.name })
+      .from(teamMembership)
+      .innerJoin(user, eq(teamMembership.userId, user.id))
+      .where(
+        and(
+          eq(teamMembership.teamId, teamId),
+          eq(teamMembership.role, 'treasurer'),
+          isNull(teamMembership.leftAt),
+        ),
+      );
+  }
+
   activePlayers(teamId: string) {
     return this.connection.db
       .select({
