@@ -66,6 +66,7 @@ export class DrizzleInvitationsRepository implements InvitationsRepository {
           format: team.format,
           clubId: club.id,
           clubName: club.name,
+          archived: sql<boolean>`${team.archivedAt} is not null`,
         },
       })
       .from(invitation)

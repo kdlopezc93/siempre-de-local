@@ -4,13 +4,19 @@ import {
   CreateTeamRequestSchema,
   type CreateTeamResponse,
   UpdateClubRequestSchema,
+  UpdateClubTeamRequestSchema,
 } from '@sdl/contracts';
 import { z } from 'zod';
 
 import { CurrentSession } from '../../../shared/authz/current-session.decorator.js';
 import { parseInput } from '../../../shared/http/validation.js';
 import type { AuthSession } from '../../identity/application/ports/identity-provider.port.js';
-import { CreateTeam, GetClub, UpdateClub } from '../application/club-teams.use-cases.js';
+import {
+  ArchiveTeam,
+  CreateTeam,
+  GetClub,
+  UpdateClub,
+} from '../application/club-teams.use-cases.js';
 
 const ClubId = z.uuid();
 
@@ -21,6 +27,7 @@ export class ClubTeamsController {
     private readonly getClub: GetClub,
     private readonly updateClub: UpdateClub,
     private readonly createTeam: CreateTeam,
+    private readonly archiveTeam: ArchiveTeam,
   ) {}
 
   @Get()
@@ -54,6 +61,21 @@ export class ClubTeamsController {
       session.user.id,
       parseInput(ClubId, clubId),
       parseInput(CreateTeamRequestSchema, body),
+    );
+  }
+
+  @Patch('teams/:teamId')
+  archive(
+    @CurrentSession() session: AuthSession,
+    @Param('clubId') clubId: string,
+    @Param('teamId') teamId: string,
+    @Body() body: unknown,
+  ): Promise<ClubResponse> {
+    return this.archiveTeam.execute(
+      session.user.id,
+      parseInput(ClubId, clubId),
+      parseInput(z.uuid(), teamId),
+      parseInput(UpdateClubTeamRequestSchema, body),
     );
   }
 }

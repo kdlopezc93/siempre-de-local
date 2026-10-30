@@ -11,7 +11,15 @@ export interface InvitationRecord extends InvitationState {
 }
 
 export interface InvitationWithTeam extends InvitationRecord {
-  team: { id: string; name: string; format: MatchFormat; clubId: string; clubName: string };
+  team: {
+    id: string;
+    name: string;
+    format: MatchFormat;
+    clubId: string;
+    clubName: string;
+    /** Un equipo archivado no recibe a nadie (2026-10-29). */
+    archived: boolean;
+  };
 }
 
 export type RedeemOutcome = 'joined' | 'already-member' | 'unavailable';

@@ -4,6 +4,7 @@ import type {
   CreateTeamRequestSchema,
   CreateTeamResponse,
   UpdateClubRequest,
+  UpdateClubTeamRequest,
 } from '@sdl/contracts';
 import type { z } from 'zod';
 
@@ -126,6 +127,46 @@ export class UpdateClub {
       entity: 'club',
       entityId: clubId,
       meta: { ...changes },
+    });
+    return new GetClub(this.teams, this.memberships).execute(userId, clubId);
+  }
+}
+
+/**
+ * Archivar un equipo que ya no juega, o desarchivarlo (Kevin, 2026-10-29). Archivado, sus
+ * integrantes dejan de verlo y de tener acceso, y sus invitaciones no sirven; libera un cupo.
+ */
+@Injectable()
+export class ArchiveTeam {
+  constructor(
+    @Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository,
+    @Inject(AUTHORIZATION_READER) private readonly memberships: AuthorizationReader,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+  ) {}
+
+  async execute(
+    userId: string,
+    clubId: string,
+    teamId: string,
+    { archived }: UpdateClubTeamRequest,
+    now = new Date(),
+  ): Promise<ClubResponse> {
+    await clubRoleOf(this.memberships, userId, clubId);
+    const outcome = await this.teams.setArchived(clubId, teamId, archived, TEAMS_PER_CLUB, now);
+    if (outcome === 'not-found') throw new NotFoundError('Ese equipo no es del club');
+    if (outcome === 'limit') {
+      throw new ConflictError(
+        `El club ya tiene ${TEAMS_PER_CLUB} equipos activos. Archiva otro antes de volver a abrir este.`,
+        'TEAM_LIMIT_REACHED',
+      );
+    }
+    await this.audit.record({
+      actorUserId: userId,
+      action: archived ? 'team.archived' : 'team.unarchived',
+      entity: 'team',
+      entityId: teamId,
+      teamId,
+      meta: { clubId },
     });
     return new GetClub(this.teams, this.memberships).execute(userId, clubId);
   }

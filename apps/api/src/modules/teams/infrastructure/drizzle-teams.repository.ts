@@ -121,9 +121,11 @@ export class DrizzleTeamsRepository
         .select({ clubId: clubMembership.clubId, role: clubMembership.role })
         .from(clubMembership)
         .where(eq(clubMembership.userId, userId)),
+      // Un equipo archivado no da permisos a sus integrantes (2026-10-29).
       db
         .select({ teamId: teamMembership.teamId, role: teamMembership.role })
         .from(teamMembership)
+        .innerJoin(team, and(eq(teamMembership.teamId, team.id), isNull(team.archivedAt)))
         .where(and(eq(teamMembership.userId, userId), isNull(teamMembership.leftAt))),
     ]);
 
@@ -155,7 +157,8 @@ export class DrizzleTeamsRepository
           injuryReturnOn: teamMembership.injuryReturnOn,
         })
         .from(teamMembership)
-        .innerJoin(team, eq(teamMembership.teamId, team.id))
+        // Los archivados no se listan (2026-10-29).
+        .innerJoin(team, and(eq(teamMembership.teamId, team.id), isNull(team.archivedAt)))
         .innerJoin(club, eq(team.clubId, club.id))
         .where(and(eq(teamMembership.userId, userId), isNull(teamMembership.leftAt)))
         .orderBy(asc(team.name), asc(teamMembership.role)),
@@ -277,6 +280,37 @@ export class DrizzleTeamsRepository
 
   async updateClub(clubId: string, patch: Partial<Pick<ClubRecord, 'name' | 'city'>>) {
     await this.connection.db.update(club).set(patch).where(eq(club.id, clubId));
+  }
+
+  async setArchived(
+    clubId: string,
+    teamId: string,
+    archived: boolean,
+    maxActive: number,
+    now: Date,
+  ): Promise<'ok' | 'limit' | 'not-found'> {
+    return this.connection.db.transaction(async (tx) => {
+      // Bloquea el club: desarchivar dos a la vez no pasa del límite.
+      await tx.select({ id: club.id }).from(club).where(eq(club.id, clubId)).for('update');
+      const [found] = await tx
+        .select({ archivedAt: team.archivedAt })
+        .from(team)
+        .where(and(eq(team.id, teamId), eq(team.clubId, clubId)));
+      if (!found) return 'not-found';
+      if ((found.archivedAt !== null) === archived) return 'ok';
+      if (!archived) {
+        const [active] = await tx
+          .select({ n: count() })
+          .from(team)
+          .where(and(eq(team.clubId, clubId), isNull(team.archivedAt)));
+        if (active!.n >= maxActive) return 'limit';
+      }
+      await tx
+        .update(team)
+        .set({ archivedAt: archived ? now : null })
+        .where(eq(team.id, teamId));
+      return 'ok';
+    });
   }
 
   async createTeam(

@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -101,6 +101,48 @@ describe('el club (2026-10-29)', () => {
     renderPage();
     expect(await screen.findByText(/ya tiene 3 equipos/)).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Nuevo equipo' })).toBeNull();
+  });
+
+  it('archivar pide confirmar; desarchivar sin cupo lo explica', async () => {
+    let body: unknown;
+    fakeApi({
+      [`GET /api/v1/clubs/${CLUB}`]: { status: 200, body: club() },
+      [`PATCH /api/v1/clubs/${CLUB}/teams/${OTHER}`]: (init) => {
+        body = JSON.parse(init.body as string);
+        return (body as { archived: boolean }).archived
+          ? {
+              status: 200,
+              body: {
+                ...club(),
+                teams: [
+                  team(TEAM_A, 'Primer equipo', { category: 'Libre' }),
+                  team(OTHER, 'Los del jueves', { archived: true }),
+                ],
+              },
+            }
+          : {
+              status: 409,
+              body: {
+                error: {
+                  code: 'TEAM_LIMIT_REACHED',
+                  message:
+                    'El club ya tiene 3 equipos activos. Archiva otro antes de volver a abrir este.',
+                },
+              },
+            };
+      },
+    });
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Archivar Los del jueves' }));
+    const sheet = screen.getByRole('dialog', { name: '¿Archivar Los del jueves?' });
+    expect(sheet).toHaveTextContent('Deja de verse para sus 12 integrantes. Libera un cupo');
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Sí, archivar' }));
+    expect(body).toEqual({ archived: true });
+    expect(await screen.findByText(/Archivado/)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Equipos (1 de 3)' })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Desarchivar Los del jueves' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Archiva otro antes');
   });
 
   it('a quien no es del club le explica', async () => {

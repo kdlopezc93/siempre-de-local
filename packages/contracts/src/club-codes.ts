@@ -117,3 +117,11 @@ export const UpdateClubRequestSchema = z
 
 export type ClubResponse = z.infer<typeof ClubResponseSchema>;
 export type UpdateClubRequest = z.infer<typeof UpdateClubRequestSchema>;
+
+/**
+ * PATCH /api/v1/clubs/:clubId/teams/:teamId — archivar o desarchivar un equipo (dueño o admin,
+ * 2026-10-29). Archivado, deja de verse y de dar acceso; sus datos quedan.
+ */
+export const UpdateClubTeamRequestSchema = z.object({ archived: z.boolean() });
+
+export type UpdateClubTeamRequest = z.infer<typeof UpdateClubTeamRequestSchema>;

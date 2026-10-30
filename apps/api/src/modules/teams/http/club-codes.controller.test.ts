@@ -5,6 +5,7 @@ import {
   ClubResponseSchema,
   CreateClubCodeResponseSchema,
   CreateClubResponseSchema,
+  CreateInvitationResponseSchema,
   CreateTeamResponseSchema,
   ErrorBodySchema,
   MeResponseSchema,
@@ -294,6 +295,67 @@ describe('códigos de alta de clubes (2026-10-29)', () => {
       expect((await call('PATCH', `/clubs/${clubId}`, admin, { city: 'Suba' })).statusCode).toBe(
         403,
       );
+    });
+  });
+
+  describe('archivar un equipo', () => {
+    it('deja de verse y de dar acceso, libera cupo y se desarchiva si hay lugar', async () => {
+      const me = MeResponseSchema.parse((await call('GET', '/me', someone)).json());
+      const clubId = me.clubs[0]!.id;
+      const club = ClubResponseSchema.parse(
+        (await call('GET', `/clubs/${clubId}`, someone)).json(),
+      );
+      const third = club.teams.find((t) => t.name === 'Tigres C')!;
+
+      // Un jugador entra al tercero con una invitación.
+      const invite = CreateInvitationResponseSchema.parse(
+        (await call('POST', `/teams/${third.id}/invitations`, someone, {})).json(),
+      );
+      await call('POST', `/invitations/${invite.code}/accept`, admin);
+      expect((await call('GET', `/teams/${third.id}`, admin)).statusCode).toBe(200);
+
+      const archive = (teamId: string, archived: boolean, who = someone) =>
+        call('PATCH', `/clubs/${clubId}/teams/${teamId}`, who, { archived });
+      expect((await archive(third.id, true, admin)).statusCode).toBe(403);
+      const archived = ClubResponseSchema.parse((await archive(third.id, true)).json());
+      expect(archived.teams.at(-1)).toMatchObject({ name: 'Tigres C', archived: true });
+
+      // El jugador ya no lo ve ni entra; la invitación no sirve.
+      const mine = MeResponseSchema.parse((await call('GET', '/me', admin)).json());
+      expect(mine.teams.some((t) => t.team.id === third.id)).toBe(false);
+      expect((await call('GET', `/teams/${third.id}`, admin)).statusCode).toBe(403);
+      const preview = await app.inject({
+        method: 'GET',
+        url: `/api/v1/invitations/${invite.code}`,
+      });
+      expect(ErrorBodySchema.parse(preview.json()).error.code).toBe('INVITATION_TEAM_ARCHIVED');
+
+      // Liberó un cupo: entra otro, y ya no hay lugar para desarchivar.
+      const fourth = await call('POST', `/clubs/${clubId}/teams`, someone, {
+        name: 'Tigres D',
+        format: 'F8',
+        season: '2026',
+      });
+      const { teamId: fourthId } = CreateTeamResponseSchema.parse(fourth.json());
+      const full = await archive(third.id, false);
+      expect(full.statusCode).toBe(409);
+      expect(ErrorBodySchema.parse(full.json()).error.code).toBe('TEAM_LIMIT_REACHED');
+
+      await archive(fourthId, true);
+      expect((await archive(third.id, false)).statusCode).toBe(200);
+      expect((await call('GET', `/teams/${third.id}`, admin)).statusCode).toBe(200);
+      expect(
+        (
+          await call(
+            'PATCH',
+            `/clubs/${clubId}/teams/0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f00`,
+            someone,
+            {
+              archived: true,
+            },
+          )
+        ).statusCode,
+      ).toBe(404);
     });
   });
 });

@@ -88,6 +88,14 @@ export interface TeamsRepository {
   /** Los equipos del club: primero los activos, por nombre. */
   clubTeams(clubId: string): Promise<ClubTeamRecord[]>;
   updateClub(clubId: string, patch: Partial<Pick<ClubRecord, 'name' | 'city'>>): Promise<void>;
+  /** Archiva o desarchiva un equipo del club; desarchivar respeta el límite de activos. */
+  setArchived(
+    clubId: string,
+    teamId: string,
+    archived: boolean,
+    maxActive: number,
+    now: Date,
+  ): Promise<'ok' | 'limit' | 'not-found'>;
   createTeam(
     clubId: string,
     userId: string,
