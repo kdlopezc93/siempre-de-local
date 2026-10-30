@@ -1,0 +1,279 @@
+import type { NestFastifyApplication } from '@nestjs/platform-fastify';
+import type { StartedPostgreSqlContainer } from '@testcontainers/postgresql';
+import {
+  ChargeListResponseSchema,
+  ChargeResponseSchema,
+  MatchResponseSchema,
+  MyChargesResponseSchema,
+  TournamentResponseSchema,
+} from '@sdl/contracts';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+
+import { createDb, type DbConnection } from '../../../shared/db/client.js';
+import { bootApp, TEST_ENV } from '../../../test/app.js';
+import { startMigratedPostgres } from '../../../test/postgres.js';
+import { seedUserWithSession, type SeededUser } from '../../../test/sessions.js';
+import { bootstrapTeam } from '../../teams/infrastructure/bootstrap-team.js';
+import { teamMembership } from '../../teams/infrastructure/schema.js';
+
+const inDays = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString();
+
+describe('cobros del equipo (06 Cobros)', () => {
+  let container: StartedPostgreSqlContainer;
+  let connection: DbConnection;
+  let app: NestFastifyApplication;
+  let coach: SeededUser, ana: SeededUser, beto: SeededUser, ciro: SeededUser, tesorera: SeededUser;
+  let outsider: SeededUser;
+  let teamId: string;
+
+  beforeAll(async () => {
+    container = await startMigratedPostgres();
+    const url = container.getConnectionUri();
+    connection = createDb(url);
+    const seed = (name: string) => seedUserWithSession(url, { name, email: `${name}@example.com` });
+    coach = await seed('coach');
+    ana = await seed('ana');
+    beto = await seed('beto');
+    ciro = await seed('ciro');
+    tesorera = await seed('tesorera');
+    outsider = await seed('outsider');
+    ({ teamId } = await bootstrapTeam(connection.db, {
+      clubName: 'Los del Barrio',
+      clubSlug: 'los-del-barrio',
+      format: 'F8',
+      teamName: 'Primer equipo',
+      season: '2026',
+      ownerEmail: 'coach@example.com',
+      coachEmail: 'coach@example.com',
+    }));
+    await connection.db.insert(teamMembership).values([
+      { teamId, userId: ana.userId, role: 'player', jerseyNumber: 4 },
+      { teamId, userId: beto.userId, role: 'player', jerseyNumber: 9 },
+      { teamId, userId: ciro.userId, role: 'player' },
+      // La tesorera también juega (2026-10-30).
+      { teamId, userId: tesorera.userId, role: 'player', jerseyNumber: 7 },
+      { teamId, userId: tesorera.userId, role: 'treasurer' },
+    ]);
+    app = await bootApp(url);
+  });
+
+  afterAll(async () => {
+    await app?.close();
+    await connection?.pool.end();
+    vi.unstubAllEnvs();
+    await container?.stop();
+  });
+
+  const call = (
+    method: 'GET' | 'POST' | 'PATCH' | 'PUT',
+    path: string,
+    who: SeededUser,
+    body?: object,
+  ) =>
+    app.inject({
+      method,
+      url: `/api/v1/teams/${teamId}${path}`,
+      headers: { cookie: who.cookie, origin: TEST_ENV.WEB_ORIGIN },
+      ...(body ? { payload: body } : {}),
+    });
+  const today = new Date().toISOString().slice(0, 10);
+
+  it('la vaca del amistoso: un total repartido a los $100 siguientes; abonos, "Ya pagué" y confirmar', async () => {
+    const { match } = MatchResponseSchema.parse(
+      (
+        await call('POST', '/matches', coach, {
+          kind: 'friendly',
+          format: 'F8',
+          startsAt: inDays(2),
+          place: 'La 14',
+          opponent: 'Los Pibes',
+        })
+      ).json(),
+    );
+    const vaca = {
+      kind: 'vaca',
+      matchId: match.id,
+      split: 'total',
+      amount: 70_000,
+      playerIds: [ana.userId, beto.userId, ciro.userId],
+    };
+    // Un jugador no cobra; la tesorera sí.
+    expect((await call('POST', '/charges', ana, vaca)).statusCode).toBe(403);
+    const created = await call('POST', '/charges', tesorera, vaca);
+    expect(created.statusCode).toBe(201);
+    const { charge, shares } = ChargeResponseSchema.parse(created.json());
+    expect(charge).toMatchObject({
+      kind: 'vaca',
+      match: { id: match.id, opponent: 'Los Pibes' },
+      people: 3,
+      balance: { billed: 70_200, collected: 0, pending: 70_200 },
+    });
+    // 70.000 / 3 = 23.333,3 → 23.400 cada uno.
+    expect(shares.map((s) => [s.displayName, s.amount, s.status])).toEqual([
+      ['ana', 23_400, 'pending'],
+      ['beto', 23_400, 'pending'],
+      ['ciro', 23_400, 'pending'],
+    ]);
+
+    // La tesorera registra un abono de Ana: confirmado de una vez.
+    const abono = await call('POST', `/charges/${charge.id}/payments`, tesorera, {
+      userId: ana.userId,
+      amount: 10_000,
+      method: 'cash',
+      paidOn: today,
+    });
+    expect(abono.statusCode).toBe(201);
+    expect(
+      ChargeResponseSchema.parse(abono.json()).shares.find((s) => s.userId === ana.userId),
+    ).toMatchObject({ paid: 10_000, status: 'partial' });
+
+    // Beto dice "Ya pagué" por Nequi: queda reportado y solo ve lo suyo.
+    const report = await call('POST', `/me/charges/${charge.id}/payments`, beto, {
+      amount: 23_400,
+      method: 'nequi',
+      paidOn: today,
+    });
+    expect(report.statusCode).toBe(201);
+    const mine = MyChargesResponseSchema.parse(report.json());
+    expect(mine.items).toHaveLength(1);
+    expect(mine.items[0]).toMatchObject({ amount: 23_400, paid: 0, reported: 23_400 });
+    expect(mine.owed).toBe(23_400);
+    // No puede reportar dos veces lo mismo, ni pagar por otro.
+    expect(
+      (
+        await call('POST', `/me/charges/${charge.id}/payments`, beto, {
+          amount: 100,
+          method: 'nequi',
+          paidOn: today,
+        })
+      ).json(),
+    ).toMatchObject({ error: { code: 'PAYMENT_TOO_HIGH' } });
+    expect(
+      (
+        await call('POST', `/charges/${charge.id}/payments`, beto, {
+          userId: ana.userId,
+          amount: 100,
+          method: 'cash',
+          paidOn: today,
+        })
+      ).statusCode,
+    ).toBe(403);
+
+    // La tesorera lo confirma (una sola vez).
+    const detail = ChargeResponseSchema.parse(
+      (await call('GET', `/charges/${charge.id}`, tesorera)).json(),
+    );
+    expect(detail.charge.reported).toBe(1);
+    const reported = detail.payments.find((p) => p.status === 'reported')!;
+    expect(reported).toMatchObject({ userId: beto.userId, reportedBy: { name: 'beto' } });
+    const confirmed = await call(
+      'POST',
+      `/charges/${charge.id}/payments/${reported.id}/confirm`,
+      tesorera,
+    );
+    expect(confirmed.statusCode).toBe(200);
+    const after = ChargeResponseSchema.parse(confirmed.json());
+    expect(after.shares.find((s) => s.userId === beto.userId)?.status).toBe('paid');
+    expect(after.charge.balance).toEqual({ billed: 70_200, collected: 33_400, pending: 36_800 });
+    expect(
+      (await call('POST', `/charges/${charge.id}/payments/${reported.id}/reject`, tesorera)).json(),
+    ).toMatchObject({ error: { code: 'PAYMENT_REVIEWED' } });
+    expect(
+      MyChargesResponseSchema.parse((await call('GET', '/me/charges', beto)).json()).owed,
+    ).toBe(0);
+  });
+
+  it('ajuste por persona, sumar a alguien, multa de uno solo y anular', async () => {
+    const { tournament } = TournamentResponseSchema.parse(
+      (await call('POST', '/tournaments', coach, { name: 'Copa del barrio' })).json(),
+    );
+    const inscripcion = ChargeResponseSchema.parse(
+      (
+        await call('POST', '/charges', coach, {
+          kind: 'registration',
+          tournamentId: tournament.id,
+          split: 'per_person',
+          amount: 40_000,
+          dueOn: today,
+          playerIds: [ana.userId, beto.userId],
+        })
+      ).json(),
+    ).charge;
+    expect(inscripcion).toMatchObject({ tournament: { name: 'Copa del barrio' }, amount: 40_000 });
+
+    // A Ana el equipo le pone la mitad; Ciro se suma después.
+    const half = await call('PUT', `/charges/${inscripcion.id}/shares/${ana.userId}`, tesorera, {
+      amount: 20_000,
+      note: 'Media beca',
+    });
+    expect(
+      ChargeResponseSchema.parse(half.json()).shares.find((s) => s.userId === ana.userId),
+    ).toMatchObject({ amount: 20_000, note: 'Media beca' });
+    await call('PUT', `/charges/${inscripcion.id}/shares/${ciro.userId}`, tesorera, {
+      amount: 40_000,
+    });
+    // No se le baja a menos de lo que ya pagó.
+    await call('POST', `/charges/${inscripcion.id}/payments`, tesorera, {
+      userId: beto.userId,
+      amount: 30_000,
+      method: 'transfer',
+      paidOn: today,
+    });
+    expect(
+      (
+        await call('PUT', `/charges/${inscripcion.id}/shares/${beto.userId}`, tesorera, {
+          amount: 10_000,
+        })
+      ).json(),
+    ).toMatchObject({ error: { code: 'SHARE_BELOW_PAID' } });
+
+    // Validaciones al crear.
+    const base = { kind: 'fine', split: 'per_person', amount: 15_000 };
+    expect(
+      (
+        await call('POST', '/charges', coach, { ...base, playerIds: [ana.userId, beto.userId] })
+      ).json(),
+    ).toMatchObject({
+      error: { code: 'CHARGE_FIELDS', message: 'Una multa es de una sola persona.' },
+    });
+    expect(
+      (await call('POST', '/charges', coach, { ...base, playerIds: [outsider.userId] })).json(),
+    ).toMatchObject({ error: { code: 'PLAYER_NOT_IN_TEAM' } });
+    const multa = await call('POST', '/charges', coach, {
+      ...base,
+      title: 'Amarilla contra Los Pibes',
+      playerIds: [ciro.userId],
+    });
+    expect(multa.statusCode).toBe(201);
+
+    // Anular: sale del saldo y de lo que debe cada uno; ya no se le pagan cosas.
+    const cancelled = await call('PATCH', `/charges/${inscripcion.id}`, tesorera, {
+      cancelled: true,
+    });
+    expect(ChargeResponseSchema.parse(cancelled.json()).charge.cancelled).toBe(true);
+    expect(
+      (
+        await call('POST', `/charges/${inscripcion.id}/payments`, tesorera, {
+          userId: ana.userId,
+          amount: 1_000,
+          method: 'cash',
+          paidOn: today,
+        })
+      ).json(),
+    ).toMatchObject({ error: { code: 'CHARGE_CANCELLED' } });
+    const ciroOwes = MyChargesResponseSchema.parse((await call('GET', '/me/charges', ciro)).json());
+    expect(ciroOwes.items.map((i) => i.charge.kind).sort()).toEqual(['fine', 'vaca']);
+    expect(ciroOwes.owed).toBe(23_400 + 15_000);
+
+    // La lista del equipo: el más nuevo primero, con el saldo sin los anulados. Un jugador no la ve.
+    const list = ChargeListResponseSchema.parse((await call('GET', '/charges', tesorera)).json());
+    expect(list.items.map((c) => c.kind)).toEqual(['fine', 'registration', 'vaca']);
+    expect(list.balance).toEqual({
+      billed: 70_200 + 15_000,
+      collected: 33_400,
+      pending: 36_800 + 15_000,
+    });
+    expect((await call('GET', '/charges', ana)).statusCode).toBe(403);
+    expect((await call('GET', '/me/charges', outsider)).statusCode).toBe(403);
+  });
+});
