@@ -39,6 +39,8 @@ const TEAM_PERMISSIONS = {
   'team.lineups.write': { roles: STAFF, clubAdmin: false },
   /** Convocar, editar o cancelar partidos (Fase 7). */
   'team.matches.write': { roles: STAFF, clubAdmin: false },
+  /** "¿Quién vino?": pasar lista desde la hora del partido (2026-10-30; el tesorero, después). */
+  'team.attendance.write': { roles: STAFF, clubAdmin: false },
   /** Marcar o desmarcar lesionados (2026-10-24). */
   'team.injuries.write': { roles: STAFF, clubAdmin: false },
   /** Recordarles el test a los que no lo han hecho (2026-10-26). */

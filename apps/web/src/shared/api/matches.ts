@@ -69,6 +69,18 @@ export function fetchPublishedLineup(
 }
 
 /** Después del partido (D18): el resultado y la figura (cuerpo técnico). */
+/** "¿Quién vino?" (2026-10-30): la lista entera del partido. */
+export function takeMatchAttendance(
+  teamId: string,
+  matchId: string,
+  playerIds: string[],
+): Promise<MatchResponse> {
+  return apiRequest(`${base(teamId)}/${matchId}/attendance`, MatchResponseSchema, {
+    method: 'PUT',
+    body: JSON.stringify({ playerIds }),
+  });
+}
+
 export function recordMatchResult(
   teamId: string,
   matchId: string,

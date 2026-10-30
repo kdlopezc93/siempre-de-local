@@ -11,6 +11,7 @@ const roster: MatchRoster = [
     reply: 'yes',
     canRate: true,
     injured: false,
+    came: false,
   },
   {
     playerId: 'b',
@@ -19,6 +20,7 @@ const roster: MatchRoster = [
     reply: 'no',
     canRate: true,
     injured: false,
+    came: false,
   },
   {
     playerId: 'c',
@@ -27,6 +29,7 @@ const roster: MatchRoster = [
     reply: 'yes',
     canRate: true,
     injured: false,
+    came: false,
   },
   {
     playerId: 'd',
@@ -35,18 +38,23 @@ const roster: MatchRoster = [
     reply: null,
     canRate: true,
     injured: false,
+    came: false,
   },
 ];
-const none = new Set<string>();
 
 describe('después del partido: a quién evaluar (D18)', () => {
   it('sin alineación publicada, los que dijeron voy', () => {
-    const { played, others } = whoPlayed({ roster, lineup: null, ratings: [], added: none });
+    const { played, others } = whoPlayed({
+      roster,
+      lineup: null,
+      ratings: [],
+      attendanceTaken: false,
+    });
     expect(played.map((p) => p.displayName)).toEqual(['Ana', 'Ciro']);
     expect(others.map((p) => p.displayName)).toEqual(['Beto', 'Dani']);
   });
 
-  it('con alineación, titulares y banco; más los evaluados y los agregados, por dorsal', () => {
+  it('con alineación, titulares y banco; más los evaluados, por dorsal', () => {
     const { played, others } = whoPlayed({
       roster,
       lineup: {
@@ -71,10 +79,21 @@ describe('después del partido: a quién evaluar (D18)', () => {
           ratedAt: '2026-11-01T18:00:00.000Z',
         },
       ],
-      added: new Set(['d']),
+      attendanceTaken: false,
     });
-    expect(played.map((p) => p.displayName)).toEqual(['Dani', 'Ana', 'Beto', 'Ya no está']);
-    expect(others.map((p) => p.displayName)).toEqual(['Ciro']);
+    expect(played.map((p) => p.displayName)).toEqual(['Ana', 'Beto', 'Ya no está']);
+    expect(others.map((p) => p.displayName)).toEqual(['Ciro', 'Dani']);
+  });
+
+  it('con lista pasada ("¿Quién vino?"), los que vinieron: manda sobre la alineación y el voy', () => {
+    const { played, others } = whoPlayed({
+      roster: roster.map((p) => ({ ...p, came: p.playerId === 'b' || p.playerId === 'd' })),
+      lineup: null,
+      ratings: [],
+      attendanceTaken: true,
+    });
+    expect(played.map((p) => p.displayName)).toEqual(['Dani', 'Beto']);
+    expect(others.map((p) => p.displayName)).toEqual(['Ana', 'Ciro']);
   });
 
   it('la escala, de Flojo a Figura', () => {

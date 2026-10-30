@@ -28,24 +28,27 @@ const byJerseyThenName = (a: RatablePlayer, b: RatablePlayer) =>
   a.displayName.localeCompare(b.displayName, 'es');
 
 /**
- * A quién evaluar: los que jugaron según la alineación publicada (titulares y banco); sin
- * alineación, los que dijeron "voy". Los ya evaluados siempre están (aunque hayan salido del
- * equipo). El resto de la plantilla queda para "Agregar a otro que jugó".
+ * A quién evaluar: si ya pasaron lista ("¿Quién vino?", 2026-10-30), los que vinieron; si no,
+ * los de la alineación publicada (titulares y banco) o, sin alineación, los que dijeron "voy".
+ * Los ya evaluados siempre están (aunque hayan salido del equipo). Al que falte se le agrega en
+ * la lista.
  */
 export function whoPlayed(input: {
   roster: MatchRoster;
   lineup: PublishedLineupResponse | null;
   ratings: MatchRatingsResponse['items'];
-  added: ReadonlySet<string>;
+  attendanceTaken: boolean;
 }): { played: RatablePlayer[]; others: RatablePlayer[] } {
-  const { roster, lineup, ratings, added } = input;
-  const inLineup = lineup
-    ? new Set(
-        [...lineup.starters.map((s) => s.player?.id), ...lineup.bench.map((p) => p.id)].filter(
-          (id): id is string => Boolean(id),
-        ),
-      )
-    : new Set(roster.filter((p) => p.reply === 'yes').map((p) => p.playerId));
+  const { roster, lineup, ratings, attendanceTaken } = input;
+  const inLineup = attendanceTaken
+    ? new Set(roster.filter((p) => p.came).map((p) => p.playerId))
+    : lineup
+      ? new Set(
+          [...lineup.starters.map((s) => s.player?.id), ...lineup.bench.map((p) => p.id)].filter(
+            (id): id is string => Boolean(id),
+          ),
+        )
+      : new Set(roster.filter((p) => p.reply === 'yes').map((p) => p.playerId));
   const rated = new Set(ratings.map((r) => r.playerId));
   const played: RatablePlayer[] = [];
   const others: RatablePlayer[] = [];
@@ -56,7 +59,7 @@ export function whoPlayed(input: {
       jerseyNumber: p.jerseyNumber,
       canRate: p.canRate,
     };
-    if (inLineup.has(p.playerId) || rated.has(p.playerId) || added.has(p.playerId)) {
+    if (inLineup.has(p.playerId) || rated.has(p.playerId)) {
       played.push(entry);
     } else {
       others.push(entry);

@@ -10,6 +10,7 @@ import {
   matchTally,
   matchTallyByKind,
   replySummary,
+  whoCame,
 } from './matches.js';
 
 describe('partidos (Fase 7)', () => {
@@ -125,5 +126,18 @@ describe('partidos (Fase 7)', () => {
     ]);
     expect(tally.championship).toEqual({ played: 1, won: 1, drawn: 0, lost: 0, cancelled: 1 });
     expect(tally.friendly).toEqual({ played: 1, won: 0, drawn: 1, lost: 0, cancelled: 0 });
+  });
+
+  it('quién vino: sin lista, los que dijeron voy; con lista, la lista (2026-10-30)', () => {
+    const replies = new Map([
+      ['a', 'yes'],
+      ['b', 'no'],
+      ['c', 'yes'],
+    ] as const);
+    expect([...whoCame(replies, null)].sort()).toEqual(['a', 'c']);
+    // La lista manda: llegó "b", que había dicho que no, y "c" no apareció.
+    expect([...whoCame(replies, new Set(['a', 'b']))].sort()).toEqual(['a', 'b']);
+    // Una lista vacía también es lista: no vino nadie.
+    expect(whoCame(replies, new Set()).size).toBe(0);
   });
 });

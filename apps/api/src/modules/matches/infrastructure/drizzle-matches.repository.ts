@@ -14,7 +14,7 @@ import type {
   MatchRecord,
   MatchResultData,
 } from '../application/ports/matches.repository.js';
-import { matchRating, matchReply, teamMatch, tournament } from './schema.js';
+import { matchAttendance, matchRating, matchReply, teamMatch, tournament } from './schema.js';
 
 const UNIQUE_VIOLATION = '23505';
 
@@ -51,6 +51,7 @@ export class DrizzleMatchesRepository implements MatchesRepository, OpenMatchesQ
         goalsFor: teamMatch.goalsFor,
         goalsAgainst: teamMatch.goalsAgainst,
         resultAt: teamMatch.resultAt,
+        attendanceTakenAt: teamMatch.attendanceTakenAt,
         creatorId: user.id,
         creatorName: user.name,
         figureId: figure.id,
@@ -143,6 +144,26 @@ export class DrizzleMatchesRepository implements MatchesRepository, OpenMatchesQ
         target: [matchReply.matchId, matchReply.userId],
         set: { reply, repliedAt: new Date() },
       });
+  }
+
+  async attendance(matchId: string) {
+    const rows = await this.connection.db
+      .select({ userId: matchAttendance.userId })
+      .from(matchAttendance)
+      .where(eq(matchAttendance.matchId, matchId));
+    return new Set(rows.map((r) => r.userId));
+  }
+
+  async setAttendance(matchId: string, userIds: string[], markedBy: string, at: Date) {
+    await this.connection.db.transaction(async (tx) => {
+      await tx.delete(matchAttendance).where(eq(matchAttendance.matchId, matchId));
+      if (userIds.length > 0) {
+        await tx
+          .insert(matchAttendance)
+          .values(userIds.map((userId) => ({ matchId, userId, markedBy, markedAt: at })));
+      }
+      await tx.update(teamMatch).set({ attendanceTakenAt: at }).where(eq(teamMatch.id, matchId));
+    });
   }
 
   async setResult(matchId: string, result: MatchResultData) {

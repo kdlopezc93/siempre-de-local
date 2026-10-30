@@ -81,6 +81,8 @@ export const MatchSchema = z.object({
   published: z.object({ lineupId: z.uuid(), at: z.iso.datetime() }).nullable(),
   /** Después del partido (D18): el resultado, o null si todavía no lo cargaron. */
   result: MatchResultSchema.nullable(),
+  /** "¿Quién vino?" (2026-10-30): si el cuerpo técnico ya pasó lista. */
+  attendanceTaken: z.boolean(),
   /**
    * Tu evaluación del partido, si eres jugador y el equipo las muestra (D18). Sin nota ni autor:
    * eso es del cuerpo técnico.
@@ -99,6 +101,8 @@ export const MatchRosterSchema = z.array(
     canRate: z.boolean(),
     /** Lesionado: no cuenta como pendiente de responder. */
     injured: z.boolean(),
+    /** Vino al partido: según la lista si ya la pasaron; si no, si dijo "voy" (`whoCame`). */
+    came: z.boolean(),
   }),
 );
 
@@ -116,6 +120,14 @@ export const MatchResultRequestSchema = z.object({
   goalsFor: Goals,
   goalsAgainst: Goals,
   figurePlayerId: z.uuid().nullable(),
+});
+
+/**
+ * PUT /teams/:teamId/matches/:matchId/attendance — "¿Quién vino?" (2026-10-30): la lista entera,
+ * desde la hora del partido (también en los entrenos). Reemplaza la anterior; se corrige sin plazo.
+ */
+export const MatchAttendanceRequestSchema = z.object({
+  playerIds: z.array(z.uuid()).max(100),
 });
 
 const Note = z
@@ -172,6 +184,7 @@ export type MatchListResponse = z.infer<typeof MatchListResponseSchema>;
 export type MatchRatingValue = z.infer<typeof MatchRatingValueSchema>;
 export type MatchResult = z.infer<typeof MatchResultSchema>;
 export type MatchResultRequest = z.infer<typeof MatchResultRequestSchema>;
+export type MatchAttendanceRequest = z.infer<typeof MatchAttendanceRequestSchema>;
 export type MatchRatingRequest = z.input<typeof MatchRatingRequestSchema>;
 export type MatchRatingsResponse = z.infer<typeof MatchRatingsResponseSchema>;
 export type PlayerMatchRatingsResponse = z.infer<typeof PlayerMatchRatingsResponseSchema>;

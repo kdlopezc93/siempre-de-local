@@ -180,6 +180,7 @@ describe('planificador', () => {
       published: null,
       result: null,
       myRating: null,
+      attendanceTaken: false,
     };
     const roster = PLAYERS.map((p, i) => ({
       playerId: p.playerId,
@@ -188,6 +189,7 @@ describe('planificador', () => {
       reply: i === PLAYERS.length - 1 ? 'no' : 'yes',
       canRate: true,
       injured: false,
+      came: false,
     }));
     let saved: { matchId: string; name: string } | undefined;
     let published = false;

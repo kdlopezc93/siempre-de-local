@@ -19,6 +19,7 @@ import {
   rateMatchPlayer,
   recordMatchResult,
   replyMatch,
+  takeMatchAttendance,
   unrateMatchPlayer,
   updateMatch,
 } from '../../shared/api/matches';
@@ -77,6 +78,11 @@ export function usePublishedLineup(teamId: string, matchId: string, publishedAt:
 export const useRecordMatchResult = (teamId: string, matchId: string) =>
   useMatchMutation(teamId, (request: MatchResultRequest) =>
     recordMatchResult(teamId, matchId, request),
+  );
+
+export const useTakeAttendance = (teamId: string, matchId: string) =>
+  useMatchMutation(teamId, (playerIds: string[]) =>
+    takeMatchAttendance(teamId, matchId, playerIds),
   );
 
 const playerRatingsKey = (teamId: string, playerId: string) =>

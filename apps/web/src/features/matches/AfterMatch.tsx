@@ -12,6 +12,7 @@ import { whyCannotRate } from '../squad/who-rates';
 import { useSession } from '../auth/use-session';
 import { RATING_OPTIONS, ratingLabel, type RatablePlayer, whoPlayed } from './after-match';
 import styles from './AfterMatch.module.css';
+import { WhoCame, type ReportUnsaved } from './WhoCame';
 import {
   useMatchRatings,
   usePublishedLineup,
@@ -43,8 +44,6 @@ export function AfterMatch({
 }) {
   const ratings = useMatchRatings(teamId, match.id);
   const lineup = usePublishedLineup(teamId, match.id, match.published?.at ?? null);
-  const [added, setAdded] = useState<ReadonlySet<string>>(new Set());
-  const [adding, setAdding] = useState(false);
   // Un solo aviso de cambios sin guardar para toda la pantalla (React Router admite un bloqueo
   // a la vez): el marcador y cada nota avisan si tienen algo pendiente.
   const [unsaved, setUnsaved] = useState<ReadonlySet<string>>(new Set());
@@ -63,7 +62,7 @@ export function AfterMatch({
     roster,
     lineup: lineup.data ?? null,
     ratings: ratings.data?.items ?? [],
-    added,
+    attendanceTaken: match.attendanceTaken,
   });
   const byPlayer = new Map((ratings.data?.items ?? []).map((r) => [r.playerId, r]));
   const rated = played.filter((p) => byPlayer.has(p.playerId)).length;
@@ -71,6 +70,7 @@ export function AfterMatch({
   return (
     <>
       {guard.prompt}
+      <WhoCame teamId={teamId} match={match} roster={roster} report={report} />
       <ResultBoard
         report={report}
         teamId={teamId}
@@ -97,7 +97,9 @@ export function AfterMatch({
         )}
         {played.length === 0 && (
           <p className={styles.muted}>
-            Nadie quedó en la alineación ni dijo “voy”. Agrega a los que jugaron.
+            {match.attendanceTaken
+              ? 'En la lista no quedó nadie. Marca arriba a los que vinieron.'
+              : 'Nadie quedó en la alineación ni dijo “voy”. Marca arriba a los que vinieron.'}
           </p>
         )}
         <ul className={styles.players}>
@@ -126,37 +128,12 @@ export function AfterMatch({
             );
           })}
         </ul>
-        {others.length > 0 && (
-          <Button variant="ghost" onClick={() => setAdding(true)}>
-            Agregar a otro que jugó
-          </Button>
-        )}
-        <Sheet open={adding} onClose={() => setAdding(false)} title="¿Quién más jugó?">
-          <ul className={styles.pickList}>
-            {others.map((p) => (
-              <li key={p.playerId}>
-                <button
-                  type="button"
-                  className={styles.pick}
-                  onClick={() => {
-                    setAdded(new Set([...added, p.playerId]));
-                    setAdding(false);
-                  }}
-                >
-                  <Avatar name={p.displayName} label={tokenText(p)} size={32} />
-                  <span>{p.displayName}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </Sheet>
       </section>
     </>
   );
 }
 
 /** El marcador de pizarra: goles de cada lado con − y +, y la figura del partido. */
-type ReportUnsaved = (key: string, dirty: boolean) => void;
 
 /** Avisa a la pantalla si esta parte tiene cambios sin guardar (y deja de hacerlo al salir). */
 function useReportUnsaved(report: ReportUnsaved, key: string, dirty: boolean) {

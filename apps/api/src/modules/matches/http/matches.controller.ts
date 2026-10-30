@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/
 import {
   CreateMatchRequestSchema,
   CreateTournamentRequestSchema,
+  MatchAttendanceRequestSchema,
   type MatchListResponse,
   MatchRatingRequestSchema,
   type MatchRatingsResponse,
@@ -101,6 +102,23 @@ export class MatchesController {
       teamId,
       parseInput(z.uuid(), matchId),
       parseInput(MatchResultRequestSchema, body),
+    );
+  }
+
+  /** "¿Quién vino?" (2026-10-30): la lista del partido, desde la hora. */
+  @Put(':matchId/attendance')
+  @Can('team.attendance.write', { teamParam: 'teamId' })
+  takeAttendance(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('matchId') matchId: string,
+    @Body() body: unknown,
+  ): Promise<MatchResponse> {
+    return this.matches.takeAttendance(
+      actor,
+      teamId,
+      parseInput(z.uuid(), matchId),
+      parseInput(MatchAttendanceRequestSchema, body),
     );
   }
 

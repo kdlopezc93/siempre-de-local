@@ -174,6 +174,7 @@ describe('lo que toca: partidos (D16)', () => {
     published: null,
     result: null,
     myRating: null,
+    attendanceTaken: false,
     ...over,
   });
 
