@@ -132,6 +132,13 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
 
       {listAlone && <WhoCameAlone teamId={teamId} match={match} roster={roster} />}
 
+      {/* Cobrar la vaca o el arbitraje (`06` Cobros): a mano, desde la hora del partido. */}
+      {takesList && started && (
+        <ButtonLink variant="secondary" to={`/equipos/${teamId}/cobros/nuevo?partido=${match.id}`}>
+          Cobrar este partido
+        </ButtonLink>
+      )}
+
       {!played && player && match.open && <ReplyButtons teamId={teamId} match={match} />}
 
       {!played && (

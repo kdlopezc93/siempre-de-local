@@ -7,7 +7,8 @@ import { fetchLineups } from '../../shared/api/lineups';
 import { fetchMatches } from '../../shared/api/matches';
 import { fetchSquad } from '../../shared/api/squad';
 import { useHistory } from '../history/use-history';
-import { lastLineup, matchTodos, playerTodos, staffTodos, type Todo } from './todo';
+import { useCharges, useMyCharges } from '../charges/use-charges';
+import { chargeTodos, lastLineup, matchTodos, playerTodos, staffTodos, type Todo } from './todo';
 
 /**
  * Lo que toca en el equipo activo, armado en el celular con lo que ya traen la plantilla,
@@ -17,7 +18,11 @@ import { lastLineup, matchTodos, playerTodos, staffTodos, type Todo } from './to
 export function useHomeTodos(me: Me, teamId: string | undefined, roles: readonly TeamRole[]) {
   const staff = roles.includes('coach') || roles.includes('assistant');
   const player = roles.includes('player');
+  // Quien cobra (`06` Cobros): el cuerpo técnico y el tesorero.
+  const money = staff || roles.includes('treasurer');
   const history = useHistory(me.user.id);
+  const myCharges = useMyCharges(teamId ?? '', player && !!teamId);
+  const charges = useCharges(teamId ?? '', money && !!teamId);
   const positions = useQuery({
     queryKey: ['cert-positions'],
     queryFn: fetchCertPositions,
@@ -74,6 +79,20 @@ export function useHomeTodos(me: Me, teamId: string | undefined, roles: readonly
         ...matchTodos({ teamId, matches: matches.data.items, player, staff, meId: me.user.id }),
       );
     if (staff && lineups.data) shortcut = lastLineup(teamId, lineups.data.items);
+    todos.push(
+      ...chargeTodos({
+        teamId,
+        mine: myCharges.data
+          ? {
+              owed: myCharges.data.owed,
+              open: myCharges.data.items.filter((i) => i.status !== 'paid').length,
+            }
+          : null,
+        reported: charges.data
+          ? charges.data.items.reduce((n, c) => n + (c.cancelled ? 0 : c.reported), 0)
+          : null,
+      }),
+    );
   }
-  return { todos, shortcut, isPending, isError, staff, player };
+  return { todos, shortcut, isPending, isError, staff, player, money };
 }

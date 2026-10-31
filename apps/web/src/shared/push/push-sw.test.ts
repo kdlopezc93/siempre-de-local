@@ -113,6 +113,26 @@ describe('avisos en el service worker', () => {
     );
   });
 
+  it('un cobro nuevo: de qué es, sin el valor, y lleva a tus cuentas (2026-10-30)', async () => {
+    const { fire, showNotification } = loadWorker();
+    await fire(
+      'push',
+      push({
+        kind: 'charge-created',
+        charge: 'Vaca',
+        opponent: 'Vaca',
+        url: '/equipos/t/mis-cuentas',
+      }),
+    );
+    expect(showNotification).toHaveBeenCalledWith(
+      'Nuevo cobro del equipo: Vaca',
+      expect.objectContaining({
+        body: 'Toca para ver cuánto te toca y avisar cuando pagues.',
+        data: { url: '/equipos/t/mis-cuentas' },
+      }),
+    );
+  });
+
   it('un tipo que no conoce lleva un texto neutro, nunca el de otro aviso', async () => {
     const { fire, showNotification } = loadWorker();
     await fire(

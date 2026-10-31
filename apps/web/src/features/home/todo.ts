@@ -6,11 +6,12 @@ import type {
 } from '@sdl/contracts';
 import { isGame, POSITIONS } from '@sdl/domain';
 
+import { pesos } from '../charges/charge-view';
 import { matchTitle, matchWhen } from '../matches/match-view';
 import { returnDay, returnOverdue, todayIso } from '../squad/injury';
 
 export type TodoIcon =
-  'exam' | 'test' | 'assess' | 'card' | 'review' | 'lineup' | 'match' | 'injury';
+  'exam' | 'test' | 'assess' | 'card' | 'review' | 'lineup' | 'match' | 'injury' | 'money';
 
 export interface Todo {
   id: string;
@@ -302,6 +303,47 @@ export function matchTodos(input: {
         to: `/equipos/${teamId}/partidos/${m.id}`,
       });
     }
+  }
+  return todos;
+}
+
+/**
+ * La plata (`06` Cobros, 2026-10-30): al jugador, lo que debe; a quien cobra (cuerpo técnico y
+ * tesorero), los "Ya pagué" que esperan que los confirme.
+ */
+export function chargeTodos(input: {
+  teamId: string;
+  /** Lo que debe quien mira y en cuántos cobros (null si no es jugador). */
+  mine: { owed: number; open: number } | null;
+  /** "Ya pagué" por confirmar (null si no cobra). */
+  reported: number | null;
+}): Todo[] {
+  const { teamId, mine, reported } = input;
+  const todos: Todo[] = [];
+  if (mine && mine.owed > 0) {
+    todos.push({
+      id: 'charges-owed',
+      priority: 3,
+      who: 'player',
+      icon: 'money',
+      title: `Debes ${pesos(mine.owed)}`,
+      short: 'Debes',
+      detail: `En ${plural(mine.open, 'cobro', 'cobros')} del equipo. Avisa cuando pagues.`,
+      to: `/equipos/${teamId}/mis-cuentas`,
+    });
+  }
+  if (reported) {
+    todos.push({
+      id: 'charges-reported',
+      priority: 1,
+      who: 'staff',
+      icon: 'money',
+      title: `Confirma ${plural(reported, 'pago', 'pagos')}`,
+      short: 'Pagos por confirmar',
+      count: reported,
+      detail: 'Dicen que pagaron: revisa que te haya llegado.',
+      to: `/equipos/${teamId}/cobros`,
+    });
   }
   return todos;
 }

@@ -33,6 +33,7 @@ export function MyDataPage({ signedIn }: { signedIn: boolean }) {
           <li>Tu perfil: cómo te dicen, tu pie y las posiciones que prefieres.</li>
           <li>Tus respuestas y resultados del test de posición y de los exámenes.</li>
           <li>Lo que el cuerpo técnico registra sobre ti: tu tarjeta, sus valoraciones y notas.</li>
+          <li>Lo que debes y pagaste en los cobros del equipo (sin datos bancarios).</li>
           <li>Tus equipos y tu rol en cada uno, y cuándo aceptaste la política de datos.</li>
         </ul>
       </section>
