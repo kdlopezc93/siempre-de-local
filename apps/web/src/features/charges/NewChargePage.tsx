@@ -97,6 +97,8 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
   }, [members.data, roster]);
 
   const fine = kind === 'fine';
+  // Antes de la hora no hay lista: "los que vinieron" son los que dijeron voy (`whoCame`).
+  const ahead = match.data?.match.open ?? false;
   const canUseCame = source === 'match' && roster !== null;
   const mode: Who = fine ? 'pick' : who === 'came' && !canUseCame ? 'all' : who;
   const chosen = useMemo(() => {
@@ -312,7 +314,9 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
           <Segmented
             label="A quién"
             options={[
-              ...(canUseCame ? [{ value: 'came' as const, label: 'Los que vinieron' }] : []),
+              ...(canUseCame
+                ? [{ value: 'came' as const, label: ahead ? 'Los que van' : 'Los que vinieron' }]
+                : []),
               { value: 'all', label: 'Todos' },
               { value: 'pick', label: 'Elegir' },
             ]}
@@ -337,7 +341,17 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
                 <span className={styles.pickName}>
                   {p.name}
                   {canUseCame && (
-                    <small>{p.came ? 'Vino' : p.noShow ? 'Dijo voy y no vino' : 'No vino'}</small>
+                    <small>
+                      {ahead
+                        ? p.came
+                          ? 'Va'
+                          : 'No ha dicho que va'
+                        : p.came
+                          ? 'Vino'
+                          : p.noShow
+                            ? 'Dijo voy y no vino'
+                            : 'No vino'}
+                    </small>
                   )}
                 </span>
                 <input
@@ -354,7 +368,12 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
             </li>
           ))}
         </ul>
-        {mode === 'came' && (
+        {mode === 'came' && ahead && (
+          <p className={styles.note}>
+            Si alguien no va al final, le ajustas lo que debe en el cobro (mientras no haya pagado).
+          </p>
+        )}
+        {mode === 'came' && !ahead && (
           <label className={styles.optIn}>
             <input
               type="checkbox"

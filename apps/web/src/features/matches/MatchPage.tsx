@@ -132,8 +132,11 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
 
       {listAlone && <WhoCameAlone teamId={teamId} match={match} roster={roster} />}
 
-      {/* Cobrar la vaca o el arbitraje (`06` Cobros): a mano, desde la hora del partido. */}
-      {takesList && started && (
+      {/*
+        Cobrar la vaca o el arbitraje (`06` Cobros): a mano, desde que se convoca (2026-10-31,
+        Kevin). Antes de la hora arranca con los que dijeron voy; después, con los que vinieron.
+      */}
+      {takesList && match.status === 'scheduled' && (
         <ButtonLink variant="secondary" to={`/equipos/${teamId}/cobros/nuevo?partido=${match.id}`}>
           Cobrar este partido
         </ButtonLink>

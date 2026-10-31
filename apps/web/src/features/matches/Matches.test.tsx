@@ -263,10 +263,16 @@ describe('partidos en la app (Fase 7)', () => {
     ]);
     expect(await screen.findByRole('region', { name: 'Van' })).toHaveTextContent('Ana');
     expect(screen.getByRole('region', { name: 'Faltan' })).toHaveTextContent('Ciro');
+    // Se cobra desde que se convoca (2026-10-31); cancelado, ya no.
+    expect(screen.getByRole('link', { name: 'Cobrar este partido' })).toHaveAttribute(
+      'href',
+      `/equipos/${TEAM_A}/cobros/nuevo?partido=${M1}`,
+    );
     await userEvent.click(screen.getByRole('button', { name: 'Cancelar el partido' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Sí, cancelarlo' }));
     expect(patch).toEqual({ status: 'cancelled' });
     expect(await screen.findByText('Partido cancelado.')).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Cobrar este partido' })).toBeNull();
   });
 
   it('convocar: valida lo que falta y manda la hora con zona', async () => {
