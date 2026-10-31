@@ -310,6 +310,31 @@ describe('partidos en la app (Fase 7)', () => {
     expect([sent.getHours(), sent.getMinutes()]).toEqual([15, 30]);
   });
 
+  it('convocar y cobrar: con la casilla, sigue derecho al cobro del partido (2026-10-31)', async () => {
+    fakeApi({
+      [`POST /api/v1/teams/${TEAM_A}/matches`]: {
+        status: 201,
+        body: { match: match(), roster: [] },
+      },
+    });
+    const router = renderAt('/n', [
+      { path: '/n', element: <MatchFormPage me={ME_TWO_TEAMS} teamId={TEAM_A} /> },
+      { path: '/equipos/:teamId/cobros/nuevo', element: <p>nuevo cobro</p> },
+    ]);
+    await userEvent.click(screen.getByRole('button', { name: 'Amistoso' }));
+    await userEvent.type(screen.getByRole('textbox', { name: 'Rival' }), 'Los Pibes');
+    await fillWhenAndWhere();
+    await userEvent.click(
+      screen.getByRole('checkbox', { name: /Cobrar este partido al convocar/ }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Convocar' }));
+    await vi.waitFor(() =>
+      expect(router.state.location.pathname + router.state.location.search).toBe(
+        `/equipos/${TEAM_A}/cobros/nuevo?partido=${M1}`,
+      ),
+    );
+  });
+
   const fillWhenAndWhere = async () => {
     const day = new Date(Date.now() + 3 * 86_400_000);
     const date = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;

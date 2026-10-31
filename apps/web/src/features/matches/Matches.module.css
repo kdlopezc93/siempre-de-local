@@ -451,3 +451,34 @@
 .kindIcon[data-kind='training'] {
   background: var(--sdl-tint-1);
 }
+
+/* "Cobrar este partido al convocar": casilla con su explicación. */
+.optIn {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sdl-space-3);
+  min-height: 44px;
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.optIn input {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  accent-color: var(--sdl-primary);
+}
+
+.optIn span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.optIn small {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-xs);
+  font-weight: 500;
+}

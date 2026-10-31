@@ -141,6 +141,8 @@ function MatchForm({
     championship &&
     (draft.tournamentId === NEW_TOURNAMENT || (known.length === 0 && !draft.tournamentId));
   const [invalid, setInvalid] = useState<string | null>(null);
+  /** Al convocar, seguir derecho a cobrarlo (2026-10-31, Kevin). */
+  const [charge, setCharge] = useState(false);
   const guard = useUnsavedChanges(
     (Object.keys(initial) as (keyof Draft)[]).some((key) => draft[key] !== initial[key]),
   );
@@ -188,7 +190,12 @@ function MatchForm({
     if (problem) return setInvalid(problem);
     const onSuccess = (data: { match: { id: string } }) => {
       guard.release();
-      void navigate(`/equipos/${teamId}/partidos/${data.match.id}`, { replace: true });
+      // Con la casilla, derecho al cobro del partido (su enlace "Partido" vuelve al partido).
+      const page =
+        charge && !matchId
+          ? `/equipos/${teamId}/cobros/nuevo?partido=${data.match.id}`
+          : `/equipos/${teamId}/partidos/${data.match.id}`;
+      void navigate(page, { replace: true });
     };
     if (matchId) update.mutate(fields, { onSuccess });
     else create.mutate(fields, { onSuccess });
@@ -332,6 +339,20 @@ function MatchForm({
               onChange={(format) => setDraft((d) => ({ ...d, format }))}
             />
           </div>
+        )}
+        {!matchId && (
+          <label className={styles.optIn}>
+            <input
+              type="checkbox"
+              name="cobrar"
+              checked={charge}
+              onChange={(e) => setCharge(e.target.checked)}
+            />
+            <span>
+              Cobrar este partido al convocar
+              <small>Sigues derecho al cobro: la cancha, el arbitraje o la vaca.</small>
+            </span>
+          </label>
         )}
         {error && (
           <p role="alert" className={styles.error}>

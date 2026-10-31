@@ -100,7 +100,9 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
   // Antes de la hora no hay lista: "los que vinieron" son los que dijeron voy (`whoCame`).
   const ahead = match.data?.match.open ?? false;
   const canUseCame = source === 'match' && roster !== null;
-  const mode: Who = fine ? 'pick' : who === 'came' && !canUseCame ? 'all' : who;
+  // Recién convocado nadie ha dicho que va: arranca con todos.
+  const nobodyYet = ahead && !people.some((p) => p.came);
+  const mode: Who = fine ? 'pick' : who === 'came' && (!canUseCame || nobodyYet) ? 'all' : who;
   const chosen = useMemo(() => {
     if (mode === 'all') return new Set(people.map((p) => p.id));
     if (mode === 'came') {
@@ -314,7 +316,7 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
           <Segmented
             label="A quién"
             options={[
-              ...(canUseCame
+              ...(canUseCame && !nobodyYet
                 ? [{ value: 'came' as const, label: ahead ? 'Los que van' : 'Los que vinieron' }]
                 : []),
               { value: 'all', label: 'Todos' },
