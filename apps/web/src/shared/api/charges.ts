@@ -1,9 +1,11 @@
 import {
   ChargeListResponseSchema,
   ChargeResponseSchema,
+  ChargesReminderResponseSchema,
   MyChargesResponseSchema,
   type ChargeListResponse,
   type ChargeResponse,
+  type ChargesReminderResponse,
   type CreateChargeRequest,
   type MyChargesResponse,
   type MyPaymentRequest,
@@ -55,6 +57,11 @@ export function setChargeShare(
     ChargeResponseSchema,
     send(request, 'PUT'),
   );
+}
+
+/** "Recordar a los que deben": un aviso a cada uno, sin el valor. */
+export function remindCharges(teamId: string): Promise<ChargesReminderResponse> {
+  return apiRequest(`${base(teamId)}/reminders`, ChargesReminderResponseSchema, send({}));
 }
 
 /** Que la parte de alguien la asuma otro jugador o el equipo (`null`: se la devuelve). */

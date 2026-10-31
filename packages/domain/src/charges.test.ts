@@ -8,6 +8,7 @@ import {
   shareStatus,
   splitTotal,
   sponsorProblem,
+  whoOwes,
 } from './charges.js';
 
 describe('cobros (06 Cobros)', () => {
@@ -67,5 +68,30 @@ describe('cobros (06 Cobros)', () => {
     expect(sponsorProblem({ ...free, self: true })).toMatch(/sí mismo/);
     expect(sponsorProblem({ ...free, confirmed: 2_000 })).toMatch(/ya tiene pagos/);
     expect(sponsorProblem({ ...free, reported: 2_000 })).toMatch(/por confirmar/);
+  });
+
+  it('quién debe: lo patrocinado es de quien lo asumió; lo del equipo, de nadie', () => {
+    const share = (userId: string, amount: number, paid = 0, over = {}) => ({
+      userId,
+      sponsorId: null,
+      teamCovers: false,
+      amount,
+      paid,
+      ...over,
+    });
+    expect(
+      whoOwes([
+        share('ana', 8_000),
+        share('beto', 8_000, 8_000),
+        share('ciro', 8_000, 0, { sponsorId: 'beto' }),
+        share('dani', 8_000, 0, { teamCovers: true }),
+        share('ana', 20_000, 5_000),
+        share('ciro', 4_000, 1_000),
+      ]),
+    ).toEqual([
+      { userId: 'ana', owed: 23_000, parts: 2 },
+      { userId: 'beto', owed: 8_000, parts: 1 },
+      { userId: 'ciro', owed: 3_000, parts: 1 },
+    ]);
   });
 });

@@ -174,11 +174,41 @@ export const ChargeResponseSchema = z.object({
   payments: z.array(PaymentSchema),
 });
 
-/** GET /teams/:teamId/charges — los cobros del equipo, el más nuevo primero, con el saldo. */
+/** El saldo de varios cobros: el de cada uno, más lo que puso el equipo (patrocinios). */
+export const TeamBalanceSchema = ChargeBalanceSchema.extend({ teamCovered: z.int() });
+
+/**
+ * GET /teams/:teamId/charges — los cobros del equipo, el más nuevo primero, con el saldo (sin los
+ * anulados): el total, el de cada torneo (sus cobros y los de sus partidos) y quién debe, de
+ * mayor a menor (lo patrocinado lo debe quien lo asumió).
+ */
 export const ChargeListResponseSchema = z.object({
   items: z.array(ChargeSummarySchema),
-  balance: ChargeBalanceSchema,
+  balance: TeamBalanceSchema,
+  byTournament: z.array(
+    z.object({
+      tournament: z.object({ id: z.uuid(), name: z.string() }),
+      balance: TeamBalanceSchema,
+      charges: z.int(),
+    }),
+  ),
+  debtors: z.array(
+    z.object({
+      userId: z.uuid(),
+      displayName: z.string(),
+      jerseyNumber: z.int().nullable(),
+      owed: z.int(),
+      /** En cuántas partes (de cobros distintos, o la suya y una que patrocina). */
+      parts: z.int(),
+    }),
+  ),
 });
+
+/**
+ * POST /teams/:teamId/charges/reminders — "Recordar a los que deben": un aviso a cada uno que debe
+ * algo (sin el valor). `reminded`: a cuántos.
+ */
+export const ChargesReminderResponseSchema = z.object({ reminded: z.int() });
 
 /**
  * GET /teams/:teamId/me/charges — lo que debe y pagó quien pregunta, en los cobros vigentes: lo
@@ -225,4 +255,6 @@ export type Payment = z.infer<typeof PaymentSchema>;
 export type ChargeShare = z.infer<typeof ChargeShareSchema>;
 export type ChargeResponse = z.infer<typeof ChargeResponseSchema>;
 export type ChargeListResponse = z.infer<typeof ChargeListResponseSchema>;
+export type TeamBalance = z.infer<typeof TeamBalanceSchema>;
+export type ChargesReminderResponse = z.infer<typeof ChargesReminderResponseSchema>;
 export type MyChargesResponse = z.infer<typeof MyChargesResponseSchema>;
