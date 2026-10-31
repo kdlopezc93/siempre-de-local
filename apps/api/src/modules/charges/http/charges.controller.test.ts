@@ -282,6 +282,7 @@ describe('cobros del equipo (06 Cobros)', () => {
       billed: 70_200 + 15_000,
       collected: 33_400,
       pending: 36_800 + 15_000,
+      teamCovered: 0,
     });
     expect((await call('GET', '/charges', ana)).statusCode).toBe(403);
     expect((await call('GET', '/me/charges', outsider)).statusCode).toBe(403);
@@ -462,5 +463,71 @@ describe('cobros del equipo (06 Cobros)', () => {
       ['charge-sponsor', [beto.userId]],
     ]);
     avisos.mockRestore();
+  });
+
+  it('el saldo: por torneo (también los cobros de sus partidos), quién debe y recordarles', async () => {
+    const { tournament } = TournamentResponseSchema.parse(
+      (await call('POST', '/tournaments', coach, { name: 'Liga de la 14' })).json(),
+    );
+    const { match } = MatchResponseSchema.parse(
+      (
+        await call('POST', '/matches', coach, {
+          kind: 'championship',
+          tournamentId: tournament.id,
+          format: 'F8',
+          startsAt: inDays(3),
+          place: 'La 14',
+          opponent: 'Los Primos',
+        })
+      ).json(),
+    );
+    await call('POST', '/charges', tesorera, {
+      kind: 'registration',
+      tournamentId: tournament.id,
+      split: 'per_person',
+      amount: 30_000,
+      playerIds: [ana.userId, beto.userId],
+      sponsors: [{ userId: beto.userId, sponsor: 'team' }],
+    });
+    await call('POST', '/charges', tesorera, {
+      kind: 'referee',
+      matchId: match.id,
+      split: 'per_person',
+      amount: 5_000,
+      playerIds: [ana.userId, ciro.userId],
+    });
+
+    const list = ChargeListResponseSchema.parse((await call('GET', '/charges', tesorera)).json());
+    expect(list.byTournament.find((t) => t.tournament.id === tournament.id)).toEqual({
+      tournament: { id: tournament.id, name: 'Liga de la 14' },
+      charges: 2,
+      balance: { billed: 40_000, collected: 0, pending: 40_000, teamCovered: 30_000 },
+    });
+    // Quién debe: de mayor a menor, cada uno una vez; lo de Ciro que asumió Beto, en Beto.
+    const owed = list.debtors.map((d) => d.owed);
+    expect(owed).toEqual([...owed].sort((a, b) => b - a));
+    expect(new Set(list.debtors.map((d) => d.userId)).size).toBe(list.debtors.length);
+    expect(list.debtors.find((d) => d.userId === ana.userId)).toMatchObject({
+      displayName: 'ana',
+      jerseyNumber: 4,
+    });
+    expect(list.debtors.reduce((sum, d) => sum + d.owed, 0)).toBe(list.balance.pending);
+
+    // Recordar: un aviso a cada uno que debe, sin el valor. Un jugador no puede.
+    expect((await call('POST', '/charges/reminders', ana)).statusCode).toBe(403);
+    const notify = vi.spyOn(app.get<Notifier>(NOTIFIER, { strict: false }), 'notifyUsers');
+    const sent = await call('POST', '/charges/reminders', tesorera);
+    expect(sent.statusCode).toBe(200);
+    expect(sent.json()).toEqual({ reminded: list.debtors.length });
+    expect(notify).toHaveBeenCalledWith(
+      list.debtors.map((d) => d.userId),
+      {
+        kind: 'charges-reminder',
+        team: 'Primer equipo',
+        opponent: 'Primer equipo',
+        url: `/equipos/${teamId}/mis-cuentas`,
+      },
+    );
+    notify.mockRestore();
   });
 });

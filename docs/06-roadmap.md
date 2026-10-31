@@ -243,13 +243,12 @@ La plata del equipo: la vaca, la inscripción, el arbitraje, las multas, los uni
 | 1 | **"¿Quién vino?"**: desde la hora del partido (también en entrenos), el cuerpo técnico pasa lista: arranca con los que dijeron voy, agrega o quita, y se corrige sin plazo. Reemplaza "Agregar a otro que jugó" y da la asistencia. Migración nueva | #140 ✔ |
 | 2 | **Tesorero**: rol nuevo (`team_role`), que puede ser un jugador. Maneja cobros, confirma pagos y pasa lista; no arma alineaciones ni evalúa. Lo nombran el entrenador o un admin del club desde Roles | #141 ✔ |
 | 3 | **Cobros y pagos**: un cobro es de un partido, de un torneo o suelto, de un tipo, a quien se elija (los que vinieron, más la casilla "también los que dijeron voy y no vinieron"; todos; a mano). Puede ser un total que se reparte o un valor por persona, con ajuste por persona. Pagos con abonos: el tesorero registra o confirma el "Ya pagué" del jugador. El jugador ve "Debes $X". La plata va en pesos enteros y queda en la auditoría | API #142 ✔, app #143 ✔ |
-| 4 | **Patrocinios**: la parte de un jugador la asume otro, o "el equipo". El patrocinado la ve pagada, y quién patrocinó solo lo ven el tesorero y el cuerpo técnico. Decidido (2026-10-31, Kevin): solo la parte entera; patrocina un jugador del equipo o el equipo, nadie de fuera; se quita solo mientras no tenga pagos; el patrocinado ve "Te la cubrieron" (`02` §15). Migración `0031` | este PR |
-| 5 | **Recordatorio y saldo**: aviso "Tienes $X pendiente" y saldo del equipo (cobrado, pendiente, por torneo y por tipo) | |
+| 4 | **Patrocinios**: la parte de un jugador la asume otro, o "el equipo". El patrocinado la ve pagada, y quién patrocinó solo lo ven el tesorero y el cuerpo técnico. Decidido (2026-10-31, Kevin): solo la parte entera; patrocina un jugador del equipo o el equipo, nadie de fuera; se quita solo mientras no tenga pagos; el patrocinado ve "Te la cubrieron" (`02` §15). Migración `0031`. Además: "Cobrar este partido" desde que se convoca, y la casilla "Cobrar este partido al convocar" | #144 ✔ |
+| 5a | **Saldo y recordatorio a mano**: saldo del equipo (falta, entró, lo que puso el equipo), por torneo y quién debe (de mayor a menor); botón "Recordar a los que deben" (aviso sin el valor). Por tipo, no (Kevin, 2026-10-31) | este PR |
+| 5b | **Recordatorio automático**: el día antes y el día que vence un cobro con fecha límite, aviso a los que deben su parte | |
+| 5c | **Respaldos diarios**: GitHub Actions hace `pg_dump` de la base de staging cada día y lo guarda cifrado como artifact privado unos 30 días (la plata no depende de un solo computador ni de las 6 h de historial de Neon gratis) | |
 
-**Por decidir antes del PR 3:**
-
-- **Redondeo al repartir un total.** La propuesta es subir cada parte a los $100 siguientes, como en una vaca, y mostrar "sobran $X".
-- **Respaldos de la plata.** Neon gratis guarda 6 h de historial. Las opciones son el plan pago de Neon o un `pg_dump` nocturno a un almacenamiento privado.
+**Decidido:** redondeo a los $100 siguientes al repartir un total, mostrando "sobran $X" (2026-10-30); respaldos diarios en GitHub Actions (PR 5c, 2026-10-31).
 
 **Después:** cuotas que se repiten cada mes y mensualidades de escuela (`08` etapa 7), multas ligadas a tarjetas (con goles y tarjetas) y pasarela de pago.
 

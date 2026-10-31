@@ -16,8 +16,11 @@ export type PushMessage =
       url: string;
     }
   | {
-      /** El cuerpo técnico recuerda el test a los que no lo han hecho (2026-10-26). */
-      kind: 'test-reminder';
+      /**
+       * El cuerpo técnico recuerda el test a los que no lo han hecho (2026-10-26); el tesorero,
+       * los cobros a los que deben (`charges-reminder`, 2026-10-31, sin el valor).
+       */
+      kind: 'test-reminder' | 'charges-reminder';
       /** El nombre del equipo: lo único que viaja. */
       team: string;
       /**

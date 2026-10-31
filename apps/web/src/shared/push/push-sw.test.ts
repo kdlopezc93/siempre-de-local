@@ -148,6 +148,26 @@ describe('avisos en el service worker', () => {
     );
   });
 
+  it('recordar los cobros: del equipo, sin el valor (2026-10-31)', async () => {
+    const { fire, showNotification } = loadWorker();
+    await fire(
+      'push',
+      push({
+        kind: 'charges-reminder',
+        team: 'QLeones FC',
+        opponent: 'QLeones FC',
+        url: '/equipos/t/mis-cuentas',
+      }),
+    );
+    expect(showNotification).toHaveBeenCalledWith(
+      'Tienes cobros pendientes en QLeones FC',
+      expect.objectContaining({
+        body: 'Toca para ver cuánto y avisar cuando pagues.',
+        data: { url: '/equipos/t/mis-cuentas' },
+      }),
+    );
+  });
+
   it('un tipo que no conoce lleva un texto neutro, nunca el de otro aviso', async () => {
     const { fire, showNotification } = loadWorker();
     await fire(
