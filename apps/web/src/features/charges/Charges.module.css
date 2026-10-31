@@ -364,9 +364,11 @@
 
 .option {
   min-height: 44px;
+  max-width: 100%;
   padding: 0 14px;
   border: 0;
   border-radius: var(--sdl-radius-pill);
+  overflow-wrap: anywhere;
   background: var(--sdl-surface-sunken);
   color: var(--sdl-fg);
   font: inherit;

@@ -13,7 +13,8 @@ export const ChargeKindSchema = z.enum([
 export const ChargeSplitSchema = z.enum(['per_person', 'total']);
 export const PaymentMethodSchema = z.enum(['cash', 'nequi', 'daviplata', 'transfer', 'other']);
 export const PaymentStatusSchema = z.enum(['reported', 'confirmed', 'rejected']);
-export const ShareStatusSchema = z.enum(['paid', 'partial', 'pending']);
+/** `covered`: la asumió el equipo, o (en lo de quien la debía) otro jugador. */
+export const ShareStatusSchema = z.enum(['paid', 'partial', 'pending', 'covered']);
 
 const Pesos = z.int().min(1).max(100_000_000);
 const Day = z.iso.date();
@@ -61,6 +62,8 @@ export const ChargeSummarySchema = z.object({
   people: z.int(),
   paidPeople: z.int(),
   reported: z.int(),
+  /** Lo que asumió el equipo (patrocinios): no entra en el saldo, sale de la caja. */
+  teamCovered: z.int(),
 });
 
 /**
@@ -99,6 +102,15 @@ export const ShareRequestSchema = z.object({
 });
 
 /**
+ * PUT /teams/:teamId/charges/:chargeId/shares/:userId/sponsor — que la parte entera de alguien la
+ * asuma otro jugador del equipo (su id) o el equipo (`'team'`); `null` la devuelve a quien la
+ * debía. Solo mientras esa parte no tenga pagos.
+ */
+export const SponsorRequestSchema = z.object({
+  sponsor: z.union([z.literal('team'), z.uuid()]).nullable(),
+});
+
+/**
  * POST /teams/:teamId/charges/:chargeId/payments — un pago o abono que registra el cuerpo técnico
  * o el tesorero: queda confirmado.
  */
@@ -113,7 +125,10 @@ export const PaymentRequestSchema = z.object({
  * POST /teams/:teamId/me/charges/:chargeId/payments — el "Ya pagué" del jugador (o un abono):
  * queda reportado hasta que el tesorero o el cuerpo técnico lo confirmen.
  */
-export const MyPaymentRequestSchema = PaymentRequestSchema.omit({ userId: true });
+export const MyPaymentRequestSchema = PaymentRequestSchema.omit({ userId: true }).extend({
+  /** Pagar la parte de un compañero que patrocina quien reporta. */
+  forUserId: z.uuid().optional(),
+});
 
 export const PaymentSchema = z.object({
   id: z.uuid(),
@@ -137,6 +152,13 @@ export const ChargeShareSchema = z.object({
   paid: z.int(),
   reported: z.int(),
   status: ShareStatusSchema,
+  /** Quién la asumió: otro jugador o el equipo. Solo lo ven el cuerpo técnico y el tesorero. */
+  sponsor: z
+    .discriminatedUnion('kind', [
+      z.object({ kind: z.literal('member'), userId: z.uuid(), displayName: z.string() }),
+      z.object({ kind: z.literal('team') }),
+    ])
+    .nullable(),
 });
 
 /** GET /teams/:teamId/charges/:chargeId — el cobro, lo de cada uno y los pagos. */
@@ -154,7 +176,8 @@ export const ChargeListResponseSchema = z.object({
 
 /**
  * GET /teams/:teamId/me/charges — lo que debe y pagó quien pregunta, en los cobros vigentes: lo
- * suyo y nada de los demás.
+ * suyo y nada de los demás. Su parte, si se la cubrieron, viene `covered` sin decir quién; la de
+ * un compañero que patrocina viene aparte, con `forPlayer`.
  */
 export const MyChargesResponseSchema = z.object({
   items: z.array(
@@ -168,6 +191,8 @@ export const MyChargesResponseSchema = z.object({
         dueOn: true,
         createdAt: true,
       }),
+      /** La parte de un compañero que asumió quien pregunta; null si es la suya. */
+      forPlayer: z.object({ userId: z.uuid(), displayName: z.string() }).nullable(),
       amount: z.int(),
       paid: z.int(),
       reported: z.int(),
@@ -187,6 +212,7 @@ export type ChargeSummary = z.infer<typeof ChargeSummarySchema>;
 export type CreateChargeRequest = z.input<typeof CreateChargeRequestSchema>;
 export type UpdateChargeRequest = z.input<typeof UpdateChargeRequestSchema>;
 export type ShareRequest = z.input<typeof ShareRequestSchema>;
+export type SponsorRequest = z.infer<typeof SponsorRequestSchema>;
 export type PaymentRequest = z.infer<typeof PaymentRequestSchema>;
 export type MyPaymentRequest = z.infer<typeof MyPaymentRequestSchema>;
 export type Payment = z.infer<typeof PaymentSchema>;

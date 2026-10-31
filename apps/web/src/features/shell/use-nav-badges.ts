@@ -17,7 +17,8 @@ export function navBadges(input: {
   const badges: Partial<Record<TabId, number>> = {};
   const unanswered = input.matches?.filter((m) => m.open && !m.myReply).length ?? 0;
   if (unanswered) badges.partidos = unanswered;
-  const owed = input.myCharges?.items.filter((i) => i.status !== 'paid').length ?? 0;
+  const owed =
+    input.myCharges?.items.filter((i) => i.status !== 'paid' && i.status !== 'covered').length ?? 0;
   if (owed) badges['mi-juego'] = owed;
   if (input.reported) badges.equipo = input.reported;
   return badges;

@@ -26,6 +26,13 @@ import { useMyCharges, useReportPayment } from './use-charges';
 
 type Item = MyChargesResponse['items'][number];
 
+/** Un cobro puede traer la parte propia y la de un compañero que patrocina. */
+const itemKey = (i: Item) => `${i.charge.id}:${i.forPlayer?.userId ?? 'mia'}`;
+
+/** "Arbitraje" o, si es la parte de un compañero que patrocina, "Arbitraje de Ciro". */
+const itemTitle = (i: Item) =>
+  i.forPlayer ? `${chargeTitle(i.charge)} de ${i.forPlayer.displayName}` : chargeTitle(i.charge);
+
 /**
  * /equipos/:teamId/mis-cuentas — lo que debe y pagó cada jugador en los cobros del equipo: solo
  * lo suyo (`06` Cobros). "Ya pagué" avisa al tesorero, que lo confirma cuando le llegue.
@@ -59,8 +66,10 @@ export function MyChargesPage({ teamId }: { teamId: string }) {
     );
   }
   const { items, owed } = mine.data;
-  const open = items.filter((i) => i.status !== 'paid');
-  const done = items.filter((i) => i.status === 'paid');
+  const settled = (i: Item) => i.status === 'paid' || i.status === 'covered';
+  const open = items.filter((i) => !settled(i));
+  const done = items.filter(settled);
+  const openCharges = new Set(open.map((i) => i.charge.id)).size;
 
   return (
     <Screen className={styles.screen}>
@@ -70,16 +79,16 @@ export function MyChargesPage({ teamId }: { teamId: string }) {
         <span className={styles.leadLabel}>{owed > 0 ? 'Debes' : 'Estás al día'}</span>
         <span className={styles.leadAmount}>{pesos(owed)}</span>
         <span className={styles.leadSub}>
-          {open.length === 0
+          {openCharges === 0
             ? 'No debes nada en los cobros del equipo.'
-            : `En ${open.length} ${open.length === 1 ? 'cobro' : 'cobros'} del equipo.`}
+            : `En ${openCharges} ${openCharges === 1 ? 'cobro' : 'cobros'} del equipo.`}
         </span>
       </section>
 
       {open.length > 0 && (
         <ul className={styles.list} aria-label="Lo que debes">
           {open.map((item) => (
-            <li key={item.charge.id}>
+            <li key={itemKey(item)}>
               <Debt item={item} onPay={() => setPaying(item)} />
             </li>
           ))}
@@ -88,10 +97,13 @@ export function MyChargesPage({ teamId }: { teamId: string }) {
 
       {done.length > 0 && (
         <section aria-labelledby="pagados" className={styles.section}>
-          <SectionHead id="pagados" title="Pagados" />
+          <SectionHead
+            id="pagados"
+            title={done.some((i) => i.status === 'covered') ? 'Pagados y cubiertos' : 'Pagados'}
+          />
           <ul className={styles.list}>
             {done.map((item) => (
-              <li key={item.charge.id}>
+              <li key={itemKey(item)}>
                 <Debt item={item} />
               </li>
             ))}
@@ -102,11 +114,11 @@ export function MyChargesPage({ teamId }: { teamId: string }) {
       <Sheet
         open={paying !== null}
         onClose={() => setPaying(null)}
-        title={paying ? `Ya pagué: ${chargeTitle(paying.charge).toLowerCase()}` : ''}
+        title={paying ? `Ya pagué: ${itemTitle(paying).toLowerCase()}` : ''}
       >
         {paying && (
           <PayForm
-            key={paying.charge.id}
+            key={itemKey(paying)}
             teamId={teamId}
             item={paying}
             onDone={() => setPaying(null)}
@@ -119,7 +131,8 @@ export function MyChargesPage({ teamId }: { teamId: string }) {
 
 function Debt({ item, onPay }: { item: Item; onPay?: () => void }) {
   const Glyph = KIND_ICON[item.charge.kind];
-  const badge = shareBadge(item);
+  const badge = shareBadge(item, true);
+  const covered = item.status === 'covered';
   const left = payable(item.amount, item.paid, item.reported);
   const context = [chargeContext(item.charge), item.charge.dueOn && dueLine(item.charge.dueOn)]
     .filter(Boolean)
@@ -132,7 +145,7 @@ function Debt({ item, onPay }: { item: Item; onPay?: () => void }) {
             <Glyph size={22} />
           </span>
         }
-        title={chargeTitle(item.charge)}
+        title={itemTitle(item)}
         meta={
           <span className={styles.metaLine}>
             {context && <span>{context}</span>}
@@ -143,13 +156,22 @@ function Debt({ item, onPay }: { item: Item; onPay?: () => void }) {
         }
         trailing={
           <span className={styles.amount}>
-            {pesos(Math.max(item.amount - item.paid, 0))}
+            {pesos(covered ? 0 : Math.max(item.amount - item.paid, 0))}
             <small>
-              {item.status === 'paid' ? `pagaste ${pesos(item.paid)}` : `de ${pesos(item.amount)}`}
+              {covered
+                ? `eran ${pesos(item.amount)}`
+                : item.status === 'paid'
+                  ? `pagaste ${pesos(item.paid)}`
+                  : `de ${pesos(item.amount)}`}
             </small>
           </span>
         }
       />
+      {onPay && item.forPlayer && (
+        <p className={styles.note}>
+          Asumiste la parte de <b>{item.forPlayer.displayName}</b>: la pagas tú.
+        </p>
+      )}
       {onPay && item.reported > 0 && (
         <p className={styles.note}>
           Avisaste que pagaste <b>{pesos(item.reported)}</b>: falta que el tesorero lo confirme.
@@ -178,7 +200,13 @@ function PayForm({ teamId, item, onDone }: { teamId: string; item: Item; onDone:
         e.preventDefault();
         if (!value) return;
         report.mutate(
-          { chargeId: item.charge.id, amount: value, method, paidOn: today() },
+          {
+            chargeId: item.charge.id,
+            amount: value,
+            method,
+            paidOn: today(),
+            ...(item.forPlayer ? { forUserId: item.forPlayer.userId } : {}),
+          },
           { onSuccess: onDone },
         );
       }}

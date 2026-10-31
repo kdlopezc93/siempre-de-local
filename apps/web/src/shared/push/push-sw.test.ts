@@ -133,6 +133,21 @@ describe('avisos en el service worker', () => {
     );
   });
 
+  it('patrocinios: a quien le cubrieron la parte y a quien la asumió, sin quién ni el valor', async () => {
+    const { fire, showNotification } = loadWorker();
+    const base = { charge: 'Arbitraje', opponent: 'Arbitraje', url: '/equipos/t/mis-cuentas' };
+    await fire('push', push({ ...base, kind: 'charge-covered' }));
+    await fire('push', push({ ...base, kind: 'charge-sponsor' }));
+    expect(showNotification).toHaveBeenCalledWith(
+      'Te cubrieron tu parte: Arbitraje',
+      expect.objectContaining({ body: 'Ya no debes nada de este cobro.' }),
+    );
+    expect(showNotification).toHaveBeenCalledWith(
+      'Asumiste la parte de un compañero: Arbitraje',
+      expect.objectContaining({ body: 'Toca para ver cuánto es y avisar cuando pagues.' }),
+    );
+  });
+
   it('un tipo que no conoce lleva un texto neutro, nunca el de otro aviso', async () => {
     const { fire, showNotification } = loadWorker();
     await fire(

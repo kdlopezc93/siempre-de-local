@@ -73,7 +73,8 @@ export function chargeProblem(input: {
   return null;
 }
 
-export type ShareStatus = 'paid' | 'partial' | 'pending';
+/** `covered`: la parte la asumió el equipo, o (para quien la debía) otro jugador. */
+export type ShareStatus = 'paid' | 'partial' | 'pending' | 'covered';
 
 /** Pagó todo, abonó una parte o no ha pagado: solo cuentan los pagos confirmados. */
 export function shareStatus(amount: number, paid: number): ShareStatus {
@@ -101,4 +102,21 @@ export function chargeBalance(shares: readonly { amount: number; paid: number }[
     pending += Math.max(s.amount - s.paid, 0);
   }
   return { billed, collected, pending };
+}
+
+/**
+ * Patrocinios (2026-10-31, Kevin): la parte entera de alguien la asume otro jugador del equipo o
+ * el equipo. Se pone, se cambia o se quita solo mientras esa parte no tenga pagos (ni por
+ * confirmar): así nadie pierde lo que abonó. Devuelve qué lo impide, en palabras, o null.
+ */
+export function sponsorProblem(input: {
+  /** Que quien patrocina sea el mismo que debe. */
+  self: boolean;
+  confirmed: number;
+  reported: number;
+}): string | null {
+  if (input.self) return 'Nadie se patrocina a sí mismo.';
+  if (input.confirmed > 0) return 'Esta parte ya tiene pagos: el patrocinio ya no se cambia.';
+  if (input.reported > 0) return 'Primero revisa el pago que está por confirmar.';
+  return null;
 }
