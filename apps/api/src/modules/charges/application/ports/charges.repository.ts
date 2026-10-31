@@ -50,7 +50,7 @@ export interface ChargesRepository {
     teamId: string,
     createdBy: string,
     data: ChargeData,
-    shares: { userId: string; amount: number }[],
+    shares: { userId: string; amount: number; sponsorId: string | null; teamCovers: boolean }[],
   ): Promise<string>;
   /** Los del equipo, el más nuevo primero. */
   list(teamId: string): Promise<ChargeRecord[]>;

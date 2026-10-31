@@ -286,6 +286,16 @@ describe('cobros en la app (06 Cobros)', () => {
     expect(screen.getByText(/Entre 3 personas/)).toHaveTextContent(
       'Entre 3 personas: $23.400 cada uno. Sobran $200.',
     );
+    // La de Ciro la paga Ana, desde el comienzo.
+    await user.click(screen.getByRole('button', { name: 'Lo paga otro' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Lo paga otro' });
+    const whose = within(sheet).getByRole('group', { name: '¿La parte de quién?' });
+    await user.click(within(whose).getByRole('button', { name: 'Ciro' }));
+    const payer = within(sheet).getByRole('group', { name: '¿Quién la paga?' });
+    expect(within(payer).queryByRole('button', { name: 'Ciro' })).toBeNull();
+    await user.click(within(payer).getByRole('button', { name: 'Ana' }));
+    await user.click(within(sheet).getByRole('button', { name: 'Listo' }));
+    expect(await screen.findByText('La paga Ana')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Crear cobro' }));
     await vi.waitFor(() =>
       expect(created).toMatchObject({
@@ -295,6 +305,7 @@ describe('cobros en la app (06 Cobros)', () => {
         split: 'total',
         amount: 70_000,
         playerIds: [ANA, BETO, CIRO],
+        sponsors: [{ userId: CIRO, sponsor: ANA }],
       }),
     );
     expect(await screen.findByText('el cobro')).toBeInTheDocument();

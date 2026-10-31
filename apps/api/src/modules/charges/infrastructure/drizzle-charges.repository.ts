@@ -26,7 +26,7 @@ export class DrizzleChargesRepository implements ChargesRepository {
     teamId: string,
     createdBy: string,
     data: ChargeData,
-    shares: { userId: string; amount: number }[],
+    shares: { userId: string; amount: number; sponsorId: string | null; teamCovers: boolean }[],
   ) {
     return this.connection.db.transaction(async (tx) => {
       const [row] = await tx

@@ -412,5 +412,55 @@ describe('cobros del equipo (06 Cobros)', () => {
       sponsor: null,
     });
     expect(back.charge.teamCovered).toBe(0);
+
+    // También al crear: la de Ana la asume Beto y la de Ciro, el equipo.
+    const base = { kind: 'uniform', split: 'per_person', amount: 50_000 };
+    const playerIds = [ana.userId, beto.userId, ciro.userId];
+    expect(
+      (
+        await call('POST', '/charges', tesorera, {
+          ...base,
+          playerIds,
+          sponsors: [{ userId: ana.userId, sponsor: ana.userId }],
+        })
+      ).json(),
+    ).toMatchObject({ error: { code: 'SPONSOR_NOT_ALLOWED' } });
+    expect(
+      (
+        await call('POST', '/charges', tesorera, {
+          ...base,
+          playerIds: [ana.userId],
+          sponsors: [{ userId: ciro.userId, sponsor: 'team' }],
+        })
+      ).json(),
+    ).toMatchObject({ error: { code: 'NOT_IN_CHARGE' } });
+    const avisos = vi.spyOn(app.get<Notifier>(NOTIFIER, { strict: false }), 'notifyUsers');
+    const uniformes = ChargeResponseSchema.parse(
+      (
+        await call('POST', '/charges', tesorera, {
+          ...base,
+          playerIds,
+          sponsors: [
+            { userId: ana.userId, sponsor: beto.userId },
+            { userId: ciro.userId, sponsor: 'team' },
+          ],
+        })
+      ).json(),
+    );
+    expect(uniformes.shares.map((s) => [s.displayName, s.status, s.sponsor?.kind ?? null])).toEqual(
+      [
+        ['ana', 'pending', 'member'],
+        ['beto', 'pending', null],
+        ['ciro', 'covered', 'team'],
+      ],
+    );
+    expect(uniformes.charge).toMatchObject({ teamCovered: 50_000, balance: { billed: 100_000 } });
+    const kinds = avisos.mock.calls.map(([ids, m]) => [m.kind, ids]);
+    expect(kinds).toEqual([
+      ['charge-created', [beto.userId]],
+      ['charge-covered', [ana.userId, ciro.userId]],
+      ['charge-sponsor', [beto.userId]],
+    ]);
+    avisos.mockRestore();
   });
 });

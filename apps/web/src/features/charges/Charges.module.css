@@ -225,6 +225,7 @@
 
 .label {
   font-size: var(--sdl-text-sm);
+  margin: 0;
   font-weight: 600;
 }
 
@@ -414,6 +415,11 @@
   .pickRow:hover .pickMark {
     border-color: var(--sdl-primary);
   }
+}
+
+/* Una fila que solo muestra (con su propio botón adentro). */
+.still {
+  cursor: default;
 }
 
 /* La fila de cada uno en un cobro es un botón: abre su hoja. */

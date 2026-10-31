@@ -66,10 +66,14 @@ export const ChargeSummarySchema = z.object({
   teamCovered: z.int(),
 });
 
+/** Quién asume una parte: el id de otro jugador del equipo, o `'team'`. */
+const SponsorSchema = z.union([z.literal('team'), z.uuid()]);
+
 /**
  * POST /teams/:teamId/charges — crear un cobro (cuerpo técnico y tesorero). A quién se le cobra
  * lo elige quien lo crea (los que vinieron, todos o a mano): `playerIds`. Con `split: 'total'`,
- * `amount` se reparte con `splitTotal` (cada parte a los $100 siguientes).
+ * `amount` se reparte con `splitTotal` (cada parte a los $100 siguientes). `sponsors`: las partes
+ * que desde el comienzo asume otro jugador o el equipo (patrocinios).
  */
 export const CreateChargeRequestSchema = z.object({
   kind: ChargeKindSchema,
@@ -80,6 +84,10 @@ export const CreateChargeRequestSchema = z.object({
   amount: Pesos,
   dueOn: Day.nullable().optional(),
   playerIds: z.array(z.uuid()).min(1).max(100),
+  sponsors: z
+    .array(z.object({ userId: z.uuid(), sponsor: SponsorSchema }))
+    .max(100)
+    .optional(),
 });
 
 /** PATCH /teams/:teamId/charges/:chargeId — título, fecha límite o anularlo. */
@@ -106,9 +114,7 @@ export const ShareRequestSchema = z.object({
  * asuma otro jugador del equipo (su id) o el equipo (`'team'`); `null` la devuelve a quien la
  * debía. Solo mientras esa parte no tenga pagos.
  */
-export const SponsorRequestSchema = z.object({
-  sponsor: z.union([z.literal('team'), z.uuid()]).nullable(),
-});
+export const SponsorRequestSchema = z.object({ sponsor: SponsorSchema.nullable() });
 
 /**
  * POST /teams/:teamId/charges/:chargeId/payments — un pago o abono que registra el cuerpo técnico

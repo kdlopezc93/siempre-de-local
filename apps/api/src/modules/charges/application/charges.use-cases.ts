@@ -222,6 +222,7 @@ export class Charges {
       throw new BusinessRuleError('Ese torneo no es del equipo.', 'TOURNAMENT_NOT_FOUND');
     }
     await this.requirePlayers(teamId, playerIds);
+    const sponsorOf = await this.initialSponsors(teamId, playerIds, request.sponsors ?? []);
     const each = shareAmount(request.split, request.amount, playerIds.length);
     const chargeId = await this.charges.create(
       teamId,
@@ -235,25 +236,41 @@ export class Charges {
         matchId,
         tournamentId,
       },
-      playerIds.map((userId) => ({ userId, amount: each })),
+      playerIds.map((userId) => {
+        const sponsor = sponsorOf.get(userId) ?? null;
+        return {
+          userId,
+          amount: each,
+          sponsorId: sponsor !== 'team' ? sponsor : null,
+          teamCovers: sponsor === 'team',
+        };
+      }),
     );
     await this.record(actor, teamId, chargeId, 'charge.created', {
       kind: request.kind,
       split: request.split,
       amount: request.amount,
       people: playerIds.length,
+      sponsors: Object.fromEntries(sponsorOf),
     });
-    // A cada uno le llega el aviso (2026-10-30, Kevin), menos a quien lo creó; sin el valor.
+    // A cada uno le llega el aviso (2026-10-30, Kevin), menos a quien lo creó; sin el valor. Al
+    // que le cubrieron la parte, "Te cubrieron tu parte"; a quien la asumió, que la asumió.
     const what = request.title ?? CHARGE_KIND_LABELS[request.kind];
+    const url = `/equipos/${teamId}/mis-cuentas`;
+    const notMe = (id: string) => id !== actor.userId;
+    const message = { charge: what, opponent: what, url };
     await this.notifier.notifyUsers(
-      playerIds.filter((id) => id !== actor.userId),
-      {
-        kind: 'charge-created',
-        charge: what,
-        opponent: what,
-        url: `/equipos/${teamId}/mis-cuentas`,
-      },
+      playerIds.filter((id) => notMe(id) && !sponsorOf.has(id)),
+      { kind: 'charge-created', ...message },
     );
+    const covered = playerIds.filter((id) => notMe(id) && sponsorOf.has(id));
+    if (covered.length > 0) {
+      await this.notifier.notifyUsers(covered, { kind: 'charge-covered', ...message });
+    }
+    const sponsors = [...new Set(sponsorOf.values())].filter((id) => id !== 'team' && notMe(id));
+    if (sponsors.length > 0) {
+      await this.notifier.notifyUsers(sponsors, { kind: 'charge-sponsor', ...message });
+    }
     return this.get(actor, teamId, chargeId);
   }
 
@@ -584,6 +601,31 @@ export class Charges {
       amount: request.amount,
       method: request.method,
     });
+  }
+
+  /** Los patrocinios al crear: de alguien del cobro, una vez, nunca a sí mismo, y de un jugador. */
+  private async initialSponsors(
+    teamId: string,
+    playerIds: string[],
+    sponsors: { userId: string; sponsor: string }[],
+  ): Promise<Map<string, string>> {
+    const sponsorOf = new Map<string, string>();
+    for (const { userId, sponsor } of sponsors) {
+      if (!playerIds.includes(userId)) {
+        throw new BusinessRuleError('No está en este cobro.', 'NOT_IN_CHARGE');
+      }
+      const problem = sponsorProblem({ self: sponsor === userId, confirmed: 0, reported: 0 });
+      if (problem || sponsorOf.has(userId)) {
+        throw new BusinessRuleError(
+          problem ?? 'Una parte la asume uno solo.',
+          'SPONSOR_NOT_ALLOWED',
+        );
+      }
+      sponsorOf.set(userId, sponsor);
+    }
+    const members = [...new Set(sponsorOf.values())].filter((id) => id !== 'team');
+    if (members.length > 0) await this.requirePlayers(teamId, members);
+    return sponsorOf;
   }
 
   private async requirePlayers(teamId: string, playerIds: string[]) {
