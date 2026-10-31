@@ -9,6 +9,7 @@ import { Button } from '../../shared/ui/Button';
 import { PageTitle } from '../../shared/ui/PageTitle';
 import { Screen } from '../../shared/ui/Screen';
 import { Segmented } from '../../shared/ui/Segmented';
+import { Sheet } from '../../shared/ui/Sheet';
 import { initialsOf } from '../../shared/ui/TeamHeader';
 import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { matchDay, matchTitle } from '../matches/match-view';
@@ -74,6 +75,9 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
   const [noShows, setNoShows] = useState(readNoShows);
   const [split, setSplit] = useState<ChargeSplit>('total');
   const [amount, setAmount] = useState('');
+  /** Patrocinios desde el comienzo: de quién es la parte → quién la asume (`'team'` o su id). */
+  const [sponsors, setSponsors] = useState<ReadonlyMap<string, string>>(new Map());
+  const [sponsoring, setSponsoring] = useState(false);
 
   const match = useMatch(teamId, source === 'match' && matchId ? matchId : null);
   const roster = match.data?.roster ?? null;
@@ -93,8 +97,12 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
   }, [members.data, roster]);
 
   const fine = kind === 'fine';
+  // Antes de la hora no hay lista: "los que vinieron" son los que dijeron voy (`whoCame`).
+  const ahead = match.data?.match.open ?? false;
   const canUseCame = source === 'match' && roster !== null;
-  const mode: Who = fine ? 'pick' : who === 'came' && !canUseCame ? 'all' : who;
+  // Recién convocado nadie ha dicho que va: arranca con todos.
+  const nobodyYet = ahead && !people.some((p) => p.came);
+  const mode: Who = fine ? 'pick' : who === 'came' && (!canUseCame || nobodyYet) ? 'all' : who;
   const chosen = useMemo(() => {
     if (mode === 'all') return new Set(people.map((p) => p.id));
     if (mode === 'came') {
@@ -103,6 +111,9 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
     return picked;
   }, [mode, people, noShows, picked]);
   const count = chosen.size;
+  // Solo cuentan los de quienes siguen en el cobro.
+  const activeSponsors = [...sponsors].filter(([userId]) => chosen.has(userId));
+  const nameOf = new Map(people.map((p) => [p.id, p.name]));
   const value = parsePesos(amount);
   const effectiveSplit: ChargeSplit = fine ? 'per_person' : split;
   const dirty = step === 2 || title !== '' || amount !== '';
@@ -136,6 +147,7 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
         amount: value,
         dueOn: dueOn || null,
         playerIds: [...chosen],
+        sponsors: activeSponsors.map(([userId, sponsor]) => ({ userId, sponsor })),
       },
       {
         onSuccess: (data) => {
@@ -304,7 +316,9 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
           <Segmented
             label="A quién"
             options={[
-              ...(canUseCame ? [{ value: 'came' as const, label: 'Los que vinieron' }] : []),
+              ...(canUseCame && !nobodyYet
+                ? [{ value: 'came' as const, label: ahead ? 'Los que van' : 'Los que vinieron' }]
+                : []),
               { value: 'all', label: 'Todos' },
               { value: 'pick', label: 'Elegir' },
             ]}
@@ -329,7 +343,17 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
                 <span className={styles.pickName}>
                   {p.name}
                   {canUseCame && (
-                    <small>{p.came ? 'Vino' : p.noShow ? 'Dijo voy y no vino' : 'No vino'}</small>
+                    <small>
+                      {ahead
+                        ? p.came
+                          ? 'Va'
+                          : 'No ha dicho que va'
+                        : p.came
+                          ? 'Vino'
+                          : p.noShow
+                            ? 'Dijo voy y no vino'
+                            : 'No vino'}
+                    </small>
                   )}
                 </span>
                 <input
@@ -346,7 +370,12 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
             </li>
           ))}
         </ul>
-        {mode === 'came' && (
+        {mode === 'came' && ahead && (
+          <p className={styles.note}>
+            Si alguien no va al final, le ajustas lo que debe en el cobro (mientras no haya pagado).
+          </p>
+        )}
+        {mode === 'came' && !ahead && (
           <label className={styles.optIn}>
             <input
               type="checkbox"
@@ -360,6 +389,48 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
             Cobrarles también a los que dijeron voy y no vinieron
           </label>
         )}
+
+        <section className={styles.field} aria-labelledby={`${id}-otro`}>
+          <h2 className={styles.label} id={`${id}-otro`}>
+            ¿A alguien se lo paga otro?
+          </h2>
+          {activeSponsors.length > 0 && (
+            <ul className={styles.list}>
+              {activeSponsors.map(([userId, sponsor]) => (
+                <li key={userId} className={`${styles.pickRow} ${styles.still}`}>
+                  <span className={styles.pickName}>
+                    {nameOf.get(userId)}
+                    <small>
+                      {sponsor === 'team'
+                        ? 'La cubre el equipo'
+                        : `La paga ${nameOf.get(sponsor) ?? 'otro'}`}
+                    </small>
+                  </span>
+                  <button
+                    type="button"
+                    className={styles.quiet}
+                    aria-label={`Quitar: ${nameOf.get(userId)} paga lo suyo`}
+                    onClick={() => {
+                      const next = new Map(sponsors);
+                      next.delete(userId);
+                      setSponsors(next);
+                    }}
+                  >
+                    Quitar
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={count === 0}
+            onClick={() => setSponsoring(true)}
+          >
+            Lo paga otro
+          </Button>
+        </section>
 
         <div className={styles.field}>
           <span className={styles.label}>¿Cuánto?</span>
@@ -413,6 +484,104 @@ export function NewChargePage({ teamId, fromMatch }: { teamId: string; fromMatch
           Crear cobro
         </Button>
       </form>
+      <Sheet open={sponsoring} onClose={() => setSponsoring(false)} title="Lo paga otro">
+        {sponsoring && (
+          <SponsorPicker
+            people={people}
+            whose={people.filter((p) => chosen.has(p.id) && !sponsors.has(p.id))}
+            onPick={(userId, sponsor) => {
+              setSponsors(new Map(sponsors).set(userId, sponsor));
+              setSponsoring(false);
+            }}
+          />
+        )}
+      </Sheet>
     </Screen>
+  );
+}
+
+/**
+ * Elegir de quién es la parte y quién la asume: el equipo u otro jugador del equipo (aunque no
+ * esté en el cobro). Quien la debía la ve cubierta, sin saber quién (`02` §15).
+ */
+function SponsorPicker({
+  people,
+  whose,
+  onPick,
+}: {
+  people: Person[];
+  whose: Person[];
+  onPick: (userId: string, sponsor: string) => void;
+}) {
+  const [userId, setUserId] = useState<string | null>(null);
+  const [sponsor, setSponsor] = useState<string | null>(null);
+  const name = people.find((p) => p.id === userId)?.name;
+  if (whose.length === 0) {
+    return (
+      <p className={styles.note}>
+        A todos los del cobro ya se los paga otro. Quita uno para cambiarlo.
+      </p>
+    );
+  }
+  return (
+    <div className={styles.sheetBody}>
+      <fieldset className={styles.field}>
+        <legend className={styles.label}>¿La parte de quién?</legend>
+        <div className={styles.options}>
+          {whose.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              className={styles.option}
+              aria-pressed={userId === p.id}
+              onClick={() => {
+                setUserId(p.id);
+                if (sponsor === p.id) setSponsor(null);
+              }}
+            >
+              {p.name}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+      <fieldset className={styles.field} disabled={userId === null}>
+        <legend className={styles.label}>¿Quién la paga?</legend>
+        <div className={styles.options}>
+          <button
+            type="button"
+            className={styles.option}
+            aria-pressed={sponsor === 'team'}
+            onClick={() => setSponsor('team')}
+          >
+            El equipo
+          </button>
+          {people
+            .filter((p) => p.id !== userId)
+            .map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                className={styles.option}
+                aria-pressed={sponsor === p.id}
+                onClick={() => setSponsor(p.id)}
+              >
+                {p.name}
+              </button>
+            ))}
+        </div>
+      </fieldset>
+      <p className={styles.note}>
+        {sponsor === 'team'
+          ? 'Sale de la caja del equipo: no se le cobra a nadie.'
+          : 'Esa persona la ve en sus cuentas y la paga como la suya.'}{' '}
+        {name ?? 'Quien la debía'} la ve cubierta, sin saber quién.
+      </p>
+      <Button
+        disabled={userId === null || sponsor === null}
+        onClick={() => userId && sponsor && onPick(userId, sponsor)}
+      >
+        Listo
+      </Button>
+    </div>
   );
 }

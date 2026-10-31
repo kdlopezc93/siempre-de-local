@@ -9,6 +9,7 @@ import type {
   Payment,
   PaymentRequest,
   ShareRequest,
+  SponsorRequest,
   UpdateChargeRequest,
 } from '@sdl/contracts';
 import {
@@ -18,6 +19,7 @@ import {
   payable,
   shareAmount,
   shareStatus,
+  sponsorProblem,
 } from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
@@ -77,7 +79,9 @@ function toSummary(
   payments: PaymentRecord[],
 ): ChargeSummary {
   const paid = paidBy(payments);
-  const rows = shares.map((s) => ({ amount: s.amount, paid: paid.get(s.userId)?.confirmed ?? 0 }));
+  // Lo que asumió el equipo no se le cobra a nadie: sale del saldo y se cuenta aparte.
+  const owed = shares.filter((s) => !s.teamCovers);
+  const rows = owed.map((s) => ({ amount: s.amount, paid: paid.get(s.userId)?.confirmed ?? 0 }));
   return {
     id: c.id,
     kind: c.kind,
@@ -91,8 +95,11 @@ function toSummary(
     cancelled: c.cancelledAt !== null,
     balance: chargeBalance(rows),
     people: shares.length,
-    paidPeople: rows.filter((r) => shareStatus(r.amount, r.paid) === 'paid').length,
+    paidPeople:
+      rows.filter((r) => shareStatus(r.amount, r.paid) === 'paid').length +
+      (shares.length - owed.length),
     reported: payments.filter((p) => p.status === 'reported').length,
+    teamCovered: shares.filter((s) => s.teamCovers).reduce((sum, s) => sum + s.amount, 0),
   };
 }
 
@@ -151,9 +158,10 @@ export class Charges {
       this.charges.payments([chargeId]),
       this.players.activePlayers(teamId),
     ]);
-    const profiles = await this.profiles.profilesOf(
-      shares.map((s) => ({ id: s.userId, name: s.name })),
-    );
+    const profiles = await this.profiles.profilesOf([
+      ...shares.map((s) => ({ id: s.userId, name: s.name })),
+      ...shares.flatMap((s) => (s.sponsor ? [s.sponsor] : [])),
+    ]);
     const jersey = new Map(players.map((p) => [p.userId, p.jerseyNumber]));
     const paid = paidBy(payments);
     return {
@@ -169,7 +177,16 @@ export class Charges {
             note: s.note,
             paid: confirmed,
             reported,
-            status: shareStatus(s.amount, confirmed),
+            status: s.teamCovers ? ('covered' as const) : shareStatus(s.amount, confirmed),
+            sponsor: s.teamCovers
+              ? { kind: 'team' as const }
+              : s.sponsor
+                ? {
+                    kind: 'member' as const,
+                    userId: s.sponsor.id,
+                    displayName: profiles.get(s.sponsor.id)?.displayName ?? s.sponsor.name,
+                  }
+                : null,
           };
         })
         .sort(
@@ -205,6 +222,7 @@ export class Charges {
       throw new BusinessRuleError('Ese torneo no es del equipo.', 'TOURNAMENT_NOT_FOUND');
     }
     await this.requirePlayers(teamId, playerIds);
+    const sponsorOf = await this.initialSponsors(teamId, playerIds, request.sponsors ?? []);
     const each = shareAmount(request.split, request.amount, playerIds.length);
     const chargeId = await this.charges.create(
       teamId,
@@ -218,25 +236,41 @@ export class Charges {
         matchId,
         tournamentId,
       },
-      playerIds.map((userId) => ({ userId, amount: each })),
+      playerIds.map((userId) => {
+        const sponsor = sponsorOf.get(userId) ?? null;
+        return {
+          userId,
+          amount: each,
+          sponsorId: sponsor !== 'team' ? sponsor : null,
+          teamCovers: sponsor === 'team',
+        };
+      }),
     );
     await this.record(actor, teamId, chargeId, 'charge.created', {
       kind: request.kind,
       split: request.split,
       amount: request.amount,
       people: playerIds.length,
+      sponsors: Object.fromEntries(sponsorOf),
     });
-    // A cada uno le llega el aviso (2026-10-30, Kevin), menos a quien lo creó; sin el valor.
+    // A cada uno le llega el aviso (2026-10-30, Kevin), menos a quien lo creó; sin el valor. Al
+    // que le cubrieron la parte, "Te cubrieron tu parte"; a quien la asumió, que la asumió.
     const what = request.title ?? CHARGE_KIND_LABELS[request.kind];
+    const url = `/equipos/${teamId}/mis-cuentas`;
+    const notMe = (id: string) => id !== actor.userId;
+    const message = { charge: what, opponent: what, url };
     await this.notifier.notifyUsers(
-      playerIds.filter((id) => id !== actor.userId),
-      {
-        kind: 'charge-created',
-        charge: what,
-        opponent: what,
-        url: `/equipos/${teamId}/mis-cuentas`,
-      },
+      playerIds.filter((id) => notMe(id) && !sponsorOf.has(id)),
+      { kind: 'charge-created', ...message },
     );
+    const covered = playerIds.filter((id) => notMe(id) && sponsorOf.has(id));
+    if (covered.length > 0) {
+      await this.notifier.notifyUsers(covered, { kind: 'charge-covered', ...message });
+    }
+    const sponsors = [...new Set(sponsorOf.values())].filter((id) => id !== 'team' && notMe(id));
+    if (sponsors.length > 0) {
+      await this.notifier.notifyUsers(sponsors, { kind: 'charge-sponsor', ...message });
+    }
     return this.get(actor, teamId, chargeId);
   }
 
@@ -301,6 +335,65 @@ export class Charges {
     return this.get(actor, teamId, chargeId);
   }
 
+  /**
+   * Patrocinio (2026-10-31): la parte entera de alguien la asume otro jugador del equipo, que la
+   * paga, o el equipo; `null` se la devuelve. Solo mientras esa parte no tenga pagos.
+   */
+  async sponsor(
+    actor: Actor,
+    teamId: string,
+    chargeId: string,
+    userId: string,
+    request: SponsorRequest,
+  ): Promise<ChargeResponse> {
+    await this.authorize(actor, teamId, 'team.charges.write');
+    const record = await this.findOr404(teamId, chargeId);
+    this.requireLive(record);
+    const [shares, payments] = await Promise.all([
+      this.charges.shares([chargeId]),
+      this.charges.payments([chargeId]),
+    ]);
+    const share = shares.find((s) => s.userId === userId);
+    if (!share) throw new BusinessRuleError('No está en este cobro.', 'NOT_IN_CHARGE');
+    const before = share.teamCovers ? 'team' : (share.sponsor?.id ?? null);
+    if (request.sponsor === before) return this.get(actor, teamId, chargeId);
+    const { confirmed, reported } = paidBy(payments).get(userId) ?? { confirmed: 0, reported: 0 };
+    const problem = sponsorProblem({ self: request.sponsor === userId, confirmed, reported });
+    if (problem) throw new BusinessRuleError(problem, 'SPONSOR_NOT_ALLOWED');
+    const member = request.sponsor !== null && request.sponsor !== 'team' ? request.sponsor : null;
+    // Patrocina un jugador del equipo: es quien ve y paga la parte en Tus cuentas.
+    if (member) await this.requirePlayers(teamId, [member]);
+    await this.charges.setSponsor(chargeId, userId, {
+      sponsorId: member,
+      teamCovers: request.sponsor === 'team',
+    });
+    await this.record(actor, teamId, chargeId, 'charge.sponsor_set', {
+      userId,
+      sponsor: request.sponsor,
+      before,
+    });
+    // Sin el valor ni quién: a quien le cubrieron la parte, y a quien la asumió.
+    const what = record.title ?? CHARGE_KIND_LABELS[record.kind];
+    const url = `/equipos/${teamId}/mis-cuentas`;
+    if (before === null && userId !== actor.userId) {
+      await this.notifier.notifyUsers([userId], {
+        kind: 'charge-covered',
+        charge: what,
+        opponent: what,
+        url,
+      });
+    }
+    if (member && member !== actor.userId) {
+      await this.notifier.notifyUsers([member], {
+        kind: 'charge-sponsor',
+        charge: what,
+        opponent: what,
+        url,
+      });
+    }
+    return this.get(actor, teamId, chargeId);
+  }
+
   /** El tesorero o el cuerpo técnico registran un pago o abono: queda confirmado. */
   async registerPayment(
     actor: Actor,
@@ -314,12 +407,15 @@ export class Charges {
     return this.get(actor, teamId, chargeId);
   }
 
-  /** "Ya pagué": el jugador reporta su pago (o un abono) y espera que lo confirmen. */
+  /**
+   * "Ya pagué": el jugador reporta su pago (o un abono) y espera que lo confirmen. Con
+   * `forUserId`, el de la parte de un compañero que patrocina.
+   */
   async reportPayment(
     actor: Actor,
     teamId: string,
     chargeId: string,
-    request: MyPaymentRequest,
+    { forUserId, ...request }: MyPaymentRequest,
     now = new Date(),
   ): Promise<MyChargesResponse> {
     await this.authorize(actor, teamId, 'team.read');
@@ -327,9 +423,18 @@ export class Charges {
       actor,
       teamId,
       chargeId,
-      { ...request, userId: actor.userId },
+      { ...request, userId: forUserId ?? actor.userId },
       'reported',
       now,
+      (share) => {
+        if (forUserId) {
+          if (share.sponsor?.id !== actor.userId) {
+            throw new ForbiddenError('Esa parte no la patrocinas tú.');
+          }
+        } else if (share.sponsor || share.teamCovers) {
+          throw new BusinessRuleError('Tu parte ya te la cubrieron.', 'SHARE_COVERED');
+        }
+      },
     );
     return this.mine(actor, teamId);
   }
@@ -369,46 +474,78 @@ export class Charges {
       this.charges.shares(ids),
       this.charges.payments(ids),
     ]);
-    const mine = new Map(
-      shares.filter((s) => s.userId === actor.userId).map((s) => [s.chargeId, s]),
+    // La suya y las de los compañeros que patrocina; las de los demás, nada.
+    const sharesOf = groupBy(
+      shares.filter((s) => s.userId === actor.userId || s.sponsor?.id === actor.userId),
     );
-    const myPayments = groupBy(payments.filter((p) => p.userId === actor.userId));
+    const sponsored = shares.filter((s) => s.sponsor?.id === actor.userId);
+    const profiles = await this.profiles.profilesOf(
+      sponsored.map((s) => ({ id: s.userId, name: s.name })),
+    );
     let owed = 0;
-    const items = records.map((c) => {
-      const share = mine.get(c.id)!;
-      const own = myPayments.get(c.id) ?? [];
-      const { confirmed, reported } = paidBy(own).get(actor.userId) ?? {
-        confirmed: 0,
-        reported: 0,
-      };
-      owed += Math.max(share.amount - confirmed, 0);
-      const summary = toSummary(c, [], []);
-      return {
-        charge: {
-          id: summary.id,
-          kind: summary.kind,
-          title: summary.title,
-          match: summary.match,
-          tournament: summary.tournament,
-          dueOn: summary.dueOn,
-          createdAt: summary.createdAt,
-        },
-        amount: share.amount,
-        paid: confirmed,
-        reported,
-        status: shareStatus(share.amount, confirmed),
-        payments: own.map((p) => ({
-          id: p.id,
-          userId: p.userId,
-          amount: p.amount,
-          method: p.method,
-          paidOn: p.paidOn,
-          status: p.status,
-          createdAt: p.createdAt.toISOString(),
-        })),
-      };
-    });
+    const items = records.flatMap((c) =>
+      (sharesOf.get(c.id) ?? [])
+        // Primero la suya, después las que patrocina.
+        .sort((a, b) => Number(a.userId !== actor.userId) - Number(b.userId !== actor.userId))
+        .map((share) => {
+          const forPlayer =
+            share.userId === actor.userId
+              ? null
+              : {
+                  userId: share.userId,
+                  displayName: profiles.get(share.userId)?.displayName ?? share.name,
+                };
+          // Si se la cubrieron, la ve cubierta: sin quién ni lo que pagó el otro.
+          const covered = !forPlayer && (share.teamCovers || share.sponsor !== null);
+          const own = covered
+            ? []
+            : payments.filter((p) => p.chargeId === c.id && p.userId === share.userId);
+          const { confirmed, reported } = paidBy(own).get(share.userId) ?? {
+            confirmed: 0,
+            reported: 0,
+          };
+          if (!covered) owed += Math.max(share.amount - confirmed, 0);
+          return this.myItem(c, share.amount, forPlayer, covered, own, confirmed, reported);
+        }),
+    );
     return { items, owed };
+  }
+
+  private myItem(
+    c: ChargeRecord,
+    amount: number,
+    forPlayer: MyChargesResponse['items'][number]['forPlayer'],
+    covered: boolean,
+    own: PaymentRecord[],
+    confirmed: number,
+    reported: number,
+  ): MyChargesResponse['items'][number] {
+    const summary = toSummary(c, [], []);
+    return {
+      charge: {
+        id: summary.id,
+        kind: summary.kind,
+        title: summary.title,
+        match: summary.match,
+        tournament: summary.tournament,
+        dueOn: summary.dueOn,
+        createdAt: summary.createdAt,
+      },
+      forPlayer,
+      amount,
+      paid: confirmed,
+      reported,
+      status: covered ? 'covered' : shareStatus(amount, confirmed),
+      payments: own.map((p) => ({
+        id: p.id,
+        userId: p.userId,
+        amount: p.amount,
+        method: p.method,
+        paidOn: p.paidOn,
+        status: p.status,
+        createdAt: p.createdAt.toISOString(),
+      })),
+    };
   }
 
   private async addPayment(
@@ -418,6 +555,7 @@ export class Charges {
     request: PaymentRequest,
     status: 'confirmed' | 'reported',
     now: Date,
+    check?: (share: ShareRecord) => void,
   ) {
     const record = await this.findOr404(teamId, chargeId);
     this.requireLive(record);
@@ -428,6 +566,10 @@ export class Charges {
     const share = shares.find((s) => s.userId === request.userId);
     if (!share) {
       throw new BusinessRuleError('No está en este cobro.', 'NOT_IN_CHARGE');
+    }
+    check?.(share);
+    if (share.teamCovers) {
+      throw new BusinessRuleError('Esa parte la cubre el equipo.', 'SHARE_COVERED');
     }
     const { confirmed, reported } = paidBy(payments).get(request.userId) ?? {
       confirmed: 0,
@@ -459,6 +601,31 @@ export class Charges {
       amount: request.amount,
       method: request.method,
     });
+  }
+
+  /** Los patrocinios al crear: de alguien del cobro, una vez, nunca a sí mismo, y de un jugador. */
+  private async initialSponsors(
+    teamId: string,
+    playerIds: string[],
+    sponsors: { userId: string; sponsor: string }[],
+  ): Promise<Map<string, string>> {
+    const sponsorOf = new Map<string, string>();
+    for (const { userId, sponsor } of sponsors) {
+      if (!playerIds.includes(userId)) {
+        throw new BusinessRuleError('No está en este cobro.', 'NOT_IN_CHARGE');
+      }
+      const problem = sponsorProblem({ self: sponsor === userId, confirmed: 0, reported: 0 });
+      if (problem || sponsorOf.has(userId)) {
+        throw new BusinessRuleError(
+          problem ?? 'Una parte la asume uno solo.',
+          'SPONSOR_NOT_ALLOWED',
+        );
+      }
+      sponsorOf.set(userId, sponsor);
+    }
+    const members = [...new Set(sponsorOf.values())].filter((id) => id !== 'team');
+    if (members.length > 0) await this.requirePlayers(teamId, members);
+    return sponsorOf;
   }
 
   private async requirePlayers(teamId: string, playerIds: string[]) {

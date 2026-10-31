@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, or } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 
 import type { DbConnection } from '../../../shared/db/client.js';
@@ -16,6 +16,7 @@ import { charge, chargeShare, payment } from './schema.js';
 
 const reporter = alias(user, 'reporter');
 const reviewer = alias(user, 'reviewer');
+const sponsor = alias(user, 'sponsor');
 
 @Injectable()
 export class DrizzleChargesRepository implements ChargesRepository {
@@ -25,7 +26,7 @@ export class DrizzleChargesRepository implements ChargesRepository {
     teamId: string,
     createdBy: string,
     data: ChargeData,
-    shares: { userId: string; amount: number }[],
+    shares: { userId: string; amount: number; sponsorId: string | null; teamCovers: boolean }[],
   ) {
     return this.connection.db.transaction(async (tx) => {
       const [row] = await tx
@@ -92,17 +93,25 @@ export class DrizzleChargesRepository implements ChargesRepository {
 
   async shares(chargeIds: string[]) {
     if (chargeIds.length === 0) return [];
-    return this.connection.db
+    const rows = await this.connection.db
       .select({
         chargeId: chargeShare.chargeId,
         userId: chargeShare.userId,
         name: user.name,
         amount: chargeShare.amount,
         note: chargeShare.note,
+        sponsorId: sponsor.id,
+        sponsorName: sponsor.name,
+        teamCovers: chargeShare.teamCovers,
       })
       .from(chargeShare)
       .innerJoin(user, eq(chargeShare.userId, user.id))
+      .leftJoin(sponsor, eq(chargeShare.sponsorId, sponsor.id))
       .where(inArray(chargeShare.chargeId, chargeIds));
+    return rows.map(({ sponsorId, sponsorName, ...rest }) => ({
+      ...rest,
+      sponsor: sponsorId ? { id: sponsorId, name: sponsorName! } : null,
+    }));
   }
 
   async payments(chargeIds: string[]): Promise<PaymentRecord[]> {
@@ -144,6 +153,17 @@ export class DrizzleChargesRepository implements ChargesRepository {
       });
   }
 
+  async setSponsor(
+    chargeId: string,
+    userId: string,
+    value: { sponsorId: string | null; teamCovers: boolean },
+  ) {
+    await this.connection.db
+      .update(chargeShare)
+      .set(value)
+      .where(and(eq(chargeShare.chargeId, chargeId), eq(chargeShare.userId, userId)));
+  }
+
   async addPayment(input: Parameters<ChargesRepository['addPayment']>[0]) {
     const { at, ...values } = input;
     const [row] = await this.connection.db
@@ -166,12 +186,14 @@ export class DrizzleChargesRepository implements ChargesRepository {
   }
 
   async chargesOf(teamId: string, userId: string) {
+    const involved = this.connection.db
+      .select({ id: chargeShare.chargeId })
+      .from(chargeShare)
+      .where(or(eq(chargeShare.userId, userId), eq(chargeShare.sponsorId, userId)));
     const rows = await this.select()
-      .innerJoin(
-        chargeShare,
-        and(eq(chargeShare.chargeId, charge.id), eq(chargeShare.userId, userId)),
+      .where(
+        and(eq(charge.teamId, teamId), isNull(charge.cancelledAt), inArray(charge.id, involved)),
       )
-      .where(and(eq(charge.teamId, teamId), isNull(charge.cancelledAt)))
       .orderBy(desc(charge.createdAt));
     return rows.map((r) => this.toRecord(r));
   }

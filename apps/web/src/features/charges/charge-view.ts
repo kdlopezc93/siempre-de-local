@@ -43,7 +43,8 @@ export function vacaMarks(shares: readonly Pick<ChargeShare, 'status'>[]): {
   label: string;
 } {
   const count = { paid: 0, partial: 0, pending: 0 };
-  for (const s of shares) count[s.status]++;
+  // Lo que cubrió el equipo ya no se debe: cuenta con lo pagado.
+  for (const s of shares) count[s.status === 'covered' ? 'paid' : s.status]++;
   const marks: VacaMark[] = [
     ...Array<VacaMark>(count.paid).fill('paid'),
     ...Array<VacaMark>(count.partial).fill('partial'),
@@ -67,12 +68,21 @@ export function summaryMarks(c: Pick<ChargeSummary, 'people' | 'paidPeople'>) {
   ]);
 }
 
-/** El estado de cada uno, en palabras (con "Por confirmar" si espera un "Ya pagué"). */
-export function shareBadge(s: Pick<ChargeShare, 'status' | 'reported'>): {
+/**
+ * El estado de cada uno, en palabras (con "Por confirmar" si espera un "Ya pagué"). Cubierta: en
+ * el cobro, la asumió el equipo; en Tus cuentas (`mine`), te la cubrieron (sin decir quién).
+ */
+export function shareBadge(
+  s: Pick<ChargeShare, 'status' | 'reported'>,
+  mine = false,
+): {
   label: string;
   tone: 'success' | 'warning' | 'danger' | 'brand';
 } {
-  if (s.status === 'paid') return { label: 'Pagó', tone: 'success' };
+  if (s.status === 'covered') {
+    return { label: mine ? 'Te la cubrieron' : 'La cubre el equipo', tone: 'success' };
+  }
+  if (s.status === 'paid') return { label: mine ? 'Pagaste' : 'Pagó', tone: 'success' };
   if (s.reported > 0) return { label: 'Por confirmar', tone: 'brand' };
   if (s.status === 'partial') return { label: 'Abonó', tone: 'warning' };
   return { label: 'Debe', tone: 'danger' };

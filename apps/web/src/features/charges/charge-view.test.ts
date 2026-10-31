@@ -51,5 +51,8 @@ describe('cobros en la app', () => {
     expect(shareBadge({ status: 'pending', reported: 23_400 }).label).toBe('Por confirmar');
     expect(shareBadge({ status: 'partial', reported: 0 }).label).toBe('Abonó');
     expect(shareBadge({ status: 'pending', reported: 0 }).label).toBe('Debe');
+    expect(shareBadge({ status: 'covered', reported: 0 }).label).toBe('La cubre el equipo');
+    expect(shareBadge({ status: 'covered', reported: 0 }, true).label).toBe('Te la cubrieron');
+    expect(shareBadge({ status: 'paid', reported: 0 }, true).label).toBe('Pagaste');
   });
 });

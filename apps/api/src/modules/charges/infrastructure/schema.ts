@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  boolean,
   check,
   date,
   foreignKey,
@@ -69,7 +70,11 @@ export const charge = pgTable(
   ],
 );
 
-/** Lo que debe cada uno en un cobro; el ajuste por persona es cambiar `amount`. */
+/**
+ * Lo que debe cada uno en un cobro; el ajuste por persona es cambiar `amount`. Una parte la puede
+ * asumir otro del equipo (`sponsorId`, que la paga) o el equipo (`teamCovers`): el patrocinio de
+ * 2026-10-31. Si quien patrocina borra su cuenta, la parte vuelve a ser de quien la debía.
+ */
 export const chargeShare = pgTable(
   'charge_share',
   {
@@ -81,11 +86,16 @@ export const chargeShare = pgTable(
       .references(() => user.id, { onDelete: 'cascade' }),
     amount: integer().notNull(),
     note: text(),
+    sponsorId: uuid().references(() => user.id, { onDelete: 'set null' }),
+    teamCovers: boolean().notNull().default(false),
   },
   (t) => [
     primaryKey({ columns: [t.chargeId, t.userId] }),
     index().on(t.userId),
+    index().on(t.sponsorId),
     check('charge_share_amount_range', sql`${t.amount} between 0 and 100000000`),
+    check('charge_share_one_sponsor', sql`not (${t.sponsorId} is not null and ${t.teamCovers})`),
+    check('charge_share_not_self', sql`${t.sponsorId} is null or ${t.sponsorId} <> ${t.userId}`),
   ],
 );
 

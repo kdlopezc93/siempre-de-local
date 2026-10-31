@@ -7,6 +7,7 @@ import {
   shareAmount,
   shareStatus,
   splitTotal,
+  sponsorProblem,
 } from './charges.js';
 
 describe('cobros (06 Cobros)', () => {
@@ -58,5 +59,13 @@ describe('cobros (06 Cobros)', () => {
         { amount: 5_400, paid: 0 },
       ]),
     ).toEqual({ billed: 16_200, collected: 7_400, pending: 8_800 });
+  });
+
+  it('patrocinar: nunca a sí mismo, y solo mientras la parte no tenga pagos', () => {
+    const free = { self: false, confirmed: 0, reported: 0 };
+    expect(sponsorProblem(free)).toBeNull();
+    expect(sponsorProblem({ ...free, self: true })).toMatch(/sí mismo/);
+    expect(sponsorProblem({ ...free, confirmed: 2_000 })).toMatch(/ya tiene pagos/);
+    expect(sponsorProblem({ ...free, reported: 2_000 })).toMatch(/por confirmar/);
   });
 });

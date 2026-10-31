@@ -20,6 +20,9 @@ export interface ShareRecord {
   name: string;
   amount: number;
   note: string | null;
+  /** Quien la asumió (patrocinio), o null. */
+  sponsor: { id: string; name: string } | null;
+  teamCovers: boolean;
 }
 
 export interface PaymentRecord {
@@ -47,7 +50,7 @@ export interface ChargesRepository {
     teamId: string,
     createdBy: string,
     data: ChargeData,
-    shares: { userId: string; amount: number }[],
+    shares: { userId: string; amount: number; sponsorId: string | null; teamCovers: boolean }[],
   ): Promise<string>;
   /** Los del equipo, el más nuevo primero. */
   list(teamId: string): Promise<ChargeRecord[]>;
@@ -60,6 +63,12 @@ export interface ChargesRepository {
   payments(chargeIds: string[]): Promise<PaymentRecord[]>;
   /** Crea o cambia lo que debe alguien en el cobro. */
   setShare(chargeId: string, userId: string, amount: number, note: string | null): Promise<void>;
+  /** Quién asume la parte de alguien: otro jugador, el equipo, o nadie (los dos vacíos). */
+  setSponsor(
+    chargeId: string,
+    userId: string,
+    sponsor: { sponsorId: string | null; teamCovers: boolean },
+  ): Promise<void>;
   addPayment(input: {
     chargeId: string;
     userId: string;
@@ -77,7 +86,10 @@ export interface ChargesRepository {
     reviewedBy: string,
     at: Date,
   ): Promise<void>;
-  /** Los cobros vigentes (no anulados) en los que alguien debe algo, el más nuevo primero. */
+  /**
+   * Los cobros vigentes (no anulados) en los que alguien debe algo o patrocina a otro, el más
+   * nuevo primero.
+   */
   chargesOf(teamId: string, userId: string): Promise<ChargeRecord[]>;
   /** Que el partido y el torneo sean del equipo. */
   matchInTeam(teamId: string, matchId: string): Promise<boolean>;

@@ -9,6 +9,7 @@ import {
   type MyPaymentRequest,
   type PaymentRequest,
   type ShareRequest,
+  type SponsorRequest,
   type UpdateChargeRequest,
 } from '@sdl/contracts';
 
@@ -51,6 +52,20 @@ export function setChargeShare(
 ): Promise<ChargeResponse> {
   return apiRequest(
     `${base(teamId)}/${chargeId}/shares/${userId}`,
+    ChargeResponseSchema,
+    send(request, 'PUT'),
+  );
+}
+
+/** Que la parte de alguien la asuma otro jugador o el equipo (`null`: se la devuelve). */
+export function setChargeSponsor(
+  teamId: string,
+  chargeId: string,
+  userId: string,
+  request: SponsorRequest,
+): Promise<ChargeResponse> {
+  return apiRequest(
+    `${base(teamId)}/${chargeId}/shares/${userId}/sponsor`,
     ChargeResponseSchema,
     send(request, 'PUT'),
   );

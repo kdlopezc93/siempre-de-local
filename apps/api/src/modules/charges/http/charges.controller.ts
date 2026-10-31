@@ -7,6 +7,7 @@ import {
   MyPaymentRequestSchema,
   PaymentRequestSchema,
   ShareRequestSchema,
+  SponsorRequestSchema,
   UpdateChargeRequestSchema,
 } from '@sdl/contracts';
 import { z } from 'zod';
@@ -80,6 +81,25 @@ export class ChargesController {
       parseInput(z.uuid(), chargeId),
       parseInput(z.uuid(), userId),
       parseInput(ShareRequestSchema, body),
+    );
+  }
+
+  /** Que la parte de alguien la asuma otro jugador o el equipo (o devolvérsela). */
+  @Put(':chargeId/shares/:userId/sponsor')
+  @Can('team.charges.write', { teamParam: 'teamId' })
+  sponsor(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('chargeId') chargeId: string,
+    @Param('userId') userId: string,
+    @Body() body: unknown,
+  ): Promise<ChargeResponse> {
+    return this.charges.sponsor(
+      actor,
+      teamId,
+      parseInput(z.uuid(), chargeId),
+      parseInput(z.uuid(), userId),
+      parseInput(SponsorRequestSchema, body),
     );
   }
 

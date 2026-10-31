@@ -286,4 +286,181 @@ describe('cobros del equipo (06 Cobros)', () => {
     expect((await call('GET', '/charges', ana)).statusCode).toBe(403);
     expect((await call('GET', '/me/charges', outsider)).statusCode).toBe(403);
   });
+
+  it('patrocinios: la parte de uno la asume otro jugador (que la paga) o el equipo', async () => {
+    const arbitraje = ChargeResponseSchema.parse(
+      (
+        await call('POST', '/charges', tesorera, {
+          kind: 'referee',
+          split: 'per_person',
+          amount: 8_000,
+          playerIds: [ana.userId, beto.userId, ciro.userId],
+        })
+      ).json(),
+    ).charge;
+    const path = (userId: string) => `/charges/${arbitraje.id}/shares/${userId}/sponsor`;
+
+    // Un jugador no patrocina a nadie desde aquí; nadie se patrocina a sí mismo ni de fuera.
+    expect((await call('PUT', path(ciro.userId), beto, { sponsor: beto.userId })).statusCode).toBe(
+      403,
+    );
+    expect(
+      (await call('PUT', path(ciro.userId), tesorera, { sponsor: ciro.userId })).json(),
+    ).toMatchObject({ error: { code: 'SPONSOR_NOT_ALLOWED' } });
+    expect(
+      (await call('PUT', path(ciro.userId), tesorera, { sponsor: outsider.userId })).json(),
+    ).toMatchObject({ error: { code: 'PLAYER_NOT_IN_TEAM' } });
+
+    // Beto asume la de Ciro; el equipo, la de Ana. A Ciro y a Beto les llega el aviso, sin valor.
+    const notify = vi.spyOn(app.get<Notifier>(NOTIFIER, { strict: false }), 'notifyUsers');
+    await call('PUT', path(ciro.userId), tesorera, { sponsor: beto.userId });
+    const url = `/equipos/${teamId}/mis-cuentas`;
+    expect(notify).toHaveBeenCalledWith([ciro.userId], {
+      kind: 'charge-covered',
+      charge: 'Arbitraje',
+      opponent: 'Arbitraje',
+      url,
+    });
+    expect(notify).toHaveBeenCalledWith([beto.userId], {
+      kind: 'charge-sponsor',
+      charge: 'Arbitraje',
+      opponent: 'Arbitraje',
+      url,
+    });
+    notify.mockRestore();
+    const covered = ChargeResponseSchema.parse(
+      (await call('PUT', path(ana.userId), tesorera, { sponsor: 'team' })).json(),
+    );
+    // El tesorero ve quién cubre a quién; lo del equipo sale del saldo y se cuenta aparte.
+    expect(covered.shares.map((s) => [s.displayName, s.status, s.sponsor])).toEqual([
+      ['ana', 'covered', { kind: 'team' }],
+      ['beto', 'pending', null],
+      ['ciro', 'pending', { kind: 'member', userId: beto.userId, displayName: 'beto' }],
+    ]);
+    expect(covered.charge).toMatchObject({
+      teamCovered: 8_000,
+      paidPeople: 1,
+      balance: { billed: 16_000, collected: 0, pending: 16_000 },
+    });
+    // A lo que cubre el equipo no se le registran pagos.
+    expect(
+      (
+        await call('POST', `/charges/${arbitraje.id}/payments`, tesorera, {
+          userId: ana.userId,
+          amount: 1_000,
+          method: 'cash',
+          paidOn: today,
+        })
+      ).json(),
+    ).toMatchObject({ error: { code: 'SHARE_COVERED' } });
+
+    // Ciro la ve cubierta, sin saber quién, y ya no la debe ni puede reportarla.
+    const ciroView = MyChargesResponseSchema.parse((await call('GET', '/me/charges', ciro)).json());
+    const ciroItem = ciroView.items.find((i) => i.charge.id === arbitraje.id)!;
+    expect(ciroItem).toMatchObject({ forPlayer: null, status: 'covered', payments: [] });
+    expect(JSON.stringify(ciroView)).not.toContain(beto.userId);
+    expect(ciroView.owed).toBe(23_400 + 15_000);
+    expect(
+      (
+        await call('POST', `/me/charges/${arbitraje.id}/payments`, ciro, {
+          amount: 8_000,
+          method: 'cash',
+          paidOn: today,
+        })
+      ).json(),
+    ).toMatchObject({ error: { code: 'SHARE_COVERED' } });
+
+    // Beto ve las dos: la suya y la de Ciro, y paga la de Ciro con su "Ya pagué".
+    const betoView = MyChargesResponseSchema.parse((await call('GET', '/me/charges', beto)).json());
+    expect(
+      betoView.items
+        .filter((i) => i.charge.id === arbitraje.id)
+        .map((i) => [i.forPlayer?.displayName ?? null, i.amount, i.status]),
+    ).toEqual([
+      [null, 8_000, 'pending'],
+      ['ciro', 8_000, 'pending'],
+    ]);
+    expect(betoView.owed).toBe(16_000);
+    // Ana no patrocina a Ciro: no puede pagar por él.
+    expect(
+      (
+        await call('POST', `/me/charges/${arbitraje.id}/payments`, ana, {
+          amount: 8_000,
+          method: 'cash',
+          paidOn: today,
+          forUserId: ciro.userId,
+        })
+      ).statusCode,
+    ).toBe(403);
+    const paidFor = await call('POST', `/me/charges/${arbitraje.id}/payments`, beto, {
+      amount: 8_000,
+      method: 'nequi',
+      paidOn: today,
+      forUserId: ciro.userId,
+    });
+    expect(paidFor.statusCode).toBe(201);
+
+    // Con un pago por confirmar, el patrocinio no se quita; sin pagos, sí (lo de Ana vuelve).
+    expect(
+      (await call('PUT', path(ciro.userId), tesorera, { sponsor: null })).json(),
+    ).toMatchObject({ error: { code: 'SPONSOR_NOT_ALLOWED' } });
+    const back = ChargeResponseSchema.parse(
+      (await call('PUT', path(ana.userId), tesorera, { sponsor: null })).json(),
+    );
+    expect(back.shares.find((s) => s.userId === ana.userId)).toMatchObject({
+      status: 'pending',
+      sponsor: null,
+    });
+    expect(back.charge.teamCovered).toBe(0);
+
+    // También al crear: la de Ana la asume Beto y la de Ciro, el equipo.
+    const base = { kind: 'uniform', split: 'per_person', amount: 50_000 };
+    const playerIds = [ana.userId, beto.userId, ciro.userId];
+    expect(
+      (
+        await call('POST', '/charges', tesorera, {
+          ...base,
+          playerIds,
+          sponsors: [{ userId: ana.userId, sponsor: ana.userId }],
+        })
+      ).json(),
+    ).toMatchObject({ error: { code: 'SPONSOR_NOT_ALLOWED' } });
+    expect(
+      (
+        await call('POST', '/charges', tesorera, {
+          ...base,
+          playerIds: [ana.userId],
+          sponsors: [{ userId: ciro.userId, sponsor: 'team' }],
+        })
+      ).json(),
+    ).toMatchObject({ error: { code: 'NOT_IN_CHARGE' } });
+    const avisos = vi.spyOn(app.get<Notifier>(NOTIFIER, { strict: false }), 'notifyUsers');
+    const uniformes = ChargeResponseSchema.parse(
+      (
+        await call('POST', '/charges', tesorera, {
+          ...base,
+          playerIds,
+          sponsors: [
+            { userId: ana.userId, sponsor: beto.userId },
+            { userId: ciro.userId, sponsor: 'team' },
+          ],
+        })
+      ).json(),
+    );
+    expect(uniformes.shares.map((s) => [s.displayName, s.status, s.sponsor?.kind ?? null])).toEqual(
+      [
+        ['ana', 'pending', 'member'],
+        ['beto', 'pending', null],
+        ['ciro', 'covered', 'team'],
+      ],
+    );
+    expect(uniformes.charge).toMatchObject({ teamCovered: 50_000, balance: { billed: 100_000 } });
+    const kinds = avisos.mock.calls.map(([ids, m]) => [m.kind, ids]);
+    expect(kinds).toEqual([
+      ['charge-created', [beto.userId]],
+      ['charge-covered', [ana.userId, ciro.userId]],
+      ['charge-sponsor', [beto.userId]],
+    ]);
+    avisos.mockRestore();
+  });
 });

@@ -2,8 +2,8 @@
 /*
  * Avisos de la app (Web Push, Fase 7, D16). El service worker de Workbox importa este archivo.
  * El servidor manda lo mínimo ({ kind, opponent, startsAt, url } de un partido; { kind, team,
- * url } del recordatorio del test; { kind, charge, url } de un cobro nuevo, sin el valor); el
- * texto y la hora (en la zona del celular) se arman aquí.
+ * url } del recordatorio del test; { kind, charge, url } de un cobro nuevo o de un patrocinio,
+ * sin el valor); el texto y la hora (en la zona del celular) se arman aquí.
  */
 const WHEN = new Intl.DateTimeFormat('es-419', {
   weekday: 'short',
@@ -38,6 +38,16 @@ function noticeText(data, when) {
       return {
         title: `Nuevo cobro del equipo: ${data.charge}`,
         body: 'Toca para ver cuánto te toca y avisar cuando pagues.',
+      };
+    case 'charge-covered':
+      return {
+        title: `Te cubrieron tu parte: ${data.charge}`,
+        body: 'Ya no debes nada de este cobro.',
+      };
+    case 'charge-sponsor':
+      return {
+        title: `Asumiste la parte de un compañero: ${data.charge}`,
+        body: 'Toca para ver cuánto es y avisar cuando pagues.',
       };
     case 'test-reminder':
       return {

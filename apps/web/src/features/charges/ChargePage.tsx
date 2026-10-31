@@ -12,6 +12,7 @@ import { Screen } from '../../shared/ui/Screen';
 import { SectionHead } from '../../shared/ui/SectionHead';
 import { Sheet } from '../../shared/ui/Sheet';
 import { initialsOf } from '../../shared/ui/TeamHeader';
+import { useTeamMembers } from '../team-roles/use-team-roles';
 import {
   chargeContext,
   chargeTitle,
@@ -29,6 +30,7 @@ import {
   useRegisterPayment,
   useReviewPayment,
   useSetShare,
+  useSetSponsor,
   useUpdateCharge,
 } from './use-charges';
 
@@ -40,10 +42,14 @@ export const failure = (error: unknown, fallback: string) =>
 const token = (p: { jerseyNumber: number | null; displayName: string }) =>
   p.jerseyNumber !== null ? String(p.jerseyNumber) : initialsOf(p.displayName);
 
+/** "La paga Beto": quién asumió la parte (patrocinio); lo del equipo ya lo dice el estado. */
+const sponsorLine = (s: ChargeShare) =>
+  s.sponsor?.kind === 'member' ? `La paga ${s.sponsor.displayName}` : null;
+
 /**
  * /equipos/:teamId/cobros/:chargeId — un cobro (`06` Cobros): lo que falta, los "Ya pagué" que
  * esperan (confirmar o "No llegó") y lo de cada uno. Tocar a alguien abre su hoja: registrar su
- * pago o abono, o ajustar lo que debe.
+ * pago o abono, ajustar lo que debe o que se la pague otro (patrocinio).
  */
 export function ChargePage({ teamId, chargeId }: { teamId: string; chargeId: string }) {
   const data = useCharge(teamId, chargeId);
@@ -102,15 +108,21 @@ export function ChargePage({ teamId, chargeId }: { teamId: string; chargeId: str
           <SectionHead id="esperan" title="Dicen que pagaron" />
           {waiting.map((p) => {
             const who = nameOf.get(p.userId);
+            // Quien patrocina paga la parte de otro: se dice de quién es.
+            const sponsor =
+              who?.sponsor?.kind === 'member' && p.reportedBy?.id === who.sponsor.userId
+                ? who.sponsor.displayName
+                : null;
             return (
               <Reported
                 key={p.id}
                 teamId={teamId}
                 chargeId={charge.id}
                 paymentId={p.id}
-                name={who?.displayName ?? 'Alguien'}
-                token={who ? token(who) : '?'}
+                name={sponsor ?? who?.displayName ?? 'Alguien'}
+                token={sponsor ? initialsOf(sponsor) : who ? token(who) : '?'}
                 text={`${pesos(p.amount)} por ${PAYMENT_METHOD_LABELS[p.method]}`}
+                forName={sponsor ? (who?.displayName ?? null) : null}
               />
             );
           })}
@@ -120,11 +132,15 @@ export function ChargePage({ teamId, chargeId }: { teamId: string; chargeId: str
       <section aria-labelledby="cada-uno" className={styles.section}>
         <SectionHead id="cada-uno" title="Cada uno" />
         {!charge.cancelled && (
-          <p className={styles.muted}>Toca a alguien para registrar su pago o ajustar lo suyo.</p>
+          <p className={styles.muted}>
+            Toca a alguien para registrar su pago, ajustar lo suyo o que se lo pague otro.
+          </p>
         )}
         <ul className={styles.list}>
           {shares.map((s) => {
             const badge = shareBadge(s);
+            const by = sponsorLine(s);
+            const covered = s.status === 'covered';
             return (
               <li key={s.userId}>
                 <button
@@ -132,7 +148,11 @@ export function ChargePage({ teamId, chargeId }: { teamId: string; chargeId: str
                   className={styles.pickRow}
                   disabled={charge.cancelled}
                   onClick={() => setPerson(s)}
-                  aria-label={`${s.displayName}: ${badge.label}, pagó ${pesos(s.paid)} de ${pesos(s.amount)}`}
+                  aria-label={
+                    covered
+                      ? `${s.displayName}: ${badge.label}, ${pesos(s.amount)}`
+                      : `${s.displayName}: ${badge.label}${s.sponsor?.kind === 'member' ? `, la paga ${s.sponsor.displayName}` : ''}, pagó ${pesos(s.paid)} de ${pesos(s.amount)}`
+                  }
                 >
                   <Avatar name={s.displayName} label={token(s)} size={40} />
                   <span className={styles.pickName}>
@@ -141,12 +161,13 @@ export function ChargePage({ teamId, chargeId }: { teamId: string; chargeId: str
                       <Badge tone={badge.tone} size="sm">
                         {badge.label}
                       </Badge>
+                      {by && <small>{by}</small>}
                       {s.note && <small>{s.note}</small>}
                     </span>
                   </span>
                   <span className={styles.amount}>
-                    {pesos(s.paid)}
-                    <small>de {pesos(s.amount)}</small>
+                    {covered ? pesos(s.amount) : pesos(s.paid)}
+                    <small>{covered ? 'el equipo' : `de ${pesos(s.amount)}`}</small>
                   </span>
                 </button>
               </li>
@@ -210,6 +231,7 @@ function Reported({
   name,
   token: label,
   text,
+  forName,
 }: {
   teamId: string;
   chargeId: string;
@@ -217,6 +239,8 @@ function Reported({
   name: string;
   token: string;
   text: string;
+  /** Si paga la parte de otro (patrocinio), de quién. */
+  forName: string | null;
 }) {
   const review = useReviewPayment(teamId, chargeId);
   return (
@@ -224,7 +248,8 @@ function Reported({
       <div className={styles.reportedWho}>
         <Avatar name={name} label={label} size={40} />
         <p>
-          <b>{name}</b> dice que pagó <span className={styles.money}>{text}</span>.
+          <b>{name}</b> dice que pagó{forName && <> lo de {forName}</>}{' '}
+          <span className={styles.money}>{text}</span>.
         </p>
       </div>
       {review.isError && (
@@ -355,8 +380,9 @@ function PersonForms({
   share: ChargeShare;
   onDone: () => void;
 }) {
-  const left = payable(share.amount, share.paid, share.reported);
-  const [mode, setMode] = useState<'pay' | 'adjust'>(left > 0 ? 'pay' : 'adjust');
+  const covered = share.status === 'covered';
+  const left = covered ? 0 : payable(share.amount, share.paid, share.reported);
+  const [mode, setMode] = useState<'pay' | 'adjust' | 'sponsor'>(left > 0 ? 'pay' : 'adjust');
   const id = useId();
   const pay = useRegisterPayment(teamId, chargeId);
   const adjust = useSetShare(teamId, chargeId);
@@ -369,16 +395,22 @@ function PersonForms({
 
   return (
     <div className={styles.sheetBody}>
-      <p className={styles.note}>
-        Debe <b>{pesos(share.amount)}</b>, pagó <b>{pesos(share.paid)}</b>
-        {share.reported > 0 && (
-          <>
-            {' '}
-            y dice que pagó <b>{pesos(share.reported)}</b> más
-          </>
-        )}
-        .
-      </p>
+      {covered ? (
+        <p className={styles.note}>
+          El equipo le cubre su parte: <b>{pesos(share.amount)}</b>.
+        </p>
+      ) : (
+        <p className={styles.note}>
+          Debe <b>{pesos(share.amount)}</b>, pagó <b>{pesos(share.paid)}</b>
+          {share.reported > 0 && (
+            <>
+              {' '}
+              y dice que pagó <b>{pesos(share.reported)}</b> más
+            </>
+          )}
+          .{share.sponsor?.kind === 'member' && <> {sponsorLine(share)}.</>}
+        </p>
+      )}
       <div className={styles.options} role="group" aria-label="Qué hacer">
         <button
           type="button"
@@ -397,9 +429,19 @@ function PersonForms({
         >
           Ajustar lo que debe
         </button>
+        <button
+          type="button"
+          className={styles.option}
+          aria-pressed={mode === 'sponsor'}
+          onClick={() => setMode('sponsor')}
+        >
+          Lo paga otro
+        </button>
       </div>
 
-      {mode === 'pay' ? (
+      {mode === 'sponsor' ? (
+        <SponsorForm teamId={teamId} chargeId={chargeId} share={share} onDone={onDone} />
+      ) : mode === 'pay' ? (
         <form
           className={styles.form}
           onSubmit={(e) => {
@@ -478,6 +520,104 @@ function PersonForms({
             Guardar
           </Button>
         </form>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Patrocinio (2026-10-31): la parte entera la asume otro jugador del equipo (la ve y la paga en
+ * Tus cuentas) o el equipo. Quien la debía la ve cubierta, sin saber quién. Solo mientras no
+ * tenga pagos; así, quitarlo no le quita a nadie lo que abonó.
+ */
+function SponsorForm({
+  teamId,
+  chargeId,
+  share,
+  onDone,
+}: {
+  teamId: string;
+  chargeId: string;
+  share: ChargeShare;
+  onDone: () => void;
+}) {
+  const members = useTeamMembers(teamId);
+  const sponsor = useSetSponsor(teamId, chargeId);
+  const current =
+    share.sponsor?.kind === 'team' ? 'team' : share.sponsor ? share.sponsor.userId : null;
+  const [choice, setChoice] = useState<string | null>(current);
+  const others = (members.data?.players ?? []).filter((p) => p.userId !== share.userId);
+  const locked = share.paid > 0 || share.reported > 0;
+  const save = (value: string | null) =>
+    sponsor.mutate({ userId: share.userId, sponsor: value }, { onSuccess: onDone });
+
+  if (locked) {
+    return (
+      <p className={styles.note}>
+        {share.paid > 0
+          ? 'Esta parte ya tiene pagos: ya no se le cambia quién la paga.'
+          : 'Primero confirma o rechaza el pago que está por confirmar.'}
+      </p>
+    );
+  }
+  return (
+    <div className={styles.form}>
+      <fieldset className={styles.field}>
+        <legend className={styles.label}>Quién paga su parte</legend>
+        <div className={styles.options}>
+          <button
+            type="button"
+            className={styles.option}
+            aria-pressed={choice === 'team'}
+            onClick={() => setChoice('team')}
+          >
+            El equipo
+          </button>
+          {others.map((p) => (
+            <button
+              key={p.userId}
+              type="button"
+              className={styles.option}
+              aria-pressed={choice === p.userId}
+              onClick={() => setChoice(p.userId)}
+            >
+              {p.displayName}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+      {members.isPending && (
+        <p className="sr-only" role="status">
+          Cargando a los jugadores…
+        </p>
+      )}
+      <p className={styles.note}>
+        {choice === 'team'
+          ? 'Sale de la caja del equipo: no se le cobra a nadie.'
+          : 'Esa persona la ve en sus cuentas y la paga como la suya.'}{' '}
+        {share.displayName} la ve cubierta, sin saber quién.
+      </p>
+      {sponsor.isError && (
+        <p role="alert" className={styles.error}>
+          {failure(sponsor.error, 'No pudimos guardar. Revisa tu conexión.')}
+        </p>
+      )}
+      <Button
+        busy={sponsor.isPending && sponsor.variables?.sponsor !== null}
+        disabled={choice === null || choice === current || sponsor.isPending}
+        onClick={() => save(choice)}
+      >
+        Guardar
+      </Button>
+      {current !== null && (
+        <Button
+          variant="ghost"
+          busy={sponsor.isPending && sponsor.variables?.sponsor === null}
+          disabled={sponsor.isPending}
+          onClick={() => save(null)}
+        >
+          Que la pague {share.displayName}
+        </Button>
       )}
     </div>
   );

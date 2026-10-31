@@ -37,6 +37,7 @@ const summary = (over: object = {}) => ({
   people: 3,
   paidPeople: 0,
   reported: 1,
+  teamCovered: 0,
   ...over,
 });
 const share = (userId: string, displayName: string, jerseyNumber: number | null, over = {}) => ({
@@ -48,6 +49,7 @@ const share = (userId: string, displayName: string, jerseyNumber: number | null,
   paid: 0,
   reported: 0,
   status: 'pending',
+  sponsor: null,
   ...over,
 });
 const DETAIL = {
@@ -284,6 +286,16 @@ describe('cobros en la app (06 Cobros)', () => {
     expect(screen.getByText(/Entre 3 personas/)).toHaveTextContent(
       'Entre 3 personas: $23.400 cada uno. Sobran $200.',
     );
+    // La de Ciro la paga Ana, desde el comienzo.
+    await user.click(screen.getByRole('button', { name: 'Lo paga otro' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Lo paga otro' });
+    const whose = within(sheet).getByRole('group', { name: '¿La parte de quién?' });
+    await user.click(within(whose).getByRole('button', { name: 'Ciro' }));
+    const payer = within(sheet).getByRole('group', { name: '¿Quién la paga?' });
+    expect(within(payer).queryByRole('button', { name: 'Ciro' })).toBeNull();
+    await user.click(within(payer).getByRole('button', { name: 'Ana' }));
+    await user.click(within(sheet).getByRole('button', { name: 'Listo' }));
+    expect(await screen.findByText('La paga Ana')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Crear cobro' }));
     await vi.waitFor(() =>
       expect(created).toMatchObject({
@@ -293,6 +305,7 @@ describe('cobros en la app (06 Cobros)', () => {
         split: 'total',
         amount: 70_000,
         playerIds: [ANA, BETO, CIRO],
+        sponsors: [{ userId: CIRO, sponsor: ANA }],
       }),
     );
     expect(await screen.findByText('el cobro')).toBeInTheDocument();
@@ -310,6 +323,7 @@ describe('cobros en la app (06 Cobros)', () => {
         dueOn: null,
         createdAt: past,
       },
+      forPlayer: null,
       amount: 23_400,
       paid: 0,
       reported: 0,
@@ -342,5 +356,116 @@ describe('cobros en la app (06 Cobros)', () => {
     await user.click(within(sheet).getByRole('button', { name: 'Avisar que pagué' }));
     await vi.waitFor(() => expect(reported).toMatchObject({ amount: 10_000, method: 'nequi' }));
     expect(await screen.findByText(/falta que el tesorero lo confirme/)).toBeVisible();
+  });
+
+  it('patrocinio: la parte de Ciro la paga Beto; quién lo dice al reportar', async () => {
+    let sponsored: unknown;
+    const players = [
+      { userId: ANA, displayName: 'Ana', jerseyNumber: 4, injured: false, bestBand: null },
+      { userId: BETO, displayName: 'Beto', jerseyNumber: 9, injured: false, bestBand: null },
+      { userId: CIRO, displayName: 'Ciro', jerseyNumber: null, injured: false, bestBand: null },
+    ];
+    const withSponsor = {
+      ...DETAIL,
+      shares: [
+        share(ANA, 'Ana', 4, { status: 'covered', sponsor: { kind: 'team' } }),
+        DETAIL.shares[1],
+        share(CIRO, 'Ciro', null, {
+          sponsor: { kind: 'member', userId: BETO, displayName: 'Beto' },
+        }),
+      ],
+      payments: [
+        {
+          ...DETAIL.payments[0],
+          userId: CIRO,
+          reportedBy: { id: BETO, name: 'beto' },
+        },
+      ],
+    };
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/charges/${C1}`]: { status: 200, body: DETAIL },
+      [`GET /api/v1/teams/${TEAM_A}/members`]: { status: 200, body: { staff: [], players } },
+      [`PUT /api/v1/teams/${TEAM_A}/charges/${C1}/shares/${CIRO}/sponsor`]: (init) => {
+        sponsored = JSON.parse(init.body as string);
+        return { status: 200, body: withSponsor };
+      },
+    });
+    const user = userEvent.setup();
+    renderAt('/c', [{ path: '/c', element: <ChargePage teamId={TEAM_A} chargeId={C1} /> }]);
+
+    await user.click(await screen.findByRole('button', { name: /Ciro: Debe/ }));
+    const sheet = await screen.findByRole('dialog', { name: 'Ciro' });
+    await user.click(within(sheet).getByRole('button', { name: 'Lo paga otro' }));
+    // Ciro no se patrocina a sí mismo: está el equipo y los demás.
+    const who = within(sheet).getByRole('group', { name: 'Quién paga su parte' });
+    expect(
+      within(who)
+        .getAllByRole('button')
+        .map((b) => b.textContent),
+    ).toEqual(['El equipo', 'Ana', 'Beto']);
+    await user.click(within(who).getByRole('button', { name: 'Beto' }));
+    expect(within(sheet).getByText(/Ciro la ve cubierta, sin saber quién/)).toBeVisible();
+    await user.click(within(sheet).getByRole('button', { name: 'Guardar' }));
+    await vi.waitFor(() => expect(sponsored).toEqual({ sponsor: BETO }));
+
+    // El tesorero ve quién cubre a quién, y que Beto reporta lo de Ciro.
+    expect(await screen.findByRole('button', { name: /Ciro: Debe, la paga Beto/ })).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: /Ana: La cubre el equipo, \$23\.400/ }),
+    ).toBeVisible();
+    expect(screen.getByText(/dice que pagó/)).toHaveTextContent(
+      'Beto dice que pagó lo de Ciro $23.400 por Nequi.',
+    );
+  });
+
+  it('el jugador: su parte cubierta, y la de un compañero que patrocina', async () => {
+    let reported: unknown;
+    const charge = {
+      id: C1,
+      kind: 'referee',
+      title: null,
+      match: null,
+      tournament: null,
+      dueOn: null,
+      createdAt: past,
+    };
+    const base = { amount: 8_000, paid: 0, reported: 0, payments: [] };
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/me/charges`]: {
+        status: 200,
+        body: {
+          items: [
+            { ...base, charge, forPlayer: null, status: 'covered' },
+            {
+              ...base,
+              charge,
+              forPlayer: { userId: CIRO, displayName: 'Ciro' },
+              status: 'pending',
+            },
+          ],
+          owed: 8_000,
+        },
+      },
+      [`POST /api/v1/teams/${TEAM_A}/me/charges/${C1}/payments`]: (init) => {
+        reported = JSON.parse(init.body as string);
+        return { status: 201, body: { items: [], owed: 0 } };
+      },
+    });
+    const user = userEvent.setup();
+    renderAt('/m', [{ path: '/m', element: <MyChargesPage teamId={TEAM_A} /> }]);
+
+    const lead = await screen.findByRole('region', { name: 'Lo que debes' });
+    expect(lead).toHaveTextContent('Debes$8.000En 1 cobro del equipo.');
+    expect(screen.getByRole('heading', { name: 'Pagados y cubiertos' })).toBeVisible();
+    expect(screen.getByText('Te la cubrieron')).toBeVisible();
+    expect(screen.getByText(/Asumiste la parte de/)).toHaveTextContent(
+      'Asumiste la parte de Ciro: la pagas tú.',
+    );
+    await user.click(screen.getByRole('button', { name: 'Ya pagué' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Ya pagué: arbitraje de ciro' });
+    await user.click(within(sheet).getByRole('button', { name: 'Avisar que pagué' }));
+    await vi.waitFor(() =>
+      expect(reported).toMatchObject({ amount: 8_000, method: 'nequi', forUserId: CIRO }),
+    );
   });
 });

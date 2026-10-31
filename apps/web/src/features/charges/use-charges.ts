@@ -4,6 +4,7 @@ import type {
   MyPaymentRequest,
   PaymentRequest,
   ShareRequest,
+  SponsorRequest,
   UpdateChargeRequest,
 } from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -17,6 +18,7 @@ import {
   reportPayment,
   reviewPayment,
   setChargeShare,
+  setChargeSponsor,
   updateCharge,
 } from '../../shared/api/charges';
 
@@ -72,6 +74,11 @@ export const useUpdateCharge = (teamId: string, chargeId: string) =>
 export const useSetShare = (teamId: string, chargeId: string) =>
   useChargeMutation(teamId, ({ userId, ...request }: ShareRequest & { userId: string }) =>
     setChargeShare(teamId, chargeId, userId, request),
+  );
+
+export const useSetSponsor = (teamId: string, chargeId: string) =>
+  useChargeMutation(teamId, ({ userId, ...request }: SponsorRequest & { userId: string }) =>
+    setChargeSponsor(teamId, chargeId, userId, request),
   );
 
 export const useRegisterPayment = (teamId: string, chargeId: string) =>
