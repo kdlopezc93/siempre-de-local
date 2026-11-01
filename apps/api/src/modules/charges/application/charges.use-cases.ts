@@ -16,6 +16,8 @@ import type {
 import {
   CHARGE_KIND_LABELS,
   chargeBalance,
+  dueStage,
+  localDay,
   chargeProblem,
   payable,
   shareAmount,
@@ -195,6 +197,42 @@ export class Charges {
       meta: { people: debtors.length },
     });
     return { reminded: debtors.length };
+  }
+
+  /**
+   * Recordatorio automático (2026-10-31, Kevin): lo corre una tarea diaria. A los que deben su
+   * parte en un cobro que vence mañana u hoy, un aviso sin el valor; cada uno una sola vez por
+   * fecha y etapa (`dueReminder`).
+   */
+  async remindDue(now = new Date()): Promise<{ charges: number; reminded: number }> {
+    const days = [localDay(now), localDay(new Date(now.getTime() + 86_400_000))];
+    const due = (await this.charges.dueOn(days)).flatMap((c) => {
+      const stage = dueStage(c.dueOn, now);
+      const key = `${c.dueOn}:${stage}`;
+      return stage && c.dueReminder !== key ? [{ c, stage, key }] : [];
+    });
+    const ids = due.map(({ c }) => c.id);
+    const [shares, payments] = await Promise.all([
+      this.charges.shares(ids),
+      this.charges.payments(ids),
+    ]);
+    const sharesOf = groupBy(shares);
+    const paymentsOf = groupBy(payments);
+    let reminded = 0;
+    for (const { c, stage, key } of due) {
+      const debtors = this.debts([c], sharesOf, paymentsOf).map((d) => d.userId);
+      const what = c.title ?? CHARGE_KIND_LABELS[c.kind];
+      await this.notifier.notifyUsers(debtors, {
+        kind: 'charge-due',
+        charge: what,
+        when: stage,
+        opponent: what,
+        url: `/equipos/${c.teamId}/mis-cuentas`,
+      });
+      await this.charges.markDueReminder(c.id, key);
+      reminded += debtors.length;
+    }
+    return { charges: due.length, reminded };
   }
 
   /** Los cobros del equipo con lo de cada uno y los pagos, agrupados por cobro. */

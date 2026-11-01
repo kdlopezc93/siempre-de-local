@@ -49,6 +49,11 @@ function noticeText(data, when) {
         title: `Asumiste la parte de un compañero: ${data.charge}`,
         body: 'Toca para ver cuánto es y avisar cuando pagues.',
       };
+    case 'charge-due':
+      return {
+        title: `${data.when === 'today' ? 'Hoy' : 'Mañana'} vence: ${data.charge}`,
+        body: 'Todavía debes tu parte. Toca para ver cuánto y avisar cuando pagues.',
+      };
     case 'charges-reminder':
       return {
         title: `Tienes cobros pendientes en ${data.team}`,
