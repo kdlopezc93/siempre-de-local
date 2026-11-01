@@ -42,6 +42,18 @@ export type PushMessage =
       /** Lo mismo, para el service worker viejo (muestra el neutro con `opponent`). */
       opponent: string;
       url: string;
+    }
+  | {
+      /**
+       * Recordatorio automático (2026-10-31): mañana u hoy vence un cobro y debes tu parte. Sin
+       * el valor.
+       */
+      kind: 'charge-due';
+      charge: string;
+      when: 'tomorrow' | 'today';
+      /** Lo mismo, para el service worker viejo (muestra el neutro con `opponent`). */
+      opponent: string;
+      url: string;
     };
 
 export interface Notifier {

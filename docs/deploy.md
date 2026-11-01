@@ -100,3 +100,16 @@ fly ssh console --app sdl-api-staging -C "node dist/scripts/bootstrap-team.js --
 - **HSTS** en el dominio (Cloudflare → SSL/TLS → Edge Certificates).
 - **Backups:** Neon guarda historial para restaurar (6 h en el plan gratis); para producción, plan con más días y una prueba de restauración (`04` §4).
 - **Política de datos (D7):** publicada el 2026-10-30 sin revisión legal; la página pública es `https://app.siempredelocal.app/tus-datos` (la que va en Google Auth Platform como política de privacidad). Falta la revisión de un abogado.
+
+## 10. Tareas programadas (recordatorio de cobros)
+
+`.github/workflows/charges-due.yml` corre todos los días a las 9 a. m. de Colombia y llama `POST /api/v1/cron/charges-due` con `Authorization: Bearer <CRON_SECRET>`: avisa a los que deben su parte en un cobro que vence mañana u hoy (`02` §15). La misma clave va en Fly y en GitHub, sin que pase por la pantalla:
+
+```bash
+s="$(openssl rand -hex 32)"
+fly secrets set --app sdl-api-staging CRON_SECRET="$s"
+printf %s "$s" | gh secret set CRON_SECRET
+unset s
+```
+
+Sin `CRON_SECRET` en Fly, la ruta responde 404 y el workflow falla (lo avisa GitHub). Probarla a mano: Actions → "Recordar cobros que vencen" → Run workflow.

@@ -1,4 +1,14 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import {
   type ChargeListResponse,
   type ChargeResponse,
@@ -16,6 +26,8 @@ import { z } from 'zod';
 import { Can } from '../../../shared/authz/can.decorator.js';
 import { CurrentActor } from '../../../shared/authz/current-actor.decorator.js';
 import type { Actor } from '../../../shared/authz/policy.js';
+import { Public } from '../../../shared/authz/public.decorator.js';
+import { CronGuard } from '../../../shared/http/cron.guard.js';
 import { parseInput } from '../../../shared/http/validation.js';
 import { Charges } from '../application/charges.use-cases.js';
 
@@ -195,5 +207,20 @@ export class MyChargesController {
       parseInput(z.uuid(), chargeId),
       parseInput(MyPaymentRequestSchema, body),
     );
+  }
+}
+
+/** La tarea diaria (GitHub Actions, `docs/deploy.md`): sin sesión, con `CRON_SECRET`. */
+@Controller('cron')
+@Public()
+@UseGuards(CronGuard)
+export class ChargesCronController {
+  constructor(private readonly charges: Charges) {}
+
+  /** Recordar los cobros que vencen mañana u hoy (2026-10-31). */
+  @Post('charges-due')
+  @HttpCode(200)
+  remindDue(): Promise<{ charges: number; reminded: number }> {
+    return this.charges.remindDue();
   }
 }

@@ -62,6 +62,11 @@ export const charge = pgTable(
     createdBy: uuid().references(() => user.id, { onDelete: 'set null' }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     cancelledAt: timestamp({ withTimezone: true }),
+    /**
+     * El último recordatorio automático, `<dueOn>:<tomorrow|today>`: no se manda dos veces, y si
+     * cambia la fecha límite vuelve a tocar.
+     */
+    dueReminder: text(),
   },
   (t) => [
     index().on(t.teamId, t.createdAt),

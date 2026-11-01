@@ -9,6 +9,8 @@ import {
   splitTotal,
   sponsorProblem,
   whoOwes,
+  dueStage,
+  localDay,
 } from './charges.js';
 
 describe('cobros (06 Cobros)', () => {
@@ -93,5 +95,16 @@ describe('cobros (06 Cobros)', () => {
       { userId: 'beto', owed: 8_000, parts: 1 },
       { userId: 'ciro', owed: 3_000, parts: 1 },
     ]);
+  });
+
+  it('el recordatorio por fecha: el día antes y el día que vence, en hora de Colombia', () => {
+    // 3 a. m. UTC del 5 de nov = 10 p. m. del 4 en Bogotá.
+    const night = new Date('2026-11-05T03:00:00Z');
+    expect(localDay(night)).toBe('2026-11-04');
+    expect(dueStage('2026-11-04', night)).toBe('today');
+    expect(dueStage('2026-11-05', night)).toBe('tomorrow');
+    expect(dueStage('2026-11-06', night)).toBeNull();
+    expect(dueStage('2026-11-03', night)).toBeNull();
+    expect(dueStage(null, night)).toBeNull();
   });
 });

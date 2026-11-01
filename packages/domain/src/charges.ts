@@ -145,3 +145,22 @@ export function whoOwes(
   }
   return [...debts].map(([userId, d]) => ({ userId, ...d })).sort((a, b) => b.owed - a.owed);
 }
+
+/** La zona de los equipos (Colombia, sin horario de verano): manda en qué día es "hoy". */
+export const CHARGES_TIME_ZONE = 'America/Bogota';
+
+const DAY = new Intl.DateTimeFormat('en-CA', { timeZone: CHARGES_TIME_ZONE });
+
+/** El día (YYYY-MM-DD) de un instante en Colombia. */
+export const localDay = (at: Date): string => DAY.format(at);
+
+/**
+ * Recordatorio automático (2026-10-31, Kevin): el día antes y el día que vence un cobro con fecha
+ * límite, aviso a los que deben su parte. `tomorrow` o `today` si toca hoy, o null.
+ */
+export function dueStage(dueOn: string | null, now: Date): 'tomorrow' | 'today' | null {
+  if (!dueOn) return null;
+  if (dueOn === localDay(now)) return 'today';
+  if (dueOn === localDay(new Date(now.getTime() + 86_400_000))) return 'tomorrow';
+  return null;
+}

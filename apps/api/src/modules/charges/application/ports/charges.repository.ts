@@ -14,6 +14,8 @@ export interface ChargeRecord {
   dueOn: string | null;
   createdAt: Date;
   cancelledAt: Date | null;
+  /** El último recordatorio automático (`<dueOn>:<tomorrow|today>`), o null. */
+  dueReminder: string | null;
 }
 
 export interface ShareRecord {
@@ -93,6 +95,9 @@ export interface ChargesRepository {
    * nuevo primero.
    */
   chargesOf(teamId: string, userId: string): Promise<ChargeRecord[]>;
+  /** Los cobros vigentes de todos los equipos que vencen en alguno de esos días (YYYY-MM-DD). */
+  dueOn(days: string[]): Promise<ChargeRecord[]>;
+  markDueReminder(chargeId: string, key: string): Promise<void>;
   /** Que el partido y el torneo sean del equipo. */
   matchInTeam(teamId: string, matchId: string): Promise<boolean>;
   tournamentInTeam(teamId: string, tournamentId: string): Promise<boolean>;
