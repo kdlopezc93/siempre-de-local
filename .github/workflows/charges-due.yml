@@ -1,0 +1,26 @@
+name: Recordar cobros que vencen
+
+# Todos los días a las 9 a. m. de Colombia (14:00 UTC): a los que deben su parte en un cobro que
+# vence mañana u hoy, un aviso sin el valor (docs/deploy.md, paso 10; `02` §15). El API puede
+# estar dormido: la petición lo despierta. A mano: Actions → "Recordar cobros que vencen".
+on:
+  schedule:
+    - cron: '0 14 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  remind:
+    name: Avisar
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: POST /api/v1/cron/charges-due
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --retry 3 --retry-all-errors \
+            --max-time 60 -X POST \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            https://api.siempredelocal.app/api/v1/cron/charges-due

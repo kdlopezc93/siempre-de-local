@@ -21,6 +21,11 @@ const EnvSchema = z.object({
     .string()
     .regex(/^(mailto:|https:\/\/)/)
     .optional(),
+  /**
+   * Tareas programadas (GitHub Actions → `POST /api/v1/cron/*`, 2026-10-31): la llamada lleva
+   * `Authorization: Bearer <CRON_SECRET>`. Sin ella, esas rutas no existen (404).
+   */
+  CRON_SECRET: z.string().min(32).optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
