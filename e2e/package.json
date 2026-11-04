@@ -13,7 +13,7 @@
     "@sdl/contracts": "workspace:*",
     "@types/node": "24.19.2",
     "@types/pg": "8.23.1",
-    "better-auth": "1.7.12",
+    "better-auth": "1.7.14",
     "pg": "8.23.1"
   }
 }
