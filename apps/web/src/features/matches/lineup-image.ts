@@ -29,14 +29,14 @@ const TEXT_WIDTH = W - 2 * LEFT;
 const TURF = { x: 60, y: 580, w: 960, h: 1080 };
 /** De la cancha de la app (100×150) al afiche: arranca en y = 25, debajo del área rival. */
 const TOP = 25;
-const px = (x: number) => 90 + x * 9;
+const px = (x: number) => 110 + x * 8.6;
 const py = (y: number) => 600 + (y - TOP) * 8.16;
 const DISC = 52;
 /**
  * La línea de fondo va al borde del pasto, no en su coordenada: así el arquero y su nombre
  * quedan dentro del área.
  */
-const END = TURF.y + TURF.h - 12;
+const END = TURF.y + TURF.h - 2.5;
 
 const short = (name: string) => (name.length > 11 ? name.split(' ')[0]!.slice(0, 11) : name);
 
@@ -96,19 +96,19 @@ function drawPitch(ctx: CanvasRenderingContext2D) {
   // Franjas de corte: una más clara cada dos.
   ctx.fillStyle = COLOR.stripe;
   for (let y = TURF.y; y < TURF.y + TURF.h; y += 212) ctx.fillRect(TURF.x, y, TURF.w, 106);
+  ctx.restore();
+  // Las líneas de tiza: el borde es el del pasto (como en la maqueta: las franjas no se salen
+  // de la cancha), la mitad, el círculo y las áreas de abajo.
+  ctx.save();
   ctx.strokeStyle = COLOR.chalk;
   ctx.lineWidth = 5;
-  // Las bandas siguen hacia arriba (la cancha continúa); abajo, la línea de fondo.
   ctx.beginPath();
-  ctx.moveTo(px(3), TURF.y);
-  ctx.lineTo(px(3), END);
-  ctx.lineTo(px(97), END);
-  ctx.lineTo(px(97), TURF.y);
-  ctx.moveTo(px(3), py(75));
-  ctx.lineTo(px(97), py(75));
+  ctx.roundRect(TURF.x + 2.5, TURF.y + 2.5, TURF.w - 5, TURF.h - 5, 14);
+  ctx.moveTo(TURF.x, py(75));
+  ctx.lineTo(TURF.x + TURF.w, py(75));
   ctx.stroke();
   ctx.beginPath();
-  ctx.ellipse(px(50), py(75), 11 * 9, 11 * 8.16, 0, 0, Math.PI * 2);
+  ctx.ellipse(px(50), py(75), 11 * 8.6, 11 * 8.16, 0, 0, Math.PI * 2);
   ctx.stroke();
   ctx.strokeRect(px(26), py(126), px(74) - px(26), END - py(126));
   ctx.strokeRect(px(38), py(140), px(62) - px(38), END - py(140));

@@ -310,6 +310,7 @@ const GROUPS: {
  * Debajo de los que faltan, "Mandar la convocatoria al grupo".
  */
 function CallUp({ teamId, match, roster }: { teamId: string; match: Match; roster: MatchRoster }) {
+  // Tres cifras; los lesionados van solo en su grupo (con cuatro, no cabían a 360 px).
   const groups = GROUPS.map((g) => ({ ...g, people: roster.filter(g.has) }));
   const message = callUpMessage(match, roster, appUrl(`/equipos/${teamId}/partidos/${match.id}`));
   return (
@@ -320,9 +321,6 @@ function CallUp({ teamId, match, roster }: { teamId: string; match: Match; roste
             ['Van', match.replies.yes, 'yes'],
             ['No van', match.replies.no, 'no'],
             ['Faltan', match.replies.pending, 'wait'],
-            ...(match.replies.injured > 0
-              ? ([['Lesionados', match.replies.injured, 'hurt']] as const)
-              : []),
           ] as const
         ).map(([label, value, tone]) => (
           <div key={label} className={styles[tone]}>
@@ -427,7 +425,10 @@ function MatchActions({
   return (
     <nav aria-label="Acciones del partido" className={styles.matchActions}>
       {canCharge && (
-        <Link to={`/equipos/${teamId}/cobros/nuevo?partido=${match.id}`} className={styles.action}>
+        <Link
+          to={`/equipos/${teamId}/cobros/nuevo?partido=${match.id}`}
+          className={[styles.action, styles.actionMoney].join(' ')}
+        >
           <span className={styles.actionIcon}>
             <Wallet size={22} weight="bold" aria-hidden="true" />
           </span>
@@ -436,7 +437,10 @@ function MatchActions({
       )}
       {canEdit && (
         <>
-          <Link to={`/equipos/${teamId}/partidos/${match.id}/editar`} className={styles.action}>
+          <Link
+            to={`/equipos/${teamId}/partidos/${match.id}/editar`}
+            className={[styles.action, styles.actionEdit].join(' ')}
+          >
             <span className={styles.actionIcon}>
               <PencilSimple size={22} weight="bold" aria-hidden="true" />
             </span>

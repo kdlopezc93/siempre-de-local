@@ -241,7 +241,8 @@ describe('partidos en la app (Fase 7)', () => {
     expect(screen.getByRole('region', { name: 'Faltan por responder (0)' })).toHaveTextContent(
       'Ya respondieron todos',
     );
-    expect(screen.getByText('Lesionados', { selector: 'dt' })).toBeInTheDocument();
+    // Tres cifras: los lesionados van solo en su grupo.
+    expect(screen.queryByText('Lesionados', { selector: 'dt' })).toBeNull();
   });
 
   it('el cuerpo técnico ve quién va y puede cancelar', async () => {

@@ -568,9 +568,35 @@
   outline-offset: 2px;
 }
 
-.actionDanger,
+/* Cada acción con su color (Kevin, 2026-11-06): la plata en verde, editar en cobalto y
+   cancelar en rojo; el círculo con el tinte y el nombre en el tono. */
+.actionMoney {
+  --tone: var(--sdl-badge-success-fg);
+  --tint: var(--sdl-badge-success-bg);
+}
+
+.actionEdit {
+  --tone: var(--sdl-badge-brand-fg);
+  --tint: var(--sdl-badge-brand-bg);
+}
+
+.actionDanger {
+  --tone: var(--sdl-badge-danger-fg);
+  --tint: var(--sdl-badge-danger-bg);
+}
+
+.actionMoney,
+.actionEdit,
+.actionDanger {
+  color: var(--tone);
+}
+
+.actionMoney .actionIcon,
+.actionEdit .actionIcon,
 .actionDanger .actionIcon {
-  color: var(--sdl-danger-fg);
+  background: var(--tint);
+  box-shadow: none;
+  color: var(--tone);
 }
 
 /* Quién va, con color (2026-11-06): el tono de cada grupo en la cifra y en las píldoras. */
