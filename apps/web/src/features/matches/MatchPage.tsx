@@ -491,6 +491,7 @@ function LineupShare({
       lineupImage({
         lineup: lineup.data!,
         teamName,
+        kindLine: matchKindLine(match),
         opponent: match.opponent,
         startsAt: match.startsAt,
         place: match.place,
