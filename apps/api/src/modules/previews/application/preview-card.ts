@@ -56,7 +56,8 @@ export function matchCard(m: MatchForPreview): PreviewCard {
     headline,
     detail: date,
     title: m.opponent ? `${m.team} vs ${m.opponent}` : `${m.team}: entreno`,
-    description: m.cancelled ? `${upper(date)}. Cancelado.` : `${upper(date)}. ¿Vas?`,
+    // La hora ya termina en punto ("p. m."): se separa con un punto medio, no con otro punto.
+    description: m.cancelled ? `${upper(date)} · Cancelado` : `${upper(date)} · ¿Vas?`,
   };
 }
 

@@ -67,7 +67,7 @@ describe('vista previa de los enlaces (2026-11-06, ADR-10)', () => {
     expect(res.headers['cache-control']).toBe('public, max-age=300');
     expect(LinkPreviewSchema.parse(res.json())).toEqual({
       title: 'QLeones FC vs Real Bosa',
-      description: expect.stringMatching(/^Sábado 7 nov, 3:00 p\. m\.\. ¿Vas\?$/),
+      description: 'Sábado 7 nov, 3:00 p. m. · ¿Vas?',
       image: `/api/v1/previews/matches/${matchId}/image.png`,
     });
   });
