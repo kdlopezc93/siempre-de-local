@@ -9,6 +9,8 @@ import { bootApp, TEST_ENV } from '../../../test/app.js';
 import { startMigratedPostgres } from '../../../test/postgres.js';
 import { seedUserWithSession, type SeededUser } from '../../../test/sessions.js';
 import { coachAssessment } from '../../assessments/infrastructure/schema.js';
+import { charge, chargeShare, payment } from '../../charges/infrastructure/schema.js';
+import { matchAttendance, teamMatch } from '../../matches/infrastructure/schema.js';
 import { dataConsent } from '../../identity/infrastructure/consent.schema.js';
 import { user } from '../../identity/infrastructure/schema.js';
 import { playerRating, playerRatingValue } from '../../ratings/infrastructure/schema.js';
@@ -72,6 +74,41 @@ describe('tus datos: descargar y eliminar la cuenta (`04` §5)', () => {
       { ratingId, attributeCode: 'PAC', value: 70 },
       { ratingId, attributeCode: 'DEF', value: 80 },
     ]);
+    // Un partido con lista: Ana vino. Una vaca: su parte con un abono, y la del dueño, que
+    // asumió ella (patrocinio); y una inscripción que a ella se la cubre el equipo.
+    const [match] = await db
+      .insert(teamMatch)
+      .values({
+        teamId,
+        kind: 'friendly',
+        format: 'F11',
+        startsAt: new Date('2026-11-01T20:00:00Z'),
+        place: 'La 14',
+        opponent: 'Los Pibes',
+        attendanceTakenAt: new Date('2026-11-01T22:00:00Z'),
+      })
+      .returning({ id: teamMatch.id });
+    await db.insert(matchAttendance).values({ matchId: match!.id, userId: ana.userId });
+    const [vaca, fee] = await db
+      .insert(charge)
+      .values([
+        { teamId, kind: 'vaca', matchId: match!.id, split: 'per_person', amount: 8000 },
+        { teamId, kind: 'registration', title: 'Copa', split: 'per_person', amount: 30000 },
+      ])
+      .returning({ id: charge.id });
+    await db.insert(chargeShare).values([
+      { chargeId: vaca!.id, userId: ana.userId, amount: 8000, note: 'Llegó tarde' },
+      { chargeId: vaca!.id, userId: owner.userId, amount: 8000, sponsorId: ana.userId },
+      { chargeId: fee!.id, userId: ana.userId, amount: 30000, teamCovers: true },
+    ]);
+    await db.insert(payment).values({
+      chargeId: vaca!.id,
+      userId: ana.userId,
+      amount: 5000,
+      method: 'nequi',
+      paidOn: '2026-11-02',
+      status: 'confirmed',
+    });
     app = await bootApp(url);
   });
 
@@ -119,6 +156,31 @@ describe('tus datos: descargar y eliminar la cuenta (`04` §5)', () => {
         notes: 'Gana por arriba',
       }),
     ]);
+    // ¿Quién vino? y los cobros (2026-11-06).
+    expect(data.matches).toEqual([expect.objectContaining({ opponent: 'Los Pibes', came: true })]);
+    const vaca = data.charges.filter((c) => c.kind === 'vaca');
+    expect(vaca).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          forPlayer: null,
+          amount: 8000,
+          note: 'Llegó tarde',
+          covered: false,
+          match: expect.objectContaining({ opponent: 'Los Pibes' }),
+          payments: [
+            expect.objectContaining({ amount: 5000, method: 'nequi', status: 'confirmed' }),
+          ],
+        }),
+        expect.objectContaining({ forPlayer: 'owner', amount: 8000, payments: [] }),
+      ]),
+    );
+    // La que le cubrieron: cubierta, sin decir quién.
+    expect(data.charges.find((c) => c.kind === 'registration')).toMatchObject({
+      title: 'Copa',
+      covered: true,
+      forPlayer: null,
+      payments: [],
+    });
   });
 
   it('eliminar exige escribir ELIMINAR', async () => {

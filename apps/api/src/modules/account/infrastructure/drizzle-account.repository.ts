@@ -7,12 +7,20 @@ import { DB_CONNECTION } from '../../../shared/db/db.module.js';
 import { coachAssessment } from '../../assessments/infrastructure/schema.js';
 import { dataConsent } from '../../identity/infrastructure/consent.schema.js';
 import { user } from '../../identity/infrastructure/schema.js';
-import { matchRating, matchReply, teamMatch } from '../../matches/infrastructure/schema.js';
+import { charge, chargeShare, payment } from '../../charges/infrastructure/schema.js';
+import {
+  matchAttendance,
+  matchRating,
+  matchReply,
+  teamMatch,
+  tournament,
+} from '../../matches/infrastructure/schema.js';
 import { playerRating, playerRatingValue } from '../../ratings/infrastructure/schema.js';
 import { club, clubMembership, team } from '../../teams/infrastructure/schema.js';
 import type { AccountRepository } from '../application/ports/account.ports.js';
 
 const author = alias(user, 'author');
+const teammate = alias(user, 'teammate');
 
 @Injectable()
 export class DrizzleAccountRepository implements AccountRepository {
@@ -108,6 +116,8 @@ export class DrizzleAccountRepository implements AccountRepository {
         rating: matchRating.rating,
         ratedBy: author.name,
         note: matchRating.note,
+        attendanceTakenAt: teamMatch.attendanceTakenAt,
+        attended: matchAttendance.userId,
       })
       .from(teamMatch)
       .innerJoin(team, eq(teamMatch.teamId, team.id))
@@ -120,9 +130,100 @@ export class DrizzleAccountRepository implements AccountRepository {
         and(eq(matchRating.matchId, teamMatch.id), eq(matchRating.playerUserId, userId)),
       )
       .leftJoin(author, eq(matchRating.ratedBy, author.id))
-      .where(or(isNotNull(matchReply.userId), isNotNull(matchRating.playerUserId)))
+      .leftJoin(
+        matchAttendance,
+        and(eq(matchAttendance.matchId, teamMatch.id), eq(matchAttendance.userId, userId)),
+      )
+      .where(
+        or(
+          isNotNull(matchReply.userId),
+          isNotNull(matchRating.playerUserId),
+          isNotNull(matchAttendance.userId),
+        ),
+      )
       .orderBy(desc(teamMatch.startsAt));
-    return rows.map((r) => ({ ...r, startsAt: r.startsAt.toISOString() }));
+    return rows.map(({ attendanceTakenAt, attended, ...r }) => ({
+      ...r,
+      startsAt: r.startsAt.toISOString(),
+      came: attendanceTakenAt ? attended !== null : null,
+    }));
+  }
+
+  async chargesOf(userId: string) {
+    const { db } = this.connection;
+    const shares = await db
+      .select({
+        chargeId: charge.id,
+        team: team.name,
+        kind: charge.kind,
+        title: charge.title,
+        opponent: teamMatch.opponent,
+        startsAt: teamMatch.startsAt,
+        tournament: tournament.name,
+        dueOn: charge.dueOn,
+        createdAt: charge.createdAt,
+        cancelledAt: charge.cancelledAt,
+        owner: chargeShare.userId,
+        ownerName: teammate.name,
+        amount: chargeShare.amount,
+        note: chargeShare.note,
+        sponsorId: chargeShare.sponsorId,
+        teamCovers: chargeShare.teamCovers,
+      })
+      .from(chargeShare)
+      .innerJoin(charge, eq(chargeShare.chargeId, charge.id))
+      .innerJoin(team, eq(charge.teamId, team.id))
+      .innerJoin(teammate, eq(chargeShare.userId, teammate.id))
+      .leftJoin(teamMatch, eq(charge.matchId, teamMatch.id))
+      .leftJoin(tournament, eq(charge.tournamentId, tournament.id))
+      .where(or(eq(chargeShare.userId, userId), eq(chargeShare.sponsorId, userId)))
+      .orderBy(desc(charge.createdAt));
+    if (shares.length === 0) return [];
+    const payments = await db
+      .select({
+        chargeId: payment.chargeId,
+        userId: payment.userId,
+        amount: payment.amount,
+        method: payment.method,
+        paidOn: payment.paidOn,
+        status: payment.status,
+        createdAt: payment.createdAt,
+      })
+      .from(payment)
+      .where(
+        inArray(
+          payment.chargeId,
+          shares.map((s) => s.chargeId),
+        ),
+      )
+      .orderBy(asc(payment.createdAt));
+    return shares.map((s) => {
+      const mine = s.owner === userId;
+      // Si a quien pregunta le cubrieron la parte, la ve cubierta: sin quién ni sus pagos.
+      const covered = mine && (s.teamCovers || s.sponsorId !== null);
+      return {
+        team: s.team,
+        kind: s.kind,
+        title: s.title,
+        match: s.startsAt ? { opponent: s.opponent, startsAt: s.startsAt.toISOString() } : null,
+        tournament: s.tournament,
+        dueOn: s.dueOn,
+        createdAt: s.createdAt.toISOString(),
+        cancelled: s.cancelledAt !== null,
+        forPlayer: mine ? null : s.ownerName,
+        amount: s.amount,
+        note: s.note,
+        covered,
+        payments: covered
+          ? []
+          : payments
+              .filter((p) => p.chargeId === s.chargeId && p.userId === s.owner)
+              .map(({ chargeId: _c, userId: _u, createdAt, ...p }) => ({
+                ...p,
+                createdAt: createdAt.toISOString(),
+              })),
+      };
+    });
   }
 
   async clubsOnlyManagedBy(userId: string) {
