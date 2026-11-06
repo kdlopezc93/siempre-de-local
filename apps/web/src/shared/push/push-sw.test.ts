@@ -1,10 +1,10 @@
 // @vitest-environment node
 import { readFileSync } from 'node:fs';
 
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 /** Carga public/push-sw.js con un `self` falso y devuelve sus manejadores. */
-function loadWorker() {
+function loadWorker(windows: { postMessage: (m: unknown) => void }[] = []) {
   const listeners = new Map<string, (event: unknown) => void>();
   const showNotification = vi.fn(async () => {});
   const openWindow = vi.fn(async () => null);
@@ -12,7 +12,8 @@ function loadWorker() {
     addEventListener: (type: string, fn: (event: unknown) => void) => listeners.set(type, fn),
     registration: { showNotification },
     location: { origin: 'https://app.sdl.test' },
-    clients: { matchAll: vi.fn(async () => []), openWindow },
+    SDL_API_URL: 'https://api.sdl.test',
+    clients: { matchAll: vi.fn(async () => windows), openWindow },
   };
   const source = readFileSync(new URL('../../../public/push-sw.js', import.meta.url), 'utf8');
   new Function('self', source)(self);
@@ -25,6 +26,14 @@ function loadWorker() {
 }
 
 const push = (data: unknown) => ({ data: { json: () => data } });
+
+/** El título y las opciones del último aviso mostrado. */
+const last = (show: ReturnType<typeof vi.fn>) =>
+  show.mock.calls.at(-1) as unknown as [
+    string,
+    { actions?: { action: string; title: string }[]; data: object },
+  ];
+const lastOptions = (show: ReturnType<typeof vi.fn>) => last(show)[1];
 
 describe('avisos en el service worker', () => {
   it('convocatoria y alineación: el texto se arma en el celular', async () => {
@@ -226,5 +235,90 @@ describe('avisos en el service worker', () => {
       notification: { close: () => {}, data: { url: '/equipos/t/partidos/m' } },
     });
     expect(openWindow).toHaveBeenCalledWith('https://app.sdl.test/equipos/t/partidos/m');
+  });
+
+  describe('"Voy / No voy" desde el aviso (2026-11-06)', () => {
+    afterEach(() => vi.unstubAllGlobals());
+    const CALLED = {
+      kind: 'match-called',
+      opponent: 'Los Pibes',
+      startsAt: '2026-11-01T15:00:00.000Z',
+      url: '/equipos/t1/partidos/m1',
+    };
+    const click = (action: string, data: object) => ({
+      action,
+      notification: { close: vi.fn(), data },
+    });
+
+    it('la convocatoria trae los dos botones; la alineación no', async () => {
+      const { fire, showNotification } = loadWorker();
+      await fire('push', push(CALLED));
+      expect(lastOptions(showNotification).actions).toEqual([
+        { action: 'yes', title: 'Voy' },
+        { action: 'no', title: 'No voy' },
+      ]);
+      await fire('push', push({ ...CALLED, kind: 'lineup-published' }));
+      expect(lastOptions(showNotification).actions).toBeUndefined();
+    });
+
+    it('"Voy" responde en el API con la sesión, sin abrir la app, y avisa que quedó', async () => {
+      const fetch = vi.fn(async () => new Response('{}', { status: 200 }));
+      vi.stubGlobal('fetch', fetch);
+      const postMessage = vi.fn();
+      const { fire, showNotification, openWindow } = loadWorker([{ postMessage }]);
+      await fire('push', push(CALLED));
+      await fire('notificationclick', click('yes', lastOptions(showNotification).data));
+
+      const [url, init] = fetch.mock.calls[0] as unknown as [URL, RequestInit];
+      expect(url.href).toBe('https://api.sdl.test/api/v1/teams/t1/matches/m1/reply');
+      expect(init).toMatchObject({ method: 'PUT', credentials: 'include' });
+      expect(JSON.parse(init.body as string)).toEqual({ reply: 'yes' });
+      expect(openWindow).not.toHaveBeenCalled();
+      expect(last(showNotification)[0]).toBe('Listo, vas contra Los Pibes');
+      expect(postMessage).toHaveBeenCalledWith({
+        type: 'sdl:match-replied',
+        teamId: 't1',
+        matchId: 'm1',
+      });
+    });
+
+    it('el entreno: "Listo, no vas al entreno"', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => new Response('{}', { status: 200 })),
+      );
+      const { fire, showNotification } = loadWorker();
+      await fire('push', push({ ...CALLED, kind: 'training-called', opponent: undefined }));
+      await fire('notificationclick', click('no', lastOptions(showNotification).data));
+      expect(last(showNotification)[0]).toBe('Listo, no vas al entreno');
+    });
+
+    it('sin sesión o sin señal, abre el partido para responder ahí', async () => {
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => new Response('{}', { status: 401 })),
+      );
+      const { fire, showNotification, openWindow } = loadWorker();
+      await fire('push', push(CALLED));
+      await fire('notificationclick', click('yes', lastOptions(showNotification).data));
+      expect(openWindow).toHaveBeenCalledWith('https://app.sdl.test/equipos/t1/partidos/m1');
+
+      vi.stubGlobal(
+        'fetch',
+        vi.fn(async () => Promise.reject(new TypeError('offline'))),
+      );
+      await fire('notificationclick', click('no', lastOptions(showNotification).data));
+      expect(openWindow).toHaveBeenCalledTimes(2);
+    });
+
+    it('tocar el aviso (sin botón) abre el partido, como siempre', async () => {
+      const fetch = vi.fn();
+      vi.stubGlobal('fetch', fetch);
+      const { fire, showNotification, openWindow } = loadWorker();
+      await fire('push', push(CALLED));
+      await fire('notificationclick', click('', lastOptions(showNotification).data));
+      expect(fetch).not.toHaveBeenCalled();
+      expect(openWindow).toHaveBeenCalledWith('https://app.sdl.test/equipos/t1/partidos/m1');
+    });
   });
 });

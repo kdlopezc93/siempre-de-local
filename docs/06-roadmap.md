@@ -257,8 +257,8 @@ Al equipo le da pereza entrar a la app: todo pasa en el grupo de WhatsApp. La id
 
 | # | Qué | Estado |
 |---|---|---|
-| 1 | **"Mandar al grupo"**: la convocatoria (con los que faltan por responder, con nombre), la alineación publicada (con su **imagen**, por el menú de compartir del celular) y el cobro (cuántos pagaron, **nunca quién debe**; una multa no se manda). Botón del cuerpo técnico (y del tesorero en el cobro). Quien entra por el enlace sin sesión pasa por Google y vuelve a esa pantalla (`/entrar?volver=`) | este PR |
-| 2 | "Voy" / "No voy" desde el aviso, sin abrir la app (Android; en iPhone el toque abre la respuesta) | |
+| 1 | **"Mandar al grupo"**: la convocatoria (con los que faltan por responder, con nombre), la alineación publicada (con su **imagen**, por el menú de compartir del celular) y el cobro (cuántos pagaron, **nunca quién debe**; una multa no se manda). Botón del cuerpo técnico (y del tesorero en el cobro). Quien entra por el enlace sin sesión pasa por Google y vuelve a esa pantalla (`/entrar?volver=`). En el mismo PR: el afiche de la alineación ("Cancha de tiza") y la pantalla del partido ordenada (acciones arriba, pestañas Convocatoria y Alineación, Voy / No voy en el bloque cobalto) | #149 ✔ |
+| 2 | "Voy" / "No voy" desde el aviso, sin abrir la app (Android; en iPhone el toque abre la respuesta) | este PR |
 | 3 | La tarjeta 0–99 y el podio como imagen para el estado de WhatsApp | |
 | 4 | Tablero de adopción para el técnico: cuántos entraron y cuántos tienen avisos, con "Recordarles por WhatsApp" | |
 | 5 | Vista previa del enlace en WhatsApp con el escudo del equipo (necesita servidor) | |
