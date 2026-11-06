@@ -17,6 +17,7 @@ import { charge, chargeShare, payment } from './schema.js';
 const reporter = alias(user, 'reporter');
 const reviewer = alias(user, 'reviewer');
 const sponsor = alias(user, 'sponsor');
+const matchTournament = alias(tournament, 'match_tournament');
 
 @Injectable()
 export class DrizzleChargesRepository implements ChargesRepository {
@@ -50,6 +51,8 @@ export class DrizzleChargesRepository implements ChargesRepository {
         startsAt: teamMatch.startsAt,
         tournamentId: tournament.id,
         tournamentName: tournament.name,
+        matchTournamentId: matchTournament.id,
+        matchTournamentName: matchTournament.name,
         split: charge.split,
         amount: charge.amount,
         dueOn: charge.dueOn,
@@ -58,15 +61,28 @@ export class DrizzleChargesRepository implements ChargesRepository {
       })
       .from(charge)
       .leftJoin(teamMatch, eq(charge.matchId, teamMatch.id))
-      .leftJoin(tournament, eq(charge.tournamentId, tournament.id));
+      .leftJoin(tournament, eq(charge.tournamentId, tournament.id))
+      .leftJoin(matchTournament, eq(teamMatch.tournamentId, matchTournament.id));
   }
 
   private toRecord(row: Awaited<ReturnType<DrizzleChargesRepository['select']>>[number]) {
-    const { matchId, opponent, startsAt, tournamentId, tournamentName, ...rest } = row;
+    const {
+      matchId,
+      opponent,
+      startsAt,
+      tournamentId,
+      tournamentName,
+      matchTournamentId,
+      matchTournamentName,
+      ...rest
+    } = row;
     return {
       ...rest,
       match: matchId ? { id: matchId, opponent, startsAt: startsAt! } : null,
       tournament: tournamentId ? { id: tournamentId, name: tournamentName! } : null,
+      matchTournament: matchTournamentId
+        ? { id: matchTournamentId, name: matchTournamentName! }
+        : null,
     } satisfies ChargeRecord;
   }
 

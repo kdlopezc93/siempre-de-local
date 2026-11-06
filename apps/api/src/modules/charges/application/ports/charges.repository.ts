@@ -7,6 +7,8 @@ export interface ChargeRecord {
   title: string | null;
   match: { id: string; opponent: string | null; startsAt: Date } | null;
   tournament: { id: string; name: string } | null;
+  /** El torneo del partido (si el cobro es de un partido de campeonato): para el saldo. */
+  matchTournament: { id: string; name: string } | null;
   split: ChargeSplit;
   amount: number;
   dueOn: string | null;

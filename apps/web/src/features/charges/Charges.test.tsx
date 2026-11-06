@@ -96,6 +96,7 @@ describe('cobros en la app (06 Cobros)', () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it('la lista: lo que falta en grande, lo que espera confirmación arriba, y la fila de la vaca', async () => {
+    let reminded = false;
     fakeApi({
       [`GET /api/v1/teams/${TEAM_A}/charges`]: {
         status: 200,
@@ -113,8 +114,23 @@ describe('cobros en la app (06 Cobros)', () => {
               balance: { billed: 560_000, collected: 480_000, pending: 80_000 },
             }),
           ],
-          balance: { billed: 630_200, collected: 490_000, pending: 140_200 },
+          balance: { billed: 630_200, collected: 490_000, pending: 140_200, teamCovered: 40_000 },
+          byTournament: [
+            {
+              tournament: { id: M1, name: 'Copa del barrio' },
+              charges: 1,
+              balance: { billed: 560_000, collected: 480_000, pending: 80_000, teamCovered: 0 },
+            },
+          ],
+          debtors: [
+            { userId: ANA, displayName: 'Ana', jerseyNumber: 4, owed: 63_400, parts: 2 },
+            { userId: CIRO, displayName: 'Ciro', jerseyNumber: null, owed: 23_400, parts: 1 },
+          ],
         },
+      },
+      [`POST /api/v1/teams/${TEAM_A}/charges/reminders`]: () => {
+        reminded = true;
+        return { status: 200, body: { reminded: 2 } };
       },
     });
     renderAt('/c', [
@@ -123,7 +139,7 @@ describe('cobros en la app (06 Cobros)', () => {
 
     const lead = await screen.findByRole('region', { name: 'Saldo del equipo' });
     expect(lead).toHaveTextContent('$140.200');
-    expect(lead).toHaveTextContent('Entró $490.000 de $630.200');
+    expect(lead).toHaveTextContent('Entró $490.000 de $630.200. El equipo puso $40.000.');
     const waiting = screen.getByRole('heading', { name: 'Por confirmar (1)' });
     expect(waiting).toBeVisible();
     expect(screen.getByRole('link', { name: /Vaca.*Contra Los Pibes/ })).toBeVisible();
@@ -132,6 +148,22 @@ describe('cobros en la app (06 Cobros)', () => {
       'href',
       `/equipos/${TEAM_A}/cobros/nuevo`,
     );
+
+    // Por torneo, y quién debe (de mayor a menor) con "Recordar a los que deben".
+    expect(screen.getByRole('heading', { name: 'Por torneo' })).toBeVisible();
+    expect(screen.getByText(/1 cobro, entró \$480\.000 de \$560\.000/)).toBeVisible();
+    const debe = screen.getByRole('heading', { name: 'Quién debe (2)' }).closest('section')!;
+    expect(
+      within(debe)
+        .getAllByRole('listitem')
+        .map((li) => li.textContent),
+    ).toEqual(['4Ana2 pendientes$63.400', 'CICiro1 pendiente$23.400']);
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Recordar a los que deben' }));
+    const sheet = await screen.findByRole('dialog', { name: '¿Recordarles que deben?' });
+    expect(sheet).toHaveTextContent('a los 2 que deben');
+    await userEvent.setup().click(within(sheet).getByRole('button', { name: 'Sí, recordarles' }));
+    await vi.waitFor(() => expect(reminded).toBe(true));
+    expect(await screen.findByText('Listo: se lo recordamos a 2 personas.')).toBeInTheDocument();
   });
 
   it('un cobro: confirmar el "Ya pagué" y registrar el abono de alguien', async () => {

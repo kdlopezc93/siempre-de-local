@@ -6,16 +6,21 @@ import { Flag } from '@phosphor-icons/react/dist/csr/Flag';
 import { Receipt } from '@phosphor-icons/react/dist/csr/Receipt';
 import { Trophy } from '@phosphor-icons/react/dist/csr/Trophy';
 import { TShirt } from '@phosphor-icons/react/dist/csr/TShirt';
-import type { ChargeKind, ChargeSummary } from '@sdl/contracts';
+import type { ChargeKind, ChargeListResponse, ChargeSummary } from '@sdl/contracts';
+import { useState } from 'react';
 import { Link } from 'react-router';
 
 import { ApiError } from '../../shared/api/http';
+import { Avatar } from '../../shared/ui/Avatar';
 import { Badge } from '../../shared/ui/Badge';
+import { Button } from '../../shared/ui/Button';
 import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { PageTitle } from '../../shared/ui/PageTitle';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
 import { SectionHead } from '../../shared/ui/SectionHead';
+import { Sheet } from '../../shared/ui/Sheet';
+import { initialsOf } from '../../shared/ui/TeamHeader';
 import {
   chargeContext,
   chargeTitle,
@@ -25,7 +30,7 @@ import {
   type VacaMark,
 } from './charge-view';
 import styles from './Charges.module.css';
-import { useCharges } from './use-charges';
+import { useCharges, useRemindCharges } from './use-charges';
 
 export const KIND_ICON: Record<ChargeKind, Icon> = {
   registration: Trophy,
@@ -58,7 +63,8 @@ export function VacaStrip({
 
 /**
  * /equipos/:teamId/cobros — los cobros del equipo para el cuerpo técnico y el tesorero (`06`
- * Cobros): lo que falta por cobrar, los "Ya pagué" que esperan y cada cobro.
+ * Cobros): lo que falta por cobrar, los "Ya pagué" que esperan, quién debe (con "Recordar a los
+ * que deben"), cada cobro y el saldo de cada torneo.
  */
 export function ChargesPage({ teamId, teamName }: { teamId: string; teamName: string }) {
   const charges = useCharges(teamId);
@@ -89,7 +95,7 @@ export function ChargesPage({ teamId, teamName }: { teamId: string; teamName: st
       </Screen>
     );
   }
-  const { items, balance } = charges.data;
+  const { items, balance, byTournament, debtors } = charges.data;
   const live = items.filter((c) => !c.cancelled);
   const waiting = live.filter((c) => c.reported > 0);
   const cancelled = items.filter((c) => c.cancelled);
@@ -102,9 +108,15 @@ export function ChargesPage({ teamId, teamName }: { teamId: string; teamName: st
         <span className={styles.leadLabel}>Falta por cobrar</span>
         <span className={styles.leadAmount}>{pesos(balance.pending)}</span>
         <span className={styles.leadSub}>
-          {balance.billed > 0 ? (
+          {balance.billed > 0 || balance.teamCovered > 0 ? (
             <>
-              Entró <b>{pesos(balance.collected)}</b> de <b>{pesos(balance.billed)}</b>
+              Entró <b>{pesos(balance.collected)}</b> de <b>{pesos(balance.billed)}</b>.
+              {balance.teamCovered > 0 && (
+                <>
+                  {' '}
+                  El equipo puso <b>{pesos(balance.teamCovered)}</b>.
+                </>
+              )}
             </>
           ) : (
             'Todavía no hay cobros.'
@@ -128,6 +140,8 @@ export function ChargesPage({ teamId, teamName }: { teamId: string; teamName: st
         </section>
       )}
 
+      {debtors.length > 0 && <Debtors teamId={teamId} debtors={debtors} />}
+
       <section aria-labelledby="vigentes" className={styles.section}>
         <SectionHead id="vigentes" title="Vigentes" />
         {live.length === 0 ? (
@@ -149,6 +163,41 @@ export function ChargesPage({ teamId, teamName }: { teamId: string; teamName: st
 
       <ButtonLink to={`/equipos/${teamId}/cobros/nuevo`}>Nuevo cobro</ButtonLink>
 
+      {byTournament.length > 0 && (
+        <section aria-labelledby="por-torneo" className={styles.section}>
+          <SectionHead id="por-torneo" title="Por torneo" />
+          <ul className={styles.list}>
+            {byTournament.map(({ tournament, balance: b, charges: n }) => (
+              <li key={tournament.id}>
+                <Row
+                  leading={
+                    <span className={styles.icon} aria-hidden="true">
+                      <Trophy size={22} />
+                    </span>
+                  }
+                  title={tournament.name}
+                  meta={
+                    <span className={styles.metaLine}>
+                      <span>
+                        {n} {n === 1 ? 'cobro' : 'cobros'}, entró {pesos(b.collected)} de{' '}
+                        {pesos(b.billed)}
+                        {b.teamCovered > 0 && `, el equipo puso ${pesos(b.teamCovered)}`}
+                      </span>
+                    </span>
+                  }
+                  trailing={
+                    <span className={styles.amount}>
+                      {pesos(b.pending)}
+                      <small>{b.pending ? 'falta' : 'completo'}</small>
+                    </span>
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {cancelled.length > 0 && (
         <section aria-labelledby="anulados" className={styles.section}>
           <SectionHead id="anulados" title="Anulados" />
@@ -162,6 +211,78 @@ export function ChargesPage({ teamId, teamName }: { teamId: string; teamName: st
         </section>
       )}
     </Screen>
+  );
+}
+
+/** Cuántos se muestran de entrada en "Quién debe"; el resto, con "Ver los N". */
+const DEBTORS_SHOWN = 5;
+
+/**
+ * Quién debe, de mayor a menor, en todos los cobros vigentes (lo patrocinado, en quien lo asumió),
+ * y "Recordar a los que deben": un aviso a cada uno, sin el valor (2026-10-31, Kevin).
+ */
+function Debtors({ teamId, debtors }: { teamId: string; debtors: ChargeListResponse['debtors'] }) {
+  const [all, setAll] = useState(false);
+  const [confirm, setConfirm] = useState(false);
+  const remind = useRemindCharges(teamId);
+  const shown = all ? debtors : debtors.slice(0, DEBTORS_SHOWN);
+  const people = debtors.length === 1 ? 'al que debe' : `a los ${debtors.length} que deben`;
+  return (
+    <section aria-labelledby="quien-debe" className={styles.section}>
+      <SectionHead id="quien-debe" title={`Quién debe (${debtors.length})`} />
+      <ul className={styles.list}>
+        {shown.map((d) => (
+          <li key={d.userId} className={`${styles.pickRow} ${styles.still}`}>
+            <Avatar
+              name={d.displayName}
+              label={d.jerseyNumber !== null ? String(d.jerseyNumber) : initialsOf(d.displayName)}
+              size={40}
+            />
+            <span className={styles.pickName}>
+              {d.displayName}
+              <small>
+                {d.parts} {d.parts === 1 ? 'pendiente' : 'pendientes'}
+              </small>
+            </span>
+            <span className={styles.amount}>{pesos(d.owed)}</span>
+          </li>
+        ))}
+      </ul>
+      {debtors.length > DEBTORS_SHOWN && (
+        <Button variant="ghost" onClick={() => setAll(!all)} aria-expanded={all}>
+          {all ? 'Ver menos' : `Ver los ${debtors.length}`}
+        </Button>
+      )}
+      <Button variant="secondary" onClick={() => setConfirm(true)}>
+        Recordar a los que deben
+      </Button>
+      <p className={styles.muted} aria-live="polite">
+        {remind.isSuccess &&
+          `Listo: se lo recordamos a ${remind.data.reminded === 1 ? '1 persona' : `${remind.data.reminded} personas`}.`}
+      </p>
+      <Sheet open={confirm} onClose={() => setConfirm(false)} title="¿Recordarles que deben?">
+        <div className={styles.sheetBody}>
+          <p className={styles.note}>
+            Le llega un aviso al celular {people}, si activaron los avisos: "Tienes cobros
+            pendientes". Sin el valor; cuánto debe lo ve cada uno en Tus cuentas.
+          </p>
+          {remind.isError && (
+            <p role="alert" className={styles.error}>
+              No pudimos mandar el recordatorio. Revisa tu conexión e intenta de nuevo.
+            </p>
+          )}
+          <Button
+            busy={remind.isPending}
+            onClick={() => remind.mutate(undefined, { onSuccess: () => setConfirm(false) })}
+          >
+            Sí, recordarles
+          </Button>
+          <Button variant="ghost" disabled={remind.isPending} onClick={() => setConfirm(false)}>
+            No
+          </Button>
+        </div>
+      </Sheet>
+    </section>
   );
 }
 

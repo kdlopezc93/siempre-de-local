@@ -3,6 +3,7 @@ import type {
   ChargeListResponse,
   ChargeResponse,
   ChargeSummary,
+  ChargesReminderResponse,
   CreateChargeRequest,
   MyChargesResponse,
   MyPaymentRequest,
@@ -20,6 +21,7 @@ import {
   shareAmount,
   shareStatus,
   sponsorProblem,
+  whoOwes,
 } from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
@@ -103,6 +105,14 @@ function toSummary(
   };
 }
 
+/** La suma de los saldos de varios cobros, con lo que puso el equipo. */
+const teamBalance = (items: ChargeSummary[]) => ({
+  billed: items.reduce((sum, c) => sum + c.balance.billed, 0),
+  collected: items.reduce((sum, c) => sum + c.balance.collected, 0),
+  pending: items.reduce((sum, c) => sum + c.balance.pending, 0),
+  teamCovered: items.reduce((sum, c) => sum + c.teamCovered, 0),
+});
+
 const groupBy = <T extends { chargeId: string }>(rows: T[]) => {
   const map = new Map<string, T[]>();
   for (const row of rows) map.set(row.chargeId, [...(map.get(row.chargeId) ?? []), row]);
@@ -127,27 +137,101 @@ export class Charges {
 
   async list(actor: Actor, teamId: string): Promise<ChargeListResponse> {
     await this.authorize(actor, teamId, 'team.charges.read');
+    const { records, sharesOf, paymentsOf } = await this.load(teamId);
+    const items = records.map((c) =>
+      toSummary(c, sharesOf.get(c.id) ?? [], paymentsOf.get(c.id) ?? []),
+    );
+    // El saldo del equipo y el de cada torneo, sin los anulados.
+    const live = items.filter((c) => !c.cancelled);
+    const tournaments = new Map<string, { name: string; items: ChargeSummary[] }>();
+    for (const [i, c] of items.entries()) {
+      const t = records[i]!.tournament ?? records[i]!.matchTournament;
+      if (c.cancelled || !t) continue;
+      const group = tournaments.get(t.id) ?? { name: t.name, items: [] };
+      group.items.push(c);
+      tournaments.set(t.id, group);
+    }
+    const debts = this.debts(records, sharesOf, paymentsOf);
+    const [players, profiles] = await Promise.all([
+      this.players.activePlayers(teamId),
+      this.profiles.profilesOf(debts.map((d) => ({ id: d.userId, name: d.name }))),
+    ]);
+    const jersey = new Map(players.map((p) => [p.userId, p.jerseyNumber]));
+    return {
+      items,
+      balance: teamBalance(live),
+      byTournament: [...tournaments].map(([id, group]) => ({
+        tournament: { id, name: group.name },
+        balance: teamBalance(group.items),
+        charges: group.items.length,
+      })),
+      debtors: debts.map((d) => ({
+        userId: d.userId,
+        displayName: profiles.get(d.userId)?.displayName ?? d.name,
+        jerseyNumber: jersey.get(d.userId) ?? null,
+        owed: d.owed,
+        parts: d.parts,
+      })),
+    };
+  }
+
+  /** "Recordar a los que deben": un aviso a cada uno que debe algo, sin el valor (2026-10-31). */
+  async remind(actor: Actor, teamId: string): Promise<ChargesReminderResponse> {
+    const team = await this.authorize(actor, teamId, 'team.charges.write');
+    const { records, sharesOf, paymentsOf } = await this.load(teamId);
+    const debtors = this.debts(records, sharesOf, paymentsOf).map((d) => d.userId);
+    await this.notifier.notifyUsers(debtors, {
+      kind: 'charges-reminder',
+      team: team.name,
+      opponent: team.name,
+      url: `/equipos/${teamId}/mis-cuentas`,
+    });
+    await this.audit.record({
+      actorUserId: actor.userId,
+      action: 'charges.reminder_sent',
+      entity: 'team',
+      entityId: teamId,
+      teamId,
+      meta: { people: debtors.length },
+    });
+    return { reminded: debtors.length };
+  }
+
+  /** Los cobros del equipo con lo de cada uno y los pagos, agrupados por cobro. */
+  private async load(teamId: string) {
     const records = await this.charges.list(teamId);
     const ids = records.map((c) => c.id);
     const [shares, payments] = await Promise.all([
       this.charges.shares(ids),
       this.charges.payments(ids),
     ]);
-    const sharesOf = groupBy(shares);
-    const paymentsOf = groupBy(payments);
-    const items = records.map((c) =>
-      toSummary(c, sharesOf.get(c.id) ?? [], paymentsOf.get(c.id) ?? []),
-    );
-    // El saldo del equipo, sin los anulados.
-    const live = items.filter((c) => !c.cancelled).map((c) => c.balance);
-    return {
-      items,
-      balance: {
-        billed: live.reduce((sum, b) => sum + b.billed, 0),
-        collected: live.reduce((sum, b) => sum + b.collected, 0),
-        pending: live.reduce((sum, b) => sum + b.pending, 0),
-      },
-    };
+    return { records, sharesOf: groupBy(shares), paymentsOf: groupBy(payments) };
+  }
+
+  /** Quién debe cuánto en los cobros vigentes, con su nombre (`whoOwes`). */
+  private debts(
+    records: ChargeRecord[],
+    sharesOf: Map<string, ShareRecord[]>,
+    paymentsOf: Map<string, PaymentRecord[]>,
+  ) {
+    const names = new Map<string, string>();
+    const rows = records
+      .filter((c) => !c.cancelledAt)
+      .flatMap((c) => {
+        const paid = paidBy(paymentsOf.get(c.id) ?? []);
+        return (sharesOf.get(c.id) ?? []).map((s) => {
+          names.set(s.userId, s.name);
+          if (s.sponsor) names.set(s.sponsor.id, s.sponsor.name);
+          return {
+            userId: s.userId,
+            sponsorId: s.sponsor?.id ?? null,
+            teamCovers: s.teamCovers,
+            amount: s.amount,
+            paid: paid.get(s.userId)?.confirmed ?? 0,
+          };
+        });
+      });
+    return whoOwes(rows).map((d) => ({ ...d, name: names.get(d.userId) ?? '' }));
   }
 
   async get(actor: Actor, teamId: string, chargeId: string): Promise<ChargeResponse> {

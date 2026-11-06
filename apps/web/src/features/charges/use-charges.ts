@@ -15,6 +15,7 @@ import {
   fetchCharges,
   fetchMyCharges,
   registerPayment,
+  remindCharges,
   reportPayment,
   reviewPayment,
   setChargeShare,
@@ -63,6 +64,10 @@ function useChargeMutation<V>(teamId: string, fn: (vars: V) => Promise<ChargeRes
       void queryClient.invalidateQueries({ queryKey: myChargesKey(teamId) });
     },
   });
+}
+
+export function useRemindCharges(teamId: string) {
+  return useMutation({ mutationFn: () => remindCharges(teamId) });
 }
 
 export const useCreateCharge = (teamId: string) =>

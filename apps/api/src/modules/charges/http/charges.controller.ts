@@ -2,6 +2,7 @@ import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put } from '@nestj
 import {
   type ChargeListResponse,
   type ChargeResponse,
+  type ChargesReminderResponse,
   CreateChargeRequestSchema,
   type MyChargesResponse,
   MyPaymentRequestSchema,
@@ -37,6 +38,17 @@ export class ChargesController {
     @Body() body: unknown,
   ): Promise<ChargeResponse> {
     return this.charges.create(actor, teamId, parseInput(CreateChargeRequestSchema, body));
+  }
+
+  /** "Recordar a los que deben" (2026-10-31): un aviso a cada uno, sin el valor. */
+  @Post('reminders')
+  @HttpCode(200)
+  @Can('team.charges.write', { teamParam: 'teamId' })
+  remind(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+  ): Promise<ChargesReminderResponse> {
+    return this.charges.remind(actor, teamId);
   }
 
   @Get(':chargeId')

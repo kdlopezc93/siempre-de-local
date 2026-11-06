@@ -120,3 +120,28 @@ export function sponsorProblem(input: {
   if (input.reported > 0) return 'Primero revisa el pago que está por confirmar.';
   return null;
 }
+
+/**
+ * Quién debe cuánto en varios cobros (el saldo del equipo, 2026-10-31): la deuda de cada parte es
+ * de quien la patrocina, si alguien la asumió, o de quien la debe; lo que cubre el equipo no es de
+ * nadie. Solo los que deben algo, de mayor a menor deuda; `parts`, en cuántas partes.
+ */
+export function whoOwes(
+  shares: readonly {
+    userId: string;
+    sponsorId: string | null;
+    teamCovers: boolean;
+    amount: number;
+    paid: number;
+  }[],
+): { userId: string; owed: number; parts: number }[] {
+  const debts = new Map<string, { owed: number; parts: number }>();
+  for (const s of shares) {
+    const owed = s.amount - s.paid;
+    if (s.teamCovers || owed <= 0) continue;
+    const who = s.sponsorId ?? s.userId;
+    const debt = debts.get(who) ?? { owed: 0, parts: 0 };
+    debts.set(who, { owed: debt.owed + owed, parts: debt.parts + 1 });
+  }
+  return [...debts].map(([userId, d]) => ({ userId, ...d })).sort((a, b) => b.owed - a.owed);
+}
