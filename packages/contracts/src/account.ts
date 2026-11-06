@@ -56,6 +56,40 @@ export const MyDataExportSchema = z.object({
       rating: z.int().nullable(),
       ratedBy: z.string().nullable(),
       note: z.string().nullable(),
+      /** Si viniste, según "¿Quién vino?" (2026-10-30); null si no pasaron lista. */
+      came: z.boolean().nullable(),
+    }),
+  ),
+  /**
+   * Tus cobros (2026-11-06, `02` §15): tu parte de cada uno y tus pagos, y las partes de
+   * compañeros que asumiste (patrocinios). Si a ti te cubrieron una parte, sale `covered`, sin
+   * quién (como en la app). Los anulados también, con `cancelled`.
+   */
+  charges: z.array(
+    z.object({
+      team: z.string(),
+      kind: z.enum(['registration', 'referee', 'vaca', 'fee', 'fine', 'uniform', 'other']),
+      title: z.string().nullable(),
+      /** El partido del cobro, si es de uno (null en el entreno). */
+      match: z.object({ opponent: z.string().nullable(), startsAt: z.iso.datetime() }).nullable(),
+      tournament: z.string().nullable(),
+      dueOn: z.iso.date().nullable(),
+      createdAt: z.iso.datetime(),
+      cancelled: z.boolean(),
+      /** La parte de un compañero que asumiste; null si es la tuya. */
+      forPlayer: z.string().nullable(),
+      amount: z.int(),
+      note: z.string().nullable(),
+      covered: z.boolean(),
+      payments: z.array(
+        z.object({
+          amount: z.int(),
+          method: z.enum(['cash', 'nequi', 'daviplata', 'transfer', 'other']),
+          paidOn: z.iso.date(),
+          status: z.enum(['reported', 'confirmed', 'rejected']),
+          createdAt: z.iso.datetime(),
+        }),
+      ),
     }),
   ),
 });

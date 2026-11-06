@@ -26,7 +26,7 @@
 | POST | `/me/consent` | Aceptar la política vigente: `{ policyVersion, ageConfirmed: true }` → 201 `{ consent }`, idempotente. 400 sin `ageConfirmed`; 422 `POLICY_VERSION_OUTDATED` si la versión no es la vigente (`POLICY_VERSION` en `packages/contracts/src/consent.ts`) |
 | PATCH | `/me/profile` | **Implementado.** Solo los campos que cambian: `{ displayName? (2–40), dominantFoot? ('left'\|'right'\|'both'\|null), playsGoalkeeper? }` → `{ profile }`. Exige la política aceptada (`CONSENT_REQUIRED`) |
 | PUT | `/me/preferred-positions` | **Implementado.** Reemplaza la lista: `{ positions: PositionCode[] }`, hasta 3, sin repetir y en orden de preferencia → `{ profile }` |
-| GET | `/me/export` | **Implementado.** Mis datos en JSON (`MyDataExportSchema`), como descarga (`mis-datos-siempre-de-local.json`, `no-store`): cuenta, perfil, consentimientos, membresías, tests, exámenes (solo resultados), tarjetas y valoraciones sobre mí con sus notas, y mis partidos (respuesta, evaluación y nota) |
+| GET | `/me/export` | **Implementado.** Mis datos en JSON (`MyDataExportSchema`), como descarga (`mis-datos-siempre-de-local.json`, `no-store`): cuenta, perfil, consentimientos, membresías, tests, exámenes (solo resultados), tarjetas y valoraciones sobre mí con sus notas, mis partidos (respuesta, evaluación, nota y si vine según "¿Quién vino?") y **mis cobros** (2026-11-06): mi parte de cada uno con su nota y mis pagos, las partes de compañeros que asumí (`forPlayer`) y, si me cubrieron una, `covered` sin decir quién |
 | DELETE | `/me` | **Implementado.** `{ confirmation: 'ELIMINAR' }` → 204: borra la cuenta y todo lo suyo en el momento (`04` §5). 409 `LAST_CLUB_ADMIN` (`details.clubs`) si es el único dueño o admin de un club |
 
 ## Clubs, equipos e invitaciones

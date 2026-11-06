@@ -46,6 +46,7 @@ export class MyData {
       cards,
       assessments,
       matches,
+      charges,
     ] = await Promise.all([
       this.profiles.profileOf(user),
       this.accounts.consents(user.id),
@@ -55,6 +56,7 @@ export class MyData {
       this.accounts.cardsAbout(user.id),
       this.accounts.assessmentsAbout(user.id),
       this.accounts.matchesOf(user.id),
+      this.accounts.chargesOf(user.id),
     ]);
     return {
       exportedAt: new Date().toISOString(),
@@ -67,6 +69,7 @@ export class MyData {
       cards,
       assessments,
       matches,
+      charges,
     };
   }
 
