@@ -115,7 +115,11 @@ export function ChargePage({ teamId, chargeId }: { teamId: string; chargeId: str
         shares.length > 1 &&
         charge.balance.pending > 0 && (
           <GroupShare
-            message={chargeMessage(charge, shares, appUrl(`/equipos/${teamId}/mis-cuentas`))}
+            message={chargeMessage(
+              charge,
+              shares,
+              appUrl(`/equipos/${teamId}/mis-cuentas?cobro=${charge.id}`),
+            )}
           />
         )}
 

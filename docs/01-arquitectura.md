@@ -137,6 +137,28 @@ Un repo, tres paquetes que importan, uno de contratos. Despliegues independiente
 
 **Cuándo reconsiderar:** si aparece un segundo cliente con necesidades distintas (app nativa, integración de terceros, un portal de federación) o si los endpoints agregadores empiezan a multiplicarse sin control.
 
+### ADR-10 · Vista previa de los enlaces: una función de Cloudflare Pages y la imagen en el API
+
+> El ADR-09 queda reservado para las fotos (#65, pospuestas).
+
+**Pregunta planteada** (Kevin, 2026-11-06): que el enlace de la app en el grupo de WhatsApp salga con el escudo del equipo, el rival y la hora, no como texto pelado.
+
+**Decisión:**
+- **Una función de Cloudflare Pages** (`/functions` en la raíz del repo, el directorio del proyecto de Pages) en las rutas que se comparten: el partido (`/equipos/:teamId/partidos/:matchId`) y el cobro (`/equipos/:teamId/mis-cuentas?cobro=`).
+  - Si quien abre el enlace es un **bot de vistas previas** (WhatsApp, Facebook, Telegram…), le responde un HTML corto con las etiquetas `og:`.
+  - A las personas, y si algo falla, les responde la SPA de siempre (`next()`).
+  - La lógica vive en `apps/web/src/shared/link-preview.ts`, con sus tests; la función solo la llama.
+- **El API** responde `GET /api/v1/previews/:kind/:id` (los textos) y `…/image.png` (1200×630, SVG dibujado con **resvg** y las fuentes de la app en `apps/api/assets/fonts`, OFL). Son **públicas** (el bot no tiene sesión), con tope de 120 por minuto y caché de 5 minutos.
+
+**Por qué así:**
+- La SPA es una sola `index.html`: sin servidor no hay forma de cambiar las etiquetas por enlace, y WhatsApp no corre JavaScript.
+- La función corre en el borde de Cloudflare, en el mismo proyecto de Pages: no hay que montar ni pagar otro servidor, y el plan gratis alcanza de sobra.
+- La imagen va en el API, que ya tiene la base y Node; dibujarla en el borde pediría WebAssembly y fuentes en cada función.
+
+**Qué expone:** a quien tenga el enlace, el nombre del equipo, el rival y la hora del partido, o de qué es un cobro (nunca cuánto). Nunca nombres de jugadores. Los ids son UUID: no se adivinan, y el enlace solo circula en el grupo del equipo.
+
+**Cuándo reconsiderar:** si se suben escudos de verdad (con las fotos) o si hace falta vista previa en más rutas.
+
 ## 3. Capas
 
 ### 3.1 Monorepo

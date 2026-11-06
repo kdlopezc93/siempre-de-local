@@ -15,6 +15,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { TeamDataModule } from './modules/team-data/team-data.module.js';
 import { HealthModule } from './modules/health/health.module.js';
 import { IdentityModule } from './modules/identity/identity.module.js';
+import { PreviewsModule } from './modules/previews/previews.module.js';
 import { PlayerProfileModule } from './modules/player-profile/player-profile.module.js';
 import { QuestionnairesModule } from './modules/questionnaires/questionnaires.module.js';
 import { QuizModule } from './modules/quiz/quiz.module.js';
@@ -45,6 +46,7 @@ import { DbModule } from './shared/db/db.module.js';
     TeamDataModule,
     SquadModule,
     AdoptionModule,
+    PreviewsModule,
     HealthModule,
   ],
   // En este orden: primero la sesión, después los permisos de @Can.

@@ -71,6 +71,8 @@ Crear un proyecto de Pages conectado al repo de GitHub:
 | Directorio de salida | `apps/web/dist` |
 | Variables | `VITE_API_URL=https://api.siempredelocal.app` · `NODE_VERSION=24.22.0` |
 
+Pages también despliega las funciones de `/functions` (en la raíz del repo, ADR-10): la vista previa de los enlaces. Leen `VITE_API_URL` de las variables del proyecto; sin ella usan `https://api.siempredelocal.app`.
+
 Luego **Dominios personalizados → `app.siempredelocal.app`** (Cloudflare crea el DNS solo). Pages sirve la SPA y aplica `apps/web/public/_headers`.
 
 ## 7. Google

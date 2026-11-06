@@ -11,3 +11,4 @@ export * from './matches.js';
 export * from './orientation-lint.js';
 export * from './charges.js';
 export * from './adoption.js';
+export * from './names.js';
