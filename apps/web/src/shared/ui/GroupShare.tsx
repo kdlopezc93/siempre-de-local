@@ -9,11 +9,20 @@ import { Button } from './Button';
  * equipo. Con `file` (la imagen de la alineación) y un celular que deja compartir archivos, usa
  * su menú de compartir: WhatsApp no recibe imágenes por enlace.
  */
-export function GroupShare({ message, file }: { message: string; file?: File | null }) {
+export function GroupShare({
+  message,
+  file,
+  label: text = 'Mandar al grupo',
+}: {
+  message: string;
+  file?: File | null;
+  /** Qué manda, si en la pantalla hay más de una cosa: "Mandar la alineación al grupo". */
+  label?: string;
+}) {
   const label = (
     <>
       <PaperPlaneTilt size={20} weight="bold" aria-hidden="true" />
-      Mandar al grupo
+      {text}
     </>
   );
   if (file && canShareFiles([file])) {

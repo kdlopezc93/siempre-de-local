@@ -141,8 +141,12 @@ describe('partidos en la app (Fase 7)', () => {
     renderAt('/m', [
       { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
     ]);
-    expect(await screen.findByRole('link', { name: 'Editar el partido' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Cancelar el partido' })).toBeInTheDocument();
+    const actions = await screen.findByRole('navigation', { name: 'Acciones del partido' });
+    expect(within(actions).getByRole('link', { name: 'Editar' })).toHaveAttribute(
+      'href',
+      `/equipos/${TEAM_A}/partidos/${M1}/editar`,
+    );
+    expect(within(actions).getByRole('button', { name: 'Cancelar' })).toBeInTheDocument();
 
     // Se guardó a la madrugada: se corrige a otra hora del mismo día, aunque ya pasó.
     renderAt('/e', [
@@ -233,10 +237,10 @@ describe('partidos en la app (Fase 7)', () => {
     renderAt('/m', [
       { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
     ]);
-    expect(await screen.findByRole('region', { name: 'Lesionados' })).toHaveTextContent(
-      'Ciro, lesionado',
+    expect(await screen.findByRole('region', { name: 'Lesionados (1)' })).toHaveTextContent('Ciro');
+    expect(screen.getByRole('region', { name: 'Faltan por responder (0)' })).toHaveTextContent(
+      'Ya respondieron todos',
     );
-    expect(screen.queryByRole('region', { name: 'Faltan' })).not.toBeInTheDocument();
     expect(screen.getByText('Lesionados', { selector: 'dt' })).toBeInTheDocument();
   });
 
@@ -261,18 +265,26 @@ describe('partidos en la app (Fase 7)', () => {
     renderAt('/m', [
       { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
     ]);
-    expect(await screen.findByRole('region', { name: 'Van' })).toHaveTextContent('Ana');
-    expect(screen.getByRole('region', { name: 'Faltan' })).toHaveTextContent('Ciro');
-    // Se cobra desde que se convoca (2026-10-31); cancelado, ya no.
-    expect(screen.getByRole('link', { name: 'Cobrar este partido' })).toHaveAttribute(
+    // Quién va, por grupos con su color (2026-11-06).
+    expect(await screen.findByRole('region', { name: 'Van (1)' })).toHaveTextContent('Ana');
+    expect(screen.getByRole('region', { name: 'No van (1)' })).toHaveTextContent('Beto');
+    expect(screen.getByRole('region', { name: 'Faltan por responder (1)' })).toHaveTextContent(
+      'Ciro',
+    );
+    expect(screen.getByRole('button', { name: 'Convocatoria 3/6' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    // Se cobra desde que se convoca (2026-10-31); cancelado, ya no. Cancelar, a la mano.
+    expect(screen.getByRole('link', { name: 'Cobrar' })).toHaveAttribute(
       'href',
       `/equipos/${TEAM_A}/cobros/nuevo?partido=${M1}`,
     );
-    await userEvent.click(screen.getByRole('button', { name: 'Cancelar el partido' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
     await userEvent.click(await screen.findByRole('button', { name: 'Sí, cancelarlo' }));
     expect(patch).toEqual({ status: 'cancelled' });
     expect(await screen.findByText('Partido cancelado.')).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Cobrar este partido' })).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Cobrar' })).toBeNull();
   });
 
   it('mandar al grupo: la convocatoria con los que faltan por responder (2026-11-06)', async () => {
@@ -288,7 +300,7 @@ describe('partidos en la app (Fase 7)', () => {
     ]);
     const card = await screen.findByRole('region', { name: 'Faltan por responder (1)' });
     expect(within(card).getByRole('listitem')).toHaveTextContent('Ciro');
-    const link = within(card).getByRole('link', { name: 'Mandar al grupo' });
+    const link = within(card).getByRole('link', { name: 'Mandar la convocatoria al grupo' });
     const text = new URL(link.getAttribute('href')!).searchParams.get('text')!;
     expect(link.getAttribute('href')).toMatch(/^https:\/\/wa\.me\/\?text=/);
     expect(text).toContain('*Amistoso vs Los Pibes*');
@@ -321,9 +333,12 @@ describe('partidos en la app (Fase 7)', () => {
     renderAt('/m', [
       { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
     ]);
+    await userEvent.click(await screen.findByRole('button', { name: 'Alineación' }));
     const section = await screen.findByRole('region', { name: 'Alineación' });
     // Sin poder dibujar (jsdom), va el mensaje con el enlace.
-    const link = await within(section).findByRole('link', { name: 'Mandar al grupo' });
+    const link = await within(section).findByRole('link', {
+      name: 'Mandar la alineación al grupo',
+    });
     const text = new URL(link.getAttribute('href')!).searchParams.get('text')!;
     expect(text).toMatch(/^📋 \*Ya está la alineación para el .+ vs Los Pibes\*/);
   });
@@ -339,7 +354,7 @@ describe('partidos en la app (Fase 7)', () => {
       { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_B} matchId={M1} /> },
     ]);
     expect(await screen.findByRole('button', { name: /Voy/ })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'Mandar al grupo' })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Mandar/ })).toBeNull();
   });
 
   it('convocar: valida lo que falta y manda la hora con zona', async () => {
@@ -499,6 +514,7 @@ describe('partidos en la app (Fase 7)', () => {
     renderAt('/m', [
       { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
     ]);
+    await userEvent.click(await screen.findByRole('button', { name: 'Alineación' }));
     const section = await screen.findByRole('region', { name: 'Alineación' });
     // Solo las de este partido.
     expect(await within(section).findByRole('link', { name: 'vs Los Pibes' })).toBeInTheDocument();

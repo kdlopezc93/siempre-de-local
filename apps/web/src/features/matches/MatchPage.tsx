@@ -1,9 +1,12 @@
 import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
+import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { Wallet } from '@phosphor-icons/react/dist/csr/Wallet';
+import { XCircle } from '@phosphor-icons/react/dist/csr/XCircle';
 import type { Match, MatchRoster } from '@sdl/contracts';
 import { findFormation, isGame } from '@sdl/domain';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
@@ -13,6 +16,7 @@ import { Chips } from '../../shared/ui/Chips';
 import { GroupShare } from '../../shared/ui/GroupShare';
 import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
+import { SectionTabs } from '../../shared/ui/SectionTabs';
 import { Sheet } from '../../shared/ui/Sheet';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import { usePublishLineup, useLineups } from '../lineup/use-lineups';
@@ -33,7 +37,6 @@ import {
 } from './use-matches';
 import { Badge } from '../../shared/ui/Badge';
 import { StatGrid, StatTile } from '../../shared/ui/StatTile';
-import { Avatar } from '../../shared/ui/Avatar';
 
 /**
  * /equipos/:teamId/partidos/:matchId — el partido: responder, y para el cuerpo técnico, quién va
@@ -131,43 +134,48 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
           <MatchResultView teamName={teamName} match={match} meId={me.user.id} />
         ))}
 
-      {match.published && (
-        <PublishedSection teamId={teamId} match={match} meId={me.user.id} player={player} />
-      )}
-
       {listAlone && <WhoCameAlone teamId={teamId} match={match} roster={roster} />}
 
       {/*
-        Cobrar la vaca o el arbitraje (`06` Cobros): a mano, desde que se convoca (2026-10-31,
-        Kevin). Antes de la hora arranca con los que dijeron voy; después, con los que vinieron.
+        Lo que se hace con el partido, a la mano (2026-11-06, Kevin): cobrar (`06` Cobros, desde
+        que se convoca), editar y cancelar (hasta cargar el resultado, aunque ya pasó la hora).
       */}
-      {takesList && match.status === 'scheduled' && (
-        <ButtonLink variant="secondary" to={`/equipos/${teamId}/cobros/nuevo?partido=${match.id}`}>
-          Cobrar este partido
-        </ButtonLink>
-      )}
+      <MatchActions
+        teamId={teamId}
+        match={match}
+        canCharge={takesList && match.status === 'scheduled'}
+        canEdit={staff && match.editable}
+      />
 
       {!played && player && match.open && <ReplyButtons teamId={teamId} match={match} />}
 
-      {!played && (
-        <StatGrid columns={match.replies.injured > 0 ? 4 : 3}>
-          <StatTile label="Van" value={match.replies.yes} />
-          <StatTile label="No van" value={match.replies.no} />
-          <StatTile label="Faltan" value={match.replies.pending} />
-          {match.replies.injured > 0 && (
-            <StatTile label="Lesionados" value={match.replies.injured} />
+      {/*
+        El cuerpo técnico antes del partido (2026-11-06): convocatoria y alineación en dos
+        pestañas, cada una con su "Mandar al grupo". El entreno no tiene alineación.
+      */}
+      {staff && !played && roster ? (
+        game ? (
+          <StaffTabs teamId={teamId} teamName={teamName} match={match} roster={roster} me={me} />
+        ) : (
+          <CallUp teamId={teamId} match={match} roster={roster} />
+        )
+      ) : (
+        <>
+          {match.published && (
+            <PublishedSection teamId={teamId} match={match} meId={me.user.id} player={player} />
           )}
-        </StatGrid>
+          {!played && (
+            <StatGrid columns={match.replies.injured > 0 ? 4 : 3}>
+              <StatTile label="Van" value={match.replies.yes} />
+              <StatTile label="No van" value={match.replies.no} />
+              <StatTile label="Faltan" value={match.replies.pending} />
+              {match.replies.injured > 0 && (
+                <StatTile label="Lesionados" value={match.replies.injured} />
+              )}
+            </StatGrid>
+          )}
+        </>
       )}
-
-      {staff && match.open && roster && (
-        <CallUpShare teamId={teamId} match={match} roster={roster} />
-      )}
-
-      {staff && game && <MatchLineups teamId={teamId} teamName={teamName} match={match} />}
-      {roster && !played && !listAlone && <Roster roster={roster} />}
-      {/* Hasta cargar el resultado, aunque ya pasó la hora: corregir la hora o cancelarlo. */}
-      {staff && match.editable && <StaffActions teamId={teamId} match={match} />}
     </Screen>
   );
 }
@@ -285,58 +293,167 @@ function ReplyButtons({ teamId, match }: { teamId: string; match: Match }) {
 }
 
 /** Quién va, quién no, quién falta y los lesionados que no respondieron (no "faltan"). */
-const GROUPS: { title: string; has: (p: MatchRoster[number]) => boolean }[] = [
-  { title: 'Van', has: (p) => p.reply === 'yes' },
-  { title: 'No van', has: (p) => p.reply === 'no' },
-  { title: 'Faltan', has: (p) => p.reply === null && !p.injured },
-  { title: 'Lesionados', has: (p) => p.reply === null && p.injured },
+const GROUPS: {
+  title: string;
+  tone: 'wait' | 'yes' | 'no' | 'hurt';
+  has: (p: MatchRoster[number]) => boolean;
+}[] = [
+  { title: 'Faltan por responder', tone: 'wait', has: (p) => p.reply === null && !p.injured },
+  { title: 'Van', tone: 'yes', has: (p) => p.reply === 'yes' },
+  { title: 'No van', tone: 'no', has: (p) => p.reply === 'no' },
+  { title: 'Lesionados', tone: 'hurt', has: (p) => p.reply === null && p.injured },
 ];
 
-function Roster({ roster }: { roster: MatchRoster }) {
+/**
+ * Quién va (2026-11-06, Kevin: "le falta color"): cada grupo con su color (faltan en naranja,
+ * van en verde, no van en rojo) en las cifras y en las píldoras, con el dorsal en un círculo.
+ * Debajo de los que faltan, "Mandar la convocatoria al grupo".
+ */
+function CallUp({ teamId, match, roster }: { teamId: string; match: Match; roster: MatchRoster }) {
+  const groups = GROUPS.map((g) => ({ ...g, people: roster.filter(g.has) }));
+  const message = callUpMessage(match, roster, appUrl(`/equipos/${teamId}/partidos/${match.id}`));
   return (
     <>
-      {GROUPS.map(({ title, has }) => {
-        const people = roster.filter(has);
-        if (people.length === 0) return null;
-        return (
-          <section key={title} aria-label={title} className={styles.section}>
-            <h2 className={styles.sectionTitle}>
-              {title} ({people.length})
+      <dl className={styles.counts}>
+        {(
+          [
+            ['Van', match.replies.yes, 'yes'],
+            ['No van', match.replies.no, 'no'],
+            ['Faltan', match.replies.pending, 'wait'],
+            ...(match.replies.injured > 0
+              ? ([['Lesionados', match.replies.injured, 'hurt']] as const)
+              : []),
+          ] as const
+        ).map(([label, value, tone]) => (
+          <div key={label} className={styles[tone]}>
+            <dt>{label}</dt>
+            <dd>{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {groups.map(({ title, tone, people }) =>
+        people.length === 0 && tone !== 'wait' ? null : (
+          <section
+            key={title}
+            aria-label={`${title} (${people.length})`}
+            className={[styles.group, styles[tone]].join(' ')}
+          >
+            <h2 className={styles.groupTitle}>
+              {people.length || tone !== 'wait'
+                ? `${title} (${people.length})`
+                : 'Ya respondieron todos'}
             </h2>
-            <ul className={styles.people}>
-              {people.map((p) => (
-                <li key={p.playerId}>
-                  <Avatar
-                    name={p.displayName}
-                    label={p.jerseyNumber !== null ? String(p.jerseyNumber) : null}
-                    size={32}
-                    injured={p.injured}
-                  />
-                  <span>
+            {people.length > 0 && (
+              <ul className={styles.pills}>
+                {people.map((p) => (
+                  <li key={p.playerId}>
+                    <span className={styles.dorsal} aria-hidden="true">
+                      {p.jerseyNumber ?? p.displayName.slice(0, 2).toUpperCase()}
+                    </span>
                     {p.displayName}
-                    {p.injured && <span className="sr-only">, lesionado</span>}
-                  </span>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {tone === 'wait' && match.open && (
+              <GroupShare message={message} label="Mandar la convocatoria al grupo" />
+            )}
           </section>
-        );
-      })}
+        ),
+      )}
     </>
   );
 }
 
-function StaffActions({ teamId, match }: { teamId: string; match: Match }) {
+type StaffTab = 'convocatoria' | 'alineacion';
+
+/** Convocatoria y alineación en dos pestañas (2026-11-06); la elegida queda en la URL (`?ver=`). */
+function StaffTabs({
+  teamId,
+  teamName,
+  match,
+  roster,
+  me,
+}: {
+  teamId: string;
+  teamName: string;
+  match: Match;
+  roster: MatchRoster;
+  me: Me;
+}) {
+  const [params, setParams] = useSearchParams();
+  const tab: StaffTab = params.get('ver') === 'alineacion' ? 'alineacion' : 'convocatoria';
+  const { yes, no, pending, injured } = match.replies;
+  return (
+    <>
+      <SectionTabs<StaffTab>
+        label="Del partido"
+        value={tab}
+        onChange={(value) =>
+          setParams(value === 'alineacion' ? { ver: value } : {}, { replace: true })
+        }
+        options={[
+          { value: 'convocatoria', label: `Convocatoria ${yes}/${yes + no + pending + injured}` },
+          { value: 'alineacion', label: 'Alineación' },
+        ]}
+      />
+      {tab === 'convocatoria' ? (
+        <CallUp teamId={teamId} match={match} roster={roster} />
+      ) : (
+        <LineupTab teamId={teamId} teamName={teamName} match={match} meId={me.user.id} />
+      )}
+    </>
+  );
+}
+
+/**
+ * La fila de acciones del partido (2026-11-06, Kevin): Cobrar, Editar y Cancelar a la mano, con
+ * Cancelar en rojo y su confirmación ("es común que pase").
+ */
+function MatchActions({
+  teamId,
+  match,
+  canCharge,
+  canEdit,
+}: {
+  teamId: string;
+  match: Match;
+  canCharge: boolean;
+  canEdit: boolean;
+}) {
   const update = useUpdateMatch(teamId, match.id);
   const [confirm, setConfirm] = useState(false);
+  if (!canCharge && !canEdit) return null;
   return (
-    <div className={styles.actions}>
-      <Link to={`/equipos/${teamId}/partidos/${match.id}/editar`} className={styles.secondaryLink}>
-        Editar el partido
-      </Link>
-      <button type="button" className={styles.dangerLink} onClick={() => setConfirm(true)}>
-        Cancelar el partido
-      </button>
+    <nav aria-label="Acciones del partido" className={styles.matchActions}>
+      {canCharge && (
+        <Link to={`/equipos/${teamId}/cobros/nuevo?partido=${match.id}`} className={styles.action}>
+          <span className={styles.actionIcon}>
+            <Wallet size={22} weight="bold" aria-hidden="true" />
+          </span>
+          Cobrar
+        </Link>
+      )}
+      {canEdit && (
+        <>
+          <Link to={`/equipos/${teamId}/partidos/${match.id}/editar`} className={styles.action}>
+            <span className={styles.actionIcon}>
+              <PencilSimple size={22} weight="bold" aria-hidden="true" />
+            </span>
+            Editar
+          </Link>
+          <button
+            type="button"
+            className={[styles.action, styles.actionDanger].join(' ')}
+            onClick={() => setConfirm(true)}
+          >
+            <span className={styles.actionIcon}>
+              <XCircle size={22} weight="bold" aria-hidden="true" />
+            </span>
+            Cancelar
+          </button>
+        </>
+      )}
       <Sheet open={confirm} onClose={() => setConfirm(false)} title="¿Cancelar el partido?">
         <div className={styles.sheetActions}>
           <p>
@@ -362,44 +479,45 @@ function StaffActions({ teamId, match }: { teamId: string; match: Match }) {
           </Button>
         </div>
       </Sheet>
-    </div>
+    </nav>
   );
 }
 
 /**
- * La alineación del partido (Fase 7): armarla con los que van, sus guardadas y publicar una
- * para el equipo (D17: se republica hasta la hora del partido).
+ * La pestaña Alineación (Fase 7, 2026-11-06): la publicada en la cancha, las guardadas para
+ * publicar (D17: se republica hasta la hora del partido), "Mandar la alineación al grupo" y
+ * armar otra.
  */
-function MatchLineups({
+function LineupTab({
   teamId,
   teamName,
   match,
+  meId,
 }: {
   teamId: string;
   teamName: string;
   match: Match;
+  meId: string;
 }) {
   const lineups = useLineups(teamId);
   const publish = usePublishLineup(teamId);
   const mine = (lineups.data?.items ?? []).filter((l) => l.matchId === match.id);
   const publishedId = match.published?.lineupId ?? null;
   return (
-    <section aria-labelledby="alineacion" className={styles.section}>
-      <h2 id="alineacion" className={styles.sectionTitle}>
-        Alineación
-      </h2>
-      {publishedId && match.published && (
-        <p className={styles.published}>
-          Publicada el {matchWhen(match.published.at)}: el equipo ya la ve.
+    <section aria-label="Alineación" className={styles.section}>
+      {match.published ? (
+        <>
+          <p className={styles.published}>
+            Publicada el {matchWhen(match.published.at)}: el equipo ya la ve.
+          </p>
+          <PublishedLineup teamId={teamId} match={match} meId={meId} />
+        </>
+      ) : (
+        <p className={styles.muted}>
+          {mine.length
+            ? 'Publica una para que el equipo la vea.'
+            : 'Todavía no hay alineación para este partido.'}
         </p>
-      )}
-      {match.published && match.open && (
-        <LineupShare teamId={teamId} teamName={teamName} match={match} at={match.published.at} />
-      )}
-      {match.open && (
-        <ButtonLink to={`/equipos/${teamId}/planificador?partido=${match.id}`}>
-          {mine.length ? 'Armar otra' : 'Armar la alineación'}
-        </ButtonLink>
       )}
       {mine.length > 0 && (
         <ul className={styles.lineups}>
@@ -431,39 +549,17 @@ function MatchLineups({
           No pudimos publicarla. Revisa tu conexión e intenta de nuevo.
         </p>
       )}
-    </section>
-  );
-}
-
-/**
- * "Mandar al grupo" (2026-11-06, Kevin): la convocatoria al grupo de WhatsApp, con los que faltan
- * por responder (con nombre: lo decide el técnico). Se manda las veces que haga falta.
- */
-function CallUpShare({
-  teamId,
-  match,
-  roster,
-}: {
-  teamId: string;
-  match: Match;
-  roster: MatchRoster;
-}) {
-  const pending = roster.filter((p) => p.reply === null && !p.injured);
-  const message = callUpMessage(match, roster, appUrl(`/equipos/${teamId}/partidos/${match.id}`));
-  return (
-    <section aria-labelledby="mandar-convocatoria" className={styles.shareCard}>
-      <h2 id="mandar-convocatoria" className={styles.shareTitle}>
-        {pending.length ? `Faltan por responder (${pending.length})` : 'Ya respondieron todos'}
-      </h2>
-      {pending.length > 0 && (
-        <ul className={styles.pendingNames}>
-          {pending.map((p) => (
-            <li key={p.playerId}>{p.displayName}</li>
-          ))}
-        </ul>
+      {match.published && match.open && (
+        <LineupShare teamId={teamId} teamName={teamName} match={match} at={match.published.at} />
       )}
-      <GroupShare message={message} />
-      <p className={styles.muted}>Sale con la lista al día cada vez que lo mandes.</p>
+      {match.open && (
+        <ButtonLink
+          variant={match.published ? 'secondary' : 'primary'}
+          to={`/equipos/${teamId}/planificador?partido=${match.id}`}
+        >
+          {mine.length ? 'Armar otra' : 'Armar la alineación'}
+        </ButtonLink>
+      )}
     </section>
   );
 }
@@ -501,7 +597,37 @@ function LineupShare({
     networkMode: 'always',
   });
   const message = lineupMessage(match, appUrl(`/equipos/${teamId}/partidos/${match.id}`));
-  return <GroupShare message={message} file={image.data ?? null} />;
+  return (
+    <GroupShare message={message} file={image.data ?? null} label="Mandar la alineación al grupo" />
+  );
+}
+
+/** La publicada en la pestaña del cuerpo técnico: la cancha y los suplentes. */
+function PublishedLineup({ teamId, match, meId }: { teamId: string; match: Match; meId: string }) {
+  const lineup = usePublishedLineup(teamId, match.id, match.published?.at ?? null);
+  if (!lineup.data) {
+    return lineup.isError ? (
+      <p role="alert" className={styles.muted}>
+        No pudimos cargar la alineación. Revisa tu conexión.
+      </p>
+    ) : null;
+  }
+  const { bench } = lineup.data;
+  return (
+    <>
+      <PublishedBoard lineup={lineup.data} meId={meId} />
+      <p className={styles.muted}>
+        Suplentes:{' '}
+        {bench.length
+          ? bench
+              .map((p) =>
+                p.jerseyNumber !== null ? `${p.jerseyNumber} ${p.displayName}` : p.displayName,
+              )
+              .join(', ')
+          : 'ninguno.'}
+      </p>
+    </>
+  );
 }
 
 /** La alineación publicada, para todo el equipo (D17): dónde estás tú, la cancha y el banco. */
