@@ -13,6 +13,7 @@ import {
   type TournamentListResponse,
   type TournamentResponse,
   UpdateMatchRequestSchema,
+  type TeamScorersResponse,
 } from '@sdl/contracts';
 import { z } from 'zod';
 
@@ -180,6 +181,21 @@ export class PlayerMatchRatingsController {
     @Param('playerId') playerId: string,
   ): Promise<PlayerMatchRatingsResponse> {
     return this.matches.playerRatings(actor, teamId, parseInput(z.uuid(), playerId));
+  }
+}
+
+/** Goleadores, asistencias y tarjetas del equipo (2026-11-06): todo el equipo. */
+@Controller('teams/:teamId/scorers')
+export class ScorersController {
+  constructor(private readonly matches: Matches) {}
+
+  @Get()
+  @Can('team.read', { teamParam: 'teamId' })
+  list(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+  ): Promise<TeamScorersResponse> {
+    return this.matches.scorers(actor, teamId);
   }
 }
 

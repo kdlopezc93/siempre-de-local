@@ -48,11 +48,25 @@ export const MatchRatingValueSchema = z.int().min(1).max(5);
 
 const Goals = z.int().min(0).max(99);
 
-/** El resultado: lo ve todo el equipo, con la figura del partido si la eligieron. */
+export const CardColorSchema = z.enum(['yellow', 'red']);
+
+/**
+ * El resultado: lo ve todo el equipo, con la figura del partido si la eligieron, y desde el
+ * 2026-11-06 los goles (en orden; el goleador null si no se sabe o fue autogol del rival) y las
+ * tarjetas.
+ */
 export const MatchResultSchema = z.object({
   goalsFor: Goals,
   goalsAgainst: Goals,
   figure: PublishedPlayerSchema.nullable(),
+  goals: z.array(
+    z.object({
+      scorer: PublishedPlayerSchema.nullable(),
+      assist: PublishedPlayerSchema.nullable(),
+      ownGoal: z.boolean(),
+    }),
+  ),
+  cards: z.array(z.object({ player: PublishedPlayerSchema, color: CardColorSchema })),
   at: z.iso.datetime(),
 });
 
@@ -120,6 +134,41 @@ export const MatchResultRequestSchema = z.object({
   goalsFor: Goals,
   goalsAgainst: Goals,
   figurePlayerId: z.uuid().nullable(),
+  /**
+   * Los goles a favor en orden (2026-11-06): a lo sumo los del marcador (`goalsProblem`). Si no
+   * viene, se dejan los que había. Reemplazan los anteriores.
+   */
+  goals: z
+    .array(
+      z.object({
+        scorerId: z.uuid().nullable(),
+        assistId: z.uuid().nullable(),
+        ownGoal: z.boolean(),
+      }),
+    )
+    .max(99)
+    .optional(),
+  /** Las tarjetas del partido; reemplazan las anteriores. Si no viene, se dejan las que había. */
+  cards: z
+    .array(z.object({ playerId: z.uuid(), color: CardColorSchema }))
+    .max(60)
+    .optional(),
+});
+
+/**
+ * GET /teams/:teamId/scorers — goleadores, asistencias y tarjetas de los partidos del equipo
+ * (2026-11-06): lo ve todo el equipo. Solo quien tiene algo.
+ */
+export const TeamScorersResponseSchema = z.object({
+  players: z.array(
+    z.object({
+      player: PublishedPlayerSchema,
+      goals: z.int(),
+      assists: z.int(),
+      yellow: z.int(),
+      red: z.int(),
+    }),
+  ),
 });
 
 /**
@@ -184,6 +233,8 @@ export type MatchListResponse = z.infer<typeof MatchListResponseSchema>;
 export type MatchRatingValue = z.infer<typeof MatchRatingValueSchema>;
 export type MatchResult = z.infer<typeof MatchResultSchema>;
 export type MatchResultRequest = z.infer<typeof MatchResultRequestSchema>;
+export type TeamScorersResponse = z.infer<typeof TeamScorersResponseSchema>;
+export type CardColor = z.infer<typeof CardColorSchema>;
 export type MatchAttendanceRequest = z.infer<typeof MatchAttendanceRequestSchema>;
 export type MatchRatingRequest = z.input<typeof MatchRatingRequestSchema>;
 export type MatchRatingsResponse = z.infer<typeof MatchRatingsResponseSchema>;

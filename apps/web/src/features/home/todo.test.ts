@@ -208,7 +208,7 @@ describe('lo que toca: partidos (D16)', () => {
       m('Jugado', '2026-11-01T15:00:00.000Z', played),
       m('Con resultado', '2026-11-02T15:00:00.000Z', {
         ...played,
-        result: { goalsFor: 2, goalsAgainst: 1, figure: null, at: '2026-11-02T18:00:00.000Z' },
+        result: { goalsFor: 2, goalsAgainst: 1, figure: null, goals: [], cards: [], at: '2026-11-02T18:00:00.000Z' },
       }),
       m('Viejo', '2026-10-20T15:00:00.000Z', played),
       m('Cancelado', '2026-11-03T15:00:00.000Z', { ...played, status: 'cancelled' }),
@@ -227,6 +227,8 @@ describe('lo que toca: partidos (D16)', () => {
       goalsFor: 2,
       goalsAgainst: 1,
       figure: figure ? { id: figure, displayName: 'Ana', jerseyNumber: 4 } : null,
+      goals: [],
+      cards: [],
       at: '2026-11-02T18:00:00.000Z',
     });
     const played = { open: false };

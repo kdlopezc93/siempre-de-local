@@ -6,6 +6,7 @@ import {
   TournamentResponseSchema,
   MatchRatingsResponseSchema,
   MatchResponseSchema,
+  TeamScorersResponseSchema,
   PlayerMatchRatingsResponseSchema,
 } from '@sdl/contracts';
 import { and, eq } from 'drizzle-orm';
@@ -357,6 +358,81 @@ describe('partidos: convocar y responder (Fase 7)', () => {
         note: 'Golazo',
         ratedBy: 'coach',
       }),
+    );
+  });
+
+  it('goles, asistencias y tarjetas (2026-11-06): con el resultado, para todo el equipo', async () => {
+    const { match } = MatchResponseSchema.parse((await convocar()).json());
+    await connection.db
+      .update(teamMatch)
+      .set({ startsAt: new Date(Date.now() - 60_000) })
+      .where(eq(teamMatch.id, match.id));
+    const base = { goalsAgainst: 1, figurePlayerId: null };
+    // Más goles anotados que en el marcador, o de alguien de fuera: no.
+    const tooMany = await call('PUT', `/${match.id}/result`, coach, {
+      ...base,
+      goalsFor: 1,
+      goals: [
+        { scorerId: ana.userId, assistId: null, ownGoal: false },
+        { scorerId: beto.userId, assistId: null, ownGoal: false },
+      ],
+    });
+    expect(tooMany.json()).toMatchObject({ error: { code: 'MATCH_GOALS' } });
+    const outside = await call('PUT', `/${match.id}/result`, coach, {
+      ...base,
+      goalsFor: 1,
+      cards: [{ playerId: outsider.userId, color: 'red' }],
+    });
+    expect(outside.json()).toMatchObject({ error: { code: 'PLAYER_NOT_IN_TEAM' } });
+
+    const saved = MatchResponseSchema.parse(
+      (
+        await call('PUT', `/${match.id}/result`, coach, {
+          ...base,
+          goalsFor: 3,
+          goals: [
+            { scorerId: ana.userId, assistId: beto.userId, ownGoal: false },
+            { scorerId: null, assistId: null, ownGoal: true },
+            { scorerId: ana.userId, assistId: null, ownGoal: false },
+          ],
+          cards: [{ playerId: beto.userId, color: 'yellow' }],
+        })
+      ).json(),
+    ).match.result!;
+    expect(saved.goals).toEqual([
+      {
+        scorer: { id: ana.userId, displayName: 'ana', jerseyNumber: 4 },
+        assist: { id: beto.userId, displayName: 'beto', jerseyNumber: 9 },
+        ownGoal: false,
+      },
+      { scorer: null, assist: null, ownGoal: true },
+      expect.objectContaining({ assist: null, ownGoal: false }),
+    ]);
+    expect(saved.cards).toEqual([
+      { player: expect.objectContaining({ displayName: 'beto' }), color: 'yellow' },
+    ]);
+
+    // Sin goles ni tarjetas en el pedido, quedan los que había.
+    const kept = MatchResponseSchema.parse(
+      (await call('PUT', `/${match.id}/result`, coach, { ...base, goalsFor: 3 })).json(),
+    ).match.result!;
+    expect(kept.goals).toHaveLength(3);
+
+    // La tabla la ve todo el equipo: Ana 2 goles; Beto 1 asistencia y 1 amarilla.
+    const scorers = await app.inject({
+      method: 'GET',
+      url: `/api/v1/teams/${teamId}/scorers`,
+      headers: { cookie: beto.cookie, origin: TEST_ENV.WEB_ORIGIN },
+    });
+    expect(TeamScorersResponseSchema.parse(scorers.json()).players).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ player: expect.objectContaining({ id: ana.userId }), goals: 2 }),
+        expect.objectContaining({
+          player: expect.objectContaining({ id: beto.userId }),
+          assists: 1,
+          yellow: 1,
+        }),
+      ]),
     );
   });
 

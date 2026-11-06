@@ -175,7 +175,14 @@ describe('partidos en la app (Fase 7)', () => {
             open: false,
             editable: false,
             startsAt: future(-1),
-            result: { goalsFor: 1, goalsAgainst: 0, figure: null, at: future(0) },
+            result: {
+              goalsFor: 1,
+              goalsAgainst: 0,
+              figure: null,
+              goals: [],
+              cards: [],
+              at: future(0),
+            },
           }),
           roster: ROSTER,
         },
@@ -617,6 +624,18 @@ describe('partidos en la app (Fase 7)', () => {
                 goalsFor: 2,
                 goalsAgainst: 1,
                 figure: { id: ANA, displayName: 'Ana', jerseyNumber: 4 },
+                // Como el API: devuelve lo que se guardó.
+                goals: [
+                  {
+                    scorer: { id: ANA, displayName: 'Ana', jerseyNumber: 4 },
+                    assist: null,
+                    ownGoal: false,
+                  },
+                  { scorer: null, assist: null, ownGoal: false },
+                ],
+                cards: [
+                  { player: { id: ANA, displayName: 'Ana', jerseyNumber: 4 }, color: 'yellow' },
+                ],
                 at: future(0),
               },
             },
@@ -662,9 +681,29 @@ describe('partidos en la app (Fase 7)', () => {
     await user.click(screen.getByRole('button', { name: 'Seguir aquí' }));
     await user.click(within(board).getByRole('button', { name: 'Elegir' }));
     await user.click(await screen.findByRole('button', { name: /Ana/ }));
+    // Goles y tarjetas (2026-11-06): una fila por gol; el primero de Ana, el otro sin saber.
+    expect(within(board).getAllByRole('listitem')).toHaveLength(2);
+    await user.click(within(board).getByRole('button', { name: 'Elegir quién hizo el gol 1' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Gol 1' });
+    await user.click(within(sheet).getByRole('button', { name: 'Ana' }));
+    await user.click(within(sheet).getByRole('button', { name: 'Listo' }));
+    expect(within(board).getByText('Ana', { selector: 'b' })).toBeVisible();
+    await user.click(within(board).getByRole('button', { name: 'Amarilla' }));
+    const cardSheet = await screen.findByRole('dialog', { name: 'Tarjeta amarilla' });
+    await user.click(within(cardSheet).getByRole('button', { name: 'Ana' }));
+    expect(within(board).getByRole('button', { name: 'Quitar la amarilla de Ana' })).toBeVisible();
     await user.click(within(board).getByRole('button', { name: 'Guardar el resultado' }));
     await vi.waitFor(() =>
-      expect(result).toEqual({ goalsFor: 2, goalsAgainst: 1, figurePlayerId: ANA }),
+      expect(result).toEqual({
+        goalsFor: 2,
+        goalsAgainst: 1,
+        figurePlayerId: ANA,
+        goals: [
+          { scorerId: ANA, assistId: null, ownGoal: false },
+          { scorerId: null, assistId: null, ownGoal: false },
+        ],
+        cards: [{ playerId: ANA, color: 'yellow' }],
+      }),
     );
     expect(await within(board).findByText(/Resultado guardado/)).toBeInTheDocument();
 
@@ -761,6 +800,8 @@ describe('partidos en la app (Fase 7)', () => {
               goalsFor: 3,
               goalsAgainst: 3,
               figure: { id: ME_TWO_TEAMS.user.id, displayName: 'Kevin', jerseyNumber: 10 },
+              goals: [],
+              cards: [],
               at: future(0),
             },
             myRating: 4,

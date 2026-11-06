@@ -15,6 +15,7 @@ import { Screen } from '../../shared/ui/Screen';
 import { LeadTask } from '../../shared/ui/TaskCard';
 import { matchKindLine, matchTitle, matchWhen, splitMatches } from './match-view';
 import styles from './Matches.module.css';
+import { Scorers } from './Scorers';
 import { useMatches } from './use-matches';
 import { PageTitle } from '../../shared/ui/PageTitle';
 import { StatGrid, StatTile } from '../../shared/ui/StatTile';
@@ -49,6 +50,7 @@ export function MatchesPage({ me, teamId }: { me: Me; teamId: string }) {
       ) : (
         <MatchList teamId={teamId} items={matches.data.items} staff={staff} player={player} />
       )}
+      <Scorers teamId={teamId} />
       {staff && (
         <ul className={styles.list}>
           <li>

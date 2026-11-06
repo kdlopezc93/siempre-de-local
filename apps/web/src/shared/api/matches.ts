@@ -18,6 +18,8 @@ import {
   type TournamentListResponse,
   type TournamentResponse,
   type UpdateMatchRequest,
+  TeamScorersResponseSchema,
+  type TeamScorersResponse,
 } from '@sdl/contracts';
 
 import { apiRequest } from './http';
@@ -139,4 +141,9 @@ export function createTournament(teamId: string, name: string): Promise<Tourname
     method: 'POST',
     body: JSON.stringify({ name }),
   });
+}
+
+/** Goleadores, asistencias y tarjetas del equipo (2026-11-06). */
+export function fetchScorers(teamId: string): Promise<TeamScorersResponse> {
+  return apiRequest(`/api/v1/teams/${teamId}/scorers`, TeamScorersResponseSchema);
 }

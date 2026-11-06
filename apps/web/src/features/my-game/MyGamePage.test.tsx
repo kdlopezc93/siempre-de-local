@@ -174,6 +174,8 @@ describe('Mi juego (07 §4.3)', () => {
       goalsFor: 2,
       goalsAgainst: 1,
       figure: figure ? { id: figure, displayName: 'Kevin', jerseyNumber: 10 } : null,
+      goals: [],
+      cards: [],
       at: '2026-11-01T18:00:00.000Z',
     });
     api({

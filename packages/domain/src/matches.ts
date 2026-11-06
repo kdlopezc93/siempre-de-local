@@ -159,3 +159,56 @@ export function matchTallyByKind(
     friendly: matchTally(matches.filter((m) => m.kind === 'friendly')),
   };
 }
+
+/*
+ * Goles, asistencias y tarjetas (2026-11-06, `08` etapa 1): los carga el cuerpo técnico en
+ * "después del partido". Un gol por cada uno del marcador a favor (se puede dejar sin saber
+ * quién), con asistencia opcional; el autogol del rival va aparte.
+ */
+export type CardColor = 'yellow' | 'red';
+
+export interface GoalEntry {
+  scorerId: string | null;
+  assistId: string | null;
+  ownGoal: boolean;
+}
+
+/** Qué está mal en los goles cargados, en palabras, o null si están bien. */
+export function goalsProblem(goalsFor: number, goals: readonly GoalEntry[]): string | null {
+  if (goals.length > goalsFor) return 'Hay más goles anotados que en el marcador.';
+  for (const goal of goals) {
+    if (goal.ownGoal && (goal.scorerId || goal.assistId)) {
+      return 'Un autogol del rival no tiene goleador ni asistencia.';
+    }
+    if (goal.assistId && !goal.scorerId)
+      return 'Para la asistencia, primero elige quién hizo el gol.';
+    if (goal.assistId && goal.assistId === goal.scorerId) return 'Nadie se da el pase a sí mismo.';
+  }
+  return null;
+}
+
+export interface PlayerTally {
+  goals: number;
+  assists: number;
+  yellow: number;
+  red: number;
+}
+
+/** Los números de cada jugador en varios partidos: goles, asistencias y tarjetas. */
+export function tallyEvents(
+  goals: readonly GoalEntry[],
+  cards: readonly { playerId: string; color: CardColor }[],
+): Map<string, PlayerTally> {
+  const tally = new Map<string, PlayerTally>();
+  const of = (id: string) => {
+    const entry = tally.get(id) ?? { goals: 0, assists: 0, yellow: 0, red: 0 };
+    tally.set(id, entry);
+    return entry;
+  };
+  for (const goal of goals) {
+    if (goal.scorerId) of(goal.scorerId).goals++;
+    if (goal.assistId) of(goal.assistId).assists++;
+  }
+  for (const card of cards) of(card.playerId)[card.color]++;
+  return tally;
+}

@@ -13,9 +13,12 @@ import type {
   Profile,
   Tournament,
   UpdateMatchRequest,
+  TeamScorersResponse,
 } from '@sdl/contracts';
 import {
   hasMatchStarted,
+  goalsProblem,
+  tallyEvents,
   isGame,
   isMatchEditable,
   isMatchOpen,
@@ -108,6 +111,59 @@ export class Matches {
     @Inject(AUDIT_LOG) private readonly audit: AuditLog,
     @Inject(NOTIFIER) private readonly notifier: Notifier,
   ) {}
+
+  /**
+   * Goleadores, asistencias y tarjetas de los partidos del equipo (2026-11-06): lo ve todo el
+   * equipo. Solo quien tiene algo, de más goles a menos (y después asistencias).
+   */
+  async scorers(actor: Actor, teamId: string): Promise<TeamScorersResponse> {
+    await this.authorize(actor, teamId, 'team.read');
+    const [records, players] = await Promise.all([
+      this.matches.listByTeam(teamId),
+      this.players.activePlayers(teamId),
+    ]);
+    const events = await this.matches.events(
+      records.filter((m) => m.status !== 'cancelled').map((m) => m.id),
+    );
+    const all = [...events.values()];
+    const names = new Map(
+      all
+        .flatMap((e) => [
+          ...e.goals.flatMap((g) => [g.scorer, g.assist].filter((p) => p !== null)),
+          ...e.cards.map((c) => c.player),
+        ])
+        .map((p) => [p.id, p]),
+    );
+    const tally = tallyEvents(
+      all.flatMap((e) =>
+        e.goals.map((g) => ({
+          scorerId: g.scorer?.id ?? null,
+          assistId: g.assist?.id ?? null,
+          ownGoal: g.ownGoal,
+        })),
+      ),
+      all.flatMap((e) => e.cards.map((c) => ({ playerId: c.player.id, color: c.color }))),
+    );
+    const profiles = await this.profilesOf([...names.values()]);
+    const jersey = new Map(players.map((p) => [p.userId, p.jerseyNumber]));
+    return {
+      players: [...tally]
+        .map(([id, counts]) => ({
+          player: {
+            id,
+            displayName: profiles.get(id)?.displayName ?? names.get(id)!.name,
+            jerseyNumber: jersey.get(id) ?? null,
+          },
+          ...counts,
+        }))
+        .sort(
+          (a, b) =>
+            b.goals - a.goals ||
+            b.assists - a.assists ||
+            a.player.displayName.localeCompare(b.player.displayName, 'es'),
+        ),
+    };
+  }
 
   async list(actor: Actor, teamId: string, now = new Date()): Promise<Match[]> {
     const team = await this.authorize(actor, teamId, 'team.read');
@@ -256,11 +312,28 @@ export class Matches {
     this.requireGame(record);
     this.requireStarted(record, now);
     if (request.figurePlayerId) await this.requirePlayer(teamId, request.figurePlayerId);
-    await this.matches.setResult(matchId, { ...request, resultAt: now });
+    // Goles y tarjetas (2026-11-06): de jugadores del equipo, a lo sumo los goles del marcador.
+    const problem = request.goals ? goalsProblem(request.goalsFor, request.goals) : null;
+    if (problem) throw new BusinessRuleError(problem, 'MATCH_GOALS');
+    const involved = new Set([
+      ...(request.goals ?? []).flatMap((g) => [g.scorerId, g.assistId]),
+      ...(request.cards ?? []).map((c) => c.playerId),
+    ]);
+    involved.delete(null);
+    if (involved.size > 0) await this.requirePlayers(teamId, [...involved] as string[]);
+    const { goals, cards, ...result } = request;
+    await this.matches.setResult(matchId, {
+      ...result,
+      resultAt: now,
+      ...(goals ? { goals } : {}),
+      ...(cards ? { cards } : {}),
+    });
     await this.record(actor, teamId, matchId, 'match.result_recorded', {
       goalsFor: request.goalsFor,
       goalsAgainst: request.goalsAgainst,
       figure: request.figurePlayerId !== null,
+      goals: request.goals?.length ?? null,
+      cards: request.cards?.length ?? null,
     });
     // La felicitación a la figura, una vez: corregir el marcador no la repite.
     if (request.figurePlayerId && request.figurePlayerId !== record.figure?.id) {
@@ -417,14 +490,26 @@ export class Matches {
     now: Date,
   ): Promise<Match[]> {
     const ids = records.map((m) => m.id);
-    const [replies, myRatings, profiles] = await Promise.all([
+    const [replies, myRatings, events] = await Promise.all([
       this.matches.replies(ids),
       this.myRatings(actor, team, ids),
-      this.profilesOf(records.flatMap((m) => (m.figure ? [m.figure] : []))),
+      this.matches.events(ids),
+    ]);
+    const profiles = await this.profilesOf([
+      ...records.flatMap((m) => (m.figure ? [m.figure] : [])),
+      ...[...events.values()].flatMap((e) => [
+        ...e.goals.flatMap((g) => [g.scorer, g.assist].filter((p) => p !== null)),
+        ...e.cards.map((c) => c.player),
+      ]),
     ]);
     const playerIds = players.map((p) => p.userId);
     const injured = new Set(players.filter((p) => p.injuredAt !== null).map((p) => p.userId));
     const jersey = new Map(players.map((p) => [p.userId, p.jerseyNumber]));
+    const person = (p: { id: string; name: string }) => ({
+      id: p.id,
+      displayName: profiles.get(p.id)?.displayName ?? p.name,
+      jerseyNumber: jersey.get(p.id) ?? null,
+    });
     return records.map((m) => {
       const matchReplies = replies.get(m.id)!;
       const summary = replySummary(playerIds, matchReplies, injured);
@@ -456,13 +541,16 @@ export class Matches {
             ? {
                 goalsFor: m.goalsFor,
                 goalsAgainst: m.goalsAgainst,
-                figure: m.figure
-                  ? {
-                      id: m.figure.id,
-                      displayName: profiles.get(m.figure.id)?.displayName ?? m.figure.name,
-                      jerseyNumber: jersey.get(m.figure.id) ?? null,
-                    }
-                  : null,
+                figure: m.figure ? person(m.figure) : null,
+                goals: events.get(m.id)!.goals.map((g) => ({
+                  scorer: g.scorer ? person(g.scorer) : null,
+                  assist: g.assist ? person(g.assist) : null,
+                  ownGoal: g.ownGoal,
+                })),
+                cards: events.get(m.id)!.cards.map((c) => ({
+                  player: person(c.player),
+                  color: c.color,
+                })),
                 at: m.resultAt.toISOString(),
               }
             : null,
@@ -484,8 +572,12 @@ export class Matches {
   }
 
   private async requirePlayer(teamId: string, playerId: string) {
-    const players = await this.players.activePlayers(teamId);
-    if (!players.some((p) => p.userId === playerId)) {
+    await this.requirePlayers(teamId, [playerId]);
+  }
+
+  private async requirePlayers(teamId: string, playerIds: string[]) {
+    const active = new Set((await this.players.activePlayers(teamId)).map((p) => p.userId));
+    if (playerIds.some((id) => !active.has(id))) {
       throw new BusinessRuleError('No es jugador de este equipo.', 'PLAYER_NOT_IN_TEAM');
     }
   }

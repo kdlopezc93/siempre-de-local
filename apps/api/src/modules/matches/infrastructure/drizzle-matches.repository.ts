@@ -13,8 +13,17 @@ import type {
   MatchesRepository,
   MatchRecord,
   MatchResultData,
+  MatchEventsRecord,
 } from '../application/ports/matches.repository.js';
-import { matchAttendance, matchRating, matchReply, teamMatch, tournament } from './schema.js';
+import {
+  matchAttendance,
+  matchCard,
+  matchGoal,
+  matchRating,
+  matchReply,
+  teamMatch,
+  tournament,
+} from './schema.js';
 
 const UNIQUE_VIOLATION = '23505';
 
@@ -26,6 +35,8 @@ function isUniqueViolation(error: unknown): boolean {
 }
 
 const figure = alias(user, 'figure');
+const scorer = alias(user, 'scorer');
+const assister = alias(user, 'assister');
 const rater = alias(user, 'rater');
 const player = alias(user, 'player');
 
@@ -166,8 +177,75 @@ export class DrizzleMatchesRepository implements MatchesRepository, OpenMatchesQ
     });
   }
 
-  async setResult(matchId: string, result: MatchResultData) {
-    await this.connection.db.update(teamMatch).set(result).where(eq(teamMatch.id, matchId));
+  async setResult(matchId: string, { goals, cards, ...result }: MatchResultData) {
+    await this.connection.db.transaction(async (tx) => {
+      await tx.update(teamMatch).set(result).where(eq(teamMatch.id, matchId));
+      if (goals) {
+        await tx.delete(matchGoal).where(eq(matchGoal.matchId, matchId));
+        if (goals.length > 0) {
+          await tx
+            .insert(matchGoal)
+            .values(goals.map((goal, i) => ({ ...goal, matchId, seq: i + 1 })));
+        }
+      }
+      if (cards) {
+        await tx.delete(matchCard).where(eq(matchCard.matchId, matchId));
+        if (cards.length > 0) {
+          await tx
+            .insert(matchCard)
+            .values(cards.map((card) => ({ matchId, userId: card.playerId, color: card.color })));
+        }
+      }
+    });
+  }
+
+  async events(matchIds: string[]) {
+    const events = new Map<string, MatchEventsRecord>(
+      matchIds.map((id) => [id, { goals: [], cards: [] }]),
+    );
+    if (matchIds.length === 0) return events;
+    const { db } = this.connection;
+    const [goals, cards] = await Promise.all([
+      db
+        .select({
+          matchId: matchGoal.matchId,
+          ownGoal: matchGoal.ownGoal,
+          scorerId: scorer.id,
+          scorerName: scorer.name,
+          assistId: assister.id,
+          assistName: assister.name,
+        })
+        .from(matchGoal)
+        .leftJoin(scorer, eq(matchGoal.scorerId, scorer.id))
+        .leftJoin(assister, eq(matchGoal.assistId, assister.id))
+        .where(inArray(matchGoal.matchId, matchIds))
+        .orderBy(asc(matchGoal.seq)),
+      db
+        .select({
+          matchId: matchCard.matchId,
+          color: matchCard.color,
+          playerId: player.id,
+          playerName: player.name,
+        })
+        .from(matchCard)
+        .innerJoin(player, eq(matchCard.userId, player.id))
+        .where(inArray(matchCard.matchId, matchIds))
+        .orderBy(asc(matchCard.id)),
+    ]);
+    for (const g of goals) {
+      events.get(g.matchId)!.goals.push({
+        ownGoal: g.ownGoal,
+        scorer: g.scorerId ? { id: g.scorerId, name: g.scorerName! } : null,
+        assist: g.assistId ? { id: g.assistId, name: g.assistName! } : null,
+      });
+    }
+    for (const c of cards) {
+      events.get(c.matchId)!.cards.push({
+        color: c.color,
+        player: { id: c.playerId, name: c.playerName },
+      });
+    }
+    return events;
   }
 
   async ratings(matchId: string) {

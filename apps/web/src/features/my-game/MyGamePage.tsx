@@ -18,7 +18,7 @@ import { useHistory } from '../history/use-history';
 import { useCertPositions } from '../knowledge/use-knowledge';
 import { ratingLabel } from '../matches/after-match';
 import { matchDay } from '../matches/match-view';
-import { useMatches } from '../matches/use-matches';
+import { useMatches, useScorers } from '../matches/use-matches';
 import { pesos } from '../charges/charge-view';
 import { useMyCharges } from '../charges/use-charges';
 import styles from './MyGamePage.module.css';
@@ -115,6 +115,9 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
 function SeasonSection({ meId, teamId }: { meId: string; teamId: string }) {
   const matches = useMatches(teamId);
   const history = useHistory(meId);
+  // Goles y asistencias (2026-11-06): salen cuando tienes alguno.
+  const scorers = useScorers(teamId);
+  const mine = scorers.data?.players.find((p) => p.player.id === meId);
   const items = matches.data?.items ?? [];
   const played = items.filter(
     (m) => m.result && (m.myRating !== null || m.result.figure?.id === meId),
@@ -129,6 +132,12 @@ function SeasonSection({ meId, teamId }: { meId: string; teamId: string }) {
         <StatTile label="Partidos" value={played} />
         <StatTile label="Figura" value={figure} tone={figure > 0 ? 'volt' : 'white'} />
         <StatTile label="Tests" value={tests} />
+        {mine && (mine.goals > 0 || mine.assists > 0) && (
+          <>
+            <StatTile label="Goles" value={mine.goals} tone={mine.goals > 0 ? 'volt' : 'white'} />
+            <StatTile label="Asistencias" value={mine.assists} />
+          </>
+        )}
       </StatGrid>
     </section>
   );

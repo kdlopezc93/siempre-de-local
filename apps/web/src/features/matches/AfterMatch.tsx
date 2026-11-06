@@ -12,6 +12,14 @@ import { whyCannotRate } from '../squad/who-rates';
 import { useSession } from '../auth/use-session';
 import { RATING_OPTIONS, ratingLabel, type RatablePlayer, whoPlayed } from './after-match';
 import styles from './AfterMatch.module.css';
+import {
+  cardDrafts,
+  goalDrafts,
+  goalRows,
+  MatchEventsEditor,
+  MatchEventsView,
+  peopleOf,
+} from './MatchEvents';
 import { WhoCame, type ReportUnsaved } from './WhoCame';
 import {
   useMatchRatings,
@@ -161,6 +169,13 @@ function ResultBoard({
   const [goalsAgainst, setGoalsAgainst] = useState(match.result?.goalsAgainst ?? 0);
   const [figureId, setFigureId] = useState<string | null>(match.result?.figure?.id ?? null);
   const [picking, setPicking] = useState(false);
+  // Goles y tarjetas (2026-11-06): una fila por gol del marcador y las tarjetas debajo.
+  const [goals, setGoals] = useState(() => goalDrafts(match.result));
+  const [cards, setCards] = useState(() => cardDrafts(match.result));
+  const rows = goalRows(goals, goalsFor);
+  const eventsChanged =
+    JSON.stringify(rows) !== JSON.stringify(goalRows(goalDrafts(match.result), goalsFor)) ||
+    JSON.stringify(cards) !== JSON.stringify(cardDrafts(match.result));
   const figure =
     candidates.find((p) => p.playerId === figureId) ??
     (match.result?.figure && match.result.figure.id === figureId
@@ -174,14 +189,16 @@ function ResultBoard({
     !match.result ||
     match.result.goalsFor !== goalsFor ||
     match.result.goalsAgainst !== goalsAgainst ||
-    (match.result.figure?.id ?? null) !== figureId;
+    (match.result.figure?.id ?? null) !== figureId ||
+    eventsChanged;
   // Sin resultado guardado, 0 a 0 sin figura es "no tocó nada".
   useReportUnsaved(
     report,
     'result',
     goalsFor !== (match.result?.goalsFor ?? 0) ||
       goalsAgainst !== (match.result?.goalsAgainst ?? 0) ||
-      figureId !== (match.result?.figure?.id ?? null),
+      figureId !== (match.result?.figure?.id ?? null) ||
+      eventsChanged,
   );
 
   return (
@@ -196,6 +213,15 @@ function ResultBoard({
         </span>
         <Goals side={match.opponent ?? ''} value={goalsAgainst} onChange={setGoalsAgainst} />
       </div>
+      <MatchEventsEditor
+        goalsFor={goalsFor}
+        goals={rows}
+        cards={cards}
+        candidates={candidates}
+        people={peopleOf(candidates, match.result)}
+        onGoals={setGoals}
+        onCards={setCards}
+      />
 
       <div className={styles.figure}>
         <div className={styles.figureWho}>
@@ -255,7 +281,9 @@ function ResultBoard({
       <Button
         busy={save.isPending}
         disabled={!dirty}
-        onClick={() => save.mutate({ goalsFor, goalsAgainst, figurePlayerId: figureId })}
+        onClick={() =>
+          save.mutate({ goalsFor, goalsAgainst, figurePlayerId: figureId, goals: rows, cards })
+        }
       >
         {match.result ? 'Guardar los cambios' : 'Guardar el resultado'}
       </Button>
@@ -347,6 +375,7 @@ export function MatchResultView({
         </span>
         <Goals side={match.opponent ?? ''} value={result.goalsAgainst} />
       </div>
+      <MatchEventsView result={result} />
       {result.figure && (
         <div className={styles.figure}>
           <div className={styles.figureWho}>
