@@ -1,0 +1,48 @@
+name: Respaldar la base de staging
+
+# Todos los días a las 3 a. m. de Colombia (08:00 UTC): pg_dump de la base de staging (Neon),
+# cifrado con una clave que solo está en los secretos de GitHub y en poder de Kevin, guardado
+# como artifact 30 días: "las copias de seguridad se sobrescriben en máximo 30 días" (política
+# de datos). El repo es público: sin cifrar, cualquiera con cuenta de GitHub podría bajarlo.
+# Restaurar: docs/deploy.md, paso 11. A mano: Actions → "Respaldar la base de staging".
+on:
+  schedule:
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: Respaldo cifrado
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: pg_dump (Postgres 18) y cifrado
+        env:
+          BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          test -n "$BACKUP_DATABASE_URL" && test -n "$BACKUP_PASSPHRASE"
+          umask 077
+          mkdir -p out
+          # El cliente de la misma versión que el servidor (PG18), sin instalar nada en el runner.
+          docker run --rm -e DATABASE_URL="$BACKUP_DATABASE_URL" postgres:18 \
+            sh -c 'pg_dump --format=custom --no-owner --no-privileges "$DATABASE_URL"' > dump.pgc
+          test -s dump.pgc
+          name="sdl-staging-$(date -u +%Y%m%d-%H%M)"
+          gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 \
+            --passphrase-fd 3 --output "out/$name.pgc.gpg" dump.pgc 3<<<"$BACKUP_PASSPHRASE"
+          rm dump.pgc
+          echo "NAME=$name" >> "$GITHUB_ENV"
+          ls -l out
+
+      - name: Guardar 30 días
+        uses: actions/upload-artifact@v5
+        with:
+          name: ${{ env.NAME }}
+          path: out/
+          retention-days: 30
+          if-no-files-found: error
