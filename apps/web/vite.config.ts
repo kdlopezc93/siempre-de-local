@@ -228,7 +228,8 @@ export default defineConfig(({ mode }) => {
           // Solo woff2: los .woff de respaldo no hacen falta en navegadores con service worker.
           globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
           // Los íconos del otro entorno no se guardan en el celular.
-          globIgnores: testEnv ? [] : ['pruebas/**'],
+          // La vista previa de los links (og-image.png) es para WhatsApp, no hace falta en el celular.
+          globIgnores: testEnv ? ['og-image.png'] : ['pruebas/**', 'og-image.png'],
           navigateFallback: '/index.html',
           // Si el API comparte origen (túnel), su callback de OAuth no es la SPA.
           navigateFallbackDenylist: [/^\/api\//],

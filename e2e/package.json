@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "e2e": "pnpm --filter \"@sdl/api...\" build && playwright test",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "og-image": "node scripts/og-image.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

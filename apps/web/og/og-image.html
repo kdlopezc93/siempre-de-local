@@ -1,0 +1,62 @@
+<!doctype html>
+<!--
+  Fuente de public/og-image.png (1200×630), la vista previa de los links en WhatsApp (nivel 1,
+  2026-11-06). Para regenerarla: pnpm --filter @sdl/e2e og-image.
+-->
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;800&display=swap"
+    />
+    <style>
+      body {
+        margin: 0;
+        width: 1200px;
+        height: 630px;
+        overflow: hidden;
+        background: #3155e8;
+        color: #fff;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        display: grid;
+        place-items: center;
+        align-content: center;
+        gap: 18px;
+      }
+      svg {
+        width: 250px;
+        height: 250px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 76px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      p {
+        margin: 0;
+        font-size: 36px;
+        font-weight: 600;
+        color: #c9d4fb;
+      }
+      /* La franja de pasto recién podado, abajo. */
+      body::after {
+        content: '';
+        position: fixed;
+        inset: auto 0 0;
+        height: 34px;
+        background: #d4f34a;
+      }
+    </style>
+  </head>
+  <body>
+    <svg viewBox="0 0 512 512" aria-hidden="true">
+      <path d="M64 256h384" stroke="#fff" stroke-width="20" stroke-linecap="round" opacity=".92" />
+      <circle cx="256" cy="256" r="104" fill="none" stroke="#fff" stroke-width="20" opacity=".92" />
+      <circle cx="256" cy="256" r="30" fill="#d4f34a" />
+    </svg>
+    <h1>Siempre de Local</h1>
+    <p>Tu equipo, siempre de local</p>
+  </body>
+</html>
