@@ -3,6 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 
 import { ConfigModule } from './config/config.module.js';
 import { AccountModule } from './modules/account/account.module.js';
+import { AdoptionModule } from './modules/adoption/adoption.module.js';
 import { AssessmentsModule } from './modules/assessments/assessments.module.js';
 import { RatingsModule } from './modules/ratings/ratings.module.js';
 import { AuditModule } from './modules/audit/audit.module.js';
@@ -43,6 +44,7 @@ import { DbModule } from './shared/db/db.module.js';
     ChargesModule,
     TeamDataModule,
     SquadModule,
+    AdoptionModule,
     HealthModule,
   ],
   // En este orden: primero la sesión, después los permisos de @Can.

@@ -4,6 +4,7 @@ import { createBrowserRouter, Navigate } from 'react-router';
 import {
   AssessRoute,
   ChargeRoute,
+  AdoptionRoute,
   ChargesRoute,
   MyChargesRoute,
   NewChargeRoute,
@@ -91,6 +92,7 @@ export const router = createBrowserRouter([
   { path: '/equipos/:teamId/cobros/nuevo', element: <NewChargeRoute /> },
   { path: '/equipos/:teamId/cobros/:chargeId', element: <ChargeRoute /> },
   { path: '/equipos/:teamId/mis-cuentas', element: <MyChargesRoute /> },
+  { path: '/equipos/:teamId/la-app', element: <AdoptionRoute /> },
   { path: '/conocimiento', element: <KnowledgeRoute /> },
   { path: '/conocimiento/examen/:examId', element: <ExamRoute /> },
   { path: '/equipos/:teamId/test', element: <QuizRoute /> },

@@ -4,12 +4,15 @@ import { ChartLineUp } from '@phosphor-icons/react/dist/csr/ChartLineUp';
 import { Question } from '@phosphor-icons/react/dist/csr/Question';
 import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
 import { Buildings } from '@phosphor-icons/react/dist/csr/Buildings';
+import { DeviceMobile } from '@phosphor-icons/react/dist/csr/DeviceMobile';
 import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
 import { Wallet } from '@phosphor-icons/react/dist/csr/Wallet';
 
 import type { Me } from '../../shared/api/auth';
 import { Badge } from '../../shared/ui/Badge';
 import { useCharges } from '../charges/use-charges';
+import { adoptionSummary } from '../adoption/adoption-view';
+import { useAdoption } from '../adoption/use-adoption';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
 import { formatsLabel } from '../shell/shell-nav';
@@ -33,6 +36,9 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
   const money = staff || roles.includes('treasurer') || clubAdmin;
   const charges = useCharges(teamId, money);
   const reported = charges.data?.items.reduce((n, c) => n + (c.cancelled ? 0 : c.reported), 0) ?? 0;
+  // La app en el equipo (2026-11-06): cuántos entraron esta semana.
+  const adoption = useAdoption(teamId, staff || clubAdmin);
+  const usage = adoption.data ? adoptionSummary(adoption.data.players) : null;
 
   return (
     <Screen className={styles.screen}>
@@ -63,6 +69,20 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
                 <Badge tone="brand" size="sm">
                   {reported} por confirmar
                 </Badge>
+              ) : undefined
+            }
+          />
+        )}
+        {(staff || clubAdmin) && (
+          <Item
+            to={`/equipos/${teamId}/la-app`}
+            icon={DeviceMobile}
+            title="La app en el equipo"
+            trailing={
+              usage && usage.total > 0 ? (
+                <span className={styles.trailing}>
+                  {usage.week} de {usage.total}
+                </span>
               ) : undefined
             }
           />

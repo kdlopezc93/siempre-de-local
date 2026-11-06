@@ -17,3 +17,4 @@ export * from './account.js';
 export * from './matches.js';
 export * from './push.js';
 export * from './charges.js';
+export * from './adoption.js';
