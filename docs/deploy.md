@@ -113,3 +113,33 @@ unset s
 ```
 
 Sin `CRON_SECRET` en Fly, la ruta responde 404 y el workflow falla (lo avisa GitHub). Probarla a mano: Actions → "Recordar cobros que vencen" → Run workflow.
+
+## 11. Respaldos diarios (la plata y todo lo demás)
+
+`.github/workflows/backup-db.yml` corre todos los días a las 3 a. m. de Colombia: hace `pg_dump` de la base de staging con el cliente de Postgres 18, lo cifra con `gpg` (AES-256) y lo guarda como artifact del repo **30 días** (la política: "las copias de seguridad se sobrescriben en máximo 30 días"). El repo es público: cualquiera con cuenta de GitHub puede bajar los artifacts, por eso van cifrados. Costo: cero (Actions y artifacts son gratis en repos públicos; la base pesa ~1 MB).
+
+**Secretos** (en GitHub, sin pasar por la pantalla):
+
+- `BACKUP_DATABASE_URL`: la conexión **directa** (sin `-pooler`) de Neon, de `~/.config/sdl/neon-project.json`.
+- `BACKUP_PASSPHRASE`: la clave de cifrado. Se genera una vez en `~/.config/sdl/backup-passphrase` (`chmod 600`) y **Kevin la copia a su gestor de contraseñas**: sin ella los respaldos no sirven.
+
+```bash
+umask 077; openssl rand -base64 48 | tr -d '\n' > ~/.config/sdl/backup-passphrase
+gh secret set BACKUP_PASSPHRASE < ~/.config/sdl/backup-passphrase
+jq -r '.connection_uris[0].connection_uri' ~/.config/sdl/neon-project.json | gh secret set BACKUP_DATABASE_URL
+```
+
+Si se cambia la contraseña de la base (o el `DATABASE_URL` de Fly), hay que actualizar también `BACKUP_DATABASE_URL`.
+
+**Restaurar** (a una rama nueva de Neon, nunca encima de la de producción sin pensarlo):
+
+```bash
+gh run list --workflow backup-db.yml                # el respaldo que se quiere
+gh run download <run-id>                            # baja la carpeta sdl-staging-AAAAMMDD-HHMM/
+gpg --decrypt --output dump.pgc sdl-staging-*/*.pgc.gpg   # pide la clave
+neonctl branches create --name restaurado-AAAAMMDD   # y su connection string
+docker run --rm -i postgres:18 pg_restore --no-owner --no-privileges --clean --if-exists \
+  -d "<connection string de la rama nueva>" < dump.pgc
+```
+
+Probarlo a mano: Actions → "Respaldar la base de staging" → Run workflow.
