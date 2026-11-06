@@ -121,6 +121,8 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
                 : 'El entreno ya empezó.'}
           </p>
         )}
+        {/* La pregunta del partido, en el bloque cobalto (2026-11-06, Kevin). */}
+        {!played && player && match.open && <ReplyButtons teamId={teamId} match={match} />}
       </header>
 
       {staff && match.kind === 'championship' && !match.tournament && (
@@ -146,8 +148,6 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         canCharge={takesList && match.status === 'scheduled'}
         canEdit={staff && match.editable}
       />
-
-      {!played && player && match.open && <ReplyButtons teamId={teamId} match={match} />}
 
       {/*
         El cuerpo técnico antes del partido (2026-11-06): convocatoria y alineación en dos
@@ -260,8 +260,8 @@ const NEW = 'nuevo';
 function ReplyButtons({ teamId, match }: { teamId: string; match: Match }) {
   const reply = useReplyMatch(teamId, match.id);
   return (
-    <section aria-labelledby="tu-respuesta" className={styles.section}>
-      <h2 id="tu-respuesta" className={styles.sectionTitle}>
+    <section aria-labelledby="tu-respuesta" className={styles.heroReply}>
+      <h2 id="tu-respuesta" className={styles.heroQuestion}>
         {match.myReply ? 'Tu respuesta' : '¿Vas?'}
       </h2>
       <div className={styles.replies}>
@@ -279,10 +279,10 @@ function ReplyButtons({ teamId, match }: { teamId: string; match: Match }) {
         ))}
       </div>
       {match.open && match.myReply && (
-        <p className={styles.muted}>Puedes cambiarla hasta la hora del partido.</p>
+        <p className={styles.heroHint}>Puedes cambiarla hasta la hora del partido.</p>
       )}
       {reply.isError && (
-        <p role="alert" className={styles.error}>
+        <p role="alert" className={styles.heroError}>
           {reply.error instanceof ApiError && reply.error.status < 500
             ? reply.error.message
             : 'No pudimos guardar tu respuesta. Revisa tu conexión e intenta de nuevo.'}
@@ -315,7 +315,7 @@ function CallUp({ teamId, match, roster }: { teamId: string; match: Match; roste
   const message = callUpMessage(match, roster, appUrl(`/equipos/${teamId}/partidos/${match.id}`));
   return (
     <>
-      <dl className={styles.counts}>
+      <dl className={styles.replyCounts}>
         {(
           [
             ['Van', match.replies.yes, 'yes'],

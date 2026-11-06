@@ -620,14 +620,14 @@
   --tint: var(--sdl-badge-neutral-bg);
 }
 
-.counts {
+.replyCounts {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
   gap: var(--sdl-space-2);
   margin: 0;
 }
 
-.counts div {
+.replyCounts div {
   display: flex;
   flex-direction: column-reverse;
   padding: var(--sdl-space-2) var(--sdl-space-3);
@@ -637,12 +637,12 @@
   box-shadow: var(--sdl-shadow-card);
 }
 
-.counts dt {
+.replyCounts dt {
   color: var(--sdl-fg-muted);
   font-size: var(--sdl-text-sm);
 }
 
-.counts dd {
+.replyCounts dd {
   margin: 0;
   font-family: var(--sdl-font-numeric);
   font-size: 24px;
@@ -710,4 +710,52 @@
   font-family: var(--sdl-font-numeric);
   font-size: 11px;
   font-weight: 700;
+}
+
+/* Voy / No voy dentro del bloque cobalto (2026-11-06, Kevin): la pregunta del partido, arriba.
+   Sin elegir, translúcidos con borde blanco; el elegido, volt con tinta encima. */
+.heroReply {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin-top: var(--sdl-space-2);
+}
+
+.heroQuestion {
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-base);
+  font-weight: 700;
+}
+
+.heroReply .replyButton {
+  min-height: 52px;
+  border-color: rgb(255 255 255 / 60%);
+  background: rgb(255 255 255 / 12%);
+  color: var(--sdl-on-brand);
+}
+
+.heroReply .replyButton[aria-pressed='true'] {
+  border-color: var(--sdl-accent);
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
+}
+
+.heroReply .replyButton:focus-visible {
+  outline: 2px solid var(--sdl-on-brand);
+  outline-offset: 2px;
+}
+
+.heroHint {
+  color: var(--sdl-on-brand);
+  font-size: var(--sdl-text-sm);
+  opacity: 0.85;
+}
+
+.heroError {
+  padding: var(--sdl-space-2) var(--sdl-space-3);
+  border-radius: var(--sdl-radius-sm);
+  background: var(--sdl-surface);
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
 }
