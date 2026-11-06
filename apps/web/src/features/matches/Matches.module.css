@@ -482,3 +482,280 @@
   font-size: var(--sdl-text-xs);
   font-weight: 500;
 }
+
+/* "Mandar al grupo" (2026-11-06): lo que va a decir el mensaje, con el borde volt de lo pendiente. */
+.shareCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-4);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+  outline: 2px solid var(--sdl-accent);
+  outline-offset: -2px;
+}
+
+.shareTitle {
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-base);
+  font-weight: 700;
+}
+
+.pendingNames {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pendingNames li {
+  padding: var(--sdl-space-1) var(--sdl-space-3);
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-surface-sunken);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* La fila de acciones del partido (2026-11-06): botones redondos con su nombre debajo. */
+.matchActions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sdl-space-2);
+}
+
+.action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  min-height: var(--sdl-touch-min);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--sdl-fg);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.actionIcon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+  color: var(--sdl-brand);
+}
+
+.action:active .actionIcon {
+  transform: scale(var(--sdl-press-scale));
+}
+
+.action:focus-visible {
+  outline: none;
+}
+
+.action:focus-visible .actionIcon {
+  outline: 2px solid var(--sdl-brand);
+  outline-offset: 2px;
+}
+
+/* Cada acción con su color (Kevin, 2026-11-06): la plata en verde, editar en cobalto y
+   cancelar en rojo; el círculo con el tinte y el nombre en el tono. */
+.actionMoney {
+  --tone: var(--sdl-badge-success-fg);
+  --tint: var(--sdl-badge-success-bg);
+}
+
+.actionEdit {
+  --tone: var(--sdl-badge-brand-fg);
+  --tint: var(--sdl-badge-brand-bg);
+}
+
+.actionDanger {
+  --tone: var(--sdl-badge-danger-fg);
+  --tint: var(--sdl-badge-danger-bg);
+}
+
+.actionMoney,
+.actionEdit,
+.actionDanger {
+  color: var(--tone);
+}
+
+.actionMoney .actionIcon,
+.actionEdit .actionIcon,
+.actionDanger .actionIcon {
+  background: var(--tint);
+  box-shadow: none;
+  color: var(--tone);
+}
+
+/* Quién va, con color (2026-11-06): el tono de cada grupo en la cifra y en las píldoras. */
+.yes {
+  --tone: var(--sdl-badge-success-fg);
+  --tint: var(--sdl-badge-success-bg);
+}
+
+.no {
+  --tone: var(--sdl-badge-danger-fg);
+  --tint: var(--sdl-badge-danger-bg);
+}
+
+.wait {
+  --tone: var(--sdl-badge-warning-fg);
+  --tint: var(--sdl-badge-warning-bg);
+}
+
+.hurt {
+  --tone: var(--sdl-fg-muted);
+  --tint: var(--sdl-badge-neutral-bg);
+}
+
+.replyCounts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+  gap: var(--sdl-space-2);
+  margin: 0;
+}
+
+.replyCounts div {
+  display: flex;
+  flex-direction: column-reverse;
+  padding: var(--sdl-space-2) var(--sdl-space-3);
+  border-top: 4px solid var(--tone);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.replyCounts dt {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.replyCounts dd {
+  margin: 0;
+  font-family: var(--sdl-font-numeric);
+  font-size: 24px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.groupTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  margin-top: var(--sdl-space-3);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-base);
+  font-weight: 700;
+}
+
+.groupTitle::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--tone);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pills li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  min-width: 0;
+  padding: 3px var(--sdl-space-3) 3px 3px;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--tint);
+  color: var(--sdl-fg);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.dorsal {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--tone);
+  color: var(--sdl-surface);
+  font-family: var(--sdl-font-numeric);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Voy / No voy dentro del bloque cobalto (2026-11-06, Kevin): la pregunta del partido, arriba.
+   Sin elegir, translúcidos con borde blanco; el elegido, volt con tinta encima. */
+.heroReply {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin-top: var(--sdl-space-2);
+}
+
+.heroQuestion {
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-base);
+  font-weight: 700;
+}
+
+.heroReply .replyButton {
+  min-height: 52px;
+  border-color: rgb(255 255 255 / 60%);
+  background: rgb(255 255 255 / 12%);
+  color: var(--sdl-on-brand);
+}
+
+.heroReply .replyButton[aria-pressed='true'] {
+  border-color: var(--sdl-accent);
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
+}
+
+.heroReply .replyButton:focus-visible {
+  outline: 2px solid var(--sdl-on-brand);
+  outline-offset: 2px;
+}
+
+.heroHint {
+  color: var(--sdl-on-brand);
+  font-size: var(--sdl-text-sm);
+  opacity: 0.85;
+}
+
+.heroError {
+  padding: var(--sdl-space-2) var(--sdl-space-3);
+  border-radius: var(--sdl-radius-sm);
+  background: var(--sdl-surface);
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}

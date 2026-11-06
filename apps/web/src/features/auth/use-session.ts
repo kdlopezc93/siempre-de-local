@@ -16,10 +16,13 @@ export function useSession() {
   });
 }
 
-/** `returnTo`: ruta de la app a la que vuelve Google (por defecto, el inicio). */
-export function useGoogleSignIn(returnTo = '/') {
+/**
+ * `returnTo`: ruta de la app a la que vuelve Google (por defecto, el inicio); `errorPath`, a la
+ * que vuelve si Google no completa el inicio de sesión.
+ */
+export function useGoogleSignIn(returnTo = '/', errorPath?: string) {
   const mutation = useMutation({
-    mutationFn: () => startGoogleSignIn(returnTo),
+    mutationFn: () => startGoogleSignIn(returnTo, errorPath),
     onSuccess: (url) => window.location.assign(url),
   });
   const { reset } = mutation;

@@ -36,6 +36,25 @@ describe('LoginPage', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Google no completó el inicio de sesión');
   });
 
+  it('si venía de un enlace del grupo, Google lo devuelve a esa pantalla (2026-11-06)', async () => {
+    const fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ url: 'https://accounts.google.com/x', redirect: true }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
+    vi.stubGlobal('fetch', fetch);
+    renderAt(`/entrar?volver=${encodeURIComponent('/equipos/x/partidos/y')}`);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Continuar con Google' }));
+    await vi.waitFor(() => expect(fetch).toHaveBeenCalled());
+    const body = JSON.parse(fetch.mock.calls[0]![1].body as string);
+    expect(body.callbackURL).toBe(`${window.location.origin}/equipos/x/partidos/y`);
+    expect(body.errorCallbackURL).toBe(
+      `${window.location.origin}/entrar?volver=%2Fequipos%2Fx%2Fpartidos%2Fy&error=google`,
+    );
+  });
+
   it('avisa si no hay conexión con el servidor al intentar entrar', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
     renderAt('/entrar');
