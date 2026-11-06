@@ -148,6 +148,8 @@ Sin rebotes en el layout ni parallax. La hoja sigue al dedo y se cierra si baja 
 - Logros y categorías: icono centrado en un mosaico de color redondeado.
 - Fotos de deportistas (cuando lleguen): luminosas y saturadas, recortadas sobre bloques de color. Mientras tanto, iniciales.
 - Logos de terceros (Google) solo en su versión oficial.
+- **Ícono de la app** (`public/favicon.svg`, 2026-11-06): el círculo central y la línea de mitad de cancha en blanco sobre cobalto, con el punto central en volt. `pnpm --filter @sdl/web icons` genera los PNG (fondo de los adaptables: cobalto).
+- **Pruebas** (túnel y local, 2026-11-06, Kevin): el ícono lleva una franja volt horizontal abajo con "PRUEBAS" (`public/pruebas/favicon.svg`; en franja horizontal para que el recorte redondo de Android no la corte), la app instalada se llama "DL Pruebas", el título de la pestaña empieza con "Túnel:" o "Local:" y arriba de todo va `TestEnvBanner`: una franja volt con "Pruebas: túnel · no es la app del equipo". Staging no lleva nada de esto.
 
 ## 9. Componentes base (`shared/ui`)
 

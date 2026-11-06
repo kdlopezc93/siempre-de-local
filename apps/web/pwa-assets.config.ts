@@ -4,8 +4,10 @@ export default defineConfig({
   headLinkOptions: { preset: '2023' },
   preset: {
     ...minimal2023Preset,
-    maskable: { ...minimal2023Preset.maskable, resizeOptions: { background: '#0b140f' } },
-    apple: { ...minimal2023Preset.apple, resizeOptions: { background: '#0b140f' } },
+    maskable: { ...minimal2023Preset.maskable, resizeOptions: { background: '#3155e8' } },
+    apple: { ...minimal2023Preset.apple, resizeOptions: { background: '#3155e8' } },
   },
-  images: ['public/favicon.svg'],
+  // El de pruebas (túnel y local) lleva una franja "PRUEBAS" (2026-11-06): sus íconos salen en
+  // public/pruebas/.
+  images: ['public/favicon.svg', 'public/pruebas/favicon.svg'],
 });

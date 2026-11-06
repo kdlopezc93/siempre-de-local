@@ -154,7 +154,37 @@ function serviceWorkerConfig(apiUrl: string | undefined): Plugin {
   };
 }
 
+/**
+ * Los entornos de pruebas (2026-11-06, Kevin): el túnel y el desarrollo local llevan su nombre en
+ * el título, el manifiesto y una franja arriba (`TestEnvBanner`), y su propio ícono con la franja
+ * "PRUEBAS" (public/pruebas/). Staging (producción) no lleva nada.
+ */
+export function testEnvironment(mode: string): string | null {
+  if (mode === 'tunnel') return 'Túnel';
+  if (mode === 'development') return 'Local';
+  return null;
+}
+
+/** En pruebas, el HTML usa el ícono de pruebas y el título dice dónde estás. */
+function testEnvironmentHtml(name: string | null): Plugin {
+  return {
+    name: 'sdl-test-environment-html',
+    transformIndexHtml(html) {
+      if (!name) return html;
+      return html
+        .replace('href="/favicon.svg"', 'href="/pruebas/favicon.svg"')
+        .replace(
+          'href="/apple-touch-icon-180x180.png"',
+          'href="/pruebas/apple-touch-icon-180x180.png"',
+        )
+        .replace('<title>Siempre de Local</title>', `<title>${name}: Siempre de Local</title>`);
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
+  const testEnv = testEnvironment(mode);
+  const icons = testEnv ? 'pruebas/' : '';
   const apiUrl = loadEnv(mode, process.cwd(), 'VITE_').VITE_API_URL;
   const csp = contentSecurityPolicy(apiUrl);
   return {
@@ -162,16 +192,17 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       cspInHeadersFile(csp),
+      testEnvironmentHtml(testEnv),
       serviceWorkerConfig(apiUrl),
       watchWorkspacePackages(),
       ...(TUNNEL_ORIGIN ? [selfDestroyingServiceWorker()] : []),
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: false,
-        includeAssets: ['favicon.svg', 'apple-touch-icon-180x180.png'],
+        includeAssets: [`${icons}favicon.svg`, `${icons}apple-touch-icon-180x180.png`],
         manifest: {
-          name: 'Siempre de Local',
-          short_name: 'De Local',
+          name: testEnv ? `Siempre de Local (${testEnv.toLowerCase()})` : 'Siempre de Local',
+          short_name: testEnv ? 'DL Pruebas' : 'De Local',
           description: 'La mano derecha de tu equipo de fútbol amateur.',
           lang: 'es-419',
           start_url: '/',
@@ -182,11 +213,11 @@ export default defineConfig(({ mode }) => {
           background_color: '#f5f6f8',
           theme_color: '#f5f6f8',
           icons: [
-            { src: 'pwa-64x64.png', sizes: '64x64', type: 'image/png' },
-            { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
-            { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+            { src: `${icons}pwa-64x64.png`, sizes: '64x64', type: 'image/png' },
+            { src: `${icons}pwa-192x192.png`, sizes: '192x192', type: 'image/png' },
+            { src: `${icons}pwa-512x512.png`, sizes: '512x512', type: 'image/png' },
             {
-              src: 'maskable-icon-512x512.png',
+              src: `${icons}maskable-icon-512x512.png`,
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable',
@@ -196,6 +227,8 @@ export default defineConfig(({ mode }) => {
         workbox: {
           // Solo woff2: los .woff de respaldo no hacen falta en navegadores con service worker.
           globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+          // Los íconos del otro entorno no se guardan en el celular.
+          globIgnores: testEnv ? [] : ['pruebas/**'],
           navigateFallback: '/index.html',
           // Si el API comparte origen (túnel), su callback de OAuth no es la SPA.
           navigateFallbackDenylist: [/^\/api\//],

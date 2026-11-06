@@ -1,0 +1,25 @@
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: calc(env(safe-area-inset-top) + 6px) var(--sdl-gutter) 6px;
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
+  font-size: var(--sdl-text-sm);
+  font-weight: 800;
+  text-align: center;
+}
+
+.dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--sdl-on-accent);
+}
+
+.aside {
+  font-weight: 600;
+}
