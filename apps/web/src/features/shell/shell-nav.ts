@@ -55,7 +55,14 @@ export function tabsFor(teamId: string, roles: readonly TeamRole[]): Tab[] {
     id: 'equipo',
     label: 'Equipo',
     to: `${team}/equipo`,
-    match: [`${team}/equipo`, `${team}/invitar`, `${team}/validacion`, `${team}/cobros`, '/bases'],
+    match: [
+      `${team}/equipo`,
+      `${team}/invitar`,
+      `${team}/validacion`,
+      `${team}/cobros`,
+      `${team}/la-app`,
+      '/bases',
+    ],
   });
   return tabs;
 }

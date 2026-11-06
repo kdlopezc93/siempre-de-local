@@ -52,6 +52,7 @@ const screens = {
   charge: () => import('../charges/ChargePage'),
   newCharge: () => import('../charges/NewChargePage'),
   myCharges: () => import('../charges/MyChargesPage'),
+  adoption: () => import('../adoption/AdoptionPage'),
 };
 
 const JoinPage = lazy(() => screens.join().then((m) => ({ default: m.JoinPage })));
@@ -98,6 +99,7 @@ const ChargesPage = lazy(() => screens.charges().then((m) => ({ default: m.Charg
 const ChargePage = lazy(() => screens.charge().then((m) => ({ default: m.ChargePage })));
 const NewChargePage = lazy(() => screens.newCharge().then((m) => ({ default: m.NewChargePage })));
 const MyChargesPage = lazy(() => screens.myCharges().then((m) => ({ default: m.MyChargesPage })));
+const AdoptionPage = lazy(() => screens.adoption().then((m) => ({ default: m.AdoptionPage })));
 
 /** Precarga las pantallas que se usan desde el inicio cuando el navegador está libre. */
 function usePreloadScreens() {
@@ -420,6 +422,12 @@ export function NewChargeRoute() {
 export function ChargeRoute() {
   const { teamId = '', chargeId = '' } = useParams();
   return <ShellRoute>{() => <ChargePage teamId={teamId} chargeId={chargeId} />}</ShellRoute>;
+}
+
+/** "/equipos/:teamId/la-app" — la app en el equipo (cuerpo técnico, 2026-11-06). */
+export function AdoptionRoute() {
+  const { teamId = '' } = useParams();
+  return <ShellRoute>{() => <AdoptionPage teamId={teamId} />}</ShellRoute>;
 }
 
 /** "/equipos/:teamId/mis-cuentas" — lo que debe y pagó cada uno, solo lo suyo. */

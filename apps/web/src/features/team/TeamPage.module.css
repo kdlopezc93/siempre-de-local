@@ -206,3 +206,13 @@
   outline: none;
   background: var(--sdl-surface);
 }
+
+/* "10 de 15" en la fila de La app en el equipo (2026-11-06). */
+.trailing {
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}

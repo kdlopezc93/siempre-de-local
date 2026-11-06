@@ -1,0 +1,183 @@
+/* La app en el equipo (2026-11-06): el bloque cobalto con cuántos entraron y los grupos con color. */
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-4);
+}
+
+.back {
+  align-self: flex-start;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--sdl-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back:focus-visible {
+  outline: 2px solid var(--sdl-focus-ring);
+  outline-offset: 2px;
+}
+
+.title {
+  font-family: var(--sdl-font-display);
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.lead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+}
+
+.leadLabel {
+  color: var(--sdl-on-brand-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.leadAmount {
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-number);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.leadOf {
+  color: var(--sdl-on-brand-muted);
+  font-size: var(--sdl-text-xl);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sdl-space-2);
+  margin: 0;
+}
+
+.stats div {
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+  padding: var(--sdl-space-2) var(--sdl-space-3);
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.stats dt {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-xs);
+  line-height: 1.25;
+}
+
+.stats dd {
+  margin: 0;
+  font-family: var(--sdl-font-numeric);
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats dd span {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+/* Los grupos, como quién va en la convocatoria: el tono en el punto y en las píldoras. */
+.wait {
+  --tone: var(--sdl-badge-warning-fg);
+  --tint: var(--sdl-badge-warning-bg);
+}
+
+.no {
+  --tone: var(--sdl-badge-danger-fg);
+  --tint: var(--sdl-badge-danger-bg);
+}
+
+.hurt {
+  --tone: var(--sdl-fg-muted);
+  --tint: var(--sdl-badge-neutral-bg);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.groupTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  margin-top: var(--sdl-space-2);
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-base);
+  font-weight: 700;
+}
+
+.groupTitle::before {
+  content: '';
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--tone);
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pills li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  min-width: 0;
+  padding: 3px var(--sdl-space-3) 3px 3px;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--tint);
+  color: var(--sdl-fg);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.dorsal {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--tone);
+  color: var(--sdl-surface);
+  font-family: var(--sdl-font-numeric);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.note {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.error {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}

@@ -2,7 +2,7 @@
 
 > **Publicada el 2026-10-30 sin revisión legal (D7)**, completa para staging y para publicar el inicio de sesión con Google. Falta que la revise alguien que conozca la Ley 1581 de 2012 y el Decreto 1377 de 2013, sobre todo la transferencia internacional (art. 26). Cada cambio de texto cambia `POLICY_VERSION` en `packages/contracts/src/consent.ts` y todos vuelven a aceptarla.
 
-**Versión:** 2026-10-30-2 · **Vigente desde:** 30 de octubre de 2026
+**Versión:** 2026-11-06 · **Vigente desde:** 6 de noviembre de 2026
 
 ## 1. Quién es responsable de tus datos
 
@@ -17,7 +17,7 @@ Solo los necesarios para que la app funcione:
 - **De lo que haces en la app:** tus respuestas al test de posición y a los exámenes de conocimiento, con sus resultados, y si vas o no a cada partido.
 - **Los cobros del equipo:** lo que te toca pagar (la vaca, la inscripción, una multa…) y lo que pagaste o avisaste que pagaste, con el medio (efectivo, Nequi, Daviplata, transferencia) y la fecha. La plata no pasa por la app: no guardamos datos bancarios, de tarjetas ni comprobantes.
 - **Lo que registra tu cuerpo técnico sobre ti:** la tarjeta de atributos (0–99), su valoración de tu posición, cómo jugaste cada partido (de "Flojo" a "Figura") y las notas que escriba.
-- **Técnicos:** fecha de tus sesiones y el navegador desde el que entras, para mantener tu sesión segura.
+- **Técnicos:** fecha de tus sesiones y el navegador desde el que entras, para mantener tu sesión segura y para que tu cuerpo técnico sepa si entraste esta semana (sin la fecha).
 - **Si activas los avisos:** la dirección que tu navegador nos da para mandarte notificaciones (convocatorias, alineaciones, cobros nuevos del equipo y, si fuiste la figura del partido, la felicitación). Los avisos pasan por el servicio de notificaciones de tu navegador (Google, Apple o Mozilla) y llevan solo el rival y la hora del partido, o de qué es el cobro (nunca cuánto). Los apagas cuando quieras en Tu cuenta.
 
 No pedimos documento de identidad, dirección, teléfono ni fecha de nacimiento.
@@ -29,13 +29,14 @@ No pedimos documento de identidad, dirección, teléfono ni fecha de nacimiento.
 3. Que el cuerpo técnico de tu equipo vea los resultados del equipo, puntúe tu tarjeta, arme alineaciones y te evalúe después de cada partido.
 4. Mejorar las preguntas y las fórmulas de la app con datos agregados del uso.
 5. Llevar la cuenta de los cobros del equipo: quién debe, quién pagó y cuánto falta.
+6. Que tu cuerpo técnico sepa a quién recordarle activar los avisos o entrar a la app.
 
 No vendemos tus datos ni los usamos para publicidad.
 
 ## 4. Quién ve tus datos
 
 - **Tú** ves tus resultados, tus puntajes y tu historial; tu tarjeta y cómo jugaste cada partido, si tu equipo los muestra (las notas del cuerpo técnico, nunca).
-- **El cuerpo técnico de tu equipo** (entrenador y asistentes) y **los administradores de tu club** ven los resultados del equipo, tu tarjeta y sus propias valoraciones.
+- **El cuerpo técnico de tu equipo** (entrenador y asistentes) y **los administradores de tu club** ven los resultados del equipo, tu tarjeta y sus propias valoraciones. También ven si activaste los avisos y si entraste a la app esta semana o antes (no cuándo exactamente ni qué hiciste), para recordarte lo que falta.
 - **Lo que debes y pagaste** lo ven el tesorero, el cuerpo técnico y los administradores de tu club; tus compañeros no.
 - **Tus compañeros** solo ven la banda de conocimiento de los demás (por ejemplo, "Sólido"), nunca el puntaje; del partido, el resultado y quién fue la figura, nunca la evaluación de cada uno.
 - **Nadie fuera de tu equipo o club.** Si alguna vez damos soporte técnico con acceso a tus datos, queda registrado.
