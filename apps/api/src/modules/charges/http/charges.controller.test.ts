@@ -7,6 +7,7 @@ import {
   MyChargesResponseSchema,
   TournamentResponseSchema,
 } from '@sdl/contracts';
+import { localDay } from '@sdl/domain';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { createDb, type DbConnection } from '../../../shared/db/client.js';
@@ -528,6 +529,53 @@ describe('cobros del equipo (06 Cobros)', () => {
         url: `/equipos/${teamId}/mis-cuentas`,
       },
     );
+    notify.mockRestore();
+  });
+
+  it('el recordatorio automático: mañana u hoy vence, a los que deben, una vez (2026-10-31)', async () => {
+    const tomorrow = localDay(new Date(Date.now() + 86_400_000));
+    const cuota = ChargeResponseSchema.parse(
+      (
+        await call('POST', '/charges', tesorera, {
+          kind: 'fee',
+          split: 'per_person',
+          amount: 10_000,
+          dueOn: tomorrow,
+          playerIds: [ana.userId, beto.userId, ciro.userId],
+          sponsors: [{ userId: ciro.userId, sponsor: 'team' }],
+        })
+      ).json(),
+    ).charge;
+    await call('POST', `/charges/${cuota.id}/payments`, tesorera, {
+      userId: beto.userId,
+      amount: 10_000,
+      method: 'cash',
+      paidOn: today,
+    });
+    const cron = (secret?: string) =>
+      app.inject({
+        method: 'POST',
+        url: '/api/v1/cron/charges-due',
+        headers: secret ? { authorization: `Bearer ${secret}` } : {},
+      });
+
+    // Sin la clave, o con otra, no.
+    expect((await cron()).statusCode).toBe(401);
+    expect((await cron('otra-clave')).statusCode).toBe(401);
+
+    // Mañana vence: solo a Ana (Beto pagó; lo de Ciro lo cubre el equipo). Una sola vez.
+    const notify = vi.spyOn(app.get<Notifier>(NOTIFIER, { strict: false }), 'notifyUsers');
+    const first = await cron(TEST_ENV.CRON_SECRET);
+    expect(first.statusCode).toBe(200);
+    expect(first.json()).toEqual({ charges: 1, reminded: 1 });
+    expect(notify).toHaveBeenCalledWith([ana.userId], {
+      kind: 'charge-due',
+      charge: 'Cuota',
+      when: 'tomorrow',
+      opponent: 'Cuota',
+      url: `/equipos/${teamId}/mis-cuentas`,
+    });
+    expect((await cron(TEST_ENV.CRON_SECRET)).json()).toEqual({ charges: 0, reminded: 0 });
     notify.mockRestore();
   });
 });

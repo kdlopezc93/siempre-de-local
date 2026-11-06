@@ -168,6 +168,20 @@ describe('avisos en el service worker', () => {
     );
   });
 
+  it('el recordatorio por fecha: mañana u hoy vence, sin el valor (2026-10-31)', async () => {
+    const { fire, showNotification } = loadWorker();
+    const base = { charge: 'Cuota', opponent: 'Cuota', url: '/equipos/t/mis-cuentas' };
+    await fire('push', push({ ...base, kind: 'charge-due', when: 'tomorrow' }));
+    await fire('push', push({ ...base, kind: 'charge-due', when: 'today' }));
+    expect(showNotification).toHaveBeenCalledWith(
+      'Mañana vence: Cuota',
+      expect.objectContaining({
+        body: 'Todavía debes tu parte. Toca para ver cuánto y avisar cuando pagues.',
+      }),
+    );
+    expect(showNotification).toHaveBeenCalledWith('Hoy vence: Cuota', expect.anything());
+  });
+
   it('un tipo que no conoce lleva un texto neutro, nunca el de otro aviso', async () => {
     const { fire, showNotification } = loadWorker();
     await fire(

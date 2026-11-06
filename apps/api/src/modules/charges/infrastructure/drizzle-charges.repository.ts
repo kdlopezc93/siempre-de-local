@@ -58,6 +58,7 @@ export class DrizzleChargesRepository implements ChargesRepository {
         dueOn: charge.dueOn,
         createdAt: charge.createdAt,
         cancelledAt: charge.cancelledAt,
+        dueReminder: charge.dueReminder,
       })
       .from(charge)
       .leftJoin(teamMatch, eq(charge.matchId, teamMatch.id))
@@ -212,6 +213,21 @@ export class DrizzleChargesRepository implements ChargesRepository {
       )
       .orderBy(desc(charge.createdAt));
     return rows.map((r) => this.toRecord(r));
+  }
+
+  async dueOn(days: string[]) {
+    if (days.length === 0) return [];
+    const rows = await this.select().where(
+      and(inArray(charge.dueOn, days), isNull(charge.cancelledAt)),
+    );
+    return rows.map((r) => this.toRecord(r));
+  }
+
+  async markDueReminder(chargeId: string, key: string) {
+    await this.connection.db
+      .update(charge)
+      .set({ dueReminder: key })
+      .where(eq(charge.id, chargeId));
   }
 
   async matchInTeam(teamId: string, matchId: string) {
