@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fakeApi } from '../../test/fake-api';
 import { ResultPage } from './ResultPage';
+import { ME_TWO_TEAMS } from '../../test/me-two-teams';
 import { ResultView } from './ResultView';
 
 const PODIUM = [
@@ -82,7 +83,7 @@ describe('ResultPage', () => {
         client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
       >
         <MemoryRouter>
-          <ResultPage attemptId={id} />
+          <ResultPage attemptId={id} me={ME_TWO_TEAMS} />
         </MemoryRouter>
       </QueryClientProvider>,
     );

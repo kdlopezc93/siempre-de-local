@@ -1,30 +1,25 @@
 import type { PublishedLineupResponse } from '@sdl/contracts';
 import { findFormation } from '@sdl/domain';
 
+import {
+  COLOR,
+  drawFooter,
+  fit,
+  FONT,
+  LEFT,
+  NUM,
+  posterCanvas,
+  posterFile,
+  TEXT_WIDTH,
+  wrap,
+} from '../../shared/poster/poster';
+
 /*
  * El afiche de la alineación para el grupo de WhatsApp (2026-11-06, Kevin eligió la dirección
  * "Cancha de tiza"): 1080×1920, también sirve de estado. Todo cobalto; arriba el rival en grande
  * y la hora en volt; la cancha rayada como el pasto recién podado, con líneas de tiza; cada
  * titular en un disco volt con su dorsal (el arquero en blanco) y la banca abajo.
  */
-const W = 1080;
-const H = 1920;
-const COLOR = {
-  cobalt: '#3155e8',
-  mist: '#c9d4fb',
-  volt: '#d4f34a',
-  ink: '#14161c',
-  white: '#ffffff',
-  stripe: 'rgb(255 255 255 / 9%)',
-  chalk: 'rgb(255 255 255 / 32%)',
-  empty: 'rgb(255 255 255 / 18%)',
-};
-const FONT = "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif";
-const NUM = "'Space Grotesk', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif";
-
-const LEFT = 72;
-const TEXT_WIDTH = W - 2 * LEFT;
-
 /** El pasto: un rectángulo redondeado; la cancha se ve desde el área rival hacia abajo. */
 const TURF = { x: 60, y: 580, w: 960, h: 1080 };
 /** De la cancha de la app (100×150) al afiche: arranca en y = 25, debajo del área rival. */
@@ -39,39 +34,6 @@ const DISC = 52;
 const END = TURF.y + TURF.h - 2.5;
 
 const short = (name: string) => (name.length > 11 ? name.split(' ')[0]!.slice(0, 11) : name);
-
-/** La letra más grande (hasta `size`) con la que `text` cabe en `width`. */
-function fit(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  font: (size: number) => string,
-  size: number,
-  width: number,
-): number {
-  let current = size;
-  ctx.font = font(current);
-  while (current > 40 && ctx.measureText(text).width > width) {
-    current -= 4;
-    ctx.font = font(current);
-  }
-  return current;
-}
-
-/** Partir un texto en líneas que quepan en el ancho. */
-function wrap(ctx: CanvasRenderingContext2D, text: string, width: number): string[] {
-  const lines: string[] = [];
-  let line = '';
-  for (const word of text.split(' ')) {
-    const next = line ? `${line} ${word}` : word;
-    if (line && ctx.measureText(next).width > width) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = next;
-    }
-  }
-  return line ? [...lines, line] : lines;
-}
 
 const TIME = new Intl.DateTimeFormat('es-419', { hour: 'numeric', minute: '2-digit' });
 const DAY = new Intl.DateTimeFormat('es-419', { weekday: 'long', day: 'numeric', month: 'short' });
@@ -129,20 +91,9 @@ export async function lineupImage(input: {
   place: string;
 }): Promise<File | null> {
   const formation = findFormation(input.lineup.formation);
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext?.('2d');
-  if (!formation || !ctx) return null;
-  canvas.width = W;
-  canvas.height = H;
-  // Las fuentes de la app, si ya cargaron; si no, las del sistema.
-  await Promise.all(
-    [`800 132px ${FONT}`, `700 36px ${FONT}`, `600 36px ${FONT}`, `700 104px ${NUM}`].map((f) =>
-      document.fonts?.load(f).catch(() => []),
-    ),
-  );
-
-  ctx.fillStyle = COLOR.cobalt;
-  ctx.fillRect(0, 0, W, H);
+  const poster = formation ? await posterCanvas() : null;
+  if (!formation || !poster) return null;
+  const { canvas, ctx } = poster;
 
   // Arriba: qué partido, contra quién (lo más grande), la hora y la cancha.
   ctx.textBaseline = 'top';
@@ -216,13 +167,7 @@ export async function lineupImage(input: {
     .slice(0, 3)
     .forEach((line, i) => ctx.fillText(line, LEFT + labelWidth, 1730 + i * 46));
 
-  ctx.fillStyle = COLOR.mist;
-  ctx.font = `600 28px ${FONT}`;
-  ctx.fillText('Siempre de Local', LEFT, H - 56);
-  ctx.textAlign = 'right';
-  ctx.font = `700 28px ${NUM}`;
-  ctx.fillText(formation.label, W - LEFT, H - 56);
+  drawFooter(ctx, formation.label);
 
-  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
-  return blob ? new File([blob], 'alineacion.png', { type: 'image/png' }) : null;
+  return posterFile(canvas, 'alineacion.png');
 }

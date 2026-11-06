@@ -3,6 +3,8 @@ import { positionName, POSITIONS } from '@sdl/domain';
 import type { CSSProperties } from 'react';
 
 import { Pitch } from '../../shared/ui/Pitch';
+import { ShareImage } from '../../shared/ui/ShareImage';
+import { podiumImage } from './podium-image';
 import { POSITION_COPY } from './position-copy';
 import styles from './ResultView.module.css';
 import { percent } from '../../shared/format';
@@ -13,13 +15,15 @@ export interface ResultData {
   podium: readonly { pos: PositionCode; pct: number }[];
   /** true mientras no llega el oficial (calculado en el celular, sin señal). */
   provisional: boolean;
+  /** Para compartir el podio en el estado de WhatsApp (2026-11-06): solo el oficial. */
+  shareAs?: { name: string; team: string } | undefined;
 }
 
 /**
  * Tus 3 posiciones: la primera con su dorsal y su descripción, la pizarra con el podio
  * marcado y el podio con la afinidad. El podio se revela de la 3.ª a la 1.ª.
  */
-export function ResultView({ format, podium, provisional }: ResultData) {
+export function ResultView({ format, podium, provisional, shareAs }: ResultData) {
   const [first] = podium;
   if (!first) return null;
   const copy = POSITION_COPY[first.pos];
@@ -78,6 +82,13 @@ export function ResultView({ format, podium, provisional }: ResultData) {
           con otro jugador.
         </p>
       </section>
+      {shareAs && !provisional && (
+        <ShareImage
+          label="Compartir mi podio"
+          queryKey={['podium', format, ...podium.map((e) => `${e.pos}:${e.pct}`), shareAs.name]}
+          draw={() => podiumImage({ ...shareAs, format, podium })}
+        />
+      )}
 
       <p className={styles.next}>
         Muy pronto vas a poder certificarte en cualquiera de las tres con un examen de conocimiento

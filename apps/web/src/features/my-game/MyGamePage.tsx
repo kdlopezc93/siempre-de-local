@@ -8,8 +8,10 @@ import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
+import { ShareImage } from '../../shared/ui/ShareImage';
 import { LeadTask } from '../../shared/ui/TaskCard';
 import { lineOfPosition, Token } from '../../shared/ui/Token';
+import { cardImage } from '../card/card-image';
 import { PlayerCard } from '../card/PlayerCard';
 import { useMyCard } from '../card/use-card';
 import { useHistory } from '../history/use-history';
@@ -57,7 +59,15 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
         }
       />
       <SeasonSection meId={me.user.id} teamId={teamId} />
-      {membership && <CardSection teamId={teamId} format={membership.team.format} />}
+      {membership && (
+        <CardSection
+          teamId={teamId}
+          format={membership.team.format}
+          name={me.profile.displayName}
+          team={membership.team.name}
+          jerseyNumber={membership.jerseyNumber}
+        />
+      )}
       <PositionSection me={me} teamId={teamId} />
       <MatchesSection meId={me.user.id} teamId={teamId} />
       <KnowledgeSection me={me} teamId={teamId} />
@@ -124,7 +134,19 @@ function SeasonSection({ meId, teamId }: { meId: string; teamId: string }) {
   );
 }
 
-function CardSection({ teamId, format }: { teamId: string; format: MatchFormat }) {
+function CardSection({
+  teamId,
+  format,
+  name,
+  team,
+  jerseyNumber,
+}: {
+  teamId: string;
+  format: MatchFormat;
+  name: string;
+  team: string;
+  jerseyNumber: number | null;
+}) {
   const card = useMyCard(teamId);
   if (card.isPending) {
     return (
@@ -149,6 +171,12 @@ function CardSection({ teamId, format }: { teamId: string; format: MatchFormat }
     <section aria-label="Tu tarjeta" className={styles.section}>
       <PlayerCard card={card.data.card} format={format} />
       <p className={styles.muted}>Es la mirada de tu cuerpo técnico, no un veredicto.</p>
+      {/* Para el estado de WhatsApp (2026-11-06): medias y atributos, nunca las notas. */}
+      <ShareImage
+        label="Compartir mi tarjeta"
+        queryKey={['card', teamId, card.data.card.ratedAt, name, jerseyNumber]}
+        draw={() => cardImage({ name, team, jerseyNumber, card: card.data.card!, format })}
+      />
     </section>
   );
 }
