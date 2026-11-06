@@ -7,6 +7,7 @@ const web = (p) => fileURLToPath(new URL(`../../apps/web/${p}`, import.meta.url)
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
 await page.goto(`file://${web('og/og-image.html')}`);
-await page.evaluate(() => document.fonts.ready);
+// Corre en la página, no en Node.
+await page.evaluate(() => globalThis.document.fonts.ready);
 await page.screenshot({ path: web('public/og-image.png') });
 await browser.close();
