@@ -1,5 +1,5 @@
 import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
-import type { Match, MatchRoster, PublishedLineupResponse } from '@sdl/contracts';
+import type { Match, MatchRoster } from '@sdl/contracts';
 import { findFormation, isGame } from '@sdl/domain';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -132,14 +132,7 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         ))}
 
       {match.published && (
-        <PublishedSection
-          teamId={teamId}
-          teamName={teamName}
-          match={match}
-          meId={me.user.id}
-          player={player}
-          staff={staff}
-        />
+        <PublishedSection teamId={teamId} match={match} meId={me.user.id} player={player} />
       )}
 
       {listAlone && <WhoCameAlone teamId={teamId} match={match} roster={roster} />}
@@ -171,7 +164,7 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         <CallUpShare teamId={teamId} match={match} roster={roster} />
       )}
 
-      {staff && game && <MatchLineups teamId={teamId} match={match} />}
+      {staff && game && <MatchLineups teamId={teamId} teamName={teamName} match={match} />}
       {roster && !played && !listAlone && <Roster roster={roster} />}
       {/* Hasta cargar el resultado, aunque ya pasó la hora: corregir la hora o cancelarlo. */}
       {staff && match.editable && <StaffActions teamId={teamId} match={match} />}
@@ -377,7 +370,15 @@ function StaffActions({ teamId, match }: { teamId: string; match: Match }) {
  * La alineación del partido (Fase 7): armarla con los que van, sus guardadas y publicar una
  * para el equipo (D17: se republica hasta la hora del partido).
  */
-function MatchLineups({ teamId, match }: { teamId: string; match: Match }) {
+function MatchLineups({
+  teamId,
+  teamName,
+  match,
+}: {
+  teamId: string;
+  teamName: string;
+  match: Match;
+}) {
   const lineups = useLineups(teamId);
   const publish = usePublishLineup(teamId);
   const mine = (lineups.data?.items ?? []).filter((l) => l.matchId === match.id);
@@ -391,6 +392,9 @@ function MatchLineups({ teamId, match }: { teamId: string; match: Match }) {
         <p className={styles.published}>
           Publicada el {matchWhen(match.published.at)}: el equipo ya la ve.
         </p>
+      )}
+      {match.published && match.open && (
+        <LineupShare teamId={teamId} teamName={teamName} match={match} at={match.published.at} />
       )}
       {match.open && (
         <ButtonLink to={`/equipos/${teamId}/planificador?partido=${match.id}`}>
@@ -472,18 +476,20 @@ function LineupShare({
   teamId,
   teamName,
   match,
-  lineup,
+  at,
 }: {
   teamId: string;
   teamName: string;
   match: Match;
-  lineup: PublishedLineupResponse;
+  at: string;
 }) {
+  const lineup = usePublishedLineup(teamId, match.id, at);
   const image = useQuery({
-    queryKey: ['lineup-image', match.id, lineup.publishedAt],
+    queryKey: ['lineup-image', match.id, at],
+    enabled: lineup.data !== undefined,
     queryFn: () =>
       lineupImage({
-        lineup,
+        lineup: lineup.data!,
         teamName,
         opponent: match.opponent,
         startsAt: match.startsAt,
@@ -500,18 +506,14 @@ function LineupShare({
 /** La alineación publicada, para todo el equipo (D17): dónde estás tú, la cancha y el banco. */
 function PublishedSection({
   teamId,
-  teamName,
   match,
   meId,
   player,
-  staff,
 }: {
   teamId: string;
-  teamName: string;
   match: Match;
   meId: string;
   player: boolean;
-  staff: boolean;
 }) {
   const lineup = usePublishedLineup(teamId, match.id, match.published?.at ?? null);
   if (!lineup.data) {
@@ -552,9 +554,6 @@ function PublishedSection({
           : 'Ninguno.'}
       </p>
       <p className={styles.muted}>Publicada el {matchWhen(data.publishedAt)}.</p>
-      {staff && match.open && (
-        <LineupShare teamId={teamId} teamName={teamName} match={match} lineup={data} />
-      )}
     </section>
   );
 }

@@ -297,6 +297,37 @@ describe('partidos en la app (Fase 7)', () => {
     expect(text).toContain(`${window.location.origin}/equipos/${TEAM_A}/partidos/${M1}`);
   });
 
+  it('mandar al grupo: la alineación publicada, junto a "Publicada el…"', async () => {
+    const at = new Date(Date.now() - 3_600_000).toISOString();
+    const L1 = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fc1';
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: { match: match({ published: { lineupId: L1, at } }), roster: ROSTER },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}/lineup`]: {
+        status: 200,
+        body: {
+          matchId: M1,
+          format: 'F11',
+          formation: '1-4-3-3',
+          publishedAt: at,
+          starters: [],
+          bench: [],
+        },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/lineups`]: { status: 200, body: { items: [] } },
+    });
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+    const section = await screen.findByRole('region', { name: 'Alineación' });
+    // Sin poder dibujar (jsdom), va el mensaje con el enlace.
+    const link = await within(section).findByRole('link', { name: 'Mandar al grupo' });
+    const text = new URL(link.getAttribute('href')!).searchParams.get('text')!;
+    expect(text).toMatch(/^📋 \*Ya está la alineación para el .+ vs Los Pibes\*/);
+  });
+
   it('mandar al grupo: el jugador no ve el botón', async () => {
     fakeApi({
       [`GET /api/v1/teams/${TEAM_B}/matches/${M1}`]: {
