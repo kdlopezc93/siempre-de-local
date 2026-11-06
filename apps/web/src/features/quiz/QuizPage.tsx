@@ -26,10 +26,18 @@ export function QuizPage({ me, teamId }: { me: Me; teamId: string }) {
       </Screen>
     );
   }
-  return <Quiz userId={me.user.id} team={membership.team} />;
+  return <Quiz userId={me.user.id} name={me.profile.displayName} team={membership.team} />;
 }
 
-function Quiz({ userId, team }: { userId: string; team: Me['teams'][number]['team'] }) {
+function Quiz({
+  userId,
+  name,
+  team,
+}: {
+  userId: string;
+  name: string;
+  team: Me['teams'][number]['team'];
+}) {
   const quiz = useQuiz(userId, team);
   const inProgress = quiz.state !== null && !isDone(quiz.state);
   const blocker = useBlocker(inProgress);
@@ -59,7 +67,14 @@ function Quiz({ userId, team }: { userId: string; team: Me['teams'][number]['tea
 
   if (!quiz.state) return <Intro team={team} quiz={quiz} />;
   if (isDone(quiz.state)) {
-    return <Submitted status={quiz.submit!} format={team.format} onRestart={quiz.restart} />;
+    return (
+      <Submitted
+        status={quiz.submit!}
+        format={team.format}
+        shareAs={{ name, team: team.name }}
+        onRestart={quiz.restart}
+      />
+    );
   }
 
   const { index, items } = quiz.state;
@@ -205,10 +220,12 @@ const PENDING_NOTE = {
 function Submitted({
   status,
   format,
+  shareAs,
   onRestart,
 }: {
   status: SubmitStatus;
   format: MatchFormat;
+  shareAs: { name: string; team: string };
   onRestart: () => void;
 }) {
   if (status.kind === 'rejected') {
@@ -239,6 +256,7 @@ function Submitted({
         format={format}
         podium={podium}
         provisional={!official}
+        shareAs={shareAs}
       />
       {!official && (
         <p className={styles.note} role="status">

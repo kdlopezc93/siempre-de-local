@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 
+import type { Me } from '../../shared/api/auth';
 import { fetchAttempt } from '../../shared/api/quiz';
 import { Screen } from '../../shared/ui/Screen';
 import styles from './ResultPage.module.css';
 import { ResultView } from './ResultView';
 
 /** /resultados/:attemptId — un resultado oficial ya guardado (desde el historial). */
-export function ResultPage({ attemptId }: { attemptId: string }) {
+export function ResultPage({ attemptId, me }: { attemptId: string; me: Me }) {
   const attempt = useQuery({
     queryKey: ['attempt', attemptId],
     queryFn: () => fetchAttempt(attemptId),
@@ -31,6 +32,10 @@ export function ResultPage({ attemptId }: { attemptId: string }) {
           format={attempt.data.format}
           podium={attempt.data.ranking.slice(0, 3)}
           provisional={false}
+          shareAs={{
+            name: me.profile.displayName,
+            team: me.teams.find((t) => t.team.id === attempt.data.teamId)?.team.name ?? '',
+          }}
         />
       )}
     </Screen>

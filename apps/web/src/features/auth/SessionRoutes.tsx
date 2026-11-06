@@ -247,7 +247,7 @@ export function QuizRoute() {
 /** "/resultados/:attemptId" — un resultado oficial guardado. */
 export function ResultRoute() {
   const { attemptId = '' } = useParams();
-  return <ShellRoute>{() => <ResultPage attemptId={attemptId} />}</ShellRoute>;
+  return <ShellRoute>{(me) => <ResultPage attemptId={attemptId} me={me} />}</ShellRoute>;
 }
 
 /** "/historial" — mis tests. */
