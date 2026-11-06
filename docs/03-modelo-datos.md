@@ -281,6 +281,10 @@ Implementado en `apps/api/src/modules/assessments/infrastructure/schema.ts` (mig
 
 **match_attendance** — `match_id (cascade), user_id (cascade), marked_by (set null), marked_at` · PK (match_id, user_id). "¿Quién vino?" (2026-10-30): la lista del partido, que se reemplaza entera al guardarla; `team_match.attendance_taken_at` (null = sin lista: cuentan los que dijeron voy) dice desde cuándo hay lista. Migración `0028_match_attendance`.
 
+**match_goal** — `match_id (cascade), seq (1–99), scorer_id (set null), assist_id (set null), own_goal` · PK (match_id, seq). Los goles a favor (2026-11-06, `08` etapa 1), en orden, a lo sumo los del marcador (`goalsProblem`); `scorer_id` null = sin saber quién (o se borró la cuenta). Checks: el autogol del rival no tiene goleador ni asistencia; nadie se asiste a sí mismo. Se reemplazan enteros al guardar el resultado.
+
+**match_card** — `id, match_id (cascade), user_id (cascade), color (card_color: yellow · red)`. Las tarjetas del partido (2026-11-06); se reemplazan enteras al guardar el resultado. La suspensión la marca a mano el cuerpo técnico. Migración `0033_match_goals_cards`.
+
 **charge** — `id, team_id, kind charge_kind ('registration','referee','vaca','fee','fine','uniform','other'), title text null, match_id (team_match) null, tournament_id (tournament) null, split charge_split ('per_person','total'), amount integer, due_on date null, created_by (set null), created_at, cancelled_at null`. Índice `(team_id, created_at)`; checks: `amount` entre 1 y 100.000.000 (pesos enteros), y no de partido y torneo a la vez. Cobros del equipo (2026-10-30, `02` §15, migración `0030_charges`): `amount` es el valor por persona o el total que se repartió; se anula, no se borra.
 
 `charge.due_reminder text null` (migración `0032_charge_due_reminder`, 2026-10-31): el último recordatorio automático, `<due_on>:<tomorrow|today>`, para no mandarlo dos veces.

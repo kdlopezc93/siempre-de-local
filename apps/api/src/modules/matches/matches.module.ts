@@ -7,13 +7,19 @@ import { Matches } from './application/matches.use-cases.js';
 import {
   MatchesController,
   PlayerMatchRatingsController,
+  ScorersController,
   TournamentsController,
 } from './http/matches.controller.js';
 import { DrizzleMatchesRepository } from './infrastructure/drizzle-matches.repository.js';
 
 /** Partidos: convocatoria, respuestas y después del partido (Fase 7). */
 @Module({
-  controllers: [MatchesController, PlayerMatchRatingsController, TournamentsController],
+  controllers: [
+    MatchesController,
+    PlayerMatchRatingsController,
+    ScorersController,
+    TournamentsController,
+  ],
   providers: [
     DrizzleMatchesRepository,
     { provide: MATCHES_REPOSITORY, useExisting: DrizzleMatchesRepository },

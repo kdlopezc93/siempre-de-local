@@ -1,0 +1,92 @@
+/* Goleadores (2026-11-06): una tabla en filas con el primero en volt. */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.title {
+  margin-top: 22px;
+  font-family: var(--sdl-font-display);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.muted {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.table {
+  margin: 0;
+  padding: var(--sdl-space-1) var(--sdl-space-4);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+  list-style: none;
+}
+
+.table li {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: var(--sdl-space-3);
+  align-items: center;
+  min-height: var(--sdl-touch-min);
+  border-top: var(--sdl-stroke) dashed var(--sdl-border);
+}
+
+.table li:first-child {
+  border-top: 0;
+}
+
+.leader .value {
+  padding: 2px 10px;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
+}
+
+.rank {
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-sm);
+  font-weight: 700;
+}
+
+.name {
+  display: flex;
+  gap: var(--sdl-space-2);
+  align-items: baseline;
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.jersey {
+  color: var(--sdl-fg-muted);
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-sm);
+}
+
+.value {
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-lg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.cards {
+  display: flex;
+  gap: 3px;
+}
+
+.card {
+  width: 12px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--sdl-color-sun-500);
+}
+
+.card[data-color='red'] {
+  background: var(--sdl-danger);
+}

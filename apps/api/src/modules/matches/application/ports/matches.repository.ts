@@ -1,4 +1,5 @@
 import type {
+  CardColor,
   MatchFormat,
   MatchKind,
   MatchRatingValue,
@@ -35,6 +36,19 @@ export interface MatchResultData {
   goalsAgainst: number;
   figurePlayerId: string | null;
   resultAt: Date;
+  /** Si vienen, reemplazan los goles y las tarjetas del partido (2026-11-06). */
+  goals?: { scorerId: string | null; assistId: string | null; ownGoal: boolean }[];
+  cards?: { playerId: string; color: CardColor }[];
+}
+
+/** Los goles y las tarjetas de un partido, con nombres (2026-11-06). */
+export interface MatchEventsRecord {
+  goals: {
+    scorer: { id: string; name: string } | null;
+    assist: { id: string; name: string } | null;
+    ownGoal: boolean;
+  }[];
+  cards: { player: { id: string; name: string }; color: CardColor }[];
 }
 
 export interface MatchRatingRecord {
@@ -78,6 +92,8 @@ export interface MatchesRepository {
   /** Reemplaza la lista entera y marca el partido con lista. */
   setAttendance(matchId: string, userIds: string[], markedBy: string, at: Date): Promise<void>;
   setResult(matchId: string, result: MatchResultData): Promise<void>;
+  /** Los goles (en orden) y las tarjetas de cada partido: partido → eventos. */
+  events(matchIds: string[]): Promise<Map<string, MatchEventsRecord>>;
   /** Las evaluaciones del partido, con nota y autor. */
   ratings(matchId: string): Promise<MatchRatingRecord[]>;
   /** La evaluación de un jugador en cada partido: partido → 1 a 5. */

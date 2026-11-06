@@ -10,6 +10,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createMatch,
   createTournament,
+  fetchScorers,
   fetchTournaments,
   fetchMatch,
   fetchMatchRatings,
@@ -52,6 +53,8 @@ function useMatchMutation<V>(teamId: string, fn: (vars: V) => ReturnType<typeof 
     onSuccess: (data) => {
       queryClient.setQueryData([...matchesKey(teamId), data.match.id], data);
       void queryClient.invalidateQueries({ queryKey: matchesKey(teamId), exact: true });
+      // Los goles y las tarjetas cambian la tabla del equipo.
+      void queryClient.invalidateQueries({ queryKey: scorersKey(teamId) });
     },
   });
 }
@@ -146,5 +149,16 @@ export function useCreateTournament(teamId: string) {
   return useMutation({
     mutationFn: (name: string) => createTournament(teamId, name),
     onSuccess: () => void queryClient.invalidateQueries({ queryKey: tournamentsKey(teamId) }),
+  });
+}
+
+export const scorersKey = (teamId: string) => ['team', teamId, 'scorers'] as const;
+
+/** Goleadores, asistencias y tarjetas del equipo (2026-11-06). */
+export function useScorers(teamId: string) {
+  return useQuery({
+    queryKey: scorersKey(teamId),
+    queryFn: () => fetchScorers(teamId),
+    networkMode: 'offlineFirst',
   });
 }

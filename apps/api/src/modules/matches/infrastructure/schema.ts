@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import {
+  boolean,
   check,
   index,
   pgEnum,
@@ -159,4 +160,54 @@ export const matchRating = pgTable(
     index().on(t.playerUserId),
     check('match_rating_range', sql`${t.rating} between 1 and 5`),
   ],
+);
+
+/**
+ * Los goles a favor (2026-11-06, `08` etapa 1): uno por gol del marcador, en orden. El goleador
+ * o "autogol del rival", y la asistencia opcional. Si el goleador o quien asistió borra su
+ * cuenta, el gol queda "sin saber quién".
+ */
+export const matchGoal = pgTable(
+  'match_goal',
+  {
+    matchId: uuid()
+      .notNull()
+      .references(() => teamMatch.id, { onDelete: 'cascade' }),
+    /** 1, 2, 3…: hasta los goles a favor del marcador. */
+    seq: smallint().notNull(),
+    scorerId: uuid().references(() => user.id, { onDelete: 'set null' }),
+    assistId: uuid().references(() => user.id, { onDelete: 'set null' }),
+    ownGoal: boolean().notNull().default(false),
+  },
+  (t) => [
+    primaryKey({ columns: [t.matchId, t.seq] }),
+    index().on(t.scorerId),
+    index().on(t.assistId),
+    check('match_goal_seq', sql`${t.seq} between 1 and 99`),
+    check(
+      'match_goal_own',
+      sql`not ${t.ownGoal} or (${t.scorerId} is null and ${t.assistId} is null)`,
+    ),
+    check('match_goal_not_self', sql`${t.assistId} is null or ${t.assistId} <> ${t.scorerId}`),
+  ],
+);
+
+export const cardColor = pgEnum('card_color', ['yellow', 'red']);
+
+/** Las tarjetas de un partido (2026-11-06): amarilla o roja; la suspensión, a mano. */
+export const matchCard = pgTable(
+  'match_card',
+  {
+    id: uuid()
+      .primaryKey()
+      .default(sql`uuidv7()`),
+    matchId: uuid()
+      .notNull()
+      .references(() => teamMatch.id, { onDelete: 'cascade' }),
+    userId: uuid()
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    color: cardColor().notNull(),
+  },
+  (t) => [index().on(t.matchId), index().on(t.userId)],
 );

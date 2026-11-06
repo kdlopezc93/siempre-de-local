@@ -1,0 +1,222 @@
+/* Goles, asistencias y tarjetas (2026-11-06): filas de gol bajo el marcador y tarjetas en píldoras. */
+.goals {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.goals li {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: var(--sdl-space-3);
+  align-items: center;
+  min-height: var(--sdl-touch-min);
+  padding-block: var(--sdl-space-2);
+  border-top: var(--sdl-stroke) dashed var(--sdl-border);
+}
+
+.seq {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--sdl-brand);
+  color: var(--sdl-on-brand);
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-sm);
+  font-weight: 700;
+}
+
+.goalText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.goalText b {
+  font-weight: 700;
+}
+
+.goalText small {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.unknown .goalText b {
+  color: var(--sdl-fg-muted);
+  font-weight: 600;
+}
+
+.textButton {
+  min-height: var(--sdl-touch-min);
+  padding-inline: var(--sdl-space-2);
+  border: 0;
+  background: transparent;
+  color: var(--sdl-primary);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cardsSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  padding-top: var(--sdl-space-3);
+  border-top: var(--sdl-stroke) solid var(--sdl-border);
+}
+
+.title {
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-base);
+  font-weight: 700;
+}
+
+.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cardChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  min-height: 36px;
+  padding: var(--sdl-space-1) var(--sdl-space-3) var(--sdl-space-1) var(--sdl-space-2);
+  border: 0;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-surface-sunken);
+  color: var(--sdl-fg);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+button.cardChip {
+  min-height: var(--sdl-touch-min);
+  cursor: pointer;
+}
+
+.remove {
+  color: var(--sdl-fg-muted);
+  font-weight: 700;
+}
+
+/* La tarjeta del árbitro, como objeto: amarilla o roja. */
+.card {
+  flex: none;
+  width: 12px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--sdl-color-sun-500);
+}
+
+.card[data-color='red'] {
+  background: var(--sdl-danger);
+}
+
+.cardButtons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sdl-space-2);
+}
+
+.dorsal {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--sdl-surface-sunken);
+  font-family: var(--sdl-font-numeric);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pickList {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pick {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-3);
+  width: 100%;
+  min-height: 56px;
+  margin-bottom: var(--sdl-space-2);
+  padding: 12px 14px;
+  border: 0;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
+  color: var(--sdl-fg);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-4);
+}
+
+.optionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.label {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sdl-space-2);
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  min-height: var(--sdl-touch-min);
+  padding: 4px var(--sdl-space-3) 4px 6px;
+  border: var(--sdl-stroke) solid var(--sdl-border);
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-surface);
+  color: var(--sdl-fg);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.option[aria-pressed='true'] {
+  border-color: var(--sdl-fg);
+  background: var(--sdl-fg);
+  color: var(--sdl-bg);
+}
+
+.option[aria-pressed='true'] .dorsal {
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
+}

@@ -114,7 +114,7 @@ Revisar las ideas una por una, con alcance y forma de ejecución, y ordenarlas e
 | Etapa | Qué | Para quién |
 |---|---|---|
 | 0 | Fusionar #100 y #101 ✔ | QLeones |
-| 1 | "¿Quién vino?" → goles, asistencias y tarjetas → "Mi torneo" con historial por rival → compartir alineación y resultado como imagen (con escudo) → quitar jugadores (✔ #123) | QLeones |
+| 1 | "¿Quién vino?" ✔ #140 → goles, asistencias y tarjetas (este PR) → "Mi torneo" con historial por rival → compartir alineación y resultado como imagen (con escudo) → quitar jugadores (✔ #123) | QLeones |
 | 2 | Tesorero (y roles desde la ficha) → cobros, patrocinios, "Ya pagué" → recordatorio y saldo. **Antes, o junto con esto, respaldos automáticos** (la plata no puede depender de un solo computador; desde el 2026-10-30 la base está en Neon, ver `06` Cobros). Roles desde la app: ✔ #122 | QLeones |
 | 3 | Staging (D5) ✔ 2026-10-30, política de datos (D7) ✔ publicada sin revisión legal, fotos de jugadores (pospuestas, #65) | Todos |
 | 4 | Entrevistas a 5–10 escuelas (`10`), en paralelo con 1–3 | — |

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  goalsProblem,
+  type GoalEntry,
   hasMatchStarted,
   isMatchEditable,
   isMatchOpen,
@@ -10,6 +12,7 @@ import {
   matchTally,
   matchTallyByKind,
   replySummary,
+  tallyEvents,
   whoCame,
 } from './matches.js';
 
@@ -139,5 +142,40 @@ describe('partidos (Fase 7)', () => {
     expect([...whoCame(replies, new Set(['a', 'b']))].sort()).toEqual(['a', 'b']);
     // Una lista vacía también es lista: no vino nadie.
     expect(whoCame(replies, new Set()).size).toBe(0);
+  });
+});
+
+describe('goles, asistencias y tarjetas (2026-11-06)', () => {
+  const goal = (over: Partial<GoalEntry> = {}): GoalEntry => ({
+    scorerId: 'santi',
+    assistId: null,
+    ownGoal: false,
+    ...over,
+  });
+
+  it('un gol por cada uno del marcador, a lo sumo; se puede dejar sin saber quién', () => {
+    expect(goalsProblem(2, [goal(), goal({ scorerId: null })])).toBeNull();
+    expect(goalsProblem(1, [goal(), goal()])).toBe('Hay más goles anotados que en el marcador.');
+    expect(goalsProblem(0, [])).toBeNull();
+  });
+
+  it('el autogol del rival no tiene goleador; nadie se asiste a sí mismo', () => {
+    expect(goalsProblem(1, [goal({ ownGoal: true })])).toMatch(/autogol/);
+    expect(goalsProblem(1, [goal({ scorerId: null, ownGoal: true })])).toBeNull();
+    expect(goalsProblem(1, [goal({ assistId: 'santi' })])).toMatch(/a sí mismo/);
+    expect(goalsProblem(1, [goal({ scorerId: null, assistId: 'pipe' })])).toMatch(/primero/);
+  });
+
+  it('cuenta goles, asistencias y tarjetas por jugador', () => {
+    const tally = tallyEvents(
+      [goal({ assistId: 'pipe' }), goal(), goal({ scorerId: null, ownGoal: true })],
+      [
+        { playerId: 'ciro', color: 'yellow' },
+        { playerId: 'ciro', color: 'red' },
+      ],
+    );
+    expect(tally.get('santi')).toEqual({ goals: 2, assists: 0, yellow: 0, red: 0 });
+    expect(tally.get('pipe')).toEqual({ goals: 0, assists: 1, yellow: 0, red: 0 });
+    expect(tally.get('ciro')).toEqual({ goals: 0, assists: 0, yellow: 1, red: 1 });
   });
 });
