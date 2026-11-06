@@ -18,6 +18,8 @@ WORKDIR /app
 COPY --from=build /out/package.json ./package.json
 COPY --from=build /out/node_modules ./node_modules
 COPY --from=build /repo/apps/api/dist ./dist
+# Las fuentes de la vista previa de los enlaces (ADR-10).
+COPY --from=build /repo/apps/api/assets ./assets
 COPY --from=build /repo/apps/api/drizzle ./drizzle
 USER node
 EXPOSE 3000

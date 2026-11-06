@@ -261,7 +261,7 @@ Al equipo le da pereza entrar a la app: todo pasa en el grupo de WhatsApp. La id
 | 2 | "Voy" / "No voy" desde el aviso, sin abrir la app (Android; en iPhone el toque abre la respuesta) | #150 ✔ |
 | 3 | **La tarjeta 0–99 y el podio como afiche** para el estado de WhatsApp, del estilo del de la alineación: "Compartir mi tarjeta" en Mi juego (medias y atributos, nunca las notas; solo si el equipo te la muestra) y "Compartir mi podio" en el resultado oficial del test. En el computador, el botón descarga la imagen | #156 ✔ |
 | 4 | **Tablero de adopción** ("La app en el equipo", en Equipo): entraron esta semana (rangos, nunca la hora), con avisos, con test y respondieron la última convocatoria; sin avisos, sin entrar y sin test en píldoras con color; "Pedirles los avisos en el grupo" y "Recordarles el test". Política `2026-11-06`: el cuerpo técnico ve si activaste los avisos y si entraste esta semana | #154 ✔ |
-| 5 | **Vista previa del enlace en WhatsApp.** Nivel 1: la de la app, igual para todos (`og-image.png` y etiquetas `og:`), este PR. Nivel 2: la de cada enlace, con el escudo (iniciales), el rival y la hora, con una función de Cloudflare y la imagen dibujada en el API (ADR nuevo) | nivel 1: este PR |
+| 5 | **Vista previa del enlace en WhatsApp.** Nivel 1: la de la app, igual para todos (`og-image.png` y etiquetas `og:`), este PR. Nivel 2: la de cada enlace, con el escudo (iniciales), el rival y la hora, con una función de Cloudflare y la imagen dibujada en el API (ADR nuevo) | nivel 1: #157 ✔; nivel 2: este PR |
 
 Sin código: que el técnico ponga la regla ("si no respondes en la app, no estás en la lista") y que la vaca se pase por la app.
 
