@@ -136,13 +136,33 @@ function cspInHeadersFile(csp: string): Plugin {
   };
 }
 
+/**
+ * La dirección del API para el service worker (2026-11-06: "Voy / No voy" desde el aviso
+ * responde sin abrir la app). `public/push-sw.js` no pasa por Vite: este archivo se lo da.
+ */
+function serviceWorkerConfig(apiUrl: string | undefined): Plugin {
+  return {
+    name: 'sdl-sw-config',
+    apply: 'build',
+    generateBundle() {
+      this.emitFile({
+        type: 'asset',
+        fileName: 'sw-config.js',
+        source: `self.SDL_API_URL = ${JSON.stringify(apiUrl ? new URL(apiUrl).origin : '')};\n`,
+      });
+    },
+  };
+}
+
 export default defineConfig(({ mode }) => {
-  const csp = contentSecurityPolicy(loadEnv(mode, process.cwd(), 'VITE_').VITE_API_URL);
+  const apiUrl = loadEnv(mode, process.cwd(), 'VITE_').VITE_API_URL;
+  const csp = contentSecurityPolicy(apiUrl);
   return {
     resolve: { conditions: ['@sdl/source'] },
     plugins: [
       react(),
       cspInHeadersFile(csp),
+      serviceWorkerConfig(apiUrl),
       watchWorkspacePackages(),
       ...(TUNNEL_ORIGIN ? [selfDestroyingServiceWorker()] : []),
       VitePWA({
@@ -179,8 +199,8 @@ export default defineConfig(({ mode }) => {
           navigateFallback: '/index.html',
           // Si el API comparte origen (túnel), su callback de OAuth no es la SPA.
           navigateFallbackDenylist: [/^\/api\//],
-          // Avisos (Web Push): su manejo vive en public/push-sw.js.
-          importScripts: ['push-sw.js'],
+          // Avisos (Web Push): su manejo vive en public/push-sw.js; sw-config.js le da el API.
+          importScripts: ['sw-config.js', 'push-sw.js'],
           runtimeCaching: [
             {
               // Respuestas del API que deben verse sin conexión (ADR-06).
