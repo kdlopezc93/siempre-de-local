@@ -1,13 +1,16 @@
 import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
-import type { Match, MatchRoster } from '@sdl/contracts';
+import type { Match, MatchRoster, PublishedLineupResponse } from '@sdl/contracts';
 import { findFormation, isGame } from '@sdl/domain';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
+import { appUrl } from '../../shared/share';
 import { Button } from '../../shared/ui/Button';
 import { Chips } from '../../shared/ui/Chips';
+import { GroupShare } from '../../shared/ui/GroupShare';
 import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import { Sheet } from '../../shared/ui/Sheet';
@@ -15,8 +18,10 @@ import { FORMAT_LABEL } from '../shell/shell-nav';
 import { usePublishLineup, useLineups } from '../lineup/use-lineups';
 import { AfterMatch, MatchResultView } from './AfterMatch';
 import { WhoCameAlone } from './WhoCame';
+import { lineupImage } from './lineup-image';
 import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
+import { callUpMessage, lineupMessage } from './share-messages';
 import styles from './Matches.module.css';
 import {
   useCreateTournament,
@@ -127,7 +132,14 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         ))}
 
       {match.published && (
-        <PublishedSection teamId={teamId} match={match} meId={me.user.id} player={player} />
+        <PublishedSection
+          teamId={teamId}
+          teamName={teamName}
+          match={match}
+          meId={me.user.id}
+          player={player}
+          staff={staff}
+        />
       )}
 
       {listAlone && <WhoCameAlone teamId={teamId} match={match} roster={roster} />}
@@ -153,6 +165,10 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
             <StatTile label="Lesionados" value={match.replies.injured} />
           )}
         </StatGrid>
+      )}
+
+      {staff && match.open && roster && (
+        <CallUpShare teamId={teamId} match={match} roster={roster} />
       )}
 
       {staff && game && <MatchLineups teamId={teamId} match={match} />}
@@ -415,17 +431,87 @@ function MatchLineups({ teamId, match }: { teamId: string; match: Match }) {
   );
 }
 
-/** La alineación publicada, para todo el equipo (D17): dónde estás tú, la cancha y el banco. */
-function PublishedSection({
+/**
+ * "Mandar al grupo" (2026-11-06, Kevin): la convocatoria al grupo de WhatsApp, con los que faltan
+ * por responder (con nombre: lo decide el técnico). Se manda las veces que haga falta.
+ */
+function CallUpShare({
   teamId,
   match,
-  meId,
-  player,
+  roster,
 }: {
   teamId: string;
   match: Match;
+  roster: MatchRoster;
+}) {
+  const pending = roster.filter((p) => p.reply === null && !p.injured);
+  const message = callUpMessage(match, roster, appUrl(`/equipos/${teamId}/partidos/${match.id}`));
+  return (
+    <section aria-labelledby="mandar-convocatoria" className={styles.shareCard}>
+      <h2 id="mandar-convocatoria" className={styles.shareTitle}>
+        {pending.length ? `Faltan por responder (${pending.length})` : 'Ya respondieron todos'}
+      </h2>
+      {pending.length > 0 && (
+        <ul className={styles.pendingNames}>
+          {pending.map((p) => (
+            <li key={p.playerId}>{p.displayName}</li>
+          ))}
+        </ul>
+      )}
+      <GroupShare message={message} />
+      <p className={styles.muted}>Sale con la lista al día cada vez que lo mandes.</p>
+    </section>
+  );
+}
+
+/**
+ * La alineación al grupo (2026-11-06): con su imagen si el celular deja compartirla (se arma de
+ * antemano: el menú de compartir solo abre en el mismo toque); si no, el mensaje con el enlace.
+ */
+function LineupShare({
+  teamId,
+  teamName,
+  match,
+  lineup,
+}: {
+  teamId: string;
+  teamName: string;
+  match: Match;
+  lineup: PublishedLineupResponse;
+}) {
+  const image = useQuery({
+    queryKey: ['lineup-image', match.id, lineup.publishedAt],
+    queryFn: () =>
+      lineupImage({
+        lineup,
+        teamName,
+        opponent: match.opponent,
+        startsAt: match.startsAt,
+        place: match.place,
+      }),
+    staleTime: Infinity,
+    structuralSharing: false,
+    networkMode: 'always',
+  });
+  const message = lineupMessage(match, appUrl(`/equipos/${teamId}/partidos/${match.id}`));
+  return <GroupShare message={message} file={image.data ?? null} />;
+}
+
+/** La alineación publicada, para todo el equipo (D17): dónde estás tú, la cancha y el banco. */
+function PublishedSection({
+  teamId,
+  teamName,
+  match,
+  meId,
+  player,
+  staff,
+}: {
+  teamId: string;
+  teamName: string;
+  match: Match;
   meId: string;
   player: boolean;
+  staff: boolean;
 }) {
   const lineup = usePublishedLineup(teamId, match.id, match.published?.at ?? null);
   if (!lineup.data) {
@@ -466,6 +552,9 @@ function PublishedSection({
           : 'Ninguno.'}
       </p>
       <p className={styles.muted}>Publicada el {matchWhen(data.publishedAt)}.</p>
+      {staff && match.open && (
+        <LineupShare teamId={teamId} teamName={teamName} match={match} lineup={data} />
+      )}
     </section>
   );
 }

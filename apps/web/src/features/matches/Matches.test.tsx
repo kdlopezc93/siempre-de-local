@@ -275,6 +275,42 @@ describe('partidos en la app (Fase 7)', () => {
     expect(screen.queryByRole('link', { name: 'Cobrar este partido' })).toBeNull();
   });
 
+  it('mandar al grupo: la convocatoria con los que faltan por responder (2026-11-06)', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: { match: match(), roster: ROSTER },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/lineups`]: { status: 200, body: { items: [] } },
+    });
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+    const card = await screen.findByRole('region', { name: 'Faltan por responder (1)' });
+    expect(within(card).getByRole('listitem')).toHaveTextContent('Ciro');
+    const link = within(card).getByRole('link', { name: 'Mandar al grupo' });
+    const text = new URL(link.getAttribute('href')!).searchParams.get('text')!;
+    expect(link.getAttribute('href')).toMatch(/^https:\/\/wa\.me\/\?text=/);
+    expect(text).toContain('*Amistoso vs Los Pibes*');
+    expect(text).toContain('Van 3 · No van 1');
+    expect(text).toContain('Faltan por responder: Ciro');
+    expect(text).toContain(`${window.location.origin}/equipos/${TEAM_A}/partidos/${M1}`);
+  });
+
+  it('mandar al grupo: el jugador no ve el botón', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_B}/matches/${M1}`]: {
+        status: 200,
+        body: { match: match(), roster: null },
+      },
+    });
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_B} matchId={M1} /> },
+    ]);
+    expect(await screen.findByRole('button', { name: /Voy/ })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Mandar al grupo' })).toBeNull();
+  });
+
   it('convocar: valida lo que falta y manda la hora con zona', async () => {
     let body: { startsAt: string; opponent: string; format: string } | undefined;
     fakeApi({

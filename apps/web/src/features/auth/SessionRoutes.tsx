@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, type ReactNode } from 'react';
-import { Navigate, useParams, useSearchParams } from 'react-router';
+import { Navigate, useLocation, useParams, useSearchParams } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { Button } from '../../shared/ui/Button';
@@ -8,6 +8,7 @@ import { HomePage } from '../home/HomePage';
 import { AppShell } from '../shell/AppShell';
 import { useInvitationPreview } from '../join/use-join';
 import { LoginPage } from './LoginPage';
+import { loginPath, safeReturn } from './return-path';
 import { useSession } from './use-session';
 
 /*
@@ -144,10 +145,12 @@ function SessionError({ retry }: { retry: () => void }) {
  */
 function RequireSession({ children }: { children: (me: Me) => ReactNode }) {
   const session = useSession();
+  const location = useLocation();
   if (session.isPending) return <SessionPending />;
   if (session.isError) return <SessionError retry={() => void session.refetch()} />;
   const me = session.data;
-  if (!me) return <Navigate to="/entrar" replace />;
+  // Un enlace del grupo (2026-11-06): después de entrar con Google, vuelve a esa pantalla.
+  if (!me) return <Navigate to={loginPath(location.pathname + location.search)} replace />;
   return (
     <Suspense fallback={<SessionPending />}>
       {!me.consent ? (
@@ -172,11 +175,12 @@ export function HomeRoute() {
   return <ShellRoute>{(me) => <HomePage me={me} />}</ShellRoute>;
 }
 
-/** "/entrar" — si ya hay sesión, vuelve al inicio. */
+/** "/entrar" — si ya hay sesión, vuelve a donde iba (`?volver=`) o al inicio. */
 export function LoginRoute() {
   const session = useSession();
+  const [params] = useSearchParams();
   if (session.isPending) return <SessionPending />;
-  if (session.data) return <Navigate to="/" replace />;
+  if (session.data) return <Navigate to={safeReturn(params.get('volver'))} replace />;
   return <LoginPage />;
 }
 

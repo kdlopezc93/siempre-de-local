@@ -166,6 +166,31 @@ describe('cobros en la app (06 Cobros)', () => {
     expect(await screen.findByText('Listo: se lo recordamos a 2 personas.')).toBeInTheDocument();
   });
 
+  it('mandar al grupo: cuántos pagaron, sin nombres; una multa no se manda (2026-11-06)', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/charges/${C1}`]: { status: 200, body: DETAIL },
+    });
+    renderAt('/c', [{ path: '/c', element: <ChargePage teamId={TEAM_A} chargeId={C1} /> }]);
+    const link = await screen.findByRole('link', { name: 'Mandar al grupo' });
+    const text = new URL(link.getAttribute('href')!).searchParams.get('text')!;
+    expect(text).toMatch(/^💰 \*Vaca: contra Los Pibes, .+\*\n\$23\.400 cada uno\n/);
+    expect(text).toContain('Ya pagaron 0 de 3');
+    expect(text).toContain(`${window.location.origin}/equipos/${TEAM_A}/mis-cuentas`);
+    for (const name of ['Ana', 'Beto', 'Ciro']) expect(text).not.toContain(name);
+  });
+
+  it('mandar al grupo: no con una multa', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/charges/${C1}`]: {
+        status: 200,
+        body: { ...DETAIL, charge: summary({ kind: 'fine' }), payments: [] },
+      },
+    });
+    renderAt('/c', [{ path: '/c', element: <ChargePage teamId={TEAM_A} chargeId={C1} /> }]);
+    await screen.findByRole('region', { name: 'Saldo del cobro' });
+    expect(screen.queryByRole('link', { name: 'Mandar al grupo' })).toBeNull();
+  });
+
   it('un cobro: confirmar el "Ya pagué" y registrar el abono de alguien', async () => {
     let reviewed = '';
     let paid: unknown;

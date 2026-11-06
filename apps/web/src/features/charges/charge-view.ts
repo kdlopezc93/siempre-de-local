@@ -93,3 +93,32 @@ export function today(now = new Date()): string {
   const local = new Date(now.getTime() - now.getTimezoneOffset() * 60_000);
   return local.toISOString().slice(0, 10);
 }
+
+/**
+ * "Mandar al grupo" (2026-11-06): el cobro en el grupo de WhatsApp. Dice cuántos pagaron, nunca
+ * quién debe (eso solo lo ven el tesorero y el cuerpo técnico, como dice la política); el
+ * enlace lleva a Tus cuentas, donde cada uno avisa que pagó.
+ */
+export function chargeMessage(
+  charge: Pick<
+    ChargeSummary,
+    'kind' | 'title' | 'match' | 'tournament' | 'dueOn' | 'people' | 'paidPeople'
+  >,
+  shares: readonly Pick<ChargeShare, 'amount' | 'status'>[],
+  url: string,
+): string {
+  // "Vaca: contra Los Pibes, sáb, 2 nov"; el nombre de un torneo va tal cual.
+  const context = chargeContext(charge);
+  const about =
+    context && charge.match ? context.charAt(0).toLowerCase() + context.slice(1) : context;
+  // "cada uno" solo si a todos les toca lo mismo (sin contar lo que cubrió el equipo).
+  const amounts = new Set(shares.filter((s) => s.status !== 'covered').map((s) => s.amount));
+  const [each] = amounts;
+  return [
+    `💰 *${chargeTitle(charge)}${about ? `: ${about}` : ''}*`,
+    ...(amounts.size === 1 && each ? [`${pesos(each)} cada uno`] : []),
+    `Ya pagaron ${charge.paidPeople} de ${charge.people}`,
+    ...(charge.dueOn ? [`${dueLine(charge.dueOn).replace(/^v/, 'V')}`] : []),
+    `Paga y avisa con "Ya pagué" 👉 ${url}`,
+  ].join('\n');
+}

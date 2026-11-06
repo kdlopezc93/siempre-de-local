@@ -25,17 +25,20 @@ export async function fetchMe(): Promise<Me | null> {
 
 /**
  * Inicia el login con Google y devuelve la URL de Google a la que hay que ir.
- * Al volver, Google deja a la persona en `returnTo` (p. ej. su enlace de invitación).
+ * Al volver, Google deja a la persona en `returnTo` (p. ej. su enlace de invitación); si falla,
+ * en `errorPath` con `error=google`.
  */
-export async function startGoogleSignIn(returnTo = '/'): Promise<string> {
+export async function startGoogleSignIn(
+  returnTo = '/',
+  errorPath = returnTo === '/' ? '/entrar' : returnTo,
+): Promise<string> {
   const origin = window.location.origin;
-  const errorPath = returnTo === '/' ? '/entrar' : returnTo;
   const { url } = await apiRequest('/api/auth/sign-in/social', SocialSignInSchema, {
     method: 'POST',
     body: JSON.stringify({
       provider: 'google',
       callbackURL: `${origin}${returnTo}`,
-      errorCallbackURL: `${origin}${errorPath}?error=google`,
+      errorCallbackURL: `${origin}${errorPath}${errorPath.includes('?') ? '&' : '?'}error=google`,
     }),
   });
   return url;

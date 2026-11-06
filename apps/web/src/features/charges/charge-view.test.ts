@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   chargeContext,
+  chargeMessage,
   chargeTitle,
   dueLine,
   parsePesos,
@@ -54,5 +55,45 @@ describe('cobros en la app', () => {
     expect(shareBadge({ status: 'covered', reported: 0 }).label).toBe('La cubre el equipo');
     expect(shareBadge({ status: 'covered', reported: 0 }, true).label).toBe('Te la cubrieron');
     expect(shareBadge({ status: 'paid', reported: 0 }, true).label).toBe('Pagaste');
+  });
+
+  it('mandar al grupo: "cada uno" solo si a todos les toca lo mismo; con la fecha límite', () => {
+    const c = {
+      kind: 'registration' as const,
+      title: null,
+      match: null,
+      tournament: { id: 't', name: 'Copa del barrio' },
+      dueOn: '2026-11-05',
+      people: 14,
+      paidPeople: 12,
+    };
+    const pending = { status: 'pending' as const };
+    expect(
+      chargeMessage(
+        c,
+        [
+          { amount: 15_000, ...pending },
+          { amount: 15_000, status: 'paid' },
+          { amount: 40_000, status: 'covered' },
+        ],
+        'u',
+      ).split('\n'),
+    ).toEqual([
+      '💰 *Inscripción: Copa del barrio*',
+      '$15.000 cada uno',
+      'Ya pagaron 12 de 14',
+      'Vence el 5 nov',
+      'Paga y avisa con "Ya pagué" 👉 u',
+    ]);
+    expect(
+      chargeMessage(
+        { ...c, dueOn: null },
+        [
+          { amount: 15_000, ...pending },
+          { amount: 10_000, ...pending },
+        ],
+        'u',
+      ),
+    ).not.toContain('cada uno');
   });
 });

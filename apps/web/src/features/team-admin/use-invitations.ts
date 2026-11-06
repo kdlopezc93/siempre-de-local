@@ -71,10 +71,7 @@ export function invitationMessage(
   return `Te invito al cuerpo técnico de ${team.name} (${team.club.name}) como ${as}. Entra con este enlace: ${joinUrl}`;
 }
 
-/** wa.me abre WhatsApp (app o web) con el mensaje listo para elegir el chat del equipo. */
-export function whatsappUrl(message: string): string {
-  return `https://wa.me/?text=${encodeURIComponent(message)}`;
-}
+export { whatsappUrl } from '../../shared/share';
 
 /** Copiar al portapapeles con aviso de 2 s; false si el navegador no lo permite. */
 export function useCopy() {

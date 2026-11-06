@@ -5,11 +5,14 @@ import { Screen } from '../../shared/ui/Screen';
 import { GoogleMark } from './components/GoogleMark';
 import { HeroPlay } from './components/HeroPlay';
 import styles from './LoginPage.module.css';
+import { loginPath, safeReturn } from './return-path';
 import { useGoogleSignIn } from './use-session';
 
 export function LoginPage() {
   const [params] = useSearchParams();
-  const signIn = useGoogleSignIn();
+  // Si venía de un enlace (el del grupo de WhatsApp), Google lo deja en esa pantalla.
+  const returnTo = safeReturn(params.get('volver'));
+  const signIn = useGoogleSignIn(returnTo, loginPath(returnTo));
 
   const error = signIn.isError
     ? 'No pudimos conectar con el servidor. Revisa tu conexión e intenta de nuevo.'

@@ -4,9 +4,11 @@ import { useId, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 
 import { ApiError } from '../../shared/api/http';
+import { appUrl } from '../../shared/share';
 import { Avatar } from '../../shared/ui/Avatar';
 import { Badge } from '../../shared/ui/Badge';
 import { Button } from '../../shared/ui/Button';
+import { GroupShare } from '../../shared/ui/GroupShare';
 import { PageTitle } from '../../shared/ui/PageTitle';
 import { Screen } from '../../shared/ui/Screen';
 import { SectionHead } from '../../shared/ui/SectionHead';
@@ -15,6 +17,7 @@ import { initialsOf } from '../../shared/ui/TeamHeader';
 import { useTeamMembers } from '../team-roles/use-team-roles';
 import {
   chargeContext,
+  chargeMessage,
   chargeTitle,
   dueLine,
   parsePesos,
@@ -102,6 +105,19 @@ export function ChargePage({ teamId, chargeId }: { teamId: string; chargeId: str
           <SplitLine data={data.data} />
         </span>
       </section>
+
+      {/*
+        "Mandar al grupo" (2026-11-06): cuántos pagaron, sin nombres. Una multa o un cobro de una
+        sola persona no se manda al grupo: señalaría a esa persona.
+      */}
+      {!charge.cancelled &&
+        charge.kind !== 'fine' &&
+        shares.length > 1 &&
+        charge.balance.pending > 0 && (
+          <GroupShare
+            message={chargeMessage(charge, shares, appUrl(`/equipos/${teamId}/mis-cuentas`))}
+          />
+        )}
 
       {!charge.cancelled && waiting.length > 0 && (
         <section aria-labelledby="esperan" className={styles.section}>

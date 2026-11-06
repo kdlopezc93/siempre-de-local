@@ -244,13 +244,26 @@ La plata del equipo: la vaca, la inscripción, el arbitraje, las multas, los uni
 | 2 | **Tesorero**: rol nuevo (`team_role`), que puede ser un jugador. Maneja cobros, confirma pagos y pasa lista; no arma alineaciones ni evalúa. Lo nombran el entrenador o un admin del club desde Roles | #141 ✔ |
 | 3 | **Cobros y pagos**: un cobro es de un partido, de un torneo o suelto, de un tipo, a quien se elija (los que vinieron, más la casilla "también los que dijeron voy y no vinieron"; todos; a mano). Puede ser un total que se reparte o un valor por persona, con ajuste por persona. Pagos con abonos: el tesorero registra o confirma el "Ya pagué" del jugador. El jugador ve "Debes $X". La plata va en pesos enteros y queda en la auditoría | API #142 ✔, app #143 ✔ |
 | 4 | **Patrocinios**: la parte de un jugador la asume otro, o "el equipo". El patrocinado la ve pagada, y quién patrocinó solo lo ven el tesorero y el cuerpo técnico. Decidido (2026-10-31, Kevin): solo la parte entera; patrocina un jugador del equipo o el equipo, nadie de fuera; se quita solo mientras no tenga pagos; el patrocinado ve "Te la cubrieron" (`02` §15). Migración `0031`. Además: "Cobrar este partido" desde que se convoca, y la casilla "Cobrar este partido al convocar" | #144 ✔ |
-| 5a | **Saldo y recordatorio a mano**: saldo del equipo (falta, entró, lo que puso el equipo), por torneo y quién debe (de mayor a menor); botón "Recordar a los que deben" (aviso sin el valor). Por tipo, no (Kevin, 2026-10-31) | este PR |
-| 5b | **Recordatorio automático**: el día antes y el día que vence un cobro con fecha límite, aviso a los que deben su parte. Tarea diaria en GitHub Actions (9 a. m. de Colombia) que llama al API con `CRON_SECRET`. Migración `0032` | este PR |
+| 5a | **Saldo y recordatorio a mano**: saldo del equipo (falta, entró, lo que puso el equipo), por torneo y quién debe (de mayor a menor); botón "Recordar a los que deben" (aviso sin el valor). Por tipo, no (Kevin, 2026-10-31) | #145 ✔ |
+| 5b | **Recordatorio automático**: el día antes y el día que vence un cobro con fecha límite, aviso a los que deben su parte. Tarea diaria en GitHub Actions (9 a. m. de Colombia) que llama al API con `CRON_SECRET`. Migración `0032` | #146 ✔ |
 | 5c | **Respaldos diarios**: GitHub Actions hace `pg_dump` de la base de staging cada día y lo guarda cifrado como artifact privado unos 30 días (la plata no depende de un solo computador ni de las 6 h de historial de Neon gratis) | |
 
 **Decidido:** redondeo a los $100 siguientes al repartir un total, mostrando "sobran $X" (2026-10-30); respaldos diarios en GitHub Actions (PR 5c, 2026-10-31).
 
 **Después:** cuotas que se repiten cada mes y mensualidades de escuela (`08` etapa 7), multas ligadas a tarjetas (con goles y tarjetas) y pasarela de pago.
+
+### Adopción (Kevin, 2026-11-06)
+Al equipo le da pereza entrar a la app: todo pasa en el grupo de WhatsApp. La idea es **no pelear con WhatsApp, sino usarlo como timbre**: la app arma los mensajes que se pegan en el grupo y cada enlace lleva a un toque de resolver algo.
+
+| # | Qué | Estado |
+|---|---|---|
+| 1 | **"Mandar al grupo"**: la convocatoria (con los que faltan por responder, con nombre), la alineación publicada (con su **imagen**, por el menú de compartir del celular) y el cobro (cuántos pagaron, **nunca quién debe**; una multa no se manda). Botón del cuerpo técnico (y del tesorero en el cobro). Quien entra por el enlace sin sesión pasa por Google y vuelve a esa pantalla (`/entrar?volver=`) | este PR |
+| 2 | "Voy" / "No voy" desde el aviso, sin abrir la app (Android; en iPhone el toque abre la respuesta) | |
+| 3 | La tarjeta 0–99 y el podio como imagen para el estado de WhatsApp | |
+| 4 | Tablero de adopción para el técnico: cuántos entraron y cuántos tienen avisos, con "Recordarles por WhatsApp" | |
+| 5 | Vista previa del enlace en WhatsApp con el escudo del equipo (necesita servidor) | |
+
+Sin código: que el técnico ponga la regla ("si no respondes en la app, no estás en la lista") y que la vaca se pase por la app.
 
 ### A futuro (pedidos de Kevin, 2026-10-24)
 Anotados para cuando toque, sin orden ni fase todavía. Cada uno pide decidir el alcance antes de escribir código.
