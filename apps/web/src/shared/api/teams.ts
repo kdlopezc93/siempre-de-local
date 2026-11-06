@@ -18,7 +18,8 @@ import {
   type UpdateMemberRolesRequest,
 } from '@sdl/contracts';
 
-import { apiFetch, apiRequest } from './http';
+import { reloadWithLatestVersion } from '../app-update';
+import { ApiError, apiFetch, apiRequest } from './http';
 
 /** Público: a qué equipo invita el enlace. */
 export function fetchInvitationPreview(code: string): Promise<InvitationPreviewResponse> {
@@ -37,11 +38,27 @@ export function acceptInvitation(code: string): Promise<AcceptInvitationResponse
 }
 
 /** Acepta la versión de la política que muestra esta build de la app. */
-export function acceptConsent(): Promise<AcceptConsentResponse> {
-  return apiRequest('/api/v1/me/consent', AcceptConsentResponseSchema, {
-    method: 'POST',
-    body: JSON.stringify({ policyVersion: POLICY_VERSION, ageConfirmed: true }),
-  });
+/**
+ * Acepta la política de esta versión de la app. Si el servidor ya tiene otra (la app vieja quedó
+ * guardada en el celular), trae la versión nueva y recarga, en vez de rechazar una y otra vez.
+ */
+export async function acceptConsent(): Promise<AcceptConsentResponse> {
+  try {
+    return await apiRequest('/api/v1/me/consent', AcceptConsentResponseSchema, {
+      method: 'POST',
+      body: JSON.stringify({ policyVersion: POLICY_VERSION, ageConfirmed: true }),
+    });
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.code === 'POLICY_VERSION_OUTDATED' &&
+      (await reloadWithLatestVersion())
+    ) {
+      // La página se recarga con la versión nueva: no hay nada más que mostrar.
+      return new Promise<never>(() => {});
+    }
+    throw error;
+  }
 }
 
 export function fetchTeam(teamId: string): Promise<TeamResponse> {
