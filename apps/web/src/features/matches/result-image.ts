@@ -6,11 +6,12 @@ import {
   drawFooter,
   fit,
   FONT,
-  H,
   LEFT,
   NUM,
   posterCanvas,
   posterFile,
+  SAFE_BOTTOM,
+  SAFE_TOP,
   TEXT_WIDTH,
   W,
   type PosterColors,
@@ -43,6 +44,13 @@ interface ResultPosterInput {
 
 const CARD_COLOR = { yellow: '#f5c518', red: '#ff4d4d' } as const;
 
+// Todo lo que se lee va entre SAFE_TOP y SAFE_BOTTOM: los estados tapan arriba y abajo.
+const SCORE_BASELINE = SAFE_TOP + 420;
+const BAND_Y = SCORE_BASELINE + 190;
+const CHIP_Y = SAFE_TOP + 90;
+const FOOTER_BASELINE = SAFE_BOTTOM - 14;
+const RULE_Y = FOOTER_BASELINE - 60;
+
 /** Arriba: "Final · Campeonato, Liga del barrio" y "domingo 8 nov · Cancha El Tunal". */
 function drawHead(ctx: CanvasRenderingContext2D, color: PosterColors, input: ResultPosterInput) {
   ctx.textBaseline = 'top';
@@ -50,15 +58,15 @@ function drawHead(ctx: CanvasRenderingContext2D, color: PosterColors, input: Res
   ctx.font = `800 36px ${FONT}`;
   ctx.fillStyle = color.fg;
   const final = 'Final';
-  ctx.fillText(final, LEFT, 84);
+  ctx.fillText(final, LEFT, SAFE_TOP);
   const finalWidth = ctx.measureText(final).width;
   ctx.font = `600 36px ${FONT}`;
   ctx.fillStyle = color.soft;
-  ctx.fillText(` · ${input.kindLine}`, LEFT + finalWidth, 84, TEXT_WIDTH - finalWidth);
+  ctx.fillText(` · ${input.kindLine}`, LEFT + finalWidth, SAFE_TOP, TEXT_WIDTH - finalWidth);
   ctx.fillText(
     `${posterWhen(input.match.startsAt).day} · ${input.match.place}`,
     LEFT,
-    132,
+    SAFE_TOP + 48,
     TEXT_WIDTH,
   );
 }
@@ -132,51 +140,52 @@ export async function resultImage(input: ResultPosterInput): Promise<File | null
 
   // El marcador.
   const digits = String(result.goalsFor).length + String(result.goalsAgainst).length;
-  const size = digits > 2 ? 360 : 490;
+  const size = digits > 2 ? 300 : 400;
   ctx.textBaseline = 'alphabetic';
   ctx.font = `700 ${size}px ${NUM}`;
   ctx.textAlign = 'left';
   ctx.fillStyle = color.accent;
-  ctx.fillText(String(result.goalsFor), LEFT - 12, 610);
+  ctx.fillText(String(result.goalsFor), LEFT - 10, SCORE_BASELINE);
   ctx.textAlign = 'right';
   ctx.strokeStyle = color.fg;
   ctx.lineWidth = 8;
   ctx.lineJoin = 'round';
-  ctx.strokeText(String(result.goalsAgainst), W - LEFT, 610);
+  ctx.strokeText(String(result.goalsAgainst), W - LEFT, SCORE_BASELINE);
   ctx.textAlign = 'center';
   ctx.fillStyle = color.soft;
   ctx.font = `700 ${size * 0.4}px ${NUM}`;
-  ctx.fillText('–', W / 2, 610 - size * 0.25);
+  ctx.fillText('–', W / 2, SCORE_BASELINE - size * 0.25);
 
   // Los nombres debajo de cada número.
   ctx.textBaseline = 'top';
   const half = TEXT_WIDTH / 2 - 20;
   ctx.fillStyle = color.fg;
   ctx.textAlign = 'left';
-  fit(ctx, input.teamName, (s) => `700 ${s}px ${FONT}`, 48, half);
-  ctx.fillText(input.teamName, LEFT, 650);
+  fit(ctx, input.teamName, (s) => `700 ${s}px ${FONT}`, 44, half);
+  ctx.fillText(input.teamName, LEFT, SCORE_BASELINE + 30);
   const rival = input.match.opponent ?? 'Rival';
   ctx.textAlign = 'right';
   ctx.fillStyle = color.soft;
-  fit(ctx, rival, (s) => `700 ${s}px ${FONT}`, 48, half);
-  ctx.fillText(rival, W - LEFT, 650);
+  fit(ctx, rival, (s) => `700 ${s}px ${FONT}`, 44, half);
+  ctx.fillText(rival, W - LEFT, SCORE_BASELINE + 30);
 
-  // La franja torcida: "Ganamos" en el tercero (o el secundario); "Perdimos", más callada.
+  // La franja torcida en el tercer color (o el secundario), también cuando perdimos (Kevin: el
+  // dorado de QLeones no aparecía nunca en las derrotas).
   const verdict = verdictOf(result);
   ctx.save();
-  ctx.translate(W / 2, 860);
+  ctx.translate(W / 2, BAND_Y);
   ctx.rotate((-4 * Math.PI) / 180);
-  ctx.fillStyle = verdict === 'loss' ? color.fg : color.band;
-  ctx.fillRect(-W, -100, 2 * W, 200);
-  ctx.fillStyle = verdict === 'loss' ? color.bg : color.onBand;
+  ctx.fillStyle = color.band;
+  ctx.fillRect(-W, -88, 2 * W, 176);
+  ctx.fillStyle = color.onBand;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.font = `800 150px ${FONT}`;
-  ctx.fillText(VERDICT_WORD[verdict], 0, 8, W - 2 * LEFT);
+  ctx.font = `800 130px ${FONT}`;
+  ctx.fillText(VERDICT_WORD[verdict], 0, 6, W - 2 * LEFT);
   ctx.restore();
 
   // Abajo hacia arriba: el pie, las tarjetas y la figura; los goleadores llenan lo que queda.
-  const rule = H - 130;
+  const rule = RULE_Y;
   ctx.strokeStyle = color.chalk;
   ctx.lineWidth = 4;
   ctx.beginPath();
@@ -201,11 +210,11 @@ export async function resultImage(input: ResultPosterInput): Promise<File | null
 
   // Los goleadores: el nombre en grande con "×2" y sus pases; los que no quepan, "y N más".
   const lines = scorerLines(result.goals);
-  let y = 1050;
+  let y = BAND_Y + 130;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
   for (const [i, line] of lines.entries()) {
-    const height = line.how ? 130 : 90;
+    const height = line.how ? 112 : 78;
     if (y + height > bottom) {
       ctx.fillStyle = color.soft;
       ctx.font = `600 36px ${FONT}`;
@@ -214,23 +223,23 @@ export async function resultImage(input: ResultPosterInput): Promise<File | null
     }
     ctx.fillStyle = color.fg;
     const times = line.count > 1 ? ` ×${line.count}` : '';
-    ctx.font = `800 68px ${FONT}`;
+    ctx.font = `800 60px ${FONT}`;
     const nameWidth = Math.min(ctx.measureText(line.name).width, TEXT_WIDTH - 140);
-    ctx.fillText(line.name, LEFT, y + 64, TEXT_WIDTH - 140);
+    ctx.fillText(line.name, LEFT, y + 58, TEXT_WIDTH - 140);
     if (times) {
       ctx.fillStyle = color.accent;
-      ctx.font = `700 68px ${NUM}`;
-      ctx.fillText(times, LEFT + nameWidth, y + 64);
+      ctx.font = `700 60px ${NUM}`;
+      ctx.fillText(times, LEFT + nameWidth, y + 58);
     }
     if (line.how) {
       ctx.fillStyle = color.soft;
-      ctx.font = `600 36px ${FONT}`;
-      ctx.fillText(line.how, LEFT, y + 112, TEXT_WIDTH);
+      ctx.font = `600 34px ${FONT}`;
+      ctx.fillText(line.how, LEFT, y + 102, TEXT_WIDTH);
     }
-    y += height + 20;
+    y += height + 16;
   }
 
-  drawFooter(ctx, 'Resultado', color);
+  drawFooter(ctx, 'Resultado', color, FOOTER_BASELINE);
   return posterFile(canvas, 'resultado.png');
 }
 
@@ -251,7 +260,7 @@ export async function figureImage(input: ResultPosterInput): Promise<File | null
   ctx.textBaseline = 'top';
   ctx.fillStyle = alpha(color.fg, 0.08);
   ctx.font = `700 1300px ${NUM}`;
-  ctx.fillText(String(figure.jerseyNumber ?? initialsOf(figure.displayName)), W + 110, 200);
+  ctx.fillText(String(figure.jerseyNumber ?? initialsOf(figure.displayName)), W + 110, SAFE_TOP);
 
   drawHead(ctx, color, input);
 
@@ -267,27 +276,27 @@ export async function figureImage(input: ResultPosterInput): Promise<File | null
   const chipWidth = Math.min(TEXT_WIDTH, teamWidth + scoreWidth + rivalWidth + 96);
   ctx.fillStyle = color.band;
   ctx.beginPath();
-  ctx.roundRect(LEFT, 220, chipWidth, 96, 48);
+  ctx.roundRect(LEFT, CHIP_Y, chipWidth, 96, 48);
   ctx.fill();
   ctx.fillStyle = color.onBand;
   ctx.textAlign = 'left';
   ctx.textBaseline = 'middle';
   let x = LEFT + 48;
   ctx.font = `800 46px ${FONT}`;
-  ctx.fillText(`${team} `, x, 270);
+  ctx.fillText(`${team} `, x, CHIP_Y + 50);
   x += teamWidth;
   ctx.font = `700 58px ${NUM}`;
-  ctx.fillText(score, x, 270);
+  ctx.fillText(score, x, CHIP_Y + 50);
   x += scoreWidth;
   ctx.font = `800 46px ${FONT}`;
-  ctx.fillText(` ${rival}`, x, 270, LEFT + chipWidth - 48 - x);
+  ctx.fillText(` ${rival}`, x, CHIP_Y + 50, LEFT + chipWidth - 48 - x);
   ctx.fillStyle = color.fg;
   ctx.textBaseline = 'top';
   ctx.font = `700 48px ${FONT}`;
-  ctx.fillText(VERDICT_WORD[verdictOf(result)], LEFT, 350);
+  ctx.fillText(VERDICT_WORD[verdictOf(result)], LEFT, CHIP_Y + 130);
 
   // De abajo hacia arriba: el pie, las tarjetas, "también marcaron", los números y el nombre.
-  const rule = H - 130;
+  const rule = RULE_Y;
   ctx.strokeStyle = color.chalk;
   ctx.lineWidth = 4;
   ctx.beginPath();
@@ -368,6 +377,6 @@ export async function figureImage(input: ResultPosterInput): Promise<File | null
   ctx.font = `700 44px ${FONT}`;
   ctx.fillText('Figura del partido', LEFT, bottom - size - 10);
 
-  drawFooter(ctx, 'Figura', color);
+  drawFooter(ctx, 'Figura', color, FOOTER_BASELINE);
   return posterFile(canvas, 'figura.png');
 }

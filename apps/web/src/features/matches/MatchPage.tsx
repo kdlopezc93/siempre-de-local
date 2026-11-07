@@ -20,7 +20,7 @@ import { SectionTabs } from '../../shared/ui/SectionTabs';
 import { Sheet } from '../../shared/ui/Sheet';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import { usePublishLineup, useLineups } from '../lineup/use-lineups';
-import { AfterMatch, MatchResultView } from './AfterMatch';
+import { AfterMatch, FigureShare, MatchResultView } from './AfterMatch';
 import { WhoCameAlone } from './WhoCame';
 import { lineupImage } from './lineup-image';
 import { matchKindLine, matchWhen, slotName } from './match-view';
@@ -135,6 +135,15 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
       {/* El resultado al grupo (2026-11-06): el afiche "Marcador gigante", del cuerpo técnico. */}
       {played && staff && match.result && (
         <ResultShare teamId={teamId} teamName={teamName} match={match} result={match.result} />
+      )}
+      {played && staff && match.result?.figure && (
+        <FigureShare
+          teamId={teamId}
+          teamName={teamName}
+          match={match}
+          result={match.result}
+          label="Compartir el afiche de la figura"
+        />
       )}
 
       {played &&
