@@ -14,6 +14,11 @@ export const H = 1920;
  */
 export const SCALE = 4 / 3;
 /**
+ * La versión del diseño de los afiches, en la clave de cada imagen ya dibujada: al cambiar el
+ * diseño, la app la vuelve a dibujar aunque la página siga abierta.
+ */
+export const POSTER_VERSION = 2;
+/**
  * Lo que tapan los estados de WhatsApp e Instagram (2026-11-06, Kevin): arriba la barra de
  * progreso y el nombre; abajo la respuesta. Lo importante va entre estas dos líneas.
  */

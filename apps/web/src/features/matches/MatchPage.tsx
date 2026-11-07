@@ -26,6 +26,7 @@ import { lineupImage } from './lineup-image';
 import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
 import { callUpMessage, lineupMessage } from './share-messages';
+import { POSTER_VERSION } from '../../shared/poster/poster';
 import { useTeamColors } from '../team/use-team-colors';
 import { resultImage } from './result-image';
 import { resultMessage, type MatchResult } from './result-view';
@@ -603,7 +604,7 @@ function LineupShare({
   const colors = useTeamColors(teamId);
   const lineup = usePublishedLineup(teamId, match.id, at);
   const image = useQuery({
-    queryKey: ['lineup-image', match.id, at, ...(colors ?? [])],
+    queryKey: ['lineup-image', POSTER_VERSION, match.id, at, ...(colors ?? [])],
     enabled: lineup.data !== undefined,
     queryFn: () =>
       lineupImage({
@@ -639,7 +640,7 @@ function ResultShare({
 }) {
   const colors = useTeamColors(teamId);
   const image = useQuery({
-    queryKey: ['result-image', match.id, result.at, teamName, ...(colors ?? [])],
+    queryKey: ['result-image', POSTER_VERSION, match.id, result.at, teamName, ...(colors ?? [])],
     queryFn: () => resultImage({ match, result, teamName, kindLine: matchKindLine(match), colors }),
     staleTime: Infinity,
     structuralSharing: false,
