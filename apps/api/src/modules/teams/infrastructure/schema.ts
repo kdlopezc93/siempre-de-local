@@ -74,6 +74,8 @@ export const team = pgTable(
     matchRatingsVisibleToPlayers: boolean().notNull().default(true),
     /** Los colores de los afiches (2026-11-06): 2 o 3 `#rrggbb`; null, los de la app. */
     colors: text().array(),
+    /** ¿La app les recuerda la convocatoria a los que no han respondido? (2026-11-06) */
+    callUpReminders: boolean().notNull().default(true),
     archivedAt: timestamp({ withTimezone: true }),
     createdAt: createdAt(),
   },

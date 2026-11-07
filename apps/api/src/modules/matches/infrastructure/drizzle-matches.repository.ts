@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { MatchRatingValue, MatchReply } from '@sdl/contracts';
-import { and, asc, desc, eq, gt, inArray, ne } from 'drizzle-orm';
+import { and, asc, desc, eq, gt, inArray, lte, ne } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { DatabaseError } from 'pg';
 
@@ -12,6 +12,7 @@ import type {
   MatchData,
   MatchesRepository,
   MatchRecord,
+  ReminderMark,
   MatchResultData,
   MatchEventsRecord,
 } from '../application/ports/matches.repository.js';
@@ -63,6 +64,10 @@ export class DrizzleMatchesRepository implements MatchesRepository, OpenMatchesQ
         goalsAgainst: teamMatch.goalsAgainst,
         resultAt: teamMatch.resultAt,
         attendanceTakenAt: teamMatch.attendanceTakenAt,
+        createdAt: teamMatch.createdAt,
+        reminderEveAt: teamMatch.reminderEveAt,
+        reminderSoonAt: teamMatch.reminderSoonAt,
+        reminderManualAt: teamMatch.reminderManualAt,
         creatorId: user.id,
         creatorName: user.name,
         figureId: figure.id,
@@ -122,6 +127,26 @@ export class DrizzleMatchesRepository implements MatchesRepository, OpenMatchesQ
         ),
       )
       .orderBy(asc(teamMatch.startsAt));
+  }
+
+  async scheduledBetween(from: Date, to: Date) {
+    const rows = await this.select()
+      .where(
+        and(
+          eq(teamMatch.status, 'scheduled'),
+          gt(teamMatch.startsAt, from),
+          lte(teamMatch.startsAt, to),
+        ),
+      )
+      .orderBy(asc(teamMatch.startsAt));
+    return rows.map((row) => this.toRecord(row));
+  }
+
+  async markReminder(matchId: string, mark: ReminderMark, at: Date) {
+    await this.connection.db
+      .update(teamMatch)
+      .set({ [mark]: at })
+      .where(eq(teamMatch.id, matchId));
   }
 
   async update(matchId: string, patch: Partial<MatchData & Pick<MatchRecord, 'status'>>) {

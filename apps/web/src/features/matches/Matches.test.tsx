@@ -31,6 +31,7 @@ const match = (over: object = {}) => ({
   result: null,
   myRating: null,
   attendanceTaken: false,
+  reminders: null,
   ...over,
 });
 const ROSTER = [
@@ -320,6 +321,43 @@ describe('partidos en la app (Fase 7)', () => {
     expect(text).toContain('Van 3 · No van 1');
     expect(text).toContain('Faltan por responder: Ciro');
     expect(text).toContain(`${window.location.origin}/equipos/${TEAM_A}/partidos/${M1}`);
+  });
+
+  it('recordatorio (2026-11-06): "Recordarles ahora" y cuándo les recuerda la app sola', async () => {
+    let posted = false;
+    const reminders = {
+      enabled: true,
+      upcoming: [future(1), future(2)],
+      lastManualAt: null,
+      blockedUntil: null,
+    };
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: () => ({
+        status: 200,
+        body: {
+          match: match({
+            reminders: posted
+              ? { ...reminders, lastManualAt: future(0), blockedUntil: future(0.1) }
+              : reminders,
+          }),
+          roster: ROSTER,
+        },
+      }),
+      [`POST /api/v1/teams/${TEAM_A}/matches/${M1}/reminders`]: () => {
+        posted = true;
+        return { status: 200, body: { reminded: 1 } };
+      },
+      [`GET /api/v1/teams/${TEAM_A}/lineups`]: { status: 200, body: { items: [] } },
+    });
+    const user = userEvent.setup();
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+    const card = await screen.findByRole('region', { name: 'Faltan por responder (1)' });
+    expect(within(card).getByText(/La app les recuerda sola .* y .*\./)).toBeInTheDocument();
+    await user.click(within(card).getByRole('button', { name: 'Recordarles ahora' }));
+    expect(posted).toBe(true);
+    expect(await within(card).findByRole('button', { name: /Les recordaste hace/ })).toBeDisabled();
   });
 
   it('mandar al grupo: la alineación publicada, junto a "Publicada el…"', async () => {

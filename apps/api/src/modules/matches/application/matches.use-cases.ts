@@ -25,6 +25,9 @@ import {
   matchKindProblem,
   replySummary,
   whoCame,
+  dueReminder,
+  manualReminderBlockedUntil,
+  upcomingReminders,
 } from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
@@ -94,6 +97,25 @@ function calledMessage(data: Pick<MatchData, 'kind' | 'opponent' | 'startsAt'>, 
         startsAt: data.startsAt.toISOString(),
         url,
       };
+}
+
+const reminderState = (m: MatchRecord) => ({
+  startsAt: m.startsAt,
+  createdAt: m.createdAt,
+  eveSentAt: m.reminderEveAt,
+  soonSentAt: m.reminderSoonAt,
+});
+
+/** El aviso del recordatorio: como la convocatoria, se responde desde ahí. */
+function reminderMessage(m: MatchRecord, stage: 'eve' | 'soon' | 'manual') {
+  const game = isGame(m.kind);
+  return {
+    kind: game ? ('match-reminder' as const) : ('training-reminder' as const),
+    opponent: game ? (m.opponent ?? '') : 'Entrenamiento',
+    startsAt: m.startsAt.toISOString(),
+    url: `/equipos/${m.teamId}/partidos/${m.id}`,
+    stage,
+  };
 }
 
 /**
@@ -482,6 +504,88 @@ export class Matches {
     return toTournament(created);
   }
 
+  /**
+   * "Recordarles ahora" (2026-11-06): el cuerpo técnico les recuerda a los que no han respondido,
+   * una vez cada 2 horas, mientras se puede responder.
+   */
+  async remind(
+    actor: Actor,
+    teamId: string,
+    matchId: string,
+    now = new Date(),
+  ): Promise<{ reminded: number }> {
+    await this.authorize(actor, teamId, 'team.matches.write');
+    const record = await this.findOr404(teamId, matchId);
+    this.requireOpen(record, now);
+    if (manualReminderBlockedUntil(record.reminderManualAt, now)) {
+      throw new ConflictError(
+        'Ya les recordaste hace poco. Puedes volver a hacerlo 2 horas después.',
+        'REMINDER_TOO_SOON',
+      );
+    }
+    const pending = await this.pendingPlayerIds(record);
+    await this.notifier.notifyUsers(pending, reminderMessage(record, 'manual'));
+    await this.matches.markReminder(record.id, 'reminderManualAt', now);
+    await this.record(actor, teamId, record.id, 'match.reminded', { people: pending.length });
+    return { reminded: pending.length };
+  }
+
+  /**
+   * La tarea programada del recordatorio (cada media hora, 2026-11-06): a los que no han
+   * respondido, la noche antes y 3 horas antes, en los equipos que lo tienen prendido.
+   */
+  async remindDue(now = new Date()): Promise<{ matches: number; reminded: number }> {
+    const soon = await this.matches.scheduledBetween(now, new Date(now.getTime() + 2 * 86_400_000));
+    const teams = new Map<string, boolean>();
+    let matches = 0;
+    let reminded = 0;
+    for (const m of soon) {
+      const stage = dueReminder(reminderState(m), now);
+      if (!stage) continue;
+      if (!teams.has(m.teamId)) {
+        teams.set(m.teamId, (await this.teams.findById(m.teamId))?.callUpReminders ?? false);
+      }
+      // Apagado en el equipo: se marca igual, para que no salga tarde si lo prenden.
+      if (teams.get(m.teamId)) {
+        const pending = await this.pendingPlayerIds(m);
+        await this.notifier.notifyUsers(pending, reminderMessage(m, stage));
+        reminded += pending.length;
+        matches += 1;
+      }
+      await this.matches.markReminder(
+        m.id,
+        stage === 'eve' ? 'reminderEveAt' : 'reminderSoonAt',
+        now,
+      );
+    }
+    return { matches, reminded };
+  }
+
+  /** Lo que el cuerpo técnico ve del recordatorio en un partido que todavía se responde. */
+  private remindersOf(m: MatchRecord, team: TeamRecord, now: Date) {
+    const blocked = manualReminderBlockedUntil(m.reminderManualAt, now);
+    return {
+      enabled: team.callUpReminders,
+      upcoming: team.callUpReminders
+        ? upcomingReminders(reminderState(m), now).map((d) => d.toISOString())
+        : [],
+      lastManualAt: m.reminderManualAt?.toISOString() ?? null,
+      blockedUntil: blocked?.toISOString() ?? null,
+    };
+  }
+
+  /** Los jugadores activos que no han respondido y no están lesionados. */
+  private async pendingPlayerIds(m: MatchRecord) {
+    const [players, replies] = await Promise.all([
+      this.players.activePlayers(m.teamId),
+      this.matches.replies([m.id]),
+    ]);
+    const answered = replies.get(m.id) ?? new Map();
+    return players
+      .filter((p) => p.injuredAt === null && !answered.has(p.userId))
+      .map((p) => p.userId);
+  }
+
   private async toMatches(
     records: MatchRecord[],
     actor: Actor,
@@ -503,6 +607,8 @@ export class Matches {
       ]),
     ]);
     const playerIds = players.map((p) => p.userId);
+    // El recordatorio de la convocatoria (2026-11-06) lo ve y lo toca el cuerpo técnico.
+    const staff = can(actor, 'team.matches.write', { teamId: team.id, clubId: team.club.id });
     const injured = new Set(players.filter((p) => p.injuredAt !== null).map((p) => p.userId));
     const jersey = new Map(players.map((p) => [p.userId, p.jerseyNumber]));
     const person = (p: { id: string; name: string }) => ({
@@ -556,6 +662,7 @@ export class Matches {
             : null,
         myRating: myRatings.get(m.id) ?? null,
         attendanceTaken: m.attendanceTakenAt !== null,
+        reminders: staff && isMatchOpen(m, now) ? this.remindersOf(m, team, now) : null,
       };
     });
   }

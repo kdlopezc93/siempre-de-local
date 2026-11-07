@@ -759,3 +759,29 @@
   font-size: var(--sdl-text-sm);
   font-weight: 600;
 }
+
+/* El recordatorio de la convocatoria (2026-11-06), debajo de "Mandar la convocatoria al grupo". */
+.reminders {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.reminderNote {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sdl-space-2);
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.reminderNote svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--sdl-primary);
+}
+
+.reminderError {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}

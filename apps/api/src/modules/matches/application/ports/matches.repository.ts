@@ -29,7 +29,14 @@ export interface MatchRecord {
   resultAt: Date | null;
   /** "¿Quién vino?" (2026-10-30): desde cuándo hay lista; null = cuentan los que dijeron voy. */
   attendanceTakenAt: Date | null;
+  createdAt: Date;
+  /** El recordatorio de la convocatoria (2026-11-06): cuándo salió cada uno. */
+  reminderEveAt: Date | null;
+  reminderSoonAt: Date | null;
+  reminderManualAt: Date | null;
 }
+
+export type ReminderMark = 'reminderEveAt' | 'reminderSoonAt' | 'reminderManualAt';
 
 export interface MatchResultData {
   goalsFor: number;
@@ -115,6 +122,13 @@ export interface MatchesRepository {
     createdBy: string,
     name: string,
   ): Promise<TournamentRecord | 'name-taken'>;
+  /**
+   * Los programados de todos los equipos que empiezan entre `from` y `to` (la tarea del
+   * recordatorio, 2026-11-06).
+   */
+  scheduledBetween(from: Date, to: Date): Promise<MatchRecord[]>;
+  /** Marca que salió un recordatorio. */
+  markReminder(matchId: string, mark: ReminderMark, at: Date): Promise<void>;
 }
 
 export const MATCHES_REPOSITORY = Symbol('MATCHES_REPOSITORY');

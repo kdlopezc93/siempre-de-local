@@ -19,6 +19,7 @@ import { seedUserWithSession, type SeededUser } from '../../../test/sessions.js'
 import { bootstrapTeam } from '../../teams/infrastructure/bootstrap-team.js';
 import { teamMembership } from '../../teams/infrastructure/schema.js';
 import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
+import { Matches } from '../application/matches.use-cases.js';
 import { teamMatch } from '../infrastructure/schema.js';
 
 const inDays = (days: number) => new Date(Date.now() + days * 86_400_000).toISOString();
@@ -119,6 +120,95 @@ describe('partidos: convocar y responder (Fase 7)', () => {
 
     const list = MatchListResponseSchema.parse((await call('GET', '', ana)).json());
     expect(list.items.map((m) => m.opponent)).toContain('Los Pibes');
+  });
+
+  it('recordatorio (2026-11-06): a mano una vez cada 2 horas; solo a los que faltan; la tarea, a su hora', async () => {
+    const notify = vi.spyOn(app.get<Notifier>(NOTIFIER, { strict: false }), 'notifyUsers');
+    // Un domingo a las 3 p. m. (Colombia), a 4 días.
+    const day = new Date(Date.now() + 4 * 86_400_000).toISOString().slice(0, 10);
+    const startsAt = `${day}T20:00:00.000Z`;
+    const { match } = MatchResponseSchema.parse((await convocar({ startsAt })).json());
+    await call('PUT', `/${match.id}/reply`, ana, { reply: 'yes' });
+
+    // El cuerpo técnico ve cuándo salen los automáticos; el jugador, nada.
+    const seen = MatchResponseSchema.parse((await call('GET', `/${match.id}`, coach)).json());
+    expect(seen.match.reminders).toEqual({
+      enabled: true,
+      upcoming: [
+        new Date(new Date(`${day}T00:00:00.000Z`).getTime()).toISOString(),
+        `${day}T17:00:00.000Z`,
+      ],
+      lastManualAt: null,
+      blockedUntil: null,
+    });
+    expect(
+      MatchResponseSchema.parse((await call('GET', `/${match.id}`, ana)).json()).match.reminders,
+    ).toBeNull();
+
+    notify.mockClear();
+    const sent = await call('POST', `/${match.id}/reminders`, coach);
+    expect(sent.statusCode).toBe(200);
+    expect(sent.json()).toEqual({ reminded: 1 });
+    expect(notify).toHaveBeenCalledWith(
+      [beto.userId],
+      expect.objectContaining({ kind: 'match-reminder', opponent: 'Los Pibes', stage: 'manual' }),
+    );
+    const again = await call('POST', `/${match.id}/reminders`, coach);
+    expect(again.statusCode).toBe(409);
+    expect(again.json()).toMatchObject({ error: { code: 'REMINDER_TOO_SOON' } });
+    expect((await call('POST', `/${match.id}/reminders`, ana)).statusCode).toBe(403);
+    const after = MatchResponseSchema.parse((await call('GET', `/${match.id}`, coach)).json());
+    expect(after.match.reminders?.lastManualAt).not.toBeNull();
+    expect(after.match.reminders?.blockedUntil).not.toBeNull();
+
+    // La tarea: 2 horas antes del partido sale el de 3 horas antes, una sola vez.
+    const matches = app.get(Matches, { strict: false });
+    notify.mockClear();
+    const twoBefore = new Date(new Date(startsAt).getTime() - 2 * 3_600_000);
+    expect(await matches.remindDue(twoBefore)).toEqual({ matches: 1, reminded: 1 });
+    expect(notify).toHaveBeenCalledWith(
+      [beto.userId],
+      expect.objectContaining({ kind: 'match-reminder', stage: 'soon' }),
+    );
+    expect(await matches.remindDue(twoBefore)).toEqual({ matches: 0, reminded: 0 });
+
+    // Por HTTP solo con el secreto de la tarea.
+    const cron = (secret?: string) =>
+      app.inject({
+        method: 'POST',
+        url: '/api/v1/cron/call-up-reminders',
+        headers: secret ? { authorization: `Bearer ${secret}` } : {},
+      });
+    expect((await cron()).statusCode).toBe(401);
+    expect((await cron(TEST_ENV.CRON_SECRET)).statusCode).toBe(200);
+    notify.mockRestore();
+  });
+
+  it('recordatorio apagado en el equipo: el cuerpo técnico lo ve apagado y la tarea no avisa', async () => {
+    await app.inject({
+      method: 'PATCH',
+      url: `/api/v1/teams/${teamId}`,
+      headers: { cookie: coach.cookie, origin: TEST_ENV.WEB_ORIGIN },
+      payload: { callUpReminders: false },
+    });
+    const day = new Date(Date.now() + 5 * 86_400_000).toISOString().slice(0, 10);
+    const startsAt = `${day}T20:00:00.000Z`;
+    const { match } = MatchResponseSchema.parse((await convocar({ startsAt })).json());
+    const seen = MatchResponseSchema.parse((await call('GET', `/${match.id}`, coach)).json());
+    expect(seen.match.reminders).toMatchObject({ enabled: false, upcoming: [] });
+    const notify = vi.spyOn(app.get<Notifier>(NOTIFIER, { strict: false }), 'notifyUsers');
+    notify.mockClear();
+    const matches = app.get(Matches, { strict: false });
+    await matches.remindDue(new Date(new Date(startsAt).getTime() - 2 * 3_600_000));
+    expect(notify).not.toHaveBeenCalled();
+    notify.mockRestore();
+    // Lo deja como estaba.
+    await app.inject({
+      method: 'PATCH',
+      url: `/api/v1/teams/${teamId}`,
+      headers: { cookie: coach.cookie, origin: TEST_ENV.WEB_ORIGIN },
+      payload: { callUpReminders: true },
+    });
   });
 
   it('reglas: formato del equipo, en el futuro, solo jugadores responden, solo el cuerpo técnico convoca', async () => {

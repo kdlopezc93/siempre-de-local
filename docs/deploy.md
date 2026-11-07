@@ -105,6 +105,8 @@ fly ssh console --app sdl-api-staging -C "node dist/scripts/bootstrap-team.js --
 
 ## 10. Tareas programadas (recordatorio de cobros)
 
+`.github/workflows/call-up-reminders.yml` (2026-11-06) corre cada media hora y llama `POST /api/v1/cron/call-up-reminders` con la misma clave: el recordatorio de la convocatoria (`02` §16). No necesita nada nuevo: usa el mismo `CRON_SECRET`.
+
 `.github/workflows/charges-due.yml` corre todos los días a las 9 a. m. de Colombia y llama `POST /api/v1/cron/charges-due` con `Authorization: Bearer <CRON_SECRET>`: avisa a los que deben su parte en un cobro que vence mañana u hoy (`02` §15). La misma clave va en Fly y en GitHub, sin que pase por la pantalla:
 
 ```bash

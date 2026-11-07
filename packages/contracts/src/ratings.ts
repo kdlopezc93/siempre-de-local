@@ -109,6 +109,8 @@ export const UpdateTeamRequestSchema = z
       .refine((f) => new Set(f).size === f.length, 'Formatos repetidos'),
     /** Los colores de los afiches; null vuelve a los de la app (2026-11-06). */
     colors: TeamColorsSchema.nullable(),
+    /** El recordatorio automático de la convocatoria (2026-11-06). */
+    callUpReminders: z.boolean(),
   })
   .partial()
   .refine((patch) => Object.keys(patch).length > 0, 'Nada que cambiar');

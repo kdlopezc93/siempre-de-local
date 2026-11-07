@@ -85,6 +85,46 @@ describe('avisos en el service worker', () => {
     );
   });
 
+  it('el recordatorio de la convocatoria: pregunta otra vez, con los botones (2026-11-06)', async () => {
+    const { fire, showNotification } = loadWorker();
+    const startsAt = new Date(Date.now() + 86_400_000).toISOString();
+    await fire(
+      'push',
+      push({
+        kind: 'match-reminder',
+        opponent: 'Real Bosa',
+        startsAt,
+        url: '/equipos/t/partidos/m',
+        stage: 'eve',
+      }),
+    );
+    expect(last(showNotification)[0]).toBe('¿Vas mañana contra Real Bosa?');
+    expect((lastOptions(showNotification) as unknown as { body: string }).body).toMatch(
+      /^Faltas tú por responder\./,
+    );
+    expect(lastOptions(showNotification).actions).toEqual([
+      { action: 'yes', title: 'Voy' },
+      { action: 'no', title: 'No voy' },
+    ]);
+
+    await fire(
+      'push',
+      push({
+        kind: 'training-reminder',
+        opponent: 'Entrenamiento',
+        startsAt: new Date().toISOString(),
+        url: '/equipos/t/partidos/m',
+        stage: 'manual',
+      }),
+    );
+    expect(last(showNotification)[0]).toBe('¿Vas a entrenar hoy?');
+    expect((lastOptions(showNotification) as unknown as { body: string }).body).toMatch(
+      /^Tu cuerpo técnico pregunta si vas\./,
+    );
+    // El entreno no tiene rival para "Listo, vas al entreno".
+    expect(lastOptions(showNotification).data).toMatchObject({ opponent: null });
+  });
+
   it('la figura del partido: la felicitación (D18)', async () => {
     const { fire, showNotification } = loadWorker();
     await fire(

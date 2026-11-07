@@ -43,6 +43,8 @@ export const TeamResponseSchema = z.object({
     matchRatingsVisibleToPlayers: z.boolean(),
     /** Los colores del equipo para los afiches, o null: los de la app (2026-11-06). */
     colors: TeamColorsSchema.nullable().default(null),
+    /** ¿La app recuerda la convocatoria a los que no han respondido? (2026-11-06) */
+    callUpReminders: z.boolean().default(true),
   }),
   /** Roles activos de quien pregunta en este equipo (vacío si entra como admin del club). */
   myRoles: z.array(TeamRoleSchema),

@@ -12,6 +12,8 @@ export interface TeamRecord {
   matchRatingsVisibleToPlayers: boolean;
   /** Los colores de los afiches, o null: los de la app. */
   colors: string[] | null;
+  /** ¿La app recuerda la convocatoria a los que no han respondido? (2026-11-06) */
+  callUpReminders: boolean;
 }
 
 /** Lo que se cambia desde Datos del equipo y los ajustes de visibilidad (D8, D14, D18). */
@@ -25,6 +27,7 @@ export type TeamSettings = Partial<
     | 'format'
     | 'formats'
     | 'colors'
+    | 'callUpReminders'
   >
 >;
 

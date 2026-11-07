@@ -92,6 +92,7 @@ describe('GET /api/v1/teams/:teamId', () => {
         ratingsVisibleToPlayers: true,
         matchRatingsVisibleToPlayers: true,
         colors: null,
+        callUpReminders: true,
       },
       myRoles: ['coach'],
     });

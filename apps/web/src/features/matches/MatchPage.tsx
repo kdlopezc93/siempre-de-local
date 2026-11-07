@@ -28,6 +28,7 @@ import { PublishedBoard } from './PublishedBoard';
 import { callUpMessage, lineupMessage } from './share-messages';
 import { POSTER_VERSION } from '../../shared/poster/poster';
 import { useTeamColors } from '../team/use-team-colors';
+import { Reminders } from './Reminders';
 import { resultImage } from './result-image';
 import { resultMessage, type MatchResult } from './result-view';
 import styles from './Matches.module.css';
@@ -372,7 +373,10 @@ function CallUp({ teamId, match, roster }: { teamId: string; match: Match; roste
               </ul>
             )}
             {tone === 'wait' && match.open && (
-              <GroupShare message={message} label="Mandar la convocatoria al grupo" />
+              <>
+                <GroupShare message={message} label="Mandar la convocatoria al grupo" />
+                <Reminders teamId={teamId} match={match} pending={people.length} />
+              </>
             )}
           </section>
         ),

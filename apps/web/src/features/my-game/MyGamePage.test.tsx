@@ -168,6 +168,7 @@ describe('Mi juego (07 §4.3)', () => {
       published: null,
       myRating: null,
       attendanceTaken: false,
+      reminders: null,
       ...over,
     });
     const result = (figure: string | null) => ({

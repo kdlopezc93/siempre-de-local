@@ -409,6 +409,17 @@ Avisos: `NOT_ENOUGH_PLAYERS`, `PLAYER_WITHOUT_DATA` (va al final), `MIN_KNOWLEDG
 - **Al llegar la vuelta estimada** no se desmarca solo: el inicio del cuerpo técnico pregunta "¿Ya volvió?" hasta que alguien lo desmarque o cambie la fecha.
 - En las listas, la ficha lleva una crucecita coral en la esquina y la palabra "Lesionado" (nunca solo el color).
 
+## 16. Recordatorio de la convocatoria (2026-11-06)
+
+Kevin aprobó la maqueta. A los jugadores activos que **no han respondido** voy / no voy (los lesionados no):
+
+- **La noche antes a las 7 p. m.** y **3 horas antes** del partido o entreno, en hora de Colombia (UTC−5, sin cambio de horario). Nunca entre las 9 p. m. y las 7 a. m.: si el de 3 horas antes cae ahí, sale a las 7 a. m. (o a las 8:30 p. m. de la noche anterior si el partido es antes de las 7 a. m.).
+- **Convocado con poco tiempo:** el de la noche antes no va si se convocó después de esa hora (o si queda a menos de 6 horas del otro); el de 3 horas antes no va si se convocó después.
+- Cada uno sale **una sola vez** por partido; si ya salió el de 3 horas antes, el de la noche antes ya no. Lo manda una tarea cada media hora (`dueReminder`, `packages/domain/src/reminders.ts`).
+- **"Recordarles ahora"**: el cuerpo técnico (entrenador y asistentes), **una vez cada 2 horas**, mientras se puede responder.
+- Se apaga por equipo en **Datos y ajustes → Avisos** (por defecto, prendido). Apagado, la tarea marca el recordatorio como pasado sin avisar, para que no salga tarde si lo prenden.
+- El aviso se responde desde ahí (Voy / No voy), como la convocatoria.
+
 ## Afirmaciones de la app (principio 8 de `07`)
 
 Revisadas el 2026-10-22 (Fase 6, PR 11). La app no promete lo que no mide:

@@ -20,6 +20,8 @@ import {
   type UpdateMatchRequest,
   TeamScorersResponseSchema,
   type TeamScorersResponse,
+  RemindMatchResponseSchema,
+  type RemindMatchResponse,
 } from '@sdl/contracts';
 
 import { apiRequest } from './http';
@@ -49,6 +51,13 @@ export function updateMatch(
   return apiRequest(`${base(teamId)}/${matchId}`, MatchResponseSchema, {
     method: 'PATCH',
     body: JSON.stringify(patch),
+  });
+}
+
+/** "Recordarles ahora" (2026-11-06): a los que no han respondido. */
+export function remindMatch(teamId: string, matchId: string): Promise<RemindMatchResponse> {
+  return apiRequest(`${base(teamId)}/${matchId}/reminders`, RemindMatchResponseSchema, {
+    method: 'POST',
   });
 }
 
