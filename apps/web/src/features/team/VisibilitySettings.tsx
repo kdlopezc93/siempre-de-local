@@ -5,9 +5,10 @@ import { useTeam } from '../team-admin/use-invitations';
 import switchStyles from '../../shared/ui/Switch.module.css';
 import styles from './TeamPage.module.css';
 
-type Setting = 'ratingsVisibleToPlayers' | 'matchRatingsVisibleToPlayers';
+type Setting = 'ratingsVisibleToPlayers' | 'matchRatingsVisibleToPlayers' | 'callUpReminders';
+type SettingCopy = { key: Setting; title: string; on: string; off: string };
 
-const SETTINGS: readonly { key: Setting; title: string; on: string; off: string }[] = [
+const SETTINGS: readonly SettingCopy[] = [
   {
     key: 'ratingsVisibleToPlayers',
     title: 'Los jugadores ven su tarjeta',
@@ -22,18 +23,49 @@ const SETTINGS: readonly { key: Setting; title: string; on: string; off: string 
   },
 ];
 
+/** El recordatorio de la convocatoria (2026-11-06). */
+const REMINDERS: readonly SettingCopy[] = [
+  {
+    key: 'callUpReminders',
+    title: 'Recordar a los que no han respondido',
+    on: 'La noche antes y 3 horas antes del partido o entreno.',
+    off: 'Solo cuando toques "Recordarles ahora".',
+  },
+];
+
 /** Qué ven los jugadores: su tarjeta (D8) y su evaluación de cada partido (D18). */
 export function VisibilitySettings({ teamId }: { teamId: string }) {
+  return (
+    <SwitchSection teamId={teamId} id="ajustes" title="Qué ven los jugadores" settings={SETTINGS} />
+  );
+}
+
+/** Los avisos del equipo: el recordatorio de la convocatoria (2026-11-06). */
+export function ReminderSettings({ teamId }: { teamId: string }) {
+  return <SwitchSection teamId={teamId} id="avisos" title="Avisos" settings={REMINDERS} />;
+}
+
+function SwitchSection({
+  teamId,
+  id,
+  title: sectionTitle,
+  settings,
+}: {
+  teamId: string;
+  id: string;
+  title: string;
+  settings: readonly SettingCopy[];
+}) {
   const team = useTeam(teamId);
   const update = useUpdateTeam(teamId);
   if (!team.data) return null;
   const changing = update.isPending ? (update.variables as UpdateTeamRequest) : {};
   return (
-    <section aria-labelledby="ajustes" className={styles.section}>
-      <h2 id="ajustes" className={styles.sectionTitle}>
-        Ajustes
+    <section aria-labelledby={id} className={styles.section}>
+      <h2 id={id} className={styles.sectionTitle}>
+        {sectionTitle}
       </h2>
-      {SETTINGS.map(({ key, title, on, off }) => {
+      {settings.map(({ key, title, on, off }) => {
         const visible = changing[key] ?? team.data.team[key];
         return (
           <label key={key} className={styles.setting}>

@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import {
   CreateMatchRequestSchema,
   CreateTournamentRequestSchema,
@@ -10,6 +21,7 @@ import {
   type MatchResponse,
   MatchResultRequestSchema,
   type PlayerMatchRatingsResponse,
+  type RemindMatchResponse,
   type TournamentListResponse,
   type TournamentResponse,
   UpdateMatchRequestSchema,
@@ -20,6 +32,8 @@ import { z } from 'zod';
 import { Can } from '../../../shared/authz/can.decorator.js';
 import { CurrentActor } from '../../../shared/authz/current-actor.decorator.js';
 import type { Actor } from '../../../shared/authz/policy.js';
+import { Public } from '../../../shared/authz/public.decorator.js';
+import { CronGuard } from '../../../shared/http/cron.guard.js';
 import { parseInput } from '../../../shared/http/validation.js';
 import { Matches } from '../application/matches.use-cases.js';
 
@@ -87,6 +101,18 @@ export class MatchesController {
       parseInput(z.uuid(), matchId),
       parseInput(MatchReplyRequestSchema, body).reply,
     );
+  }
+
+  /** "Recordarles ahora" (2026-11-06): a los que no han respondido, una vez cada 2 horas. */
+  @Post(':matchId/reminders')
+  @HttpCode(200)
+  @Can('team.matches.write', { teamParam: 'teamId' })
+  remind(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('matchId') matchId: string,
+  ): Promise<RemindMatchResponse> {
+    return this.matches.remind(actor, teamId, parseInput(z.uuid(), matchId));
   }
 
   /** Después del partido (D18): resultado y figura. */
@@ -222,5 +248,20 @@ export class TournamentsController {
   ): Promise<TournamentResponse> {
     const { name } = parseInput(CreateTournamentRequestSchema, body);
     return { tournament: await this.matches.createTournament(actor, teamId, name) };
+  }
+}
+
+/** La tarea del recordatorio (GitHub Actions, cada media hora): sin sesión, con `CRON_SECRET`. */
+@Controller('cron')
+@Public()
+@UseGuards(CronGuard)
+export class MatchesCronController {
+  constructor(private readonly matches: Matches) {}
+
+  /** Recordar la convocatoria a los que no han respondido (2026-11-06). */
+  @Post('call-up-reminders')
+  @HttpCode(200)
+  remindDue(): Promise<{ matches: number; reminded: number }> {
+    return this.matches.remindDue();
   }
 }

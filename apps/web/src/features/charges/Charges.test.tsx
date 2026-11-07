@@ -286,6 +286,7 @@ describe('cobros en la app (06 Cobros)', () => {
             result: null,
             myRating: null,
             attendanceTaken: true,
+            reminders: null,
           },
           roster: [
             {

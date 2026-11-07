@@ -5,7 +5,7 @@
  * url } del recordatorio del test; { kind, charge, url } de un cobro nuevo o de un patrocinio,
  * sin el valor); el texto y la hora (en la zona del celular) se arman aquí.
  *
- * La convocatoria trae "Voy" y "No voy" (2026-11-06, Kevin): responden sin abrir la app, con la
+ * La convocatoria y su recordatorio traen "Voy" y "No voy" (2026-11-06, Kevin): responden sin abrir la app, con la
  * cookie de la sesión, al API que dice sw-config.js. En iPhone no hay botones: el toque abre el
  * partido. Si no se puede responder (sin señal, sin sesión), abre el partido.
  */
@@ -16,6 +16,29 @@ const WHEN = new Intl.DateTimeFormat('es-419', {
   hour: 'numeric',
   minute: '2-digit',
 });
+
+const WEEKDAY = new Intl.DateTimeFormat('es-419', { weekday: 'long' });
+const DAY_KEY = new Intl.DateTimeFormat('en-CA', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
+/** "hoy", "mañana" o "el domingo", en la zona del celular. */
+function dayWord(startsAt) {
+  const at = new Date(startsAt);
+  const today = DAY_KEY.format(new Date());
+  const tomorrow = DAY_KEY.format(new Date(Date.now() + 86_400_000));
+  const day = DAY_KEY.format(at);
+  return day === today ? 'hoy' : day === tomorrow ? 'mañana' : `el ${WEEKDAY.format(at)}`;
+}
+
+/** El recordatorio de la convocatoria (2026-11-06): quién pregunta y cuándo es. */
+function reminderBody(data, when) {
+  return data.stage === 'manual'
+    ? `Tu cuerpo técnico pregunta si vas. ${when}.`
+    : `Faltas tú por responder. ${when}.`;
+}
 
 /**
  * El texto de cada tipo de aviso. Uno que este service worker no conoce (lo agregó una versión
@@ -28,6 +51,16 @@ function noticeText(data, when) {
       return { title: `Te convocaron: ${data.opponent}`, body: `${when}. ¿Vas?` };
     case 'training-called':
       return { title: 'Te convocaron a entrenar', body: `${when}. ¿Vas?` };
+    case 'match-reminder':
+      return {
+        title: `¿Vas ${dayWord(data.startsAt)} contra ${data.opponent}?`,
+        body: reminderBody(data, when),
+      };
+    case 'training-reminder':
+      return {
+        title: `¿Vas a entrenar ${dayWord(data.startsAt)}?`,
+        body: reminderBody(data, when),
+      };
     case 'lineup-published':
       return {
         title: `Ya está la alineación: ${data.opponent}`,
@@ -75,8 +108,13 @@ function noticeText(data, when) {
   }
 }
 
-/** Las convocatorias se responden desde el aviso. */
-const REPLY_KINDS = new Set(['match-called', 'training-called']);
+/** Las convocatorias (y sus recordatorios) se responden desde el aviso. */
+const REPLY_KINDS = new Set([
+  'match-called',
+  'training-called',
+  'match-reminder',
+  'training-reminder',
+]);
 const REPLY_ACTIONS = [
   { action: 'yes', title: 'Voy' },
   { action: 'no', title: 'No voy' },
@@ -147,7 +185,12 @@ self.addEventListener('push', (event) => {
       // La convocatoria guarda qué es y contra quién, para responder desde el aviso.
       ...(answerable
         ? {
-            data: { url: data.url, kind: data.kind, opponent: data.opponent ?? null },
+            data: {
+              url: data.url,
+              kind: data.kind,
+              // El entreno no tiene rival: "Listo, vas al entreno".
+              opponent: data.kind.startsWith('training') ? null : (data.opponent ?? null),
+            },
             actions: REPLY_ACTIONS,
           }
         : { data: { url: data.url } }),

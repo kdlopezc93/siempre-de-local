@@ -66,3 +66,40 @@ export function slotName(
   const name = positionName(slot.position, format);
   return slot.side ? `${name} por la ${slot.side}` : name;
 }
+
+const CLOCK = new Intl.DateTimeFormat('es-419', { hour: 'numeric', minute: '2-digit' });
+const WEEKDAY = new Intl.DateTimeFormat('es-419', { weekday: 'long' });
+const dayKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+
+/** "3:00 p. m.", en la hora del celular. */
+export const timeLabel = (iso: string) => CLOCK.format(new Date(iso));
+
+/** "hoy", "mañana" o "el sábado". */
+function dayLabel(at: Date, now: Date): string {
+  const tomorrow = new Date(now);
+  tomorrow.setDate(now.getDate() + 1);
+  if (dayKey(at) === dayKey(now)) return 'hoy';
+  if (dayKey(at) === dayKey(tomorrow)) return 'mañana';
+  return `el ${WEEKDAY.format(at)}`;
+}
+
+/**
+ * Cuándo les recuerda la app sola (2026-11-06): "La app les recuerda sola el sábado a las 7:00
+ * p. m. y mañana a las 12:00 p. m."; null si ya no queda ninguno.
+ */
+export function reminderLine(upcoming: readonly string[], now = new Date()): string | null {
+  if (upcoming.length === 0) return null;
+  const parts = upcoming.map((iso) => {
+    const at = new Date(iso);
+    return `${dayLabel(at, now)} a las ${CLOCK.format(at)}`;
+  });
+  return `La app les recuerda sola ${parts.join(' y ')}.`;
+}
+
+/** "hace un momento", "hace 5 min", "hace 1 h". */
+export function sinceLabel(iso: string, now = new Date()): string {
+  const minutes = Math.floor((now.getTime() - new Date(iso).getTime()) / 60_000);
+  if (minutes < 1) return 'hace un momento';
+  if (minutes < 60) return `hace ${minutes} min`;
+  return `hace ${Math.floor(minutes / 60)} h`;
+}

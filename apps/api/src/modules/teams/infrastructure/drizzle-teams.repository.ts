@@ -50,6 +50,7 @@ export class DrizzleTeamsRepository
         ratingsVisibleToPlayers: team.ratingsVisibleToPlayers,
         matchRatingsVisibleToPlayers: team.matchRatingsVisibleToPlayers,
         colors: team.colors,
+        callUpReminders: team.callUpReminders,
       })
       .from(team)
       .innerJoin(club, eq(team.clubId, club.id))

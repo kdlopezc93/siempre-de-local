@@ -74,6 +74,13 @@ export const teamMatch = pgTable(
     resultAt: timestamp({ withTimezone: true }),
     /** "¿Quién vino?" (2026-10-30): desde cuándo hay lista; null = cuentan los que dijeron voy. */
     attendanceTakenAt: timestamp({ withTimezone: true }),
+    /**
+     * El recordatorio de la convocatoria (2026-11-06): cuándo salió el de la noche antes, el de 3
+     * horas antes y el último que mandó el cuerpo técnico a mano.
+     */
+    reminderEveAt: timestamp({ withTimezone: true }),
+    reminderSoonAt: timestamp({ withTimezone: true }),
+    reminderManualAt: timestamp({ withTimezone: true }),
     createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp({ withTimezone: true })
       .notNull()

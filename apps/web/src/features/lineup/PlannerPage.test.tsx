@@ -181,6 +181,7 @@ describe('planificador', () => {
       result: null,
       myRating: null,
       attendanceTaken: false,
+      reminders: null,
     };
     const roster = PLAYERS.map((p, i) => ({
       playerId: p.playerId,

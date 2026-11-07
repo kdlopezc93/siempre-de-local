@@ -21,6 +21,7 @@ const match = (id: string, startsAt: string, open: boolean): Match => ({
   result: null,
   myRating: null,
   attendanceTaken: false,
+  reminders: null,
 });
 
 describe('partidos en la app', () => {

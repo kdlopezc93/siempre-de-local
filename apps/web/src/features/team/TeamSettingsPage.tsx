@@ -6,7 +6,7 @@ import { Screen } from '../../shared/ui/Screen';
 import { TeamColors } from './TeamColors';
 import { TeamData } from './TeamData';
 import styles from './TeamPage.module.css';
-import { VisibilitySettings } from './VisibilitySettings';
+import { ReminderSettings, VisibilitySettings } from './VisibilitySettings';
 
 /**
  * /equipos/:teamId/ajustes — los datos, los colores y lo que ven los jugadores (2026-11-06,
@@ -25,6 +25,7 @@ export function TeamSettingsPage({ me, teamId }: { me: Me; teamId: string }) {
       <PageTitle eyebrow={membership?.team.name} title="Datos y ajustes" />
       <TeamData teamId={teamId} editable={editable} />
       <TeamColors teamId={teamId} editable={editable} />
+      {editable && <ReminderSettings teamId={teamId} />}
       {editable && <VisibilitySettings teamId={teamId} />}
     </Screen>
   );

@@ -17,6 +17,19 @@ export type PushMessage =
     }
   | {
       /**
+       * El recordatorio de la convocatoria (2026-11-06) a quien no ha respondido: el de la noche
+       * antes, el de 3 horas antes o el que manda el cuerpo técnico a mano. Se responde desde el
+       * aviso, como la convocatoria.
+       */
+      kind: 'match-reminder' | 'training-reminder';
+      /** El rival ("Entrenamiento" en los entrenos, para el service worker viejo). */
+      opponent: string;
+      startsAt: string;
+      url: string;
+      stage: 'eve' | 'soon' | 'manual';
+    }
+  | {
+      /**
        * El cuerpo técnico recuerda el test a los que no lo han hecho (2026-10-26); el tesorero,
        * los cobros a los que deben (`charges-reminder`, 2026-10-31, sin el valor).
        */

@@ -19,6 +19,7 @@ import {
   fetchPublishedLineup,
   rateMatchPlayer,
   recordMatchResult,
+  remindMatch,
   replyMatch,
   takeMatchAttendance,
   unrateMatchPlayer,
@@ -64,6 +65,15 @@ export const useCreateMatch = (teamId: string) =>
 
 export const useUpdateMatch = (teamId: string, matchId: string) =>
   useMatchMutation(teamId, (patch: UpdateMatchRequest) => updateMatch(teamId, matchId, patch));
+
+/** "Recordarles ahora": después, el partido otra vez (cuándo se recordó y hasta cuándo no se puede). */
+export function useRemindMatch(teamId: string, matchId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => remindMatch(teamId, matchId),
+    onSettled: () => queryClient.invalidateQueries({ queryKey: [...matchesKey(teamId), matchId] }),
+  });
+}
 
 export const useReplyMatch = (teamId: string, matchId: string) =>
   useMatchMutation(teamId, (reply: MatchReply) => replyMatch(teamId, matchId, reply));

@@ -1,0 +1,27 @@
+name: Recordar la convocatoria
+
+# Cada media hora (a los :05 y :35): a los que no han respondido voy / no voy, la noche antes a las
+# 7 p. m. y 3 horas antes del partido o entreno, nunca de noche (2026-11-06; `02` §17). Cada
+# recordatorio sale una sola vez por partido. El API puede estar dormido: la petición lo despierta.
+# A mano: Actions → "Recordar la convocatoria".
+on:
+  schedule:
+    - cron: '5,35 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  remind:
+    name: Avisar
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: POST /api/v1/cron/call-up-reminders
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --retry 3 --retry-all-errors \
+            --max-time 60 -X POST \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            https://api.siempredelocal.app/api/v1/cron/call-up-reminders

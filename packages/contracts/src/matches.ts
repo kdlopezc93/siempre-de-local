@@ -70,6 +70,18 @@ export const MatchResultSchema = z.object({
   at: z.iso.datetime(),
 });
 
+/**
+ * El recordatorio de la convocatoria (2026-11-06), solo para el cuerpo técnico y mientras se
+ * puede responder: si está prendido en el equipo, cuándo salen los automáticos que faltan y
+ * cuándo se recordó a mano por última vez (se puede de nuevo 2 horas después).
+ */
+export const MatchRemindersSchema = z.object({
+  enabled: z.boolean(),
+  upcoming: z.array(z.iso.datetime()),
+  lastManualAt: z.iso.datetime().nullable(),
+  blockedUntil: z.iso.datetime().nullable(),
+});
+
 export const MatchSchema = z.object({
   id: z.uuid(),
   format: MatchFormatSchema,
@@ -102,7 +114,12 @@ export const MatchSchema = z.object({
    * eso es del cuerpo técnico.
    */
   myRating: MatchRatingValueSchema.nullable(),
+  /** El recordatorio de la convocatoria (2026-11-06): solo el cuerpo técnico, o null. */
+  reminders: MatchRemindersSchema.nullable().default(null),
 });
+
+/** POST /teams/:teamId/matches/:matchId/reminders — recordar a mano a los que faltan. */
+export const RemindMatchResponseSchema = z.object({ reminded: z.int().min(0) });
 
 /** Quién respondió qué: solo para el cuerpo técnico (y el admin del club). */
 export const MatchRosterSchema = z.array(
@@ -227,6 +244,8 @@ export type MatchReply = z.infer<typeof MatchReplySchema>;
 export type CreateMatchRequest = z.infer<typeof CreateMatchRequestSchema>;
 export type UpdateMatchRequest = z.infer<typeof UpdateMatchRequestSchema>;
 export type Match = z.infer<typeof MatchSchema>;
+export type MatchReminders = z.infer<typeof MatchRemindersSchema>;
+export type RemindMatchResponse = z.infer<typeof RemindMatchResponseSchema>;
 export type MatchRoster = z.infer<typeof MatchRosterSchema>;
 export type MatchResponse = z.infer<typeof MatchResponseSchema>;
 export type MatchListResponse = z.infer<typeof MatchListResponseSchema>;

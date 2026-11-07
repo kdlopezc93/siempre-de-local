@@ -6,6 +6,7 @@ import { OPEN_MATCHES_QUERY } from '../teams/application/ports/open-matches.quer
 import { Matches } from './application/matches.use-cases.js';
 import {
   MatchesController,
+  MatchesCronController,
   PlayerMatchRatingsController,
   ScorersController,
   TournamentsController,
@@ -16,6 +17,7 @@ import { DrizzleMatchesRepository } from './infrastructure/drizzle-matches.repos
 @Module({
   controllers: [
     MatchesController,
+    MatchesCronController,
     PlayerMatchRatingsController,
     ScorersController,
     TournamentsController,
