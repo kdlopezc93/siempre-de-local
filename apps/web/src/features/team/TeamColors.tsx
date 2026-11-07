@@ -1,12 +1,13 @@
 import { APP_COLORS, posterPalette } from '@sdl/domain';
 import { useQueryClient } from '@tanstack/react-query';
-import { useId, useState, type CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 
 import { Button } from '../../shared/ui/Button';
 import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { SESSION_KEY } from '../auth/use-session';
 import { useUpdateTeam } from '../card/use-card';
 import { useTeam } from '../team-admin/use-invitations';
+import { ColorPicker } from './ColorPicker';
 import pageStyles from './TeamPage.module.css';
 import styles from './TeamColors.module.css';
 
@@ -84,6 +85,24 @@ export function TeamColors({ teamId, editable }: { teamId: string; editable: boo
   );
 }
 
+const SLOT_NAME = ['Principal', 'Secundario', 'Tercero'] as const;
+const SLOT_ROLE = ['el fondo', 'las cifras y los dorsales', 'la franja y las etiquetas'] as const;
+
+/** Qué ajusta el afiche, en palabras: si un color no se lee sobre el fondo. */
+function adjustments(colors: readonly string[]): string[] {
+  const p = posterPalette(colors);
+  const notes: string[] = [];
+  if (p.accent !== colors[1]) {
+    notes.push(
+      `El secundario casi no se ve sobre el fondo: las cifras salen en ${p.fg === '#ffffff' ? 'blanco' : 'negro'}.`,
+    );
+  }
+  if (colors[2] && p.band !== colors[2]) {
+    notes.push('El tercero casi no se ve sobre el fondo: la franja usa el secundario.');
+  }
+  return notes;
+}
+
 function ColorsForm({
   teamId,
   initial,
@@ -95,20 +114,14 @@ function ColorsForm({
 }) {
   const update = useUpdateTeam(teamId);
   const queryClient = useQueryClient();
-  const [main, setMain] = useState(initial?.[0] ?? APP_COLORS[0]);
-  const [second, setSecond] = useState(initial?.[1] ?? APP_COLORS[1]);
-  const [third, setThird] = useState<string | null>(initial?.[2] ?? null);
-  const ids = { main: useId(), second: useId(), third: useId() };
-  const draft = third ? [main, second, third] : [main, second];
+  const [draft, setDraft] = useState<string[]>(() => [...(initial ?? APP_COLORS)]);
+  const [active, setActive] = useState(0);
   const guard = useUnsavedChanges(
     !same(draft, initial ?? null) && !(initial === null && same(draft, APP_COLORS)),
   );
+  const notes = adjustments(draft);
 
-  function pick(colors: readonly string[]) {
-    setMain(colors[0]!);
-    setSecond(colors[1]!);
-    setThird(colors[2] ?? null);
-  }
+  const setColor = (hex: string) => setDraft((d) => d.map((c, i) => (i === active ? hex : c)));
 
   function save(colors: string[] | null) {
     update.mutate(
@@ -127,75 +140,96 @@ function ColorsForm({
   return (
     <div className={styles.form}>
       {guard.prompt}
-      <div className={styles.presets} role="group" aria-label="Ejemplos">
-        {PRESETS.map((preset) => (
-          <button
-            key={preset.name}
-            type="button"
-            className={styles.preset}
-            aria-pressed={same(draft, preset.colors)}
-            onClick={() => pick(preset.colors)}
-          >
-            <span className={styles.dots} aria-hidden="true">
-              {preset.colors.map((c) => (
-                <i key={c} style={{ background: c }} />
-              ))}
-            </span>
-            {preset.name}
-          </button>
-        ))}
+      <div>
+        <p className={styles.label}>Empieza con unos parecidos</p>
+        <div className={styles.presets} role="group" aria-label="Ejemplos">
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.name}
+              type="button"
+              className={styles.preset}
+              aria-pressed={same(draft, preset.colors)}
+              onClick={() => {
+                setDraft([...preset.colors]);
+                setActive(0);
+              }}
+            >
+              <span className={styles.dots} aria-hidden="true">
+                {preset.colors.map((c) => (
+                  <i key={c} style={{ background: c }} />
+                ))}
+              </span>
+              {preset.name}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className={styles.picks}>
-        <label className={styles.pick} htmlFor={ids.main}>
-          <input
-            id={ids.main}
-            type="color"
-            value={main}
-            onChange={(e) => setMain(e.target.value)}
-          />
-          <span>
-            Principal<small>El fondo</small>
-          </span>
-        </label>
-        <label className={styles.pick} htmlFor={ids.second}>
-          <input
-            id={ids.second}
-            type="color"
-            value={second}
-            onChange={(e) => setSecond(e.target.value)}
-          />
-          <span>
-            Secundario<small>Las cifras y los dorsales</small>
-          </span>
-        </label>
-        {third ? (
-          <div className={styles.pick}>
-            <input
-              id={ids.third}
-              type="color"
-              value={third}
-              aria-label="Tercero"
-              onChange={(e) => setThird(e.target.value)}
-            />
-            <span>
-              <label htmlFor={ids.third}>Tercero</label>
-              <button type="button" className={styles.remove} onClick={() => setThird(null)}>
-                Quitar
-              </button>
-            </span>
-          </div>
-        ) : (
-          <button type="button" className={styles.addThird} onClick={() => setThird('#ffffff')}>
-            + Tercer color (opcional)
+      <div className={styles.slots} role="group" aria-label="Los colores">
+        {draft.map((color, i) => (
+          <button
+            key={i}
+            type="button"
+            className={styles.slot}
+            aria-pressed={active === i}
+            aria-label={`${SLOT_NAME[i]}, ${color.toUpperCase()}`}
+            onClick={() => setActive(i)}
+          >
+            <span className={styles.swatch} style={{ background: color }} aria-hidden="true" />
+            <span className={styles.slotName}>{SLOT_NAME[i]}</span>
+            <code className={styles.slotCode}>{color.toUpperCase()}</code>
+          </button>
+        ))}
+        {draft.length < 3 && (
+          <button
+            type="button"
+            className={styles.add}
+            onClick={() => {
+              setDraft((d) => [...d, '#ffffff']);
+              setActive(2);
+            }}
+          >
+            <span aria-hidden="true">+</span>
+            Tercer color
           </button>
         )}
       </div>
 
-      <Preview colors={draft} />
-      <p className={pageStyles.muted}>
-        Si un color no se lee sobre el fondo, el afiche lo ajusta solo para que se pueda leer.
-      </p>
+      <div className={styles.editor}>
+        <div className={styles.editorHead}>
+          <h3 className={styles.editorTitle}>
+            {SLOT_NAME[active]}: {SLOT_ROLE[active]}
+          </h3>
+          {active === 2 && (
+            <button
+              type="button"
+              className={styles.remove}
+              onClick={() => {
+                setDraft((d) => d.slice(0, 2));
+                setActive(1);
+              }}
+            >
+              Quitar
+            </button>
+          )}
+        </div>
+        <ColorPicker
+          key={active}
+          value={draft[active]!}
+          onChange={setColor}
+          label={SLOT_NAME[active]!}
+        />
+      </div>
+
+      <div>
+        <p className={styles.label}>Así salen los afiches</p>
+        <Preview colors={draft} />
+      </div>
+      {notes.length > 0 && (
+        <p className={pageStyles.muted} role="status">
+          {notes.join(' ')}
+        </p>
+      )}
 
       {update.isError && (
         <p role="alert" className={pageStyles.error}>
