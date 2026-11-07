@@ -1,3 +1,4 @@
+CREATE TYPE "public"."category_gender" AS ENUM('male', 'female', 'mixed');--> statement-breakpoint
 CREATE TYPE "public"."club_kind" AS ENUM('club', 'school');--> statement-breakpoint
 CREATE TYPE "public"."sport" AS ENUM('football');--> statement-breakpoint
 CREATE TABLE "venue" (
@@ -14,6 +15,7 @@ ALTER TABLE "club" ADD COLUMN "sport" "sport" DEFAULT 'football' NOT NULL;--> st
 ALTER TABLE "club_signup_code" ADD COLUMN "kind" "club_kind" DEFAULT 'club' NOT NULL;--> statement-breakpoint
 ALTER TABLE "team" ADD COLUMN "birth_year_from" smallint;--> statement-breakpoint
 ALTER TABLE "team" ADD COLUMN "birth_year_to" smallint;--> statement-breakpoint
+ALTER TABLE "team" ADD COLUMN "gender" "category_gender";--> statement-breakpoint
 ALTER TABLE "team" ADD COLUMN "venue_id" uuid;--> statement-breakpoint
 ALTER TABLE "venue" ADD CONSTRAINT "venue_club_id_club_id_fk" FOREIGN KEY ("club_id") REFERENCES "public"."club"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "team" ADD CONSTRAINT "team_venue_id_venue_id_fk" FOREIGN KEY ("venue_id") REFERENCES "public"."venue"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint

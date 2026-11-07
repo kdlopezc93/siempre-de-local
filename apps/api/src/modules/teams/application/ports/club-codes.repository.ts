@@ -1,4 +1,4 @@
-import type { BirthYears, ClubKind, MatchFormat } from '@sdl/contracts';
+import type { BirthYears, CategoryGender, ClubKind, MatchFormat } from '@sdl/contracts';
 
 export interface ClubCodeRecord {
   id: string;
@@ -24,6 +24,7 @@ export interface NewClub {
   alsoPlays: boolean;
   /** En una escuela, los años de nacimiento de su primera categoría. */
   birthYears: BirthYears | null;
+  gender: CategoryGender | null;
 }
 
 /** `unavailable`: el código dejó de servir mientras tanto; `limit`: ya es dueño de un club. */

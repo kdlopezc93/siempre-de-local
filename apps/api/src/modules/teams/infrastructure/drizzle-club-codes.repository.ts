@@ -117,6 +117,7 @@ export class DrizzleClubCodesRepository implements ClubCodesRepository {
           season: input.season,
           birthYearFrom: input.birthYears?.from ?? null,
           birthYearTo: input.birthYears?.to ?? null,
+          gender: input.gender,
         })
         .returning({ id: team.id });
       const teamId = createdTeam!.id;

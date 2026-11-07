@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
-import { BirthYearsSchema, ClubKindSchema, MatchFormatSchema, SportSchema } from './teams.js';
+import {
+  BirthYearsSchema,
+  CategoryGenderSchema,
+  ClubKindSchema,
+  MatchFormatSchema,
+  SportSchema,
+} from './teams.js';
 
 /**
  * Códigos de alta (2026-10-29): para crear un club desde la app hace falta uno, y los genera el
@@ -71,6 +77,8 @@ export const CreateClubRequestSchema = z.object({
   alsoPlays: z.boolean().default(false),
   /** En una escuela, obligatorio: los años de nacimiento de su primera categoría (2026-11-07). */
   birthYears: BirthYearsSchema.optional(),
+  /** En una escuela, obligatorio: masculina, femenina o mixta. */
+  gender: CategoryGenderSchema.optional(),
 });
 
 export const CreateClubResponseSchema = z.object({ clubId: z.uuid(), teamId: z.uuid() });
@@ -92,6 +100,8 @@ export const CreateTeamRequestSchema = z.object({
   alsoPlays: z.boolean().default(false),
   /** En una escuela, obligatorio: los años de nacimiento de la categoría (2026-11-07). */
   birthYears: BirthYearsSchema.optional(),
+  /** En una escuela, obligatorio: masculina, femenina o mixta (2026-11-07). */
+  gender: CategoryGenderSchema.optional(),
   /** En una escuela, opcional: la sede donde entrena (2026-11-07). */
   venueId: z.uuid().optional(),
 });
@@ -127,6 +137,7 @@ export const ClubResponseSchema = z.object({
       archived: z.boolean(),
       /** En una escuela, los años de nacimiento de la categoría, o null (2026-11-07). */
       birthYears: BirthYearsSchema.nullable(),
+      gender: CategoryGenderSchema.nullable(),
       /** La sede donde entrena, o null (2026-11-07). */
       venue: z.object({ id: z.uuid(), name: z.string() }).nullable(),
       /** Personas activas en el equipo (cada una una vez, aunque tenga varios roles). */

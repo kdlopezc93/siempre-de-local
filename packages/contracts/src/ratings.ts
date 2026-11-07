@@ -1,7 +1,12 @@
 import { z } from 'zod';
 
 import { PositionCodeSchema } from './orientation.js';
-import { BirthYearsSchema, MatchFormatSchema, TeamColorsSchema } from './teams.js';
+import {
+  BirthYearsSchema,
+  CategoryGenderSchema,
+  MatchFormatSchema,
+  TeamColorsSchema,
+} from './teams.js';
 
 const OUTFIELD = ['PAC', 'SHO', 'PAS', 'DRI', 'DEF', 'PHY'] as const;
 const GOALKEEPER = ['GK_DIV', 'GK_HAN', 'GK_KIC', 'GK_REF', 'GK_SPD', 'GK_POS'] as const;
@@ -113,6 +118,8 @@ export const UpdateTeamRequestSchema = z
     callUpReminders: z.boolean(),
     /** Solo en escuelas (2026-11-07): los años de nacimiento de la categoría. */
     birthYears: BirthYearsSchema,
+    /** Solo en escuelas (2026-11-07): masculina, femenina o mixta. */
+    gender: CategoryGenderSchema,
     /** Solo en escuelas (2026-11-07): una sede de la escuela, o null. */
     venueId: z.uuid().nullable(),
   })

@@ -92,6 +92,7 @@ describe('escuelas: base (2026-11-07)', () => {
     format: 'F8',
     season: '2026',
     birthYears: { from: 2014, to: 2015 },
+    gender: 'male',
     ...extra,
   });
 
@@ -146,6 +147,7 @@ describe('escuelas: base (2026-11-07)', () => {
     expect(team.team).toMatchObject({
       name: 'Sub-12',
       birthYears: { from: 2014, to: 2015 },
+      gender: 'male',
       venue: null,
       club: { kind: 'school', sport: 'football' },
     });
@@ -209,6 +211,7 @@ describe('escuelas: base (2026-11-07)', () => {
       format: 'F5',
       season: '2026',
       birthYears: { from: 2016, to: 2017 },
+      gender: 'mixed',
       venueId: tunal!.id,
     });
     expect(res.statusCode).toBe(201);
@@ -216,6 +219,7 @@ describe('escuelas: base (2026-11-07)', () => {
     const school = await getClub(schoolId);
     expect(school.teams.find((t) => t.id === teamId)).toMatchObject({
       birthYears: { from: 2016, to: 2017 },
+      gender: 'mixed',
       venue: { id: tunal!.id, name: 'El Tunal' },
     });
     expect(school.venues[0]!.teams).toBe(1);
@@ -227,11 +231,30 @@ describe('escuelas: base (2026-11-07)', () => {
     });
     expect(errorCode(noYears)).toBe('BIRTH_YEARS_REQUIRED');
 
+    const noGender = await call('POST', `/clubs/${schoolId}/teams`, director, {
+      name: 'Sub-8',
+      format: 'F5',
+      season: '2026',
+      birthYears: { from: 2018, to: 2018 },
+    });
+    expect(errorCode(noGender)).toBe('CATEGORY_GENDER_REQUIRED');
+
+    // Sub-12 masculino y Sub-12 femenino conviven: los nombres son distintos.
+    const female = await call('POST', `/clubs/${schoolId}/teams`, director, {
+      name: 'Sub-12 femenino',
+      format: 'F8',
+      season: '2026',
+      birthYears: { from: 2014, to: 2015 },
+      gender: 'female',
+    });
+    expect(female.statusCode).toBe(201);
+
     const otherVenue = await call('POST', `/clubs/${schoolId}/teams`, director, {
       name: 'Sub-8',
       format: 'F5',
       season: '2026',
       birthYears: { from: 2018, to: 2018 },
+      gender: 'female',
       venueId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f00',
     });
     expect(otherVenue.statusCode).toBe(404);
@@ -251,11 +274,13 @@ describe('escuelas: base (2026-11-07)', () => {
     ).venues[0]!;
     const res = await call('PATCH', `/teams/${firstCategoryId}`, director, {
       birthYears: { from: 2013, to: 2014 },
+      gender: 'mixed',
       venueId: created.id,
     });
     expect(res.statusCode).toBe(200);
     expect(TeamResponseSchema.parse(res.json()).team).toMatchObject({
       birthYears: { from: 2013, to: 2014 },
+      gender: 'mixed',
       venue: { id: created.id, name: 'Castilla' },
     });
     const cleared = await call('PATCH', `/teams/${firstCategoryId}`, director, { venueId: null });
@@ -266,5 +291,7 @@ describe('escuelas: base (2026-11-07)', () => {
     });
     expect(inClub.statusCode).toBe(422);
     expect(errorCode(inClub)).toBe('SCHOOL_ONLY');
+    const genderInClub = await call('PATCH', `/teams/${clubTeamId}`, barrio, { gender: 'female' });
+    expect(errorCode(genderInClub)).toBe('SCHOOL_ONLY');
   });
 });

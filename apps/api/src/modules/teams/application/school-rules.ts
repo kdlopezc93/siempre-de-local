@@ -1,4 +1,4 @@
-import type { BirthYears, ClubKind } from '@sdl/contracts';
+import type { BirthYears, CategoryGender, ClubKind } from '@sdl/contracts';
 
 import { BusinessRuleError, NotFoundError } from '../../../shared/errors/application-errors.js';
 import type { TeamsRepository } from './ports/teams.repository.js';
@@ -16,15 +16,30 @@ export function teamsLimit(kind: ClubKind): number {
   return kind === 'school' ? CATEGORIES_PER_SCHOOL : TEAMS_PER_CLUB;
 }
 
-/** Una categoría de escuela nace con sus años de nacimiento; un equipo de barrio, sin ellos. */
-export function assertBirthYears(kind: ClubKind, birthYears: BirthYears | undefined): void {
-  if (kind === 'school' && !birthYears) {
+/**
+ * Una categoría de escuela nace con sus años de nacimiento y su género (masculina, femenina o
+ * mixta); un equipo de barrio, sin ellos.
+ */
+export function assertCategory(
+  kind: ClubKind,
+  category: { birthYears?: BirthYears | undefined; gender?: CategoryGender | undefined },
+): void {
+  if (kind === 'club') {
+    if (category.birthYears || category.gender) assertSchool(kind);
+    return;
+  }
+  if (!category.birthYears) {
     throw new BusinessRuleError(
       'Indica los años de nacimiento de la categoría',
       'BIRTH_YEARS_REQUIRED',
     );
   }
-  if (kind === 'club' && birthYears) assertSchool(kind);
+  if (!category.gender) {
+    throw new BusinessRuleError(
+      'Indica si la categoría es masculina, femenina o mixta',
+      'CATEGORY_GENDER_REQUIRED',
+    );
+  }
 }
 
 /** Años de nacimiento y sedes, solo en escuelas. */

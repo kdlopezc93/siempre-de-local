@@ -18,6 +18,7 @@ const team = (id: string, name: string, extra: object = {}) => ({
   season: '2026',
   archived: false,
   birthYears: null,
+  gender: null,
   venue: null,
   members: 12,
   ...extra,

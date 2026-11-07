@@ -18,7 +18,7 @@ import {
   NotFoundError,
 } from '../../../shared/errors/application-errors.js';
 import { generateInvitationCode, hashInvitationCode } from './invitation-code.js';
-import { assertBirthYears } from './school-rules.js';
+import { assertCategory } from './school-rules.js';
 import {
   CLUB_CODES_REPOSITORY,
   type ClubCodeRecord,
@@ -131,13 +131,14 @@ export class CreateClub {
         'CONSENT_REQUIRED',
       );
     }
-    assertBirthYears(code.kind, request.birthYears);
+    assertCategory(code.kind, request);
     const outcome = await this.codes.createClub(
       code.id,
       userId,
       {
         kind: code.kind,
         birthYears: request.birthYears ?? null,
+        gender: request.gender ?? null,
         clubName: request.clubName,
         city: request.city,
         teamName: request.teamName,

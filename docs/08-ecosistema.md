@@ -158,7 +158,7 @@ La etapa 5 empieza sin esperar las entrevistas (`10`): la base (escuela, categor
 
 | # | Decisión | Elegido |
 |---|---|---|
-| 1 | Cómo encaja la escuela | **Un club de tipo escuela**; cada **categoría** es un **equipo** con su rango de años de nacimiento; la **sede** es una tabla nueva. Se reusa todo lo del equipo (permisos, invitaciones, convocatorias, "¿quién vino?", cobros). Descartado: una entidad escuela aparte, que duplicaría permisos, convocatorias y cobros |
+| 1 | Cómo encaja la escuela | **Un club de tipo escuela**; cada **categoría** es un **equipo** con su rango de años de nacimiento y su género (masculina, femenina o mixta); la **sede** es una tabla nueva. Se reusa todo lo del equipo (permisos, invitaciones, convocatorias, "¿quién vino?", cobros). Descartado: una entidad escuela aparte, que duplicaría permisos, convocatorias y cobros |
 | 2 | Quién tiene la cuenta del niño | **El acudiente**, con su Google, maneja a uno o varios deportistas. El niño no entra a la app todavía; su cuenta propia (sin Google) queda para después. ADR-04 no cambia |
 | 3 | Revisión legal | **Como la política de adultos (D7):** la autorización del representante legal se publica versionada y se acepta en la app, sin revisión de un abogado por ahora. La revisión queda pendiente y es lo primero si una escuela con niños reales la pide o algo cambia |
 | 4 | Primer PR | **Plan y base de la escuela**; los menores y acudientes en los siguientes |

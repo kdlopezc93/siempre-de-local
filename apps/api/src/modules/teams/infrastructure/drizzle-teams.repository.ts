@@ -69,6 +69,7 @@ export class DrizzleTeamsRepository
         category: team.category,
         birthYearFrom: team.birthYearFrom,
         birthYearTo: team.birthYearTo,
+        gender: team.gender,
         venueId: venue.id,
         venueName: venue.name,
         club: { id: club.id, name: club.name, city: club.city, kind: club.kind, sport: club.sport },
@@ -305,6 +306,7 @@ export class DrizzleTeamsRepository
         archived: sql<boolean>`${team.archivedAt} is not null`,
         birthYearFrom: team.birthYearFrom,
         birthYearTo: team.birthYearTo,
+        gender: team.gender,
         venueId: venue.id,
         venueName: venue.name,
         members: countDistinct(teamMembership.userId),
@@ -495,6 +497,7 @@ export class DrizzleTeamsRepository
             season: input.season,
             birthYearFrom: input.birthYears?.from ?? null,
             birthYearTo: input.birthYears?.to ?? null,
+            gender: input.gender,
             venueId: input.venueId,
           })
           .returning({ id: team.id });

@@ -33,6 +33,8 @@ export const teamRole = pgEnum('team_role', ['coach', 'assistant', 'player', 'tr
 export const clubKind = pgEnum('club_kind', ['club', 'school']);
 /** El deporte es un dato del club (08 §8, decisión 3); fútbol primero. */
 export const sport = pgEnum('sport', ['football']);
+/** Categoría masculina, femenina o mixta (escuelas, 2026-11-07). */
+export const categoryGender = pgEnum('category_gender', ['male', 'female', 'mixed']);
 
 export const club = pgTable('club', {
   id: id(),
@@ -94,6 +96,8 @@ export const team = pgTable(
     /** En una escuela, la categoría por años de nacimiento (2026-11-07): de 2014 a 2015. */
     birthYearFrom: smallint(),
     birthYearTo: smallint(),
+    /** En una escuela, masculina, femenina o mixta (2026-11-07); null en un club. */
+    gender: categoryGender(),
     /** La sede donde entrena (escuelas, 2026-11-07); null si no tiene o se borró. */
     venueId: uuid().references(() => venue.id, { onDelete: 'set null' }),
     /** ¿El jugador ve su tarjeta 0–99? (D8) */

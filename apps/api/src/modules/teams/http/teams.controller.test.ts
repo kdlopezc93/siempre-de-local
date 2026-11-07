@@ -89,6 +89,7 @@ describe('GET /api/v1/teams/:teamId', () => {
         season: '2026',
         category: null,
         birthYears: null,
+        gender: null,
         venue: null,
         club: {
           id: expect.any(String),

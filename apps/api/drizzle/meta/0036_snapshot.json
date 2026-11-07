@@ -1,5 +1,5 @@
 {
-  "id": "d05ae5f3-e7e9-40ac-97a4-a9e04204195e",
+  "id": "c6b1a598-6cbe-4436-81fc-7650effa1ff5",
   "prevId": "d437832b-c365-41e0-92c6-be47a96b523e",
   "version": "7",
   "dialect": "postgresql",
@@ -1384,6 +1384,13 @@
         "birth_year_to": {
           "name": "birth_year_to",
           "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "gender": {
+          "name": "gender",
+          "type": "category_gender",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -5288,6 +5295,15 @@
         "draft",
         "published",
         "retired"
+      ]
+    },
+    "public.category_gender": {
+      "name": "category_gender",
+      "schema": "public",
+      "values": [
+        "male",
+        "female",
+        "mixed"
       ]
     },
     "public.club_kind": {

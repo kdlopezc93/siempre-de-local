@@ -23,7 +23,7 @@ import {
   NotFoundError,
 } from '../../../shared/errors/application-errors.js';
 import { TEAMS_REPOSITORY, type TeamsRepository } from './ports/teams.repository.js';
-import { assertBirthYears, assertSchool, assertVenueOfClub, teamsLimit } from './school-rules.js';
+import { assertCategory, assertSchool, assertVenueOfClub, teamsLimit } from './school-rules.js';
 
 /** El club, o 404. */
 async function clubOrThrow(teams: TeamsRepository, clubId: string) {
@@ -56,8 +56,8 @@ export class CreateTeam {
       throw new ForbiddenError('Solo el dueño y los admins del club crean equipos');
     }
     const club = await clubOrThrow(this.teams, clubId);
-    // En una escuela, la categoría nace con sus años; sedes, solo en escuelas (2026-11-07).
-    assertBirthYears(club.kind, request.birthYears);
+    // En una escuela, la categoría nace con sus años y su género; sedes, solo en escuelas (2026-11-07).
+    assertCategory(club.kind, request);
     if (request.venueId) {
       assertSchool(club.kind);
       await assertVenueOfClub(this.teams, clubId, request.venueId);
@@ -73,6 +73,7 @@ export class CreateTeam {
         season: request.season,
         alsoPlays: request.alsoPlays,
         birthYears: request.birthYears ?? null,
+        gender: request.gender ?? null,
         venueId: request.venueId ?? null,
       },
       limit,

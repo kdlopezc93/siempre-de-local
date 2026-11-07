@@ -68,7 +68,11 @@ export class UpdateTeam {
       );
     }
     // Años de nacimiento y sede, solo en escuelas; la sede, de la misma escuela (2026-11-07).
-    if (changes.birthYears !== undefined || changes.venueId !== undefined) {
+    if (
+      changes.birthYears !== undefined ||
+      changes.gender !== undefined ||
+      changes.venueId !== undefined
+    ) {
       assertSchool(team.club.kind);
     }
     if (changes.venueId) await assertVenueOfClub(this.teams, team.club.id, changes.venueId);

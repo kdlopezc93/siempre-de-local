@@ -1,4 +1,11 @@
-import type { BirthYears, ClubKind, MatchFormat, Sport, TeamRole } from '@sdl/contracts';
+import type {
+  BirthYears,
+  CategoryGender,
+  ClubKind,
+  MatchFormat,
+  Sport,
+  TeamRole,
+} from '@sdl/contracts';
 
 export interface TeamRecord {
   id: string;
@@ -9,6 +16,8 @@ export interface TeamRecord {
   category: string | null;
   /** En una escuela, los años de nacimiento de la categoría (2026-11-07). */
   birthYears: BirthYears | null;
+  /** En una escuela, masculina, femenina o mixta. */
+  gender: CategoryGender | null;
   /** La sede donde entrena, o null. */
   venue: { id: string; name: string } | null;
   club: { id: string; name: string; city: string | null; kind: ClubKind; sport: Sport };
@@ -22,7 +31,7 @@ export interface TeamRecord {
 
 /** Lo que se cambia desde Datos del equipo y los ajustes de visibilidad (D8, D14, D18). */
 export type TeamSettings = Partial<
-  { birthYears: BirthYears; venueId: string | null } & Pick<
+  { birthYears: BirthYears; gender: CategoryGender; venueId: string | null } & Pick<
     TeamRecord,
     | 'ratingsVisibleToPlayers'
     | 'matchRatingsVisibleToPlayers'
@@ -42,6 +51,7 @@ export interface NewTeam {
   season: string;
   alsoPlays: boolean;
   birthYears: BirthYears | null;
+  gender: CategoryGender | null;
   venueId: string | null;
 }
 
@@ -72,6 +82,7 @@ export interface ClubTeamRecord {
   season: string;
   archived: boolean;
   birthYears: BirthYears | null;
+  gender: CategoryGender | null;
   venue: { id: string; name: string } | null;
   members: number;
 }

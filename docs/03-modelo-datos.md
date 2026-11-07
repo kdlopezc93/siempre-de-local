@@ -74,6 +74,7 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 | season | text | |
 | category | text null | Categoría libre ("Veteranos", "Femenino"…), 2026-10-29, migración `0026` |
 | birth_year_from, birth_year_to | smallint null | En una escuela, los años de nacimiento de la categoría (2026-11-07, `0036`): obligatorios al crearla, solo en escuelas. Check `team_birth_years`: los dos o ninguno, y `from ≤ to` |
+| gender | enum `category_gender` (`male`,`female`,`mixed`) null | En una escuela, categoría masculina, femenina o mixta (2026-11-07, `0036`): obligatorio al crearla, solo en escuelas |
 | venue_id | uuid FK null | La sede donde entrena (escuelas, 2026-11-07, `0036`); `on delete set null`. La aplicación exige que sea de la misma escuela |
 | ratings_visible_to_players | boolean default true | ¿el jugador ve su tarjeta? (D8) |
 | match_ratings_visible_to_players | boolean default true | ¿el jugador ve su evaluación de cada partido? (D18) |

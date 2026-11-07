@@ -19,6 +19,8 @@ export const TeamColorsSchema = z.array(HexColorSchema).min(2).max(3);
 export const ClubKindSchema = z.enum(['club', 'school']);
 /** El deporte es un dato del club (08 §8, decisión 3); fútbol primero. */
 export const SportSchema = z.enum(['football']);
+/** Categoría masculina, femenina o mixta (escuelas, 2026-11-07). */
+export const CategoryGenderSchema = z.enum(['male', 'female', 'mixed']);
 
 /**
  * La categoría de una escuela por años de nacimiento (2026-11-07): `{ from: 2014, to: 2015 }`.
@@ -31,6 +33,7 @@ export const BirthYearsSchema = z
 export type MatchFormat = z.infer<typeof MatchFormatSchema>;
 export type ClubKind = z.infer<typeof ClubKindSchema>;
 export type Sport = z.infer<typeof SportSchema>;
+export type CategoryGender = z.infer<typeof CategoryGenderSchema>;
 export type BirthYears = z.infer<typeof BirthYearsSchema>;
 export type TeamRole = z.infer<typeof TeamRoleSchema>;
 export type InvitationRole = z.infer<typeof InvitationRoleSchema>;
@@ -49,6 +52,8 @@ export const TeamResponseSchema = z.object({
     category: z.string().nullable().default(null),
     /** En una escuela, los años de nacimiento de la categoría, o null (2026-11-07). */
     birthYears: BirthYearsSchema.nullable().default(null),
+    /** En una escuela, masculina, femenina o mixta, o null (2026-11-07). */
+    gender: CategoryGenderSchema.nullable().default(null),
     /** La sede donde entrena (escuelas, 2026-11-07), o null. */
     venue: z.object({ id: z.uuid(), name: z.string() }).nullable().default(null),
     club: z.object({
