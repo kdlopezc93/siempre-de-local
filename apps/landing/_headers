@@ -1,0 +1,11 @@
+# Cloudflare Pages, proyecto de la página de entrada (siempredelocal.app; docs/deploy.md §12).
+# Todo sale de aquí mismo: ni scripts ni estilos en línea.
+/*
+  Content-Security-Policy: default-src 'none'; style-src 'self'; img-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable

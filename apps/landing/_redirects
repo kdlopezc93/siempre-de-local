@@ -1,0 +1,30 @@
+# Cloudflare Pages, página de entrada (docs/deploy.md §12): si alguien escribe una ruta de la app
+# en siempredelocal.app (un enlace viejo, una invitación), va a la app.
+/bases https://app.siempredelocal.app/bases 302
+/bases/* https://app.siempredelocal.app/bases/:splat 302
+/clubes https://app.siempredelocal.app/clubes 302
+/clubes/* https://app.siempredelocal.app/clubes/:splat 302
+/conocimiento https://app.siempredelocal.app/conocimiento 302
+/conocimiento/* https://app.siempredelocal.app/conocimiento/:splat 302
+/crear-club https://app.siempredelocal.app/crear-club 302
+/crear-club/* https://app.siempredelocal.app/crear-club/:splat 302
+/cuenta https://app.siempredelocal.app/cuenta 302
+/cuenta/* https://app.siempredelocal.app/cuenta/:splat 302
+/entrar https://app.siempredelocal.app/entrar 302
+/entrar/* https://app.siempredelocal.app/entrar/:splat 302
+/equipos https://app.siempredelocal.app/equipos 302
+/equipos/* https://app.siempredelocal.app/equipos/:splat 302
+/historial https://app.siempredelocal.app/historial 302
+/historial/* https://app.siempredelocal.app/historial/:splat 302
+/muestra https://app.siempredelocal.app/muestra 302
+/muestra/* https://app.siempredelocal.app/muestra/:splat 302
+/perfil https://app.siempredelocal.app/perfil 302
+/perfil/* https://app.siempredelocal.app/perfil/:splat 302
+/plataforma https://app.siempredelocal.app/plataforma 302
+/plataforma/* https://app.siempredelocal.app/plataforma/:splat 302
+/resultados https://app.siempredelocal.app/resultados 302
+/resultados/* https://app.siempredelocal.app/resultados/:splat 302
+/tus-datos https://app.siempredelocal.app/tus-datos 302
+/tus-datos/* https://app.siempredelocal.app/tus-datos/:splat 302
+/unirse https://app.siempredelocal.app/unirse 302
+/unirse/* https://app.siempredelocal.app/unirse/:splat 302

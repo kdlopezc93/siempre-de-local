@@ -145,3 +145,21 @@ docker run --rm -i postgres:18 pg_restore --no-owner --no-privileges --clean --i
 ```
 
 Probarlo a mano: Actions → "Respaldar la base de staging" → Run workflow.
+
+## 12. Página de entrada (siempredelocal.app)
+
+`apps/landing/` es un sitio estático aparte (2026-11-06): qué hace la app, los afiches y el acceso a
+`app.siempredelocal.app`. Va en **su propio proyecto de Cloudflare Pages** para no pasar cada visita
+de la app por una función ni tocar su service worker.
+
+1. Cloudflare → Workers & Pages → Create → Pages → **Connect to Git** → `kdlopezc93/siempre-de-local`.
+2. Nombre `siempre-de-local-inicio`, rama de producción `main`, Framework preset **None**, Build
+   command **vacío**, **Root directory `apps/landing`**, Build output directory **`.`** (sin
+   instalar nada: la carpeta no tiene `package.json`).
+3. En el proyecto → Custom domains → agregar **`siempredelocal.app`** y **`www.siempredelocal.app`**
+   (el dominio ya está en Cloudflare: crea los registros solo).
+4. Probar: `https://siempredelocal.app` abre la página; `https://siempredelocal.app/equipos/…` lleva a
+   la app (`_redirects`).
+
+La CSP va en `apps/landing/_headers`: nada en línea (ni scripts ni estilos), fuentes e imágenes de
+la misma página. Las imágenes de los afiches (`img/`) se generan con la app (`result-image.ts`).
