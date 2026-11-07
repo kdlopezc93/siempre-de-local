@@ -27,6 +27,8 @@ import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
 import { callUpMessage, lineupMessage } from './share-messages';
 import { useTeamColors } from '../team/use-team-colors';
+import { resultImage } from './result-image';
+import { resultMessage, type MatchResult } from './result-view';
 import styles from './Matches.module.css';
 import {
   useCreateTournament,
@@ -130,11 +132,16 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         <AssignTournament teamId={teamId} matchId={match.id} />
       )}
 
+      {/* El resultado al grupo (2026-11-06): el afiche "Marcador gigante", del cuerpo técnico. */}
+      {played && staff && match.result && (
+        <ResultShare teamId={teamId} teamName={teamName} match={match} result={match.result} />
+      )}
+
       {played &&
         (staff && roster ? (
           <AfterMatch teamId={teamId} teamName={teamName} match={match} roster={roster} />
         ) : (
-          <MatchResultView teamName={teamName} match={match} meId={me.user.id} />
+          <MatchResultView teamId={teamId} teamName={teamName} match={match} meId={me.user.id} />
         ))}
 
       {listAlone && <WhoCameAlone teamId={teamId} match={match} roster={roster} />}
@@ -606,6 +613,32 @@ function LineupShare({
   const message = lineupMessage(match, appUrl(`/equipos/${teamId}/partidos/${match.id}`));
   return (
     <GroupShare message={message} file={image.data ?? null} label="Mandar la alineación al grupo" />
+  );
+}
+
+/** "Mandar el resultado al grupo" (2026-11-06): el afiche "Marcador gigante" con su mensaje. */
+function ResultShare({
+  teamId,
+  teamName,
+  match,
+  result,
+}: {
+  teamId: string;
+  teamName: string;
+  match: Match;
+  result: MatchResult;
+}) {
+  const colors = useTeamColors(teamId);
+  const image = useQuery({
+    queryKey: ['result-image', match.id, result.at, teamName, ...(colors ?? [])],
+    queryFn: () => resultImage({ match, result, teamName, kindLine: matchKindLine(match), colors }),
+    staleTime: Infinity,
+    structuralSharing: false,
+    networkMode: 'always',
+  });
+  const message = resultMessage(match, result, appUrl(`/equipos/${teamId}/partidos/${match.id}`));
+  return (
+    <GroupShare message={message} file={image.data ?? null} label="Mandar el resultado al grupo" />
   );
 }
 
