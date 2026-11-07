@@ -22,7 +22,7 @@ const me = (consent: typeof CONSENT | null) => ({
   status: 200,
   body: { user: USER, consent, teams: [], profile: DEFAULT_PROFILE, clubs: [] },
 });
-const PREVIEW = { status: 200, body: { expiresAt: '2026-11-12T12:00:00.000Z' } };
+const PREVIEW = { status: 200, body: { expiresAt: '2026-11-12T12:00:00.000Z', kind: 'club' } };
 const CREATED = {
   status: 201,
   body: { clubId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f72', teamId: TEAM },

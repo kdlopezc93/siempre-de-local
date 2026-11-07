@@ -4,8 +4,10 @@ import {
   type ClubResponse,
   CreateTeamRequestSchema,
   type CreateTeamResponse,
+  CreateVenueRequestSchema,
   UpdateClubRequestSchema,
   UpdateClubTeamRequestSchema,
+  UpdateVenueRequestSchema,
 } from '@sdl/contracts';
 import { z } from 'zod';
 
@@ -15,6 +17,7 @@ import type { AuthSession } from '../../identity/application/ports/identity-prov
 import {
   ArchiveTeam,
   ClubAdmins,
+  ClubVenues,
   CreateTeam,
   GetClub,
   UpdateClub,
@@ -31,6 +34,7 @@ export class ClubTeamsController {
     private readonly createTeam: CreateTeam,
     private readonly archiveTeam: ArchiveTeam,
     private readonly admins: ClubAdmins,
+    private readonly venues: ClubVenues,
   ) {}
 
   @Get()
@@ -105,6 +109,48 @@ export class ClubTeamsController {
       session.user.id,
       parseInput(ClubId, clubId),
       parseInput(z.uuid(), userId),
+    );
+  }
+
+  /** Sedes de la escuela (2026-11-07). */
+  @Post('venues')
+  createVenue(
+    @CurrentSession() session: AuthSession,
+    @Param('clubId') clubId: string,
+    @Body() body: unknown,
+  ): Promise<ClubResponse> {
+    return this.venues.create(
+      session.user.id,
+      parseInput(ClubId, clubId),
+      parseInput(CreateVenueRequestSchema, body),
+    );
+  }
+
+  @Patch('venues/:venueId')
+  updateVenue(
+    @CurrentSession() session: AuthSession,
+    @Param('clubId') clubId: string,
+    @Param('venueId') venueId: string,
+    @Body() body: unknown,
+  ): Promise<ClubResponse> {
+    return this.venues.update(
+      session.user.id,
+      parseInput(ClubId, clubId),
+      parseInput(z.uuid(), venueId),
+      parseInput(UpdateVenueRequestSchema, body),
+    );
+  }
+
+  @Delete('venues/:venueId')
+  removeVenue(
+    @CurrentSession() session: AuthSession,
+    @Param('clubId') clubId: string,
+    @Param('venueId') venueId: string,
+  ): Promise<ClubResponse> {
+    return this.venues.remove(
+      session.user.id,
+      parseInput(ClubId, clubId),
+      parseInput(z.uuid(), venueId),
     );
   }
 }

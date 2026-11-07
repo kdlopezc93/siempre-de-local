@@ -28,7 +28,7 @@ const me = (roles: ('player' | 'coach')[]): Me => ({
         season: '2026',
         colors: null,
       },
-      club: { id: uuid(10), name: 'Los del Barrio' },
+      club: { id: uuid(10), name: 'Los del Barrio', kind: 'club' },
       roles,
       jerseyNumber: null,
       injury: null,

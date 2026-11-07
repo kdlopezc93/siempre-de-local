@@ -29,14 +29,37 @@ export const clubRole = pgEnum('club_role', ['owner', 'admin']);
 /** `treasurer` (2026-10-30): maneja los cobros y pasa lista; no arma alineaciones ni evalúa. */
 export const teamRole = pgEnum('team_role', ['coach', 'assistant', 'player', 'treasurer']);
 
+/** Escuelas (2026-11-07): un club de barrio o una escuela deportiva, con sus categorías. */
+export const clubKind = pgEnum('club_kind', ['club', 'school']);
+/** El deporte es un dato del club (08 §8, decisión 3); fútbol primero. */
+export const sport = pgEnum('sport', ['football']);
+
 export const club = pgTable('club', {
   id: id(),
   name: text().notNull(),
   slug: text().notNull().unique(),
   /** Ciudad o barrio (2026-10-29): todos sus equipos son de ahí. Null en los de antes. */
   city: text(),
+  kind: clubKind().notNull().default('club'),
+  sport: sport().notNull().default('football'),
   createdAt: createdAt(),
 });
+
+/** Sede de una escuela (2026-11-07): donde entrena cada categoría. */
+export const venue = pgTable(
+  'venue',
+  {
+    id: id(),
+    clubId: uuid()
+      .notNull()
+      .references(() => club.id),
+    name: text().notNull(),
+    /** Dirección o referencia ("Parque El Tunal, cancha 3"); opcional. */
+    address: text(),
+    createdAt: createdAt(),
+  },
+  (t) => [unique().on(t.clubId, t.name)],
+);
 
 export const clubMembership = pgTable(
   'club_membership',
@@ -68,6 +91,11 @@ export const team = pgTable(
     season: text().notNull(),
     /** Categoría, libre (2026-10-29): "Libre", "Veteranos", "Femenino"… Null en los de antes. */
     category: text(),
+    /** En una escuela, la categoría por años de nacimiento (2026-11-07): de 2014 a 2015. */
+    birthYearFrom: smallint(),
+    birthYearTo: smallint(),
+    /** La sede donde entrena (escuelas, 2026-11-07); null si no tiene o se borró. */
+    venueId: uuid().references(() => venue.id, { onDelete: 'set null' }),
     /** ¿El jugador ve su tarjeta 0–99? (D8) */
     ratingsVisibleToPlayers: boolean().notNull().default(true),
     /** ¿El jugador ve su evaluación de cada partido? (D18) */
@@ -82,6 +110,10 @@ export const team = pgTable(
   (t) => [
     unique().on(t.clubId, t.name, t.season),
     check('team_format_in_formats', sql`${t.format} = any(${t.formats})`),
+    check(
+      'team_birth_years',
+      sql`(${t.birthYearFrom} is null) = (${t.birthYearTo} is null) and (${t.birthYearFrom} is null or ${t.birthYearFrom} <= ${t.birthYearTo})`,
+    ),
     check(
       'team_colors_count',
       sql`${t.colors} is null or array_length(${t.colors}, 1) between 2 and 3`,
@@ -149,6 +181,8 @@ export const clubSignupCode = pgTable('club_signup_code', {
   codeHash: text().notNull().unique(),
   /** Para quién es, para reconocerlo en la lista. */
   note: text(),
+  /** Si abre un club o una escuela (2026-11-07). */
+  kind: clubKind().notNull().default('club'),
   createdBy: uuid().references(() => user.id, { onDelete: 'set null' }),
   expiresAt: timestamp({ withTimezone: true }).notNull(),
   /** El club que se creó con él (lo llena "Crear mi club"). */

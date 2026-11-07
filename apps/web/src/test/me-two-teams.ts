@@ -3,7 +3,11 @@ import { DEFAULT_PROFILE } from './me-fixture';
 
 export const TEAM_A = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f71';
 export const TEAM_B = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f73';
-const CLUB = { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f72', name: 'Los del Barrio' };
+const CLUB = {
+  id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f72',
+  name: 'Los del Barrio',
+  kind: 'club' as const,
+};
 
 /** Kevin: entrenador y jugador en el primer equipo, solo jugador en el de los jueves. */
 export const ME_TWO_TEAMS: Me = {
@@ -45,5 +49,5 @@ export const ME_TWO_TEAMS: Me = {
       injury: null,
     },
   ],
-  clubs: [{ id: CLUB.id, name: CLUB.name, role: 'owner' }],
+  clubs: [{ id: CLUB.id, name: CLUB.name, role: 'owner', kind: 'club' }],
 };

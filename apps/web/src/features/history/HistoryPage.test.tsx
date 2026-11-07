@@ -27,7 +27,7 @@ const ME: Me = {
         season: '2026',
         colors: null,
       },
-      club: { id: uuid(10), name: 'Los del Barrio' },
+      club: { id: uuid(10), name: 'Los del Barrio', kind: 'club' },
       roles: ['player'],
       jerseyNumber: null,
       injury: null,
