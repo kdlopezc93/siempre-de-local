@@ -11,6 +11,7 @@ user ─┬─< account (Google; en el futuro otros proveedores / OIDC)
       ├─< data_consent
       ├── player_profile (1:1) ──< player_preferred_position
       ├─< club_membership >── club ──< team ──< team_membership >── user
+      │                         └──< venue >──┘ (sede de cada categoría, escuelas)
       │                                  │
       │                                  ├──< invitation
       │                                  ├──< coach_assessment
@@ -55,6 +56,10 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 
 **club** — `id, name, slug unique, city text null`. `city` (ciudad o barrio, migración `0026_club_city_team_category`, 2026-10-29) la pide "Crear mi club"; null en los de antes. El slug lo arma la app con el nombre (sin tildes, minúsculas y guiones) y, si ya existe, le suma `-2`, `-3`…
 
+> **Escuelas (2026-11-07, migración `0036_schools`, `08` §10):** `kind club_kind ('club','school') default 'club'` y `sport sport ('football') default 'football'` (el deporte es un dato del club, `08` §8). Una escuela es un club de tipo `school`: sus equipos son **categorías** (hasta 12 activas; un club, 3) con sus años de nacimiento.
+
+**venue** — `id, club_id FK, name, address text null, created_at` · unique `(club_id, name)`. Sede de una escuela (2026-11-07): la crean el dueño y los admins; al borrarla, sus categorías quedan sin sede.
+
 **club_membership** — `club_id, user_id, role club_role ('owner','admin')` · PK (club_id, user_id)
 
 **team**
@@ -68,6 +73,8 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 | format | enum `match_format` (`F8`,`F11`,`F5`) | `F5` desde la migración `0027_format_f5` (2026-10-29) |
 | season | text | |
 | category | text null | Categoría libre ("Veteranos", "Femenino"…), 2026-10-29, migración `0026` |
+| birth_year_from, birth_year_to | smallint null | En una escuela, los años de nacimiento de la categoría (2026-11-07, `0036`): obligatorios al crearla, solo en escuelas. Check `team_birth_years`: los dos o ninguno, y `from ≤ to` |
+| venue_id | uuid FK null | La sede donde entrena (escuelas, 2026-11-07, `0036`); `on delete set null`. La aplicación exige que sea de la misma escuela |
 | ratings_visible_to_players | boolean default true | ¿el jugador ve su tarjeta? (D8) |
 | match_ratings_visible_to_players | boolean default true | ¿el jugador ve su evaluación de cada partido? (D18) |
 | colors | text[] null | los colores del equipo para los afiches (2026-11-06): principal, secundario y tercero opcional, `#rrggbb`; null, los de la app. Check `team_colors_count`: 2 o 3. Migración `0034_team_colors` |
@@ -84,7 +91,7 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 - `also_plays` (migración `0024_invitation_also_plays`, 2026-10-29): la de cuerpo técnico que también juega; al aceptar, entra además como jugador. La de entrenador es para una persona y, al aceptarla, pasa el mando (el anterior queda de asistente).
 - Aceptar gasta un uso con un `UPDATE … WHERE used_count < max_uses` condicionado, dentro de la misma transacción que crea o reactiva la membresía.
 
-**club_signup_code** — `id, code_hash unique, note null, created_by (set null), expires_at, club_id null, used_by (set null), used_at, revoked_at, created_at`. Código de alta (2026-10-29, migración `0025_club_signup_codes`): lo genera el administrador de la plataforma (`user.platform_admin`) y sirve para crear **un** club desde la app; `club_id`, `used_by` y `used_at` se llenan al usarlo. Mismo formato que las invitaciones (hash SHA-256, el código en claro no se guarda), en otra tabla para que un código de equipo no abra un club.
+**club_signup_code** — `id, code_hash unique, note null, kind club_kind default 'club' (2026-11-07: si abre un club o una escuela), created_by (set null), expires_at, club_id null, used_by (set null), used_at, revoked_at, created_at`. Código de alta (2026-10-29, migración `0025_club_signup_codes`): lo genera el administrador de la plataforma (`user.platform_admin`) y sirve para crear **un** club desde la app; `club_id`, `used_by` y `used_at` se llenan al usarlo. Mismo formato que las invitaciones (hash SHA-256, el código en claro no se guarda), en otra tabla para que un código de equipo no abra un club.
 
 Implementado en `apps/api/src/modules/teams/infrastructure/schema.ts`, migraciones `0002_teams` y `0003_invitations`. Además: `team` es único por `(club_id, name, season)`; `club_membership` y `team_membership` tienen índice por `user_id` y se borran en cascada con el usuario. Un miembro que sale del equipo conserva su fila con `left_at` y deja de contar para los permisos. `jersey_number` (0–99) lo pone el cuerpo técnico y **no es único**: dos jugadores pueden compartir camiseta (decidido el 2026-10-22). `injured_at` / `injury_return_on` (migración `0021_injuries`, 2026-10-24): lesionado desde y vuelta estimada, solo en la fila de jugador; sin nota de qué tiene (02 §14).
 

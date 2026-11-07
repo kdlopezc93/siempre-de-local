@@ -20,6 +20,7 @@ import {
   type TeamSettings,
   type TeamsRepository,
 } from './ports/teams.repository.js';
+import { assertSchool, assertVenueOfClub } from './school-rules.js';
 
 @Injectable()
 export class GetTeam {
@@ -66,6 +67,11 @@ export class UpdateTeam {
         'TEAM_FORMAT_NOT_PLAYED',
       );
     }
+    // Años de nacimiento y sede, solo en escuelas; la sede, de la misma escuela (2026-11-07).
+    if (changes.birthYears !== undefined || changes.venueId !== undefined) {
+      assertSchool(team.club.kind);
+    }
+    if (changes.venueId) await assertVenueOfClub(this.teams, team.club.id, changes.venueId);
     if ((await this.teams.updateSettings(team.id, changes)) === 'name-taken') {
       throw new ConflictError(
         'Ya hay otro equipo con ese nombre en el club esta temporada',
@@ -80,7 +86,8 @@ export class UpdateTeam {
       teamId: team.id,
       meta: { ...changes },
     });
-    return { team: { ...team, ...changes }, myRoles: [...(actor.teams.get(team.id) ?? [])] };
+    const updated = (await this.teams.findById(team.id)) ?? team;
+    return { team: updated, myRoles: [...(actor.teams.get(team.id) ?? [])] };
   }
 }
 

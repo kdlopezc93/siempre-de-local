@@ -19,8 +19,9 @@ import type {
   TeamRecord,
   TeamSettings,
   TeamsRepository,
+  VenueRecord,
 } from '../application/ports/teams.repository.js';
-import { club, clubMembership, team, teamMembership } from './schema.js';
+import { club, clubMembership, team, teamMembership, venue } from './schema.js';
 
 const UNIQUE_VIOLATION = '23505';
 
@@ -29,6 +30,26 @@ function isUniqueViolation(error: unknown): boolean {
   const cause =
     error instanceof Error && error.cause instanceof DatabaseError ? error.cause : error;
   return cause instanceof DatabaseError && cause.code === UNIQUE_VIOLATION;
+}
+
+/** Las dos columnas de años de nacimiento como un par, o null (2026-11-07). */
+function birthYearsOf(row: { birthYearFrom: number | null; birthYearTo: number | null }) {
+  return row.birthYearFrom !== null && row.birthYearTo !== null
+    ? { from: row.birthYearFrom, to: row.birthYearTo }
+    : null;
+}
+
+/** La sede del left join, o null. */
+function venueOf(row: { venueId: string | null; venueName: string | null }) {
+  return row.venueId && row.venueName !== null ? { id: row.venueId, name: row.venueName } : null;
+}
+
+/** Los ajustes en columnas: los años van en dos. */
+function settingsColumns({ birthYears, ...rest }: TeamSettings) {
+  return {
+    ...rest,
+    ...(birthYears ? { birthYearFrom: birthYears.from, birthYearTo: birthYears.to } : {}),
+  };
 }
 
 @Injectable()
@@ -46,7 +67,11 @@ export class DrizzleTeamsRepository
         formats: team.formats,
         season: team.season,
         category: team.category,
-        club: { id: club.id, name: club.name, city: club.city },
+        birthYearFrom: team.birthYearFrom,
+        birthYearTo: team.birthYearTo,
+        venueId: venue.id,
+        venueName: venue.name,
+        club: { id: club.id, name: club.name, city: club.city, kind: club.kind, sport: club.sport },
         ratingsVisibleToPlayers: team.ratingsVisibleToPlayers,
         matchRatingsVisibleToPlayers: team.matchRatingsVisibleToPlayers,
         colors: team.colors,
@@ -54,13 +79,23 @@ export class DrizzleTeamsRepository
       })
       .from(team)
       .innerJoin(club, eq(team.clubId, club.id))
+      .leftJoin(venue, eq(team.venueId, venue.id))
       .where(eq(team.id, teamId));
-    return row ?? null;
+    if (!row) return null;
+    const { birthYearFrom, birthYearTo, venueId, venueName, ...rest } = row;
+    return {
+      ...rest,
+      birthYears: birthYearsOf({ birthYearFrom, birthYearTo }),
+      venue: venueOf({ venueId, venueName }),
+    };
   }
 
   async updateSettings(teamId: string, settings: TeamSettings) {
     try {
-      await this.connection.db.update(team).set(settings).where(eq(team.id, teamId));
+      await this.connection.db
+        .update(team)
+        .set(settingsColumns(settings))
+        .where(eq(team.id, teamId));
       return 'ok' as const;
     } catch (error) {
       if (isUniqueViolation(error)) return 'name-taken' as const;
@@ -153,7 +188,7 @@ export class DrizzleTeamsRepository
             season: team.season,
             colors: team.colors,
           },
-          club: { id: club.id, name: club.name },
+          club: { id: club.id, name: club.name, kind: club.kind },
           role: teamMembership.role,
           jerseyNumber: teamMembership.jerseyNumber,
           injuredAt: teamMembership.injuredAt,
@@ -166,7 +201,7 @@ export class DrizzleTeamsRepository
         .where(and(eq(teamMembership.userId, userId), isNull(teamMembership.leftAt)))
         .orderBy(asc(team.name), asc(teamMembership.role)),
       db
-        .select({ id: club.id, name: club.name, role: clubMembership.role })
+        .select({ id: club.id, name: club.name, role: clubMembership.role, kind: club.kind })
         .from(clubMembership)
         .innerJoin(club, eq(clubMembership.clubId, club.id))
         .where(eq(clubMembership.userId, userId))
@@ -253,7 +288,7 @@ export class DrizzleTeamsRepository
 
   async findClub(clubId: string): Promise<ClubRecord | null> {
     const [row] = await this.connection.db
-      .select({ id: club.id, name: club.name, city: club.city })
+      .select({ id: club.id, name: club.name, city: club.city, kind: club.kind, sport: club.sport })
       .from(club)
       .where(eq(club.id, clubId));
     return row ?? null;
@@ -268,17 +303,26 @@ export class DrizzleTeamsRepository
         format: team.format,
         season: team.season,
         archived: sql<boolean>`${team.archivedAt} is not null`,
+        birthYearFrom: team.birthYearFrom,
+        birthYearTo: team.birthYearTo,
+        venueId: venue.id,
+        venueName: venue.name,
         members: countDistinct(teamMembership.userId),
       })
       .from(team)
+      .leftJoin(venue, eq(team.venueId, venue.id))
       .leftJoin(
         teamMembership,
         and(eq(teamMembership.teamId, team.id), isNull(teamMembership.leftAt)),
       )
       .where(eq(team.clubId, clubId))
-      .groupBy(team.id)
+      .groupBy(team.id, venue.id)
       .orderBy(sql`${team.archivedAt} is not null`, asc(team.name));
-    return rows;
+    return rows.map(({ birthYearFrom, birthYearTo, venueId, venueName, ...row }) => ({
+      ...row,
+      birthYears: birthYearsOf({ birthYearFrom, birthYearTo }),
+      venue: venueOf({ venueId, venueName }),
+    }));
   }
 
   async clubAdmins(clubId: string) {
@@ -329,6 +373,69 @@ export class DrizzleTeamsRepository
 
   async updateClub(clubId: string, patch: Partial<Pick<ClubRecord, 'name' | 'city'>>) {
     await this.connection.db.update(club).set(patch).where(eq(club.id, clubId));
+  }
+
+  async clubVenues(clubId: string) {
+    return this.connection.db
+      .select({
+        id: venue.id,
+        name: venue.name,
+        address: venue.address,
+        teams: count(team.id),
+      })
+      .from(venue)
+      .leftJoin(team, and(eq(team.venueId, venue.id), isNull(team.archivedAt)))
+      .where(eq(venue.clubId, clubId))
+      .groupBy(venue.id)
+      .orderBy(asc(venue.name));
+  }
+
+  async findVenue(venueId: string): Promise<VenueRecord | null> {
+    const [row] = await this.connection.db
+      .select({ id: venue.id, clubId: venue.clubId, name: venue.name, address: venue.address })
+      .from(venue)
+      .where(eq(venue.id, venueId));
+    return row ?? null;
+  }
+
+  async createVenue(clubId: string, input: { name: string; address: string | null }) {
+    try {
+      const [row] = await this.connection.db
+        .insert(venue)
+        .values({ clubId, ...input })
+        .returning({ id: venue.id });
+      return row!;
+    } catch (error) {
+      if (isUniqueViolation(error)) return 'name-taken' as const;
+      throw error;
+    }
+  }
+
+  async updateVenue(
+    clubId: string,
+    venueId: string,
+    patch: Partial<{ name: string; address: string | null }>,
+  ) {
+    try {
+      const rows = await this.connection.db
+        .update(venue)
+        .set(patch)
+        .where(and(eq(venue.id, venueId), eq(venue.clubId, clubId)))
+        .returning({ id: venue.id });
+      return rows.length ? ('ok' as const) : ('not-found' as const);
+    } catch (error) {
+      if (isUniqueViolation(error)) return 'name-taken' as const;
+      throw error;
+    }
+  }
+
+  async deleteVenue(clubId: string, venueId: string) {
+    // La FK deja a sus categorías sin sede (`on delete set null`).
+    const rows = await this.connection.db
+      .delete(venue)
+      .where(and(eq(venue.id, venueId), eq(venue.clubId, clubId)))
+      .returning({ id: venue.id });
+    return rows.length > 0;
   }
 
   async setArchived(
@@ -386,6 +493,9 @@ export class DrizzleTeamsRepository
             format: input.format,
             formats: [input.format],
             season: input.season,
+            birthYearFrom: input.birthYears?.from ?? null,
+            birthYearTo: input.birthYears?.to ?? null,
+            venueId: input.venueId,
           })
           .returning({ id: team.id });
         const teamId = created!.id;

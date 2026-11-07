@@ -173,7 +173,9 @@ describe('códigos de alta de clubes (2026-10-29)', () => {
       const { clubId, teamId } = CreateClubResponseSchema.parse(res.json());
 
       const me = MeResponseSchema.parse((await call('GET', '/me', someone)).json());
-      expect(me.clubs).toEqual([{ id: clubId, name: 'Los Tigres del Sur', role: 'owner' }]);
+      expect(me.clubs).toEqual([
+        { id: clubId, name: 'Los Tigres del Sur', role: 'owner', kind: 'club' },
+      ]);
       expect(me.teams.find((t) => t.team.id === teamId)?.roles.sort()).toEqual(['coach', 'player']);
       const team = TeamResponseSchema.parse(
         (await call('GET', `/teams/${teamId}`, someone)).json(),
@@ -267,7 +269,13 @@ describe('códigos de alta de clubes (2026-10-29)', () => {
       const res = await call('GET', `/clubs/${clubId}`, someone);
       expect(res.statusCode).toBe(200);
       const club = ClubResponseSchema.parse(res.json());
-      expect(club.club).toEqual({ id: clubId, name: 'Los Tigres del Sur', city: 'Bosa' });
+      expect(club.club).toEqual({
+        id: clubId,
+        name: 'Los Tigres del Sur',
+        city: 'Bosa',
+        kind: 'club',
+        sport: 'football',
+      });
       expect(club.myRole).toBe('owner');
       expect(club.teams.map((t) => [t.name, t.members, t.archived])).toEqual([
         ['Tigres', 1, false],

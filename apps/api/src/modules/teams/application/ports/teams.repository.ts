@@ -1,4 +1,4 @@
-import type { MatchFormat, TeamRole } from '@sdl/contracts';
+import type { BirthYears, ClubKind, MatchFormat, Sport, TeamRole } from '@sdl/contracts';
 
 export interface TeamRecord {
   id: string;
@@ -7,7 +7,11 @@ export interface TeamRecord {
   formats: MatchFormat[];
   season: string;
   category: string | null;
-  club: { id: string; name: string; city: string | null };
+  /** En una escuela, los años de nacimiento de la categoría (2026-11-07). */
+  birthYears: BirthYears | null;
+  /** La sede donde entrena, o null. */
+  venue: { id: string; name: string } | null;
+  club: { id: string; name: string; city: string | null; kind: ClubKind; sport: Sport };
   ratingsVisibleToPlayers: boolean;
   matchRatingsVisibleToPlayers: boolean;
   /** Los colores de los afiches, o null: los de la app. */
@@ -18,7 +22,7 @@ export interface TeamRecord {
 
 /** Lo que se cambia desde Datos del equipo y los ajustes de visibilidad (D8, D14, D18). */
 export type TeamSettings = Partial<
-  Pick<
+  { birthYears: BirthYears; venueId: string | null } & Pick<
     TeamRecord,
     | 'ratingsVisibleToPlayers'
     | 'matchRatingsVisibleToPlayers'
@@ -37,6 +41,8 @@ export interface NewTeam {
   format: MatchFormat;
   season: string;
   alsoPlays: boolean;
+  birthYears: BirthYears | null;
+  venueId: string | null;
 }
 
 /** `limit`: el club ya tiene sus equipos activos; `name-taken`: ese nombre ya está esta temporada. */
@@ -46,6 +52,16 @@ export interface ClubRecord {
   id: string;
   name: string;
   city: string | null;
+  kind: ClubKind;
+  sport: Sport;
+}
+
+/** Una sede de la escuela (2026-11-07). */
+export interface VenueRecord {
+  id: string;
+  clubId: string;
+  name: string;
+  address: string | null;
 }
 
 export interface ClubTeamRecord {
@@ -55,6 +71,8 @@ export interface ClubTeamRecord {
   format: MatchFormat;
   season: string;
   archived: boolean;
+  birthYears: BirthYears | null;
+  venue: { id: string; name: string } | null;
   members: number;
 }
 
@@ -106,6 +124,21 @@ export interface TeamsRepository {
   /** Quita a un admin (nunca al dueño); false si no era admin. */
   removeClubAdmin(clubId: string, userId: string): Promise<boolean>;
   updateClub(clubId: string, patch: Partial<Pick<ClubRecord, 'name' | 'city'>>): Promise<void>;
+  /** Las sedes del club por nombre, con cuántas categorías activas entrenan en cada una. */
+  clubVenues(clubId: string): Promise<(Omit<VenueRecord, 'clubId'> & { teams: number })[]>;
+  findVenue(venueId: string): Promise<VenueRecord | null>;
+  /** `name-taken`: el club ya tiene una sede con ese nombre. */
+  createVenue(
+    clubId: string,
+    venue: { name: string; address: string | null },
+  ): Promise<{ id: string } | 'name-taken'>;
+  updateVenue(
+    clubId: string,
+    venueId: string,
+    patch: Partial<{ name: string; address: string | null }>,
+  ): Promise<'ok' | 'name-taken' | 'not-found'>;
+  /** Borra la sede; sus categorías quedan sin sede. False si no era del club. */
+  deleteVenue(clubId: string, venueId: string): Promise<boolean>;
   /** Archiva o desarchiva un equipo del club; desarchivar respeta el límite de activos. */
   setArchived(
     clubId: string,

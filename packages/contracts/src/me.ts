@@ -2,7 +2,13 @@ import { z } from 'zod';
 
 import { ConsentSchema } from './consent.js';
 import { ProfileSchema } from './profile.js';
-import { InjurySchema, MatchFormatSchema, TeamColorsSchema, TeamRoleSchema } from './teams.js';
+import {
+  ClubKindSchema,
+  InjurySchema,
+  MatchFormatSchema,
+  TeamColorsSchema,
+  TeamRoleSchema,
+} from './teams.js';
 
 export const ClubRoleSchema = z.enum(['owner', 'admin']);
 
@@ -32,7 +38,8 @@ export const MeResponseSchema = z.object({
         /** Los colores del equipo para los afiches, o null: los de la app (2026-11-06). */
         colors: TeamColorsSchema.nullable().default(null),
       }),
-      club: z.object({ id: z.uuid(), name: z.string() }),
+      /** Club o escuela (2026-11-07): en una escuela, el equipo se llama categoría. */
+      club: z.object({ id: z.uuid(), name: z.string(), kind: ClubKindSchema.default('club') }),
       roles: z.array(TeamRoleSchema),
       /** Tu dorsal en ese equipo (lo pone el entrenador), o null. */
       jerseyNumber: z.int().nullable(),
@@ -40,7 +47,14 @@ export const MeResponseSchema = z.object({
       injury: InjurySchema.nullable(),
     }),
   ),
-  clubs: z.array(z.object({ id: z.uuid(), name: z.string(), role: ClubRoleSchema })),
+  clubs: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string(),
+      role: ClubRoleSchema,
+      kind: ClubKindSchema.default('club'),
+    }),
+  ),
 });
 
 export type MeResponse = z.infer<typeof MeResponseSchema>;

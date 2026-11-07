@@ -10,6 +10,7 @@ import { ClubCodes, CreateClub } from './application/club-codes.use-cases.js';
 import {
   ArchiveTeam,
   ClubAdmins,
+  ClubVenues,
   CreateTeam,
   GetClub,
   UpdateClub,
@@ -67,6 +68,7 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
     UpdateClub,
     ArchiveTeam,
     ClubAdmins,
+    ClubVenues,
     GetTeam,
     UpdateTeam,
     UpdateMember,

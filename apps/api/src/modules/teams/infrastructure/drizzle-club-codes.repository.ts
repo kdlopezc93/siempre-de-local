@@ -102,7 +102,7 @@ export class DrizzleClubCodesRepository implements ClubCodesRepository {
 
       const [created] = await tx
         .insert(club)
-        .values({ name: input.clubName, slug, city: input.city })
+        .values({ name: input.clubName, slug, city: input.city, kind: input.kind })
         .returning({ id: club.id });
       const clubId = created!.id;
       await tx.insert(clubMembership).values({ clubId, userId, role: 'owner' });
@@ -115,6 +115,8 @@ export class DrizzleClubCodesRepository implements ClubCodesRepository {
           format: input.format,
           formats: [input.format],
           season: input.season,
+          birthYearFrom: input.birthYears?.from ?? null,
+          birthYearTo: input.birthYears?.to ?? null,
         })
         .returning({ id: team.id });
       const teamId = createdTeam!.id;
@@ -138,6 +140,7 @@ export class DrizzleClubCodesRepository implements ClubCodesRepository {
       .select({
         id: clubSignupCode.id,
         note: clubSignupCode.note,
+        kind: clubSignupCode.kind,
         expiresAt: clubSignupCode.expiresAt,
         usedAt: clubSignupCode.usedAt,
         revokedAt: clubSignupCode.revokedAt,
