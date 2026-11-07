@@ -20,12 +20,13 @@ import { SectionTabs } from '../../shared/ui/SectionTabs';
 import { Sheet } from '../../shared/ui/Sheet';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import { usePublishLineup, useLineups } from '../lineup/use-lineups';
-import { AfterMatch, MatchResultView } from './AfterMatch';
+import { AfterMatch, FigureShare, MatchResultView } from './AfterMatch';
 import { WhoCameAlone } from './WhoCame';
 import { lineupImage } from './lineup-image';
 import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
 import { callUpMessage, lineupMessage } from './share-messages';
+import { POSTER_VERSION } from '../../shared/poster/poster';
 import { useTeamColors } from '../team/use-team-colors';
 import { resultImage } from './result-image';
 import { resultMessage, type MatchResult } from './result-view';
@@ -135,6 +136,15 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
       {/* El resultado al grupo (2026-11-06): el afiche "Marcador gigante", del cuerpo técnico. */}
       {played && staff && match.result && (
         <ResultShare teamId={teamId} teamName={teamName} match={match} result={match.result} />
+      )}
+      {played && staff && match.result?.figure && (
+        <FigureShare
+          teamId={teamId}
+          teamName={teamName}
+          match={match}
+          result={match.result}
+          label="Compartir el afiche de la figura"
+        />
       )}
 
       {played &&
@@ -594,7 +604,7 @@ function LineupShare({
   const colors = useTeamColors(teamId);
   const lineup = usePublishedLineup(teamId, match.id, at);
   const image = useQuery({
-    queryKey: ['lineup-image', match.id, at, ...(colors ?? [])],
+    queryKey: ['lineup-image', POSTER_VERSION, match.id, at, ...(colors ?? [])],
     enabled: lineup.data !== undefined,
     queryFn: () =>
       lineupImage({
@@ -630,7 +640,7 @@ function ResultShare({
 }) {
   const colors = useTeamColors(teamId);
   const image = useQuery({
-    queryKey: ['result-image', match.id, result.at, teamName, ...(colors ?? [])],
+    queryKey: ['result-image', POSTER_VERSION, match.id, result.at, teamName, ...(colors ?? [])],
     queryFn: () => resultImage({ match, result, teamName, kindLine: matchKindLine(match), colors }),
     staleTime: Infinity,
     structuralSharing: false,

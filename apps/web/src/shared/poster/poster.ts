@@ -8,6 +8,22 @@ import { APP_COLORS, posterPalette, textOn, type PosterPalette } from '@sdl/doma
  */
 export const W = 1080;
 export const H = 1920;
+/**
+ * Se dibuja en coordenadas de 1080×1920 pero el PNG sale a 1440×2560 (2026-11-06, Kevin: se veía
+ * con poca resolución en el celular).
+ */
+export const SCALE = 4 / 3;
+/**
+ * La versión del diseño de los afiches, en la clave de cada imagen ya dibujada: al cambiar el
+ * diseño, la app la vuelve a dibujar aunque la página siga abierta.
+ */
+export const POSTER_VERSION = 2;
+/**
+ * Lo que tapan los estados de WhatsApp e Instagram (2026-11-06, Kevin): arriba la barra de
+ * progreso y el nombre; abajo la respuesta. Lo importante va entre estas dos líneas.
+ */
+export const SAFE_TOP = 250;
+export const SAFE_BOTTOM = H - 300;
 export const LEFT = 72;
 export const TEXT_WIDTH = W - 2 * LEFT;
 
@@ -44,7 +60,7 @@ export const FONT = "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif";
 export const NUM = "'Space Grotesk', 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif";
 
 /**
- * Un lienzo cobalto de 1080×1920 con las fuentes de la app cargadas (si ya cargaron; si no, las
+ * Un lienzo de 1080×1920 (a 1440×2560 en el PNG), con los colores del equipo, con las fuentes de la app cargadas (si ya cargaron; si no, las
  * del sistema); null si el navegador no puede dibujar.
  */
 export async function posterCanvas(teamColors?: readonly string[] | null): Promise<{
@@ -55,8 +71,9 @@ export async function posterCanvas(teamColors?: readonly string[] | null): Promi
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext?.('2d');
   if (!ctx) return null;
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = Math.round(W * SCALE);
+  canvas.height = Math.round(H * SCALE);
+  ctx.scale(SCALE, SCALE);
   await Promise.all(
     [`800 132px ${FONT}`, `700 36px ${FONT}`, `600 36px ${FONT}`, `700 104px ${NUM}`].map((f) =>
       document.fonts?.load(f).catch(() => []),
@@ -146,8 +163,12 @@ function drawLogo(ctx: CanvasRenderingContext2D, x: number, y: number, size: num
 }
 
 /** El pie de todos los afiches: el logo y la dirección de la app a la izquierda, algo propio a la derecha. */
-export function drawFooter(ctx: CanvasRenderingContext2D, right: string, color: PosterColors) {
-  const baseline = H - 56;
+export function drawFooter(
+  ctx: CanvasRenderingContext2D,
+  right: string,
+  color: PosterColors,
+  baseline = H - 56,
+) {
   drawLogo(ctx, LEFT, baseline - LOGO + 10, LOGO);
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = color.fg;

@@ -14,6 +14,8 @@ import {
   NUM,
   posterCanvas,
   posterFile,
+  SAFE_BOTTOM,
+  SAFE_TOP,
   TEXT_WIDTH,
   W,
 } from '../../shared/poster/poster';
@@ -23,6 +25,8 @@ import { cardHeadline, RATED_ON, rankedAverages } from './card-view';
 type Card = Pick<PlayerRating, 'ratedAt' | 'position' | 'values' | 'positionAverages'>;
 
 const DORSAL = 75;
+/** La franja de las mejores medias, encima del pie y dentro de la zona que no tapan los estados. */
+const STRIPE_Y = SAFE_BOTTOM - 320;
 
 /**
  * El afiche de tu tarjeta para el estado de WhatsApp (2026-11-06, Kevin): la media enorme en
@@ -48,12 +52,12 @@ export async function cardImage(input: {
   ctx.textAlign = 'left';
   ctx.fillStyle = color.soft;
   ctx.font = `600 36px ${FONT}`;
-  ctx.fillText(input.team, LEFT, 84, TEXT_WIDTH - 2 * DORSAL - 24);
+  ctx.fillText(input.team, LEFT, SAFE_TOP, TEXT_WIDTH - 2 * DORSAL - 24);
   ctx.fillStyle = color.fg;
-  fit(ctx, input.name, (s) => `800 ${s}px ${FONT}`, 104, TEXT_WIDTH - 2 * DORSAL - 24);
-  ctx.fillText(input.name, LEFT, 134);
+  fit(ctx, input.name, (s) => `800 ${s}px ${FONT}`, 92, TEXT_WIDTH - 2 * DORSAL - 24);
+  ctx.fillText(input.name, LEFT, SAFE_TOP + 50);
   const cx = W - LEFT - DORSAL;
-  const cy = 84 + DORSAL;
+  const cy = SAFE_TOP + DORSAL;
   ctx.beginPath();
   ctx.arc(cx, cy, DORSAL, 0, Math.PI * 2);
   ctx.fillStyle = color.accent;
@@ -69,17 +73,17 @@ export async function cardImage(input: {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
   ctx.fillStyle = color.accent;
-  ctx.font = `700 380px ${NUM}`;
-  ctx.fillText(String(headline.main.value), LEFT - 8, 290);
+  ctx.font = `700 300px ${NUM}`;
+  ctx.fillText(String(headline.main.value), LEFT - 8, SAFE_TOP + 165);
   ctx.fillStyle = color.fg;
   ctx.font = `800 64px ${FONT}`;
-  ctx.fillText(positionName(headline.main.pos, input.format), LEFT, 640, TEXT_WIDTH);
+  ctx.fillText(positionName(headline.main.pos, input.format), LEFT, SAFE_TOP + 455, TEXT_WIDTH);
   ctx.fillStyle = color.soft;
   ctx.font = `600 32px ${FONT}`;
   ctx.fillText(
     `Puntuada por su cuerpo técnico el ${RATED_ON.format(new Date(input.card.ratedAt))}`,
     LEFT,
-    724,
+    SAFE_TOP + 535,
     TEXT_WIDTH,
   );
 
@@ -89,7 +93,7 @@ export async function cardImage(input: {
   const colWidth = (TEXT_WIDTH - 56) / 2;
   codes.forEach((code, i) => {
     const x = LEFT + (i % 2) * (colWidth + 56);
-    const y = 860 + Math.floor(i / 2) * 190;
+    const y = SAFE_TOP + 590 + Math.floor(i / 2) * 160;
     const value = input.card.values[code] ?? 0;
     ctx.textBaseline = 'alphabetic';
     ctx.textAlign = 'left';
@@ -112,12 +116,12 @@ export async function cardImage(input: {
 
   // Las mejores medias, sobre una franja de pasto recién podado.
   ctx.fillStyle = color.stripe;
-  ctx.fillRect(0, 1440, W, 200);
+  ctx.fillRect(0, STRIPE_Y, W, 180);
   ctx.textAlign = 'left';
   ctx.textBaseline = 'top';
   ctx.fillStyle = color.soft;
   ctx.font = `600 32px ${FONT}`;
-  ctx.fillText('Mejores medias', LEFT, 1480);
+  ctx.fillText('Mejores medias', LEFT, STRIPE_Y + 28);
   let x = LEFT;
   for (const { pos, value } of rankedAverages(input.card.positionAverages, input.format).slice(
     0,
@@ -132,19 +136,19 @@ export async function cardImage(input: {
     if (x + width > W - LEFT) break;
     ctx.fillStyle = color.stripe;
     ctx.beginPath();
-    ctx.roundRect(x, 1534, width, 64, 32);
+    ctx.roundRect(x, STRIPE_Y + 84, width, 64, 32);
     ctx.fill();
     ctx.textBaseline = 'middle';
     ctx.fillStyle = color.fg;
     ctx.font = `700 32px ${FONT}`;
-    ctx.fillText(label, x + 24, 1567);
+    ctx.fillText(label, x + 24, STRIPE_Y + 117);
     ctx.fillStyle = color.accent;
     ctx.font = `700 32px ${NUM}`;
-    ctx.fillText(String(value), x + 24 + labelWidth + 12, 1567);
+    ctx.fillText(String(value), x + 24 + labelWidth + 12, STRIPE_Y + 117);
     ctx.textBaseline = 'top';
     x += width + 16;
   }
 
-  drawFooter(ctx, FORMAT_LABEL[input.format], color);
+  drawFooter(ctx, FORMAT_LABEL[input.format], color, SAFE_BOTTOM - 14);
   return posterFile(canvas, 'mi-tarjeta.png');
 }

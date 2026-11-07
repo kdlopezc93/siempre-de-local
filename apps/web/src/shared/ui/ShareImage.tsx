@@ -2,6 +2,7 @@ import { ShareNetwork } from '@phosphor-icons/react/dist/csr/ShareNetwork';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
 
+import { POSTER_VERSION } from '../poster/poster';
 import { canShareFiles } from '../share';
 import buttonStyles from './Button.module.css';
 import { Button } from './Button';
@@ -22,7 +23,7 @@ export function ShareImage({
   label?: string;
 }) {
   const image = useQuery({
-    queryKey: ['poster', ...queryKey],
+    queryKey: ['poster', POSTER_VERSION, ...queryKey],
     queryFn: draw,
     staleTime: Infinity,
     structuralSharing: false,

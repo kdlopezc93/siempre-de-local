@@ -559,21 +559,27 @@ function RatingRow({
   );
 }
 
-function FigureShare({
+/**
+ * El afiche "La figura en grande" (2026-11-06): lo comparte la figura en su estado y, desde el
+ * mismo día, también el cuerpo técnico (idea de un asistente de Kevin).
+ */
+export function FigureShare({
   teamId,
   teamName,
   match,
   result,
+  label = 'Compartir mi afiche de figura',
 }: {
   teamId: string;
   teamName: string;
   match: Match;
   result: NonNullable<Match['result']>;
+  label?: string;
 }) {
   const colors = useTeamColors(teamId);
   return (
     <ShareImage
-      label="Compartir mi afiche de figura"
+      label={label}
       queryKey={['figure', match.id, result.at, teamName, ...(colors ?? [])]}
       draw={() => figureImage({ match, result, teamName, kindLine: matchKindLine(match), colors })}
     />
