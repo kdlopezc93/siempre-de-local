@@ -33,7 +33,7 @@ Motivos del salto: los datos viajaban a mano (CSV), no había identidad, las res
 
 ## 3. Usuarios
 
-**Hoy todos los usuarios son mayores de edad y tienen cuenta de Google.** El diseño de menores (consentimiento de tutor) queda aparcado como fase futura; ver `04`, §5.1.
+**Hoy todos los usuarios son mayores de edad y tienen cuenta de Google.** Con las escuelas (etapa 5, `06` Escuelas, 2026-11-07) entran menores **sin cuenta propia**: los maneja su acudiente, que entra con su Google; ver `04`, §5.1.
 
 | Rol | Qué hace |
 |---|---|

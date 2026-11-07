@@ -150,6 +150,8 @@ Medidas:
 ### 5.1 Si en el futuro entran menores
 Se reactiva el diseño previo: año de nacimiento, flujo de **autorización del representante legal** (régimen reforzado para niños, niñas y adolescentes), cuentas sin email (usuario y contraseña creados por invitación) y bloqueo de sincronización sin autorización vigente. No es un cambio menor: implica activar un método de login adicional en Better Auth y nuevas tablas. Debe pasar por revisión legal antes.
 
+**Decidido (2026-11-07, `08` §10):** primero sin cuenta del niño. El **acudiente** entra con su Google y maneja a sus deportistas; la autorización del representante legal se publica versionada, como la política de adultos (D7), sin revisión legal por ahora. La cuenta propia del niño (el método de entrada adicional) queda para después. Plan en `06` (Escuelas).
+
 ## 6. Terceros, dependencias y encabezados de seguridad
 
 Auditoría del 2026-10-22 (Fase 6, PR 12; `07` §4.8).

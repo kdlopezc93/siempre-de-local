@@ -2,7 +2,7 @@
 
 La mano derecha de los equipos y técnicos de fútbol amateur, donde el fútbol es más pasión que profesión. PWA para orientar a jugadores sobre su posición ideal, con panel del entrenador, examen de conocimiento por posición, tarjeta 0–99 y planificador de alineaciones. Promesa: tu equipo, siempre de local.
 
-Tono de la UI: cercano, de barrio y en español latinoamericano; nada de jerga corporativa ni de "club profesional".
+Tono de la UI: cercano, de barrio y en español latinoamericano; nada de jerga corporativa ni de "club profesional". Una voz, tres registros (`docs/design-system.md` §10): **camerino** con jugadores y equipos de barrio; **familia**, cálido y claro, con papás y acudientes de las escuelas; **administrativo**, directo y preciso, en cobros e inscripciones. Con menores: progreso propio y fortalezas, nunca tablas de posiciones ni notas.
 
 **Antes de cualquier tarea, lee `docs/00-contexto-proyecto.md`.** Las decisiones de arquitectura están en `docs/01-arquitectura.md` (ADR-01 a ADR-08) y el plan en `docs/06-roadmap.md`. Si una tarea contradice un ADR, para y pregunta; si se decide cambiarlo, actualiza el ADR en la misma tarea.
 
