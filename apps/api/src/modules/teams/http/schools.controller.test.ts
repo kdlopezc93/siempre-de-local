@@ -154,7 +154,7 @@ describe('escuelas: base (2026-11-07)', () => {
 
     const school = await getClub(schoolId);
     expect(school.club).toMatchObject({ kind: 'school', sport: 'football' });
-    expect(school.teamsLimit).toBe(12);
+    expect(school.teamsLimit).toBe(30);
     expect(school.venues).toEqual([]);
     expect((await getClub(clubId, barrio)).teamsLimit).toBe(3);
   });

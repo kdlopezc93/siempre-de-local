@@ -8,9 +8,9 @@ import type { TeamsRepository } from './ports/teams.repository.js';
  * categorías, cada una con sus años de nacimiento. Los años y las sedes son solo de escuelas.
  */
 
-/** Equipos activos por club: 3 en un club de barrio (2026-10-29), 12 categorías en una escuela. */
+/** Equipos activos por club: 3 en un club de barrio (2026-10-29), 30 categorías (o grupos) en una escuela, Kevin 2026-11-07. */
 export const TEAMS_PER_CLUB = 3;
-export const CATEGORIES_PER_SCHOOL = 12;
+export const CATEGORIES_PER_SCHOOL = 30;
 
 export function teamsLimit(kind: ClubKind): number {
   return kind === 'school' ? CATEGORIES_PER_SCHOOL : TEAMS_PER_CLUB;

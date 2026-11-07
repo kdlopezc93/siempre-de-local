@@ -56,7 +56,7 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 
 **club** — `id, name, slug unique, city text null`. `city` (ciudad o barrio, migración `0026_club_city_team_category`, 2026-10-29) la pide "Crear mi club"; null en los de antes. El slug lo arma la app con el nombre (sin tildes, minúsculas y guiones) y, si ya existe, le suma `-2`, `-3`…
 
-> **Escuelas (2026-11-07, migración `0036_schools`, `08` §10):** `kind club_kind ('club','school') default 'club'` y `sport sport ('football') default 'football'` (el deporte es un dato del club, `08` §8). Una escuela es un club de tipo `school`: sus equipos son **categorías** (hasta 12 activas; un club, 3) con sus años de nacimiento.
+> **Escuelas (2026-11-07, migración `0036_schools`, `08` §10):** `kind club_kind ('club','school') default 'club'` y `sport sport ('football') default 'football'` (el deporte es un dato del club, `08` §8). Una escuela es un club de tipo `school`: sus equipos son **categorías** (hasta 30 activas; un club, 3) con sus años de nacimiento.
 
 **venue** — `id, club_id FK, name, address text null, created_at` · unique `(club_id, name)`. Sede de una escuela (2026-11-07): la crean el dueño y los admins; al borrarla, sus categorías quedan sin sede.
 

@@ -125,7 +125,7 @@ export const ClubResponseSchema = z.object({
     sport: SportSchema,
   }),
   myRole: z.enum(['owner', 'admin']),
-  /** Cuántos equipos activos puede tener: 3 en un club, 12 categorías en una escuela. */
+  /** Cuántos equipos activos puede tener: 3 en un club, 30 categorías (o grupos) en una escuela. */
   teamsLimit: z.int(),
   teams: z.array(
     z.object({

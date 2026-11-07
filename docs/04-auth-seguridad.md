@@ -90,7 +90,7 @@ Los clubes se crean con un **código de alta** (2026-10-29): el administrador de
 | Archivar o desarchivar un equipo del club (2026-10-29): archivado no da permisos a sus integrantes | ✘ | ✘ | ✘ | ✔ | ✘ |
 | Nombrar o quitar admins del club entre los integrantes de sus equipos (2026-10-29; solo el dueño, que no se quita) | ✘ | ✘ | ✘ | dueño | ✘ |
 | Crear otro equipo del club (hasta 3 activos; quien lo crea queda de entrenador, 2026-10-29) | ✘ | ✘ | ✘ | ✔ | ✘ |
-| Escuelas (2026-11-07): crear, cambiar y borrar las sedes; crear categorías (hasta 12 activas) | ✘ | ✘ | ✘ | ✔ | ✘ |
+| Escuelas (2026-11-07): crear, cambiar y borrar las sedes; crear categorías (hasta 30 activas; cada grupo es una categoría) | ✘ | ✘ | ✘ | ✔ | ✘ |
 | Generar y anular códigos de alta de clubes (2026-10-29; se da con `pnpm admin:platform-admin`) | ✘ | ✘ | ✘ | ✘ | ✔ |
 | Revisar contenido de un banco (sin publicar) | ✘ | ✘ | ✔ si se le asigna como revisor | ✘ | ✔ |
 
