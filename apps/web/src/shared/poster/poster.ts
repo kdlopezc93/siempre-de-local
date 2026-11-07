@@ -145,7 +145,7 @@ function drawLogo(ctx: CanvasRenderingContext2D, x: number, y: number, size: num
   ctx.restore();
 }
 
-/** El pie de todos los afiches: el logo y la app a la izquierda, algo propio a la derecha. */
+/** El pie de todos los afiches: el logo y la dirección de la app a la izquierda, algo propio a la derecha. */
 export function drawFooter(ctx: CanvasRenderingContext2D, right: string, color: PosterColors) {
   const baseline = H - 56;
   drawLogo(ctx, LEFT, baseline - LOGO + 10, LOGO);
@@ -153,7 +153,7 @@ export function drawFooter(ctx: CanvasRenderingContext2D, right: string, color: 
   ctx.fillStyle = color.fg;
   ctx.textAlign = 'left';
   ctx.font = `700 30px ${FONT}`;
-  ctx.fillText('Siempre de Local', LEFT + LOGO + 16, baseline);
+  ctx.fillText('siempredelocal.app', LEFT + LOGO + 16, baseline);
   ctx.fillStyle = color.soft;
   ctx.textAlign = 'right';
   ctx.font = `700 28px ${NUM}`;

@@ -28,6 +28,10 @@ import {
   useRecordMatchResult,
 } from './use-matches';
 import { Avatar } from '../../shared/ui/Avatar';
+import { ShareImage } from '../../shared/ui/ShareImage';
+import { useTeamColors } from '../team/use-team-colors';
+import { matchKindLine } from './match-view';
+import { figureImage } from './result-image';
 
 const tokenText = (p: { jerseyNumber: number | null; displayName: string }) =>
   p.jerseyNumber !== null ? String(p.jerseyNumber) : initialsOf(p.displayName);
@@ -350,10 +354,12 @@ function Goals({
  * el equipo lo muestra (sin la nota).
  */
 export function MatchResultView({
+  teamId,
   teamName,
   match,
   meId,
 }: {
+  teamId: string;
   teamName: string;
   match: Match;
   meId: string;
@@ -387,7 +393,13 @@ export function MatchResultView({
           </div>
         </div>
       )}
-      {mine && <p className={styles.cheer}>¡Fuiste la figura del partido!</p>}
+      {mine && (
+        <>
+          <p className={styles.cheer}>¡Fuiste la figura del partido!</p>
+          {/* Para su estado (2026-11-06): el afiche "La figura en grande". */}
+          <FigureShare teamId={teamId} teamName={teamName} match={match} result={result} />
+        </>
+      )}
       {match.myRating !== null && (
         <div className={styles.mine}>
           <span className={styles.figureLabel}>Cómo jugaste</span>
@@ -544,5 +556,26 @@ function RatingRow({
         </div>
       )}
     </li>
+  );
+}
+
+function FigureShare({
+  teamId,
+  teamName,
+  match,
+  result,
+}: {
+  teamId: string;
+  teamName: string;
+  match: Match;
+  result: NonNullable<Match['result']>;
+}) {
+  const colors = useTeamColors(teamId);
+  return (
+    <ShareImage
+      label="Compartir mi afiche de figura"
+      queryKey={['figure', match.id, result.at, teamName, ...(colors ?? [])]}
+      draw={() => figureImage({ match, result, teamName, kindLine: matchKindLine(match), colors })}
+    />
   );
 }

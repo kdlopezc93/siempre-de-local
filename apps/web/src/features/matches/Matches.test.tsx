@@ -196,6 +196,11 @@ describe('partidos en la app (Fase 7)', () => {
     expect(await screen.findByRole('region', { name: 'Resultado' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Editar el partido' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Cancelar el partido' })).toBeNull();
+    // El resultado al grupo (2026-11-06): con el marcador y el enlace al partido.
+    const link = screen.getByRole('link', { name: 'Mandar el resultado al grupo' });
+    const text = new URL(link.getAttribute('href')!).searchParams.get('text')!;
+    expect(text).toContain('*Ganamos 1–0 a Los Pibes*');
+    expect(text).toContain(`/equipos/${TEAM_A}/partidos/${M1}`);
   });
 
   it('el jugador responde voy / no voy desde el partido', async () => {
@@ -821,5 +826,7 @@ describe('partidos en la app (Fase 7)', () => {
     expect(within(board).getByText('¡Fuiste la figura del partido!')).toBeInTheDocument();
     expect(within(board).getByText('Muy bien')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Voy' })).toBeNull();
+    // El afiche del resultado lo manda el cuerpo técnico, no el jugador.
+    expect(screen.queryByRole('link', { name: 'Mandar el resultado al grupo' })).toBeNull();
   });
 });
