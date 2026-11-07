@@ -57,6 +57,7 @@ export function tabsFor(teamId: string, roles: readonly TeamRole[]): Tab[] {
     to: `${team}/equipo`,
     match: [
       `${team}/equipo`,
+      `${team}/ajustes`,
       `${team}/invitar`,
       `${team}/validacion`,
       `${team}/cobros`,

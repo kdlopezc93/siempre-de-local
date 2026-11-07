@@ -8,6 +8,19 @@ import { InDataRouter } from '../../test/data-router';
 import { fakeApi } from '../../test/fake-api';
 import { ME_TWO_TEAMS, TEAM_A, TEAM_B } from '../../test/me-two-teams';
 import { TeamPage } from './TeamPage';
+import { TeamSettingsPage } from './TeamSettingsPage';
+
+function renderSettings(teamId: string) {
+  render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { mutations: { retry: false } } })}
+    >
+      <InDataRouter>
+        <TeamSettingsPage me={ME_TWO_TEAMS} teamId={teamId} />
+      </InDataRouter>
+    </QueryClientProvider>,
+  );
+}
 
 function renderTeam(teamId: string) {
   render(
@@ -35,6 +48,12 @@ describe('TeamPage', () => {
       `/equipos/${TEAM_A}/invitar`,
     );
     expect(screen.getByRole('link', { name: 'Informe de validación' })).toBeInTheDocument();
+    // Los datos, los colores y los ajustes van aparte (2026-11-06).
+    expect(screen.getByRole('link', { name: 'Datos y ajustes' })).toHaveAttribute(
+      'href',
+      `/equipos/${TEAM_A}/ajustes`,
+    );
+    expect(screen.queryByRole('heading', { name: 'Datos del equipo' })).toBeNull();
   });
 
   it('cerrar sesión ya no está aquí: va en tu cuenta', () => {
@@ -66,7 +85,7 @@ describe('TeamPage', () => {
         return { status: 200, body: team(false) };
       },
     });
-    renderTeam(TEAM_A);
+    renderSettings(TEAM_A);
     const toggle = await screen.findByRole('switch', { name: /Los jugadores ven su tarjeta/ });
     expect(toggle).toBeChecked();
     await userEvent.click(toggle);
@@ -97,7 +116,7 @@ describe('TeamPage', () => {
         return { status: 200, body: team(false) };
       },
     });
-    renderTeam(TEAM_A);
+    renderSettings(TEAM_A);
     const toggle = await screen.findByRole('switch', { name: /ven cómo jugaron cada partido/ });
     await userEvent.click(toggle);
     await vi.waitFor(() => expect(toggle).not.toBeChecked());
@@ -134,7 +153,7 @@ describe('TeamPage', () => {
       },
       'GET /api/v1/me': { status: 200, body: ME_TWO_TEAMS },
     });
-    renderTeam(TEAM_A);
+    renderSettings(TEAM_A);
 
     const data = await screen.findByRole('region', { name: 'Datos del equipo' });
     expect(data).toHaveTextContent('JuegaFútbol 11');
@@ -175,7 +194,7 @@ describe('TeamPage', () => {
     render(
       <QueryClientProvider client={new QueryClient()}>
         <InDataRouter>
-          <TeamPage me={{ ...ME_TWO_TEAMS, clubs: [] }} teamId={TEAM_B} />
+          <TeamSettingsPage me={{ ...ME_TWO_TEAMS, clubs: [] }} teamId={TEAM_B} />
         </InDataRouter>
       </QueryClientProvider>,
     );
@@ -183,5 +202,7 @@ describe('TeamPage', () => {
       'NombreLos del jueves',
     );
     expect(screen.queryByRole('button', { name: 'Editar' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Elegir' })).toBeNull();
+    expect(screen.queryByRole('switch')).toBeNull();
   });
 });

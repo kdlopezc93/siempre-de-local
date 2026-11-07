@@ -43,6 +43,7 @@ const screens = {
   rate: () => import('../card/RatePage'),
   myGame: () => import('../my-game/MyGamePage'),
   team: () => import('../team/TeamPage'),
+  teamSettings: () => import('../team/TeamSettingsPage'),
   account: () => import('../account/AccountPage'),
   myData: () => import('../my-data/MyDataPage'),
   matches: () => import('../matches/MatchesPage'),
@@ -90,6 +91,9 @@ const StaffCardPage = lazy(() => screens.staffCard().then((m) => ({ default: m.S
 const RatePage = lazy(() => screens.rate().then((m) => ({ default: m.RatePage })));
 const MyGamePage = lazy(() => screens.myGame().then((m) => ({ default: m.MyGamePage })));
 const TeamPage = lazy(() => screens.team().then((m) => ({ default: m.TeamPage })));
+const TeamSettingsPage = lazy(() =>
+  screens.teamSettings().then((m) => ({ default: m.TeamSettingsPage })),
+);
 const AccountPage = lazy(() => screens.account().then((m) => ({ default: m.AccountPage })));
 const MyDataPage = lazy(() => screens.myData().then((m) => ({ default: m.MyDataPage })));
 const MatchesPage = lazy(() => screens.matches().then((m) => ({ default: m.MatchesPage })));
@@ -348,6 +352,12 @@ export function MyGameRoute() {
 export function TeamRoute() {
   const { teamId = '' } = useParams();
   return <ShellRoute>{(me) => <TeamPage me={me} teamId={teamId} />}</ShellRoute>;
+}
+
+/** "/equipos/:teamId/ajustes" — datos, colores y qué ven los jugadores (2026-11-06). */
+export function TeamSettingsRoute() {
+  const { teamId = '' } = useParams();
+  return <ShellRoute>{(me) => <TeamSettingsPage me={me} teamId={teamId} />}</ShellRoute>;
 }
 
 /** "/plataforma/codigos" — los códigos de alta de clubes (administrador de la plataforma). */

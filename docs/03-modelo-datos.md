@@ -70,6 +70,7 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 | category | text null | Categoría libre ("Veteranos", "Femenino"…), 2026-10-29, migración `0026` |
 | ratings_visible_to_players | boolean default true | ¿el jugador ve su tarjeta? (D8) |
 | match_ratings_visible_to_players | boolean default true | ¿el jugador ve su evaluación de cada partido? (D18) |
+| colors | text[] null | los colores del equipo para los afiches (2026-11-06): principal, secundario y tercero opcional, `#rrggbb`; null, los de la app. Check `team_colors_count`: 2 o 3. Migración `0034_team_colors` |
 | archived_at | timestamptz null | Archivado (2026-10-29): sus integrantes dejan de verlo y de tener permisos en él, y sus invitaciones no sirven; no cuenta para el límite de 3 equipos activos por club |
 
 **team_membership** — `team_id, user_id, role team_role ('coach','assistant','player','treasurer'), jersey_number smallint null, joined_at, left_at, injured_at timestamptz null, injury_return_on date null` · PK (team_id, user_id, role)

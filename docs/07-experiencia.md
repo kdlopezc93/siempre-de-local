@@ -113,7 +113,7 @@ La pestaña **Alineaciones pasa a Partidos** y la tienen también los jugadores:
 
 ### 4.6 Datos del equipo
 
-En **Equipo → Datos del equipo** (coach y admin del club; el resto lo ve sin editar):
+En **Equipo → Datos y ajustes** (`/equipos/:teamId/ajustes`, 2026-11-06: la pantalla de Equipo quedaba muy larga, así que los datos, los colores del equipo y lo que ven los jugadores van aparte; en Equipo queda una fila con los colores en puntos, los accesos y los integrantes). Los edita el coach o el admin del club; el resto los ve sin editar:
 
 - **Nombre** del equipo.
 - **Formatos en que juega:** Fútbol 11, Fútbol 8 o los dos (como el equipo de Kevin). Si son los dos, se elige el **principal**.

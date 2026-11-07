@@ -10,6 +10,8 @@ export interface TeamRecord {
   club: { id: string; name: string; city: string | null };
   ratingsVisibleToPlayers: boolean;
   matchRatingsVisibleToPlayers: boolean;
+  /** Los colores de los afiches, o null: los de la app. */
+  colors: string[] | null;
 }
 
 /** Lo que se cambia desde Datos del equipo y los ajustes de visibilidad (D8, D14, D18). */
@@ -22,6 +24,7 @@ export type TeamSettings = Partial<
     | 'category'
     | 'format'
     | 'formats'
+    | 'colors'
   >
 >;
 

@@ -49,6 +49,7 @@ export class DrizzleTeamsRepository
         club: { id: club.id, name: club.name, city: club.city },
         ratingsVisibleToPlayers: team.ratingsVisibleToPlayers,
         matchRatingsVisibleToPlayers: team.matchRatingsVisibleToPlayers,
+        colors: team.colors,
       })
       .from(team)
       .innerJoin(club, eq(team.clubId, club.id))
@@ -149,6 +150,7 @@ export class DrizzleTeamsRepository
             format: team.format,
             formats: team.formats,
             season: team.season,
+            colors: team.colors,
           },
           club: { id: club.id, name: club.name },
           role: teamMembership.role,

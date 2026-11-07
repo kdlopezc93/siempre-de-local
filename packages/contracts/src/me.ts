@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { ConsentSchema } from './consent.js';
 import { ProfileSchema } from './profile.js';
-import { InjurySchema, MatchFormatSchema, TeamRoleSchema } from './teams.js';
+import { InjurySchema, MatchFormatSchema, TeamColorsSchema, TeamRoleSchema } from './teams.js';
 
 export const ClubRoleSchema = z.enum(['owner', 'admin']);
 
@@ -29,6 +29,8 @@ export const MeResponseSchema = z.object({
         format: MatchFormatSchema,
         formats: z.array(MatchFormatSchema).min(1),
         season: z.string(),
+        /** Los colores del equipo para los afiches, o null: los de la app (2026-11-06). */
+        colors: TeamColorsSchema.nullable().default(null),
       }),
       club: z.object({ id: z.uuid(), name: z.string() }),
       roles: z.array(TeamRoleSchema),

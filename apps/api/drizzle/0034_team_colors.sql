@@ -1,0 +1,2 @@
+ALTER TABLE "team" ADD COLUMN "colors" text[];--> statement-breakpoint
+ALTER TABLE "team" ADD CONSTRAINT "team_colors_count" CHECK ("team"."colors" is null or array_length("team"."colors", 1) between 2 and 3);

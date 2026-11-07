@@ -2,7 +2,6 @@ import type { PublishedLineupResponse } from '@sdl/contracts';
 import { findFormation } from '@sdl/domain';
 
 import {
-  COLOR,
   drawFooter,
   fit,
   FONT,
@@ -10,14 +9,15 @@ import {
   NUM,
   posterCanvas,
   posterFile,
+  type PosterColors,
   TEXT_WIDTH,
   wrap,
 } from '../../shared/poster/poster';
 
 /*
  * El afiche de la alineación para el grupo de WhatsApp (2026-11-06, Kevin eligió la dirección
- * "Cancha de tiza"): 1080×1920, también sirve de estado. Todo cobalto; arriba el rival en grande
- * y la hora en volt; la cancha rayada como el pasto recién podado, con líneas de tiza; cada
+ * "Cancha de tiza"): 1080×1920, también sirve de estado. Con los colores del equipo; arriba el
+ * rival en grande y la hora en el secundario; la cancha rayada como el pasto recién podado, con líneas de tiza; cada
  * titular en un disco volt con su dorsal (el arquero en blanco) y la banca abajo.
  */
 /** El pasto: un rectángulo redondeado; la cancha se ve desde el área rival hacia abajo. */
@@ -50,19 +50,19 @@ export function posterWhen(iso: string) {
   };
 }
 
-function drawPitch(ctx: CanvasRenderingContext2D) {
+function drawPitch(ctx: CanvasRenderingContext2D, color: PosterColors) {
   ctx.save();
   ctx.beginPath();
   ctx.roundRect(TURF.x, TURF.y, TURF.w, TURF.h, 16);
   ctx.clip();
   // Franjas de corte: una más clara cada dos.
-  ctx.fillStyle = COLOR.stripe;
+  ctx.fillStyle = color.stripe;
   for (let y = TURF.y; y < TURF.y + TURF.h; y += 212) ctx.fillRect(TURF.x, y, TURF.w, 106);
   ctx.restore();
   // Las líneas de tiza: el borde es el del pasto (como en la maqueta: las franjas no se salen
   // de la cancha), la mitad, el círculo y las áreas de abajo.
   ctx.save();
-  ctx.strokeStyle = COLOR.chalk;
+  ctx.strokeStyle = color.chalk;
   ctx.lineWidth = 5;
   ctx.beginPath();
   ctx.roundRect(TURF.x + 2.5, TURF.y + 2.5, TURF.w - 5, TURF.h - 5, 14);
@@ -89,19 +89,21 @@ export async function lineupImage(input: {
   opponent: string | null;
   startsAt: string;
   place: string;
+  /** Los colores del equipo (null: los de la app). */
+  colors: readonly string[] | null;
 }): Promise<File | null> {
   const formation = findFormation(input.lineup.formation);
-  const poster = formation ? await posterCanvas() : null;
+  const poster = formation ? await posterCanvas(input.colors) : null;
   if (!formation || !poster) return null;
-  const { canvas, ctx } = poster;
+  const { canvas, ctx, color } = poster;
 
   // Arriba: qué partido, contra quién (lo más grande), la hora y la cancha.
   ctx.textBaseline = 'top';
   ctx.textAlign = 'left';
-  ctx.fillStyle = COLOR.mist;
+  ctx.fillStyle = color.soft;
   ctx.font = `600 36px ${FONT}`;
   ctx.fillText(input.kindLine, LEFT, 84, TEXT_WIDTH);
-  ctx.fillStyle = COLOR.white;
+  ctx.fillStyle = color.fg;
   ctx.font = `700 60px ${FONT}`;
   ctx.fillText(input.teamName, LEFT, 134, TEXT_WIDTH);
   const them = input.opponent ? `vs ${input.opponent}` : 'Entreno';
@@ -110,7 +112,7 @@ export async function lineupImage(input: {
 
   const when = posterWhen(input.startsAt);
   ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = COLOR.volt;
+  ctx.fillStyle = color.accent;
   ctx.font = `700 104px ${NUM}`;
   ctx.fillText(when.time, LEFT, 470);
   const timeWidth = ctx.measureText(when.time).width;
@@ -121,11 +123,11 @@ export async function lineupImage(input: {
     470,
     TEXT_WIDTH - timeWidth - 16,
   );
-  ctx.fillStyle = COLOR.mist;
+  ctx.fillStyle = color.soft;
   ctx.font = `600 36px ${FONT}`;
   ctx.fillText(input.place, LEFT, 536, TEXT_WIDTH);
 
-  drawPitch(ctx);
+  drawPitch(ctx, color);
 
   // Cada titular: el disco volt con su dorsal (o sus iniciales), el arquero en blanco.
   const at = new Map(input.lineup.starters.map((s) => [s.slotId, s.player]));
@@ -136,9 +138,9 @@ export async function lineupImage(input: {
     const y = py(slot.coord[1]);
     ctx.beginPath();
     ctx.arc(x, y, DISC, 0, Math.PI * 2);
-    ctx.fillStyle = !player ? COLOR.empty : slot.position === 'POR' ? COLOR.white : COLOR.volt;
+    ctx.fillStyle = !player ? color.empty : slot.position === 'POR' ? color.fg : color.accent;
     ctx.fill();
-    ctx.fillStyle = COLOR.ink;
+    ctx.fillStyle = !player ? color.fg : slot.position === 'POR' ? color.onFg : color.onAccent;
     ctx.font = `700 48px ${NUM}`;
     ctx.textBaseline = 'middle';
     const code = player
@@ -146,7 +148,7 @@ export async function lineupImage(input: {
       : '–';
     ctx.fillText(code, x, y + 3);
     ctx.textBaseline = 'alphabetic';
-    ctx.fillStyle = COLOR.white;
+    ctx.fillStyle = color.fg;
     ctx.font = `700 36px ${FONT}`;
     ctx.fillText(player ? short(player.displayName) : 'Vacío', x, y + DISC + 40);
   }
@@ -157,17 +159,17 @@ export async function lineupImage(input: {
     .map((p) => (p.jerseyNumber !== null ? `${p.jerseyNumber} ${p.displayName}` : p.displayName))
     .join(', ');
   ctx.font = `600 34px ${FONT}`;
-  ctx.fillStyle = COLOR.mist;
+  ctx.fillStyle = color.soft;
   const label = 'Banca ';
   ctx.fillText(label, LEFT, 1730);
   const labelWidth = ctx.measureText(label).width;
-  ctx.fillStyle = COLOR.white;
+  ctx.fillStyle = color.fg;
   ctx.font = `700 34px ${FONT}`;
   wrap(ctx, bench || 'Sin suplentes', TEXT_WIDTH - labelWidth)
     .slice(0, 3)
     .forEach((line, i) => ctx.fillText(line, LEFT + labelWidth, 1730 + i * 46));
 
-  drawFooter(ctx, formation.label);
+  drawFooter(ctx, formation.label, color);
 
   return posterFile(canvas, 'alineacion.png');
 }

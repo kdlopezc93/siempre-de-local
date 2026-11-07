@@ -4,6 +4,7 @@ import { ChartLineUp } from '@phosphor-icons/react/dist/csr/ChartLineUp';
 import { Question } from '@phosphor-icons/react/dist/csr/Question';
 import { UserPlus } from '@phosphor-icons/react/dist/csr/UserPlus';
 import { Buildings } from '@phosphor-icons/react/dist/csr/Buildings';
+import { GearSix } from '@phosphor-icons/react/dist/csr/GearSix';
 import { DeviceMobile } from '@phosphor-icons/react/dist/csr/DeviceMobile';
 import { UsersThree } from '@phosphor-icons/react/dist/csr/UsersThree';
 import { Wallet } from '@phosphor-icons/react/dist/csr/Wallet';
@@ -16,15 +17,13 @@ import { useAdoption } from '../adoption/use-adoption';
 import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
 import { formatsLabel } from '../shell/shell-nav';
-import { VisibilitySettings } from './VisibilitySettings';
-import { TeamData } from './TeamData';
 import { TeamMembers } from './TeamMembers';
 import styles from './TeamPage.module.css';
 import { PageTitle } from '../../shared/ui/PageTitle';
 
 /**
- * /equipos/:teamId/equipo — el equipo (tu cuenta va aparte, en /cuenta): sus datos, accesos,
- * integrantes y ajustes (07 §4.6).
+ * /equipos/:teamId/equipo — el equipo (tu cuenta va aparte, en /cuenta): los accesos y los
+ * integrantes (07 §4.6). Los datos, los colores y los ajustes van en /ajustes (2026-11-06).
  */
 export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
   const membership = me.teams.find((t) => t.team.id === teamId);
@@ -51,8 +50,21 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
       ) : (
         <h1 className={styles.title}>Equipo</h1>
       )}
-      <TeamData teamId={teamId} editable={coach || clubAdmin} />
       <ul className={styles.list}>
+        <Item
+          to={`/equipos/${teamId}/ajustes`}
+          icon={GearSix}
+          title="Datos y ajustes"
+          trailing={
+            membership?.team.colors ? (
+              <span className={styles.dots} aria-hidden="true">
+                {membership.team.colors.map((c, i) => (
+                  <i key={i} style={{ background: c }} />
+                ))}
+              </span>
+            ) : undefined
+          }
+        />
         {(coach || clubAdmin) && (
           <Item to={`/equipos/${teamId}/invitar`} icon={UserPlus} title="Invitar al equipo" />
         )}
@@ -104,7 +116,6 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
         <Item to="/bases" icon={Question} title="En qué se basa el test" />
       </ul>
       <TeamMembers teamId={teamId} opensSheet={staff || clubAdmin} />
-      {(coach || clubAdmin) && <VisibilitySettings teamId={teamId} />}
     </Screen>
   );
 }

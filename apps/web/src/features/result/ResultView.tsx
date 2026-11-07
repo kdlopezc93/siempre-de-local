@@ -16,7 +16,7 @@ export interface ResultData {
   /** true mientras no llega el oficial (calculado en el celular, sin señal). */
   provisional: boolean;
   /** Para compartir el podio en el estado de WhatsApp (2026-11-06): solo el oficial. */
-  shareAs?: { name: string; team: string } | undefined;
+  shareAs?: { name: string; team: string; colors: readonly string[] | null } | undefined;
 }
 
 /**
@@ -85,7 +85,13 @@ export function ResultView({ format, podium, provisional, shareAs }: ResultData)
       {shareAs && !provisional && (
         <ShareImage
           label="Compartir mi podio"
-          queryKey={['podium', format, ...podium.map((e) => `${e.pos}:${e.pct}`), shareAs.name]}
+          queryKey={[
+            'podium',
+            format,
+            ...podium.map((e) => `${e.pos}:${e.pct}`),
+            shareAs.name,
+            ...(shareAs.colors ?? []),
+          ]}
           draw={() => podiumImage({ ...shareAs, format, podium })}
         />
       )}

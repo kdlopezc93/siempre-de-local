@@ -26,6 +26,7 @@ import { lineupImage } from './lineup-image';
 import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
 import { callUpMessage, lineupMessage } from './share-messages';
+import { useTeamColors } from '../team/use-team-colors';
 import styles from './Matches.module.css';
 import {
   useCreateTournament,
@@ -583,9 +584,10 @@ function LineupShare({
   match: Match;
   at: string;
 }) {
+  const colors = useTeamColors(teamId);
   const lineup = usePublishedLineup(teamId, match.id, at);
   const image = useQuery({
-    queryKey: ['lineup-image', match.id, at],
+    queryKey: ['lineup-image', match.id, at, ...(colors ?? [])],
     enabled: lineup.data !== undefined,
     queryFn: () =>
       lineupImage({
@@ -595,6 +597,7 @@ function LineupShare({
         opponent: match.opponent,
         startsAt: match.startsAt,
         place: match.place,
+        colors,
       }),
     staleTime: Infinity,
     structuralSharing: false,

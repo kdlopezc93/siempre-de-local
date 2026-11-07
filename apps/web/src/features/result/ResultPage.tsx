@@ -35,6 +35,7 @@ export function ResultPage({ attemptId, me }: { attemptId: string; me: Me }) {
           shareAs={{
             name: me.profile.displayName,
             team: me.teams.find((t) => t.team.id === attempt.data.teamId)?.team.name ?? '',
+            colors: me.teams.find((t) => t.team.id === attempt.data.teamId)?.team.colors ?? null,
           }}
         />
       )}
