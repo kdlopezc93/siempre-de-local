@@ -117,7 +117,7 @@ Revisar las ideas una por una, con alcance y forma de ejecución, y ordenarlas e
 | 1 | "¿Quién vino?" ✔ #140 → goles, asistencias y tarjetas (este PR) → "Mi torneo" con historial por rival → compartir alineación y resultado como imagen (con escudo) → quitar jugadores (✔ #123) | QLeones |
 | 2 | Tesorero (y roles desde la ficha) → cobros, patrocinios, "Ya pagué" → recordatorio y saldo. **Antes, o junto con esto, respaldos automáticos** (la plata no puede depender de un solo computador; desde el 2026-10-30 la base está en Neon, ver `06` Cobros). Roles desde la app: ✔ #122 | QLeones |
 | 3 | Staging (D5) ✔ 2026-10-30, política de datos (D7) ✔ publicada sin revisión legal, fotos de jugadores (pospuestas, #65) | Todos |
-| 4 | Entrevistas a 5–10 escuelas (`10`), en paralelo con 1–3 | — |
+| 4 | Entrevistas a 5–10 escuelas (`10`), en paralelo con 1–3. **Desde el 2026-11-07 no bloquean la etapa 5** (§10) | — |
 | 5 | Base del ecosistema: organizaciones (escuela, categoría, sede), menores y acudientes, registros de tono, revisión legal | Escuela piloto |
 | 6 | Evaluación fuerte: pruebas de campo por edad, evaluación periódica, informes para papás | Escuela piloto |
 | 7 | Lo administrativo de escuela: inscripciones, mensualidades, asistencia, portal de familias; pasarela si la piden | Escuelas que pagan |
@@ -151,3 +151,14 @@ Recorrido de administrador y de jugador, útil para las etapas 5–7:
 | Jugador: perfil | Datos, acudiente y pago de la mensualidad por PSE | Etapa 7 (pasarela, decisión 4) |
 
 Ideas nuevas que salen de ahí: **racha y logros**, **meta semanal**, **registrar desempeño con intentos y exitosos**.
+
+## 10. Escuelas: arranque sin entrevistas (2026-11-07, Kevin)
+
+La etapa 5 empieza sin esperar las entrevistas (`10`): la base (escuela, categorías, sedes, menores y acudientes) se necesita igual, digan lo que digan. Las entrevistas siguen en paralelo y pesan en las etapas 6 y 7. Plan por PRs en `06` (Escuelas).
+
+| # | Decisión | Elegido |
+|---|---|---|
+| 1 | Cómo encaja la escuela | **Un club de tipo escuela**; cada **categoría** es un **equipo** con su rango de años de nacimiento; la **sede** es una tabla nueva. Se reusa todo lo del equipo (permisos, invitaciones, convocatorias, "¿quién vino?", cobros). Descartado: una entidad escuela aparte, que duplicaría permisos, convocatorias y cobros |
+| 2 | Quién tiene la cuenta del niño | **El acudiente**, con su Google, maneja a uno o varios deportistas. El niño no entra a la app todavía; su cuenta propia (sin Google) queda para después. ADR-04 no cambia |
+| 3 | Revisión legal | **Como la política de adultos (D7):** la autorización del representante legal se publica versionada y se acepta en la app, sin revisión de un abogado por ahora. La revisión queda pendiente y es lo primero si una escuela con niños reales la pide o algo cambia |
+| 4 | Primer PR | **Plan y base de la escuela**; los menores y acudientes en los siguientes |

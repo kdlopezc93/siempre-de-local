@@ -265,6 +265,24 @@ Al equipo le da pereza entrar a la app: todo pasa en el grupo de WhatsApp. La id
 
 Sin código: que el técnico ponga la regla ("si no respondes en la app, no estás en la lista") y que la vaca se pase por la app.
 
+### Escuelas · etapa 5 del ecosistema (Kevin, 2026-11-07)
+Se arranca **sin esperar las entrevistas** (`10`): la base de la escuela no depende de lo que respondan; las entrevistas siguen en paralelo y ajustan las etapas 6 (evaluación fuerte) y 7 (lo administrativo). Decisiones en `08` §10.
+
+- **La escuela es un club de tipo escuela** y cada **categoría** (sub-10, sub-12…) es un **equipo** con su rango de años de nacimiento. Así se reusan permisos, invitaciones, convocatorias, "¿quién vino?", cobros y evaluaciones. La **sede** es nueva.
+- **El niño no tiene cuenta todavía:** el **acudiente** entra con su Google y maneja a uno o varios deportistas. ADR-04 no cambia. La cuenta propia del niño (sin Google) queda para después.
+- **La autorización del acudiente se publica como la política de adultos (D7):** versionada y aceptada en la app, sin revisión legal por ahora; la revisión de un abogado queda pendiente, como en D7.
+- **Fútbol primero, sin suponer fútbol** en lo que no es táctico (`08` §8, decisión 3): el deporte es un dato del club.
+
+| # | PR | Estado |
+|---|---|---|
+| 0 | Docs: este plan, `08` §10, `04` §5.1 y los tres registros de voz en `CLAUDE.md` | este PR |
+| 1 | **Base de la escuela**: `club.kind` (`club`, `school`) y `club.sport`; categorías como equipos con años de nacimiento (`team.birth_year_from`, `birth_year_to`); sedes (`venue`) y la sede de cada categoría; el código de alta dice si abre un club o una escuela. En la app: "Crear mi escuela", sus categorías y sedes, y "categoría" en lugar de "equipo" dentro de una escuela. Migración nueva | — |
+| 2 | **Deportistas menores y acudientes (API)**: el niño es un integrante sin método de entrada, a cargo de uno o más acudientes (`guardianship`), con nombre y año de nacimiento, nada más. Invitación de acudiente: entra con Google, acepta la autorización del representante legal (versión nueva de la política, con su sección de menores) y registra a su hijo en la categoría. Cómo se guarda el niño sin correo (Better Auth exige `email`) se decide en el PR. Migración nueva; `03`, `04` y `05` | — |
+| 3 | **La app del acudiente** (registro familia): "Mis deportistas", cambiar de hijo, responder la convocatoria por él, ver lo que la escuela le muestre y los cobros a su nombre | — |
+| 4 | **Reglas de menores en lo que ya existe**: sin tablas de posiciones ni comparaciones con el grupo (goleadores, ranking); la tarjeta y las evaluaciones como progreso propio y fortalezas, sin notas; derechos del titular (descargar y eliminar los datos del niño) desde la cuenta del acudiente | — |
+
+**Después:** etapa 6 (pruebas de campo por edad, evaluación periódica, informes para papás) y etapa 7 (inscripciones, mensualidades, asistencia a entrenos, portal de familias), con lo que digan las entrevistas.
+
 ### A futuro (pedidos de Kevin, 2026-10-24)
 Anotados para cuando toque, sin orden ni fase todavía. Cada uno pide decidir el alcance antes de escribir código.
 
