@@ -91,6 +91,7 @@ describe('GET /api/v1/teams/:teamId', () => {
         club: { id: expect.any(String), name: 'Los del Barrio', city: null },
         ratingsVisibleToPlayers: true,
         matchRatingsVisibleToPlayers: true,
+        colors: null,
       },
       myRoles: ['coach'],
     });
@@ -131,6 +132,32 @@ describe('GET /api/v1/teams/:teamId', () => {
 
     // Lo deja como estaba para los demás tests.
     await patch(teamId, coach, { name: 'Primer equipo', format: 'F11', formats: ['F11'] });
+  });
+
+  it('los colores del equipo (2026-11-06): dos o tres, en minúsculas; null vuelve a los de la app', async () => {
+    expect(TeamResponseSchema.parse((await get(teamId, coach)).json()).team.colors).toBeNull();
+    const red = await patch(teamId, coach, { colors: ['#C8102E', '#ffffff', '#111111'] });
+    expect(red.statusCode).toBe(200);
+    expect(TeamResponseSchema.parse(red.json()).team.colors).toEqual([
+      '#c8102e',
+      '#ffffff',
+      '#111111',
+    ]);
+    // Salen en la sesión: los afiches los leen de ahí.
+    const me = await app.inject({
+      method: 'GET',
+      url: '/api/v1/me',
+      headers: { cookie: player.cookie },
+    });
+    expect(me.json().teams[0].team.colors).toEqual(['#c8102e', '#ffffff', '#111111']);
+
+    expect((await patch(teamId, coach, { colors: ['#c8102e'] })).statusCode).toBe(400);
+    expect((await patch(teamId, coach, { colors: ['rojo', 'blanco'] })).statusCode).toBe(400);
+    expect((await patch(teamId, coach, { colors: ['#c8102e', '#fff'] })).statusCode).toBe(400);
+    expect((await patch(teamId, player, { colors: ['#c8102e', '#ffffff'] })).statusCode).toBe(403);
+
+    const reset = await patch(teamId, coach, { colors: null });
+    expect(TeamResponseSchema.parse(reset.json()).team.colors).toBeNull();
   });
 
   it('datos del equipo: nombre repetido en el club, vacío o sin permiso', async () => {

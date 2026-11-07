@@ -17,6 +17,7 @@ import { Row } from '../../shared/ui/Row';
 import { Screen } from '../../shared/ui/Screen';
 import { formatsLabel } from '../shell/shell-nav';
 import { VisibilitySettings } from './VisibilitySettings';
+import { TeamColors } from './TeamColors';
 import { TeamData } from './TeamData';
 import { TeamMembers } from './TeamMembers';
 import styles from './TeamPage.module.css';
@@ -52,6 +53,7 @@ export function TeamPage({ me, teamId }: { me: Me; teamId: string }) {
         <h1 className={styles.title}>Equipo</h1>
       )}
       <TeamData teamId={teamId} editable={coach || clubAdmin} />
+      <TeamColors teamId={teamId} editable={coach || clubAdmin} />
       <ul className={styles.list}>
         {(coach || clubAdmin) && (
           <Item to={`/equipos/${teamId}/invitar`} icon={UserPlus} title="Invitar al equipo" />

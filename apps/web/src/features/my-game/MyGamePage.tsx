@@ -65,6 +65,7 @@ export function MyGamePage({ me, teamId }: { me: Me; teamId: string }) {
           format={membership.team.format}
           name={me.profile.displayName}
           team={membership.team.name}
+          colors={membership.team.colors}
           jerseyNumber={membership.jerseyNumber}
         />
       )}
@@ -148,12 +149,14 @@ function CardSection({
   format,
   name,
   team,
+  colors,
   jerseyNumber,
 }: {
   teamId: string;
   format: MatchFormat;
   name: string;
   team: string;
+  colors: readonly string[] | null;
   jerseyNumber: number | null;
 }) {
   const card = useMyCard(teamId);
@@ -183,8 +186,8 @@ function CardSection({
       {/* Para el estado de WhatsApp (2026-11-06): medias y atributos, nunca las notas. */}
       <ShareImage
         label="Compartir mi tarjeta"
-        queryKey={['card', teamId, card.data.card.ratedAt, name, jerseyNumber]}
-        draw={() => cardImage({ name, team, jerseyNumber, card: card.data.card!, format })}
+        queryKey={['card', teamId, card.data.card.ratedAt, name, jerseyNumber, ...(colors ?? [])]}
+        draw={() => cardImage({ name, team, colors, jerseyNumber, card: card.data.card!, format })}
       />
     </section>
   );

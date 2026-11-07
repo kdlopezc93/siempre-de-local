@@ -72,12 +72,18 @@ export const team = pgTable(
     ratingsVisibleToPlayers: boolean().notNull().default(true),
     /** ¿El jugador ve su evaluación de cada partido? (D18) */
     matchRatingsVisibleToPlayers: boolean().notNull().default(true),
+    /** Los colores de los afiches (2026-11-06): 2 o 3 `#rrggbb`; null, los de la app. */
+    colors: text().array(),
     archivedAt: timestamp({ withTimezone: true }),
     createdAt: createdAt(),
   },
   (t) => [
     unique().on(t.clubId, t.name, t.season),
     check('team_format_in_formats', sql`${t.format} = any(${t.formats})`),
+    check(
+      'team_colors_count',
+      sql`${t.colors} is null or array_length(${t.colors}, 1) between 2 and 3`,
+    ),
   ],
 );
 

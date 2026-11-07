@@ -6,6 +6,15 @@ export const TeamRoleSchema = z.enum(['coach', 'assistant', 'player', 'treasurer
 /** Con invitación se entra de jugador, asistente o entrenador; tesorero se nombra en Roles. */
 export const InvitationRoleSchema = TeamRoleSchema.exclude(['treasurer']);
 
+/** Un color `#rrggbb` (2026-11-06): los colores del equipo. */
+export const HexColorSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .regex(/^#[0-9a-f]{6}$/, 'Color inválido');
+/** Principal (el fondo de los afiches), secundario (las cifras) y tercero opcional (la franja). */
+export const TeamColorsSchema = z.array(HexColorSchema).min(2).max(3);
+
 export type MatchFormat = z.infer<typeof MatchFormatSchema>;
 export type TeamRole = z.infer<typeof TeamRoleSchema>;
 export type InvitationRole = z.infer<typeof InvitationRoleSchema>;
@@ -32,6 +41,8 @@ export const TeamResponseSchema = z.object({
     ratingsVisibleToPlayers: z.boolean(),
     /** ¿El jugador ve su evaluación de cada partido? (D18) */
     matchRatingsVisibleToPlayers: z.boolean(),
+    /** Los colores del equipo para los afiches, o null: los de la app (2026-11-06). */
+    colors: TeamColorsSchema.nullable().default(null),
   }),
   /** Roles activos de quien pregunta en este equipo (vacío si entra como admin del club). */
   myRoles: z.array(TeamRoleSchema),

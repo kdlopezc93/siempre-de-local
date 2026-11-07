@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { PositionCodeSchema } from './orientation.js';
-import { MatchFormatSchema } from './teams.js';
+import { MatchFormatSchema, TeamColorsSchema } from './teams.js';
 
 const OUTFIELD = ['PAC', 'SHO', 'PAS', 'DRI', 'DEF', 'PHY'] as const;
 const GOALKEEPER = ['GK_DIV', 'GK_HAN', 'GK_KIC', 'GK_REF', 'GK_SPD', 'GK_POS'] as const;
@@ -107,6 +107,8 @@ export const UpdateTeamRequestSchema = z
       .array(MatchFormatSchema)
       .min(1)
       .refine((f) => new Set(f).size === f.length, 'Formatos repetidos'),
+    /** Los colores de los afiches; null vuelve a los de la app (2026-11-06). */
+    colors: TeamColorsSchema.nullable(),
   })
   .partial()
   .refine((patch) => Object.keys(patch).length > 0, 'Nada que cambiar');

@@ -71,7 +71,7 @@ function Quiz({
       <Submitted
         status={quiz.submit!}
         format={team.format}
-        shareAs={{ name, team: team.name }}
+        shareAs={{ name, team: team.name, colors: team.colors }}
         onRestart={quiz.restart}
       />
     );
@@ -225,7 +225,7 @@ function Submitted({
 }: {
   status: SubmitStatus;
   format: MatchFormat;
-  shareAs: { name: string; team: string };
+  shareAs: { name: string; team: string; colors: readonly string[] | null };
   onRestart: () => void;
 }) {
   if (status.kind === 'rejected') {
