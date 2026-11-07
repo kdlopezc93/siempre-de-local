@@ -216,3 +216,36 @@
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+
+.back {
+  align-self: flex-start;
+  min-height: var(--sdl-touch-min);
+  display: inline-flex;
+  align-items: center;
+  color: var(--sdl-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.back:focus-visible {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+}
+
+/* Los colores del equipo en la fila de "Datos y ajustes". */
+.dots {
+  display: inline-flex;
+}
+
+.dots i {
+  width: 16px;
+  height: 16px;
+  margin-left: -5px;
+  border: 2px solid var(--sdl-surface);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 12%);
+}
+
+.dots i:first-child {
+  margin-left: 0;
+}
