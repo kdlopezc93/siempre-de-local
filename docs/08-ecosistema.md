@@ -167,3 +167,4 @@ La etapa 5 empieza sin esperar las entrevistas (`10`): la base (escuela, categor
 | 7 | Categorías y sus años | **Por años y sin cruces:** cada categoría tiene sus años y no se cruza con otra; sus grupos comparten los mismos. Hay categorías **18+** (abiertas por abajo: "2008 o antes"). Un mayor de edad entra con su cuenta; el acudiente es para los menores (PR 2) |
 | 8 | La sede en la convocatoria | **No:** la convocatoria ya dice dónde es la cancha |
 | 9 | Entrenador o profe | **Profe** en las pantallas de escuela |
+| 10 | ¿Dueño de un club y de una escuela? | **Sí, uno de cada** (2026-11-08): un profe con su equipo de barrio y su escuela. Dos escuelas o dos clubes, no (más con plan pago) |

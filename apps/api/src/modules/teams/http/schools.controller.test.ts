@@ -161,6 +161,21 @@ describe('escuelas: base (2026-11-07)', () => {
     expect((await getClub(clubId, barrio)).teamsLimit).toBe(3);
   });
 
+  it('dueño de un club y de una escuela, pero no de dos escuelas (2026-11-08)', async () => {
+    // Pedro ya es dueño de Los Tigres: igual puede abrir su escuela.
+    const school = await call('POST', '/clubs', barrio, {
+      ...schoolForm((await newCode('school')).code),
+      clubName: 'Escuela de Pedro',
+    });
+    expect(school.statusCode).toBe(201);
+    const again = await call('POST', '/clubs', barrio, {
+      ...schoolForm((await newCode('school')).code),
+      clubName: 'Otra escuela',
+    });
+    expect(again.statusCode).toBe(409);
+    expect(errorCode(again)).toBe('CLUB_LIMIT_REACHED');
+  });
+
   it('sedes: el dueño las crea, cambia y borra; el nombre no se repite', async () => {
     const created = await call('POST', `/clubs/${schoolId}/venues`, director, {
       name: 'Parque El Tunal',

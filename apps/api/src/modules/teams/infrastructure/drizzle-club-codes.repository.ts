@@ -11,7 +11,10 @@ import type {
 } from '../application/ports/club-codes.repository.js';
 import { club, clubMembership, clubSignupCode, team, teamMembership } from './schema.js';
 
-/** Dueño de un solo club (Kevin, 2026-10-29); más, cuando haya plan pago. */
+/**
+ * Dueño de un solo club (Kevin, 2026-10-29) y de una sola escuela (2026-11-08): un profe con su
+ * equipo de barrio y su escuela. Más, cuando haya plan pago.
+ */
 const CLUBS_PER_OWNER = 1;
 
 /** "Los del Barrio FC" → "los-del-barrio-fc": sin tildes, minúsculas y guiones. */
@@ -85,7 +88,14 @@ export class DrizzleClubCodesRepository implements ClubCodesRepository {
       const [owned] = await tx
         .select({ n: count() })
         .from(clubMembership)
-        .where(and(eq(clubMembership.userId, userId), eq(clubMembership.role, 'owner')));
+        .innerJoin(club, eq(clubMembership.clubId, club.id))
+        .where(
+          and(
+            eq(clubMembership.userId, userId),
+            eq(clubMembership.role, 'owner'),
+            eq(club.kind, input.kind),
+          ),
+        );
       if (owned!.n >= CLUBS_PER_OWNER) return 'limit';
 
       const base = slugify(input.clubName);

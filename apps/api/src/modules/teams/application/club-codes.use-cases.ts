@@ -152,7 +152,9 @@ export class CreateClub {
     if (outcome === 'unavailable') throw unusable('used');
     if (outcome === 'limit') {
       throw new ConflictError(
-        'Ya eres dueño de un club. Para abrir otro equipo, créalo dentro de tu club.',
+        code.kind === 'school'
+          ? 'Ya eres dueño de una escuela. Para abrir otro grupo, créalo dentro de tu escuela.'
+          : 'Ya eres dueño de un club. Para abrir otro equipo, créalo dentro de tu club.',
         'CLUB_LIMIT_REACHED',
       );
     }
