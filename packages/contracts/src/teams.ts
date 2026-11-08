@@ -24,11 +24,17 @@ export const CategoryGenderSchema = z.enum(['male', 'female', 'mixed']);
 
 /**
  * La categoría de una escuela por años de nacimiento (2026-11-07): `{ from: 2014, to: 2015 }`.
- * Un solo año, `from` igual a `to`.
+ * Un solo año, `from` igual a `to`; `from: null`, abierta por abajo: "2008 o antes" (18+).
  */
 export const BirthYearsSchema = z
-  .object({ from: z.int().min(1940).max(2100), to: z.int().min(1940).max(2100) })
-  .refine((years) => years.from <= years.to, 'El primer año va antes del último');
+  .object({
+    from: z.int().min(1900).max(2100).nullable(),
+    to: z.int().min(1900).max(2100),
+  })
+  .refine(
+    (years) => years.from === null || years.from <= years.to,
+    'El primer año va antes del último',
+  );
 
 export type MatchFormat = z.infer<typeof MatchFormatSchema>;
 export type ClubKind = z.infer<typeof ClubKindSchema>;

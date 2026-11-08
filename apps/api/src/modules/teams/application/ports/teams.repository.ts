@@ -138,6 +138,10 @@ export interface TeamsRepository {
   /** Las sedes del club por nombre, con cuántas categorías activas entrenan en cada una. */
   clubVenues(clubId: string): Promise<(Omit<VenueRecord, 'clubId'> & { teams: number })[]>;
   findVenue(venueId: string): Promise<VenueRecord | null>;
+  /** Los grupos activos de la escuela con su categoría y sus años (2026-11-07). */
+  schoolCategories(
+    clubId: string,
+  ): Promise<{ teamId: string; category: string; years: BirthYears }[]>;
   /** `name-taken`: el club ya tiene una sede con ese nombre. */
   createVenue(
     clubId: string,

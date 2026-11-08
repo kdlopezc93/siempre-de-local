@@ -19,4 +19,4 @@ ALTER TABLE "team" ADD COLUMN "gender" "category_gender";--> statement-breakpoin
 ALTER TABLE "team" ADD COLUMN "venue_id" uuid;--> statement-breakpoint
 ALTER TABLE "venue" ADD CONSTRAINT "venue_club_id_club_id_fk" FOREIGN KEY ("club_id") REFERENCES "public"."club"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "team" ADD CONSTRAINT "team_venue_id_venue_id_fk" FOREIGN KEY ("venue_id") REFERENCES "public"."venue"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "team" ADD CONSTRAINT "team_birth_years" CHECK (("team"."birth_year_from" is null) = ("team"."birth_year_to" is null) and ("team"."birth_year_from" is null or "team"."birth_year_from" <= "team"."birth_year_to"));
+ALTER TABLE "team" ADD CONSTRAINT "team_birth_years" CHECK (("team"."birth_year_from" is null or ("team"."birth_year_to" is not null and "team"."birth_year_from" <= "team"."birth_year_to")));

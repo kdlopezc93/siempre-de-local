@@ -1,5 +1,5 @@
 {
-  "id": "c6b1a598-6cbe-4436-81fc-7650effa1ff5",
+  "id": "0e241358-da75-43ea-9ae4-e8b342271128",
   "prevId": "d437832b-c365-41e0-92c6-be47a96b523e",
   "version": "7",
   "dialect": "postgresql",
@@ -1490,7 +1490,7 @@
         },
         "team_birth_years": {
           "name": "team_birth_years",
-          "value": "(\"team\".\"birth_year_from\" is null) = (\"team\".\"birth_year_to\" is null) and (\"team\".\"birth_year_from\" is null or \"team\".\"birth_year_from\" <= \"team\".\"birth_year_to\")"
+          "value": "(\"team\".\"birth_year_from\" is null or (\"team\".\"birth_year_to\" is not null and \"team\".\"birth_year_from\" <= \"team\".\"birth_year_to\"))"
         },
         "team_colors_count": {
           "name": "team_colors_count",

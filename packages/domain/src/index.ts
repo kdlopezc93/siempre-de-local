@@ -14,3 +14,4 @@ export * from './adoption.js';
 export * from './names.js';
 export * from './team-colors.js';
 export * from './reminders.js';
+export * from './school-categories.js';

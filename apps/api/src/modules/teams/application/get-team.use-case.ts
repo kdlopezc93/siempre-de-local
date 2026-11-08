@@ -20,7 +20,7 @@ import {
   type TeamSettings,
   type TeamsRepository,
 } from './ports/teams.repository.js';
-import { assertSchool, assertVenueOfClub } from './school-rules.js';
+import { assertNoCategoryConflict, assertSchool, assertVenueOfClub } from './school-rules.js';
 
 @Injectable()
 export class GetTeam {
@@ -76,6 +76,21 @@ export class UpdateTeam {
       assertSchool(team.club.kind);
     }
     if (changes.venueId) await assertVenueOfClub(this.teams, team.club.id, changes.venueId);
+    // En una escuela, la categoría y sus años no se cruzan con las demás (2026-11-07).
+    if (
+      team.club.kind === 'school' &&
+      (changes.birthYears !== undefined || changes.category !== undefined)
+    ) {
+      await assertNoCategoryConflict(
+        this.teams,
+        team.club.id,
+        {
+          category: changes.category === undefined ? team.category : changes.category,
+          years: changes.birthYears ?? team.birthYears,
+        },
+        team.id,
+      );
+    }
     if ((await this.teams.updateSettings(team.id, changes)) === 'name-taken') {
       throw new ConflictError(
         'Ya hay otro equipo con ese nombre en el club esta temporada',

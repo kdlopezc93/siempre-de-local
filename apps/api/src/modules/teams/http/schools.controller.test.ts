@@ -88,7 +88,8 @@ describe('escuelas: base (2026-11-07)', () => {
     code,
     clubName: 'Escuela Semillas',
     city: 'Kennedy',
-    teamName: 'Sub-12',
+    teamName: 'Sub-12 masculino',
+    category: 'Sub-12',
     format: 'F8',
     season: '2026',
     birthYears: { from: 2014, to: 2015 },
@@ -145,7 +146,8 @@ describe('escuelas: base (2026-11-07)', () => {
       (await call('GET', `/teams/${firstCategoryId}`, director)).json(),
     );
     expect(team.team).toMatchObject({
-      name: 'Sub-12',
+      name: 'Sub-12 masculino',
+      category: 'Sub-12',
       birthYears: { from: 2014, to: 2015 },
       gender: 'male',
       venue: null,
@@ -208,6 +210,7 @@ describe('escuelas: base (2026-11-07)', () => {
     const [tunal] = (await getClub(schoolId)).venues;
     const res = await call('POST', `/clubs/${schoolId}/teams`, director, {
       name: 'Sub-10',
+      category: 'Sub-10',
       format: 'F5',
       season: '2026',
       birthYears: { from: 2016, to: 2017 },
@@ -224,8 +227,18 @@ describe('escuelas: base (2026-11-07)', () => {
     });
     expect(school.venues[0]!.teams).toBe(1);
 
+    const noCategory = await call('POST', `/clubs/${schoolId}/teams`, director, {
+      name: 'Sub-8',
+      format: 'F5',
+      season: '2026',
+      birthYears: { from: 2018, to: 2018 },
+      gender: 'mixed',
+    });
+    expect(errorCode(noCategory)).toBe('CATEGORY_REQUIRED');
+
     const noYears = await call('POST', `/clubs/${schoolId}/teams`, director, {
       name: 'Sub-8',
+      category: 'Sub-8',
       format: 'F5',
       season: '2026',
     });
@@ -233,15 +246,17 @@ describe('escuelas: base (2026-11-07)', () => {
 
     const noGender = await call('POST', `/clubs/${schoolId}/teams`, director, {
       name: 'Sub-8',
+      category: 'Sub-8',
       format: 'F5',
       season: '2026',
       birthYears: { from: 2018, to: 2018 },
     });
     expect(errorCode(noGender)).toBe('CATEGORY_GENDER_REQUIRED');
 
-    // Sub-12 masculino y Sub-12 femenino conviven: los nombres son distintos.
+    // Un grupo más de Sub-12: los mismos años, otro nombre.
     const female = await call('POST', `/clubs/${schoolId}/teams`, director, {
       name: 'Sub-12 femenino',
+      category: 'Sub-12',
       format: 'F8',
       season: '2026',
       birthYears: { from: 2014, to: 2015 },
@@ -249,8 +264,36 @@ describe('escuelas: base (2026-11-07)', () => {
     });
     expect(female.statusCode).toBe(201);
 
+    // Las categorías no se cruzan de años (2026-11-07).
+    const group = (category: string, years: object, name = `${category} grupo`) =>
+      call('POST', `/clubs/${schoolId}/teams`, director, {
+        name,
+        category,
+        format: 'F8',
+        season: '2026',
+        birthYears: years,
+        gender: 'mixed',
+      });
+    const overlap = await group('Sub-11', { from: 2015, to: 2016 });
+    expect(overlap.statusCode).toBe(409);
+    expect(errorCode(overlap)).toBe('CATEGORY_YEARS_OVERLAP');
+    expect(ErrorBodySchema.parse(overlap.json()).error.message).toContain('Sub-12 (2014–2015)');
+    expect(errorCode(await group('Sub-12', { from: 2014, to: 2014 }))).toBe(
+      'CATEGORY_YEARS_MISMATCH',
+    );
+    expect(errorCode(await group('Infantil', { from: 2014, to: 2015 }))).toBe(
+      'CATEGORY_NAME_MISMATCH',
+    );
+    // 18+: abierta por abajo.
+    const adults = await group('Mayores', { from: null, to: 2008 }, 'Mayores masculino');
+    expect(adults.statusCode).toBe(201);
+    expect(errorCode(await group('Sub-20', { from: 2007, to: 2009 }))).toBe(
+      'CATEGORY_YEARS_OVERLAP',
+    );
+
     const otherVenue = await call('POST', `/clubs/${schoolId}/teams`, director, {
       name: 'Sub-8',
+      category: 'Sub-8',
       format: 'F5',
       season: '2026',
       birthYears: { from: 2018, to: 2018 },
@@ -272,14 +315,22 @@ describe('escuelas: base (2026-11-07)', () => {
     const created = ClubResponseSchema.parse(
       (await call('POST', `/clubs/${schoolId}/venues`, director, { name: 'Castilla' })).json(),
     ).venues[0]!;
-    const res = await call('PATCH', `/teams/${firstCategoryId}`, director, {
+    // Sub-12 femenino sigue en 2014–2015: este grupo no se va solo a otros años.
+    const split = await call('PATCH', `/teams/${firstCategoryId}`, director, {
       birthYears: { from: 2013, to: 2014 },
+    });
+    expect(errorCode(split)).toBe('CATEGORY_YEARS_MISMATCH');
+    // Con otra categoría y años libres, sí.
+    const res = await call('PATCH', `/teams/${firstCategoryId}`, director, {
+      category: 'Sub-7',
+      birthYears: { from: 2019, to: 2019 },
       gender: 'mixed',
       venueId: created.id,
     });
     expect(res.statusCode).toBe(200);
     expect(TeamResponseSchema.parse(res.json()).team).toMatchObject({
-      birthYears: { from: 2013, to: 2014 },
+      category: 'Sub-7',
+      birthYears: { from: 2019, to: 2019 },
       gender: 'mixed',
       venue: { id: created.id, name: 'Castilla' },
     });

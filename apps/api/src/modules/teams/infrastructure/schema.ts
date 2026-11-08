@@ -116,7 +116,8 @@ export const team = pgTable(
     check('team_format_in_formats', sql`${t.format} = any(${t.formats})`),
     check(
       'team_birth_years',
-      sql`(${t.birthYearFrom} is null) = (${t.birthYearTo} is null) and (${t.birthYearFrom} is null or ${t.birthYearFrom} <= ${t.birthYearTo})`,
+      // Sin `from`, abierta por abajo ("2008 o antes", 18+); `from` sin `to`, nunca.
+      sql`(${t.birthYearFrom} is null or (${t.birthYearTo} is not null and ${t.birthYearFrom} <= ${t.birthYearTo}))`,
     ),
     check(
       'team_colors_count',

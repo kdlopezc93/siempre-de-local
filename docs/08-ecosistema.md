@@ -164,3 +164,6 @@ La etapa 5 empieza sin esperar las entrevistas (`10`): la base (escuela, categor
 | 4 | Primer PR | **Plan y base de la escuela**; los menores y acudientes en los siguientes |
 | 5 | Categorías masculinas, femeninas o mixtas | **Sí:** cada categoría tiene su género, obligatorio en una escuela |
 | 6 | Categorías muy grandes que se dividen en grupos | **Cada grupo es una categoría más** ("Sub-12 masculino A" y "B", mismos años y género): tiene su profe, su horario y su sede, y se convoca y se pasa lista por separado. Hasta 30 activas por escuela. Pasar un niño de un grupo a otro de un toque, con los acudientes. Descartado: subgrupos dentro de la categoría (rehacer convocatorias, asistencia y cobros) |
+| 7 | Categorías y sus años | **Por años y sin cruces:** cada categoría tiene sus años y no se cruza con otra; sus grupos comparten los mismos. Hay categorías **18+** (abiertas por abajo: "2008 o antes"). Un mayor de edad entra con su cuenta; el acudiente es para los menores (PR 2) |
+| 8 | La sede en la convocatoria | **No:** la convocatoria ya dice dónde es la cancha |
+| 9 | Entrenador o profe | **Profe** en las pantallas de escuela |

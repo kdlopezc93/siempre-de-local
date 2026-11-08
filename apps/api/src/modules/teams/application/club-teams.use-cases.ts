@@ -23,7 +23,13 @@ import {
   NotFoundError,
 } from '../../../shared/errors/application-errors.js';
 import { TEAMS_REPOSITORY, type TeamsRepository } from './ports/teams.repository.js';
-import { assertCategory, assertSchool, assertVenueOfClub, teamsLimit } from './school-rules.js';
+import {
+  assertCategory,
+  assertNoCategoryConflict,
+  assertSchool,
+  assertVenueOfClub,
+  teamsLimit,
+} from './school-rules.js';
 
 /** El club, o 404. */
 async function clubOrThrow(teams: TeamsRepository, clubId: string) {
@@ -58,6 +64,12 @@ export class CreateTeam {
     const club = await clubOrThrow(this.teams, clubId);
     // En una escuela, la categoría nace con sus años y su género; sedes, solo en escuelas (2026-11-07).
     assertCategory(club.kind, request);
+    if (club.kind === 'school') {
+      await assertNoCategoryConflict(this.teams, clubId, {
+        category: request.category ?? null,
+        years: request.birthYears ?? null,
+      });
+    }
     if (request.venueId) {
       assertSchool(club.kind);
       await assertVenueOfClub(this.teams, clubId, request.venueId);

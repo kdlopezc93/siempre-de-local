@@ -34,9 +34,7 @@ function isUniqueViolation(error: unknown): boolean {
 
 /** Las dos columnas de años de nacimiento como un par, o null (2026-11-07). */
 function birthYearsOf(row: { birthYearFrom: number | null; birthYearTo: number | null }) {
-  return row.birthYearFrom !== null && row.birthYearTo !== null
-    ? { from: row.birthYearFrom, to: row.birthYearTo }
-    : null;
+  return row.birthYearTo !== null ? { from: row.birthYearFrom, to: row.birthYearTo } : null;
 }
 
 /** La sede del left join, o null. */
@@ -390,6 +388,22 @@ export class DrizzleTeamsRepository
       .where(eq(venue.clubId, clubId))
       .groupBy(venue.id)
       .orderBy(asc(venue.name));
+  }
+
+  async schoolCategories(clubId: string) {
+    const rows = await this.connection.db
+      .select({
+        teamId: team.id,
+        category: team.category,
+        birthYearFrom: team.birthYearFrom,
+        birthYearTo: team.birthYearTo,
+      })
+      .from(team)
+      .where(and(eq(team.clubId, clubId), isNull(team.archivedAt)));
+    return rows.flatMap(({ teamId, category, birthYearFrom, birthYearTo }) => {
+      const years = birthYearsOf({ birthYearFrom, birthYearTo });
+      return category && years ? [{ teamId, category, years }] : [];
+    });
   }
 
   async findVenue(venueId: string): Promise<VenueRecord | null> {

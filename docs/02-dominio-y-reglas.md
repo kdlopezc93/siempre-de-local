@@ -447,3 +447,12 @@ La plata del equipo: la vaca, la inscripción, el arbitraje, las multas, los uni
 - **Saldo del equipo y recordatorio** (2026-10-31, Kevin): arriba en Cobros, lo que **falta**, lo que **entró** de lo cobrado y lo que **puso el equipo** (patrocinios). **Por torneo:** lo mismo de cada torneo, con sus cobros y los de sus partidos. **Quién debe:** cada persona con lo que debe en total en los cobros vigentes, de mayor a menor (`whoOwes`: lo patrocinado lo debe quien lo asumió; lo que cubre el equipo, nadie); solo lo ven el tesorero y el cuerpo técnico. **"Recordar a los que deben"** (tesorero o cuerpo técnico, `team.charges.write`): un aviso push a cada uno que debe, "Tienes cobros pendientes en {equipo}", sin el valor. **Recordatorio automático** (PR 5b): todos los días a las 9 a. m. de Colombia (`localDay`, zona `America/Bogota`), a los que deben su parte en un cobro vigente que vence **mañana** o **hoy** (`dueStage`), un aviso "Mañana vence: Cuota" / "Hoy vence: Cuota", sin el valor. Cada cobro, una sola vez por fecha y etapa (`charge.due_reminder`); si le cambian la fecha límite, vuelve a tocar.
 - **Anular, no borrar:** un cobro anulado queda en la lista, sale del saldo y de lo que debe cada uno, y ya no recibe pagos. Todo lo de plata queda en la auditoría.
 
+
+## 17. Categorías de una escuela (2026-11-07)
+
+Una escuela (`08` §10) tiene **categorías por edad** y cada categoría, sus **grupos** (masculino, femenino o mixto, y A/B si es grande). En los datos cada grupo es un equipo con su categoría (`team.category`, "Sub-12"), sus años de nacimiento y su género. Reglas (`packages/domain/src/school-categories.ts`):
+
+- **Las categorías no se cruzan de años** (Kevin): un grupo nuevo va en una categoría que ya existe, **con sus mismos años**, o en una nueva con años libres. Errores: `CATEGORY_YEARS_OVERLAP` (se cruza con otra), `CATEGORY_YEARS_MISMATCH` (esa categoría ya tiene otros años) y `CATEGORY_NAME_MISMATCH` (esos años ya son de otra categoría). El nombre se compara sin tildes ni mayúsculas.
+- **18+ y mayores:** una categoría puede quedar **abierta por abajo** ("2008 o antes", `from: null`).
+- Cuentan los grupos activos; uno archivado no ocupa años.
+- Cambiar los años de un grupo solo lo deja si los demás grupos de su categoría tienen esos años; cambiar los de la categoría entera llega con la app.

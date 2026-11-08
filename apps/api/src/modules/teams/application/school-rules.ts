@@ -1,6 +1,11 @@
 import type { BirthYears, CategoryGender, ClubKind } from '@sdl/contracts';
+import { categoryConflict, formatBirthYears } from '@sdl/domain';
 
-import { BusinessRuleError, NotFoundError } from '../../../shared/errors/application-errors.js';
+import {
+  BusinessRuleError,
+  ConflictError,
+  NotFoundError,
+} from '../../../shared/errors/application-errors.js';
 import type { TeamsRepository } from './ports/teams.repository.js';
 
 /**
@@ -22,12 +27,17 @@ export function teamsLimit(kind: ClubKind): number {
  */
 export function assertCategory(
   kind: ClubKind,
-  category: { birthYears?: BirthYears | undefined; gender?: CategoryGender | undefined },
+  category: {
+    category?: string | null | undefined;
+    birthYears?: BirthYears | undefined;
+    gender?: CategoryGender | undefined;
+  },
 ): void {
   if (kind === 'club') {
     if (category.birthYears || category.gender) assertSchool(kind);
     return;
   }
+  if (!category.category) throw categoryRequired();
   if (!category.birthYears) {
     throw new BusinessRuleError(
       'Indica los años de nacimiento de la categoría',
@@ -55,4 +65,50 @@ export async function assertVenueOfClub(teams: TeamsRepository, clubId: string, 
   if (!venue || venue.clubId !== clubId) {
     throw new NotFoundError('Esa sede no es de la escuela', 'VENUE_NOT_FOUND');
   }
+}
+
+function categoryRequired(): BusinessRuleError {
+  return new BusinessRuleError(
+    'Indica la categoría del grupo (por ejemplo, Sub-12)',
+    'CATEGORY_REQUIRED',
+  );
+}
+
+/**
+ * Las categorías de una escuela no se cruzan de años (Kevin, 2026-11-07): un grupo nuevo va en
+ * una categoría que ya existe, con sus mismos años, o en una nueva con años libres.
+ */
+export async function assertNoCategoryConflict(
+  teams: TeamsRepository,
+  clubId: string,
+  candidate: { category: string | null; years: BirthYears | null },
+  exceptTeamId?: string,
+): Promise<void> {
+  if (!candidate.category) throw categoryRequired();
+  if (!candidate.years) {
+    throw new BusinessRuleError(
+      'Indica los años de nacimiento de la categoría',
+      'BIRTH_YEARS_REQUIRED',
+    );
+  }
+  const existing = (await teams.schoolCategories(clubId)).filter((c) => c.teamId !== exceptTeamId);
+  const conflict = categoryConflict(existing, {
+    category: candidate.category,
+    years: candidate.years,
+  });
+  if (!conflict) return;
+  const other = `${conflict.with.category} (${formatBirthYears(conflict.with.years)})`;
+  const messages = {
+    overlap: [`Esos años se cruzan con ${other}.`, 'CATEGORY_YEARS_OVERLAP'],
+    'years-mismatch': [
+      `${other} ya existe con esos años: un grupo nuevo de esa categoría lleva los mismos.`,
+      'CATEGORY_YEARS_MISMATCH',
+    ],
+    'name-mismatch': [
+      `Esos años ya son de ${other}: elige esa categoría.`,
+      'CATEGORY_NAME_MISMATCH',
+    ],
+  } as const;
+  const [message, code] = messages[conflict.kind];
+  throw new ConflictError(message, code);
 }
