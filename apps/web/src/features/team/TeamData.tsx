@@ -1,4 +1,5 @@
 import type { MatchFormat } from '@sdl/contracts';
+import { formatBirthYears, GENDER_LABEL } from '@sdl/domain';
 import { useQueryClient } from '@tanstack/react-query';
 import { useId, useState, type FormEvent } from 'react';
 
@@ -9,6 +10,7 @@ import { SESSION_KEY } from '../auth/use-session';
 import { useUpdateTeam } from '../card/use-card';
 import { FORMAT_LABEL, formatsLabel } from '../shell/shell-nav';
 import { useTeam } from '../team-admin/use-invitations';
+import { SchoolGroupSettings } from './SchoolGroupSettings';
 import styles from './TeamPage.module.css';
 
 const ALL: MatchFormat[] = ['F11', 'F8', 'F5'];
@@ -22,69 +24,93 @@ export function TeamData({ teamId, editable }: { teamId: string; editable: boole
   const [editing, setEditing] = useState(false);
   if (!team.data) return null;
   const t = team.data.team;
+  // En una escuela, el equipo es un grupo de una categoría (2026-11-07, `02` §17).
+  const school = t.club.kind === 'school';
   return (
-    <section aria-labelledby="datos" className={styles.section}>
-      <div className={styles.sectionHead}>
-        <h2 id="datos" className={styles.sectionTitle}>
-          Datos del equipo
-        </h2>
-        {editable && !editing && (
-          <button type="button" className={styles.textButton} onClick={() => setEditing(true)}>
-            Editar
-          </button>
+    <>
+      <section aria-labelledby="datos" className={styles.section}>
+        <div className={styles.sectionHead}>
+          <h2 id="datos" className={styles.sectionTitle}>
+            {school ? 'Datos del grupo' : 'Datos del equipo'}
+          </h2>
+          {editable && !editing && (
+            <button type="button" className={styles.textButton} onClick={() => setEditing(true)}>
+              Editar
+            </button>
+          )}
+        </div>
+        {editing ? (
+          <TeamDataForm
+            teamId={teamId}
+            initial={{ name: t.name, category: t.category, format: t.format, formats: t.formats }}
+            school={school}
+            onDone={() => setEditing(false)}
+          />
+        ) : (
+          <dl className={styles.facts}>
+            <div>
+              <dt>Nombre</dt>
+              <dd>{t.name}</dd>
+            </div>
+            {t.category && (
+              <div>
+                <dt>Categoría</dt>
+                <dd>
+                  {t.category}
+                  {t.birthYears && ` · ${formatBirthYears(t.birthYears)}`}
+                </dd>
+              </div>
+            )}
+            {school && t.gender && (
+              <div>
+                <dt>Género</dt>
+                <dd>{GENDER_LABEL[t.gender]}</dd>
+              </div>
+            )}
+            {school && (
+              <div>
+                <dt>Sede</dt>
+                <dd>{t.venue?.name ?? 'Sin sede'}</dd>
+              </div>
+            )}
+            {t.club.city && (
+              <div>
+                <dt>Ciudad o barrio</dt>
+                <dd>{t.club.city}</dd>
+              </div>
+            )}
+            <div>
+              <dt>Juega</dt>
+              <dd>{formatsLabel(t.formats, t.format)}</dd>
+            </div>
+            {t.formats.length > 1 && (
+              <div>
+                <dt>Principal</dt>
+                <dd>{FORMAT_LABEL[t.format]}</dd>
+              </div>
+            )}
+            <div>
+              <dt>Temporada</dt>
+              <dd>{t.season}</dd>
+            </div>
+          </dl>
         )}
-      </div>
-      {editing ? (
-        <TeamDataForm
-          teamId={teamId}
-          initial={{ name: t.name, category: t.category, format: t.format, formats: t.formats }}
-          onDone={() => setEditing(false)}
-        />
-      ) : (
-        <dl className={styles.facts}>
-          <div>
-            <dt>Nombre</dt>
-            <dd>{t.name}</dd>
-          </div>
-          {t.category && (
-            <div>
-              <dt>Categoría</dt>
-              <dd>{t.category}</dd>
-            </div>
-          )}
-          {t.club.city && (
-            <div>
-              <dt>Ciudad o barrio</dt>
-              <dd>{t.club.city}</dd>
-            </div>
-          )}
-          <div>
-            <dt>Juega</dt>
-            <dd>{formatsLabel(t.formats, t.format)}</dd>
-          </div>
-          {t.formats.length > 1 && (
-            <div>
-              <dt>Principal</dt>
-              <dd>{FORMAT_LABEL[t.format]}</dd>
-            </div>
-          )}
-          <div>
-            <dt>Temporada</dt>
-            <dd>{t.season}</dd>
-          </div>
-        </dl>
-      )}
-    </section>
+      </section>
+      {school && editable && !editing && <SchoolGroupSettings teamId={teamId} team={t} />}
+    </>
   );
 }
 
 function TeamDataForm({
   teamId,
   initial,
+  school,
   onDone,
 }: {
   teamId: string;
   initial: { name: string; category: string | null; format: MatchFormat; formats: MatchFormat[] };
+  /** En una escuela la categoría es de todos sus grupos: no se cambia desde uno. */
+  school: boolean;
   onDone: () => void;
 }) {
   const update = useUpdateTeam(teamId);
@@ -115,7 +141,9 @@ function TeamDataForm({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (name.trim().length < 2) return setInvalid('Escribe el nombre del equipo.');
+    if (name.trim().length < 2) {
+      return setInvalid(school ? 'Escribe el nombre del grupo.' : 'Escribe el nombre del equipo.');
+    }
     if (formats.length === 0) return setInvalid('Marca al menos un formato.');
     setInvalid(null);
     update.mutate(
@@ -160,18 +188,22 @@ function TeamDataForm({
         value={name}
         onChange={(e) => setName(e.target.value)}
       />
-      <label htmlFor={categoryId} className={styles.label}>
-        Categoría <span className={styles.hint}>Opcional: libre, veteranos, femenino…</span>
-      </label>
-      <input
-        id={categoryId}
-        name="category"
-        autoComplete="off"
-        maxLength={40}
-        className={styles.input}
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-      />
+      {!school && (
+        <>
+          <label htmlFor={categoryId} className={styles.label}>
+            Categoría <span className={styles.hint}>Opcional: libre, veteranos, femenino…</span>
+          </label>
+          <input
+            id={categoryId}
+            name="category"
+            autoComplete="off"
+            maxLength={40}
+            className={styles.input}
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          />
+        </>
+      )}
       <fieldset className={styles.fieldset}>
         <legend className={styles.label}>Formatos en que juega</legend>
         {ALL.map((f) => (

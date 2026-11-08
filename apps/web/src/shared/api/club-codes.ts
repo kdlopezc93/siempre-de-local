@@ -14,7 +14,9 @@ import {
   type CreateClubResponse,
   type CreateTeamRequest,
   type CreateTeamResponse,
+  type CreateVenueRequest,
   type UpdateClubRequest,
+  type UpdateVenueRequest,
 } from '@sdl/contracts';
 
 import { apiFetch, apiRequest } from './http';
@@ -97,6 +99,31 @@ export function addClubAdmin(clubId: string, userId: string): Promise<ClubRespon
 /** El dueño quita a un admin (al dueño no). */
 export function removeClubAdmin(clubId: string, userId: string): Promise<ClubResponse> {
   return apiRequest(`/api/v1/clubs/${clubId}/admins/${userId}`, ClubResponseSchema, {
+    method: 'DELETE',
+  });
+}
+
+/** Sedes de la escuela (dueño o admin, 2026-11-07); devuelven la escuela. */
+export function createVenue(clubId: string, request: CreateVenueRequest): Promise<ClubResponse> {
+  return apiRequest(`/api/v1/clubs/${clubId}/venues`, ClubResponseSchema, {
+    method: 'POST',
+    body: JSON.stringify(request),
+  });
+}
+
+export function updateVenue(
+  clubId: string,
+  venueId: string,
+  patch: UpdateVenueRequest,
+): Promise<ClubResponse> {
+  return apiRequest(`/api/v1/clubs/${clubId}/venues/${venueId}`, ClubResponseSchema, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
+  });
+}
+
+export function deleteVenue(clubId: string, venueId: string): Promise<ClubResponse> {
+  return apiRequest(`/api/v1/clubs/${clubId}/venues/${venueId}`, ClubResponseSchema, {
     method: 'DELETE',
   });
 }

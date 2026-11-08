@@ -1,4 +1,4 @@
-import type { CreateClubCodeRequest } from '@sdl/contracts';
+import type { ClubKind, CreateClubCodeRequest } from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { createClubCode, fetchClubCodes, revokeClubCode } from '../../shared/api/club-codes';
@@ -26,6 +26,7 @@ export function useRevokeClubCode() {
 }
 
 /** El mensaje para mandar por WhatsApp: qué es, el código y el enlace. */
-export function clubCodeMessage(code: string, url: string): string {
-  return `Con este código creas tu club y tu equipo en Siempre de Local: ${code}. Entra aquí: ${url}`;
+export function clubCodeMessage(code: string, url: string, kind: ClubKind = 'club'): string {
+  const what = kind === 'school' ? 'tu escuela y su primer grupo' : 'tu club y tu equipo';
+  return `Con este código creas ${what} en Siempre de Local: ${code}. Entra aquí: ${url}`;
 }

@@ -9,6 +9,16 @@ import { ConsentForm } from '../consent/ConsentForm';
 import { errorMessage } from '../join/use-join';
 import { SignInActions } from '../join/JoinPage';
 import styles from './CreateClubPage.module.css';
+import {
+  birthYearsOf,
+  CategoryFields,
+  categoryProblem,
+  emptyCategory,
+  emptyGroup,
+  GroupFields,
+  groupNameFor,
+  groupProblem,
+} from './SchoolFields';
 import { emptyTeam, TeamFields, teamProblem, teamRequest } from './TeamFields';
 import { useClubCodePreview, useCreateClub } from './use-create-club';
 
@@ -49,6 +59,26 @@ function WithCode({ code, me }: { code: string; me: Me | null }) {
       </Screen>
     );
   }
+  const school = preview.data.kind === 'school';
+  if (create.isSuccess && school) {
+    return (
+      <Screen className={styles.screen}>
+        <Banner title="¡Listo, ya tienes tu escuela!" />
+        <div className={styles.body}>
+          <p className={styles.lead}>
+            Quedaste de dueño de la escuela y profe del primer grupo. Ahora agrega tus sedes y los
+            demás grupos.
+          </p>
+          <ButtonLink to={`/clubes/${create.data.clubId}`} variant="accent">
+            Ir a mi escuela
+          </ButtonLink>
+          <Link to="/" className={styles.textLink}>
+            Ir al inicio
+          </Link>
+        </div>
+      </Screen>
+    );
+  }
   if (create.isSuccess) {
     return (
       <Screen className={styles.screen}>
@@ -71,18 +101,23 @@ function WithCode({ code, me }: { code: string; me: Me | null }) {
   if (!me) {
     return (
       <Screen className={styles.screen}>
-        <Banner title="Arma tu club" />
+        <Banner title={school ? 'Arma tu escuela' : 'Arma tu club'} />
         <div className={styles.body}>
           <p className={styles.lead}>
-            Con este código creas tu club y tu primer equipo. Entra con tu cuenta de Google para
-            empezar.
+            {school
+              ? 'Con este código creas tu escuela y su primer grupo. Entra con tu cuenta de Google para empezar.'
+              : 'Con este código creas tu club y tu primer equipo. Entra con tu cuenta de Google para empezar.'}
           </p>
           <SignInActions returnTo={`/crear-club/${code}`} />
         </div>
       </Screen>
     );
   }
-  return <ClubForm code={code} me={me} create={create} />;
+  return school ? (
+    <SchoolForm code={code} me={me} create={create} />
+  ) : (
+    <ClubForm code={code} me={me} create={create} />
+  );
 }
 
 /** El bloque cobalto de arriba, como la convocatoria al unirse. */
@@ -194,6 +229,127 @@ function ClubForm({
         )}
         <Button type="submit" busy={create.isPending}>
           {create.isPending ? 'Creando…' : 'Crear mi club'}
+        </Button>
+      </form>
+    </Screen>
+  );
+}
+
+/**
+ * Crear mi escuela (Kevin, 2026-11-07): la escuela con su ciudad o barrio y su primer grupo, con
+ * la categoría por edad y sus años, y el género. Quien la crea queda de dueño y profe del grupo.
+ */
+function SchoolForm({
+  code,
+  me,
+  create,
+}: {
+  code: string;
+  me: Me;
+  create: ReturnType<typeof useCreateClub>;
+}) {
+  const [clubName, setClubName] = useState('');
+  const [city, setCity] = useState('');
+  const [category, setCategory] = useState(emptyCategory);
+  const [group, setGroup] = useState(() => emptyGroup());
+  const [step, setStep] = useState<'form' | 'consent'>('form');
+  const [invalid, setInvalid] = useState<string | null>(null);
+  const ids = { club: useId(), city: useId() };
+
+  const request = {
+    code,
+    clubName: clubName.trim(),
+    city: city.trim(),
+    teamName: groupNameFor(category.category, group),
+    category: category.category.trim(),
+    birthYears: birthYearsOf(category),
+    gender: group.gender,
+    format: group.format,
+    season: group.season.trim(),
+    alsoPlays: false,
+  };
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (request.clubName.length < 2) return setInvalid('Escribe el nombre de la escuela.');
+    if (request.city.length < 2) return setInvalid('Escribe la ciudad o el barrio.');
+    const problem = categoryProblem(category) ?? groupProblem(group);
+    if (problem) return setInvalid(problem);
+    setInvalid(null);
+    if (!me.consent) return setStep('consent');
+    create.mutate({ request, withConsent: false });
+  }
+
+  if (step === 'consent') {
+    return (
+      <Screen className={styles.screen}>
+        <div className={styles.body}>
+          <h1 className={styles.title}>Antes de crear tu escuela</h1>
+          <p className={styles.lead}>Esto es lo que guardamos de ti y para qué.</p>
+          <ConsentForm
+            submitLabel="Acepto y creo mi escuela"
+            busy={create.isPending}
+            error={create.isError ? errorMessage(create.error) : null}
+            onAccept={() => create.mutate({ request, withConsent: true })}
+          />
+          <Button variant="ghost" disabled={create.isPending} onClick={() => setStep('form')}>
+            Volver
+          </Button>
+        </div>
+      </Screen>
+    );
+  }
+
+  const error = invalid ?? (create.isError ? errorMessage(create.error) : null);
+  return (
+    <Screen className={styles.screen}>
+      <Banner title="Arma tu escuela" />
+      <form className={styles.form} onSubmit={submit} noValidate>
+        <fieldset className={styles.card}>
+          <legend className={styles.legend}>La escuela</legend>
+          <label htmlFor={ids.club} className={styles.label}>
+            Nombre de la escuela
+          </label>
+          <input
+            id={ids.club}
+            className={styles.input}
+            value={clubName}
+            maxLength={60}
+            autoComplete="organization"
+            placeholder="Ej.: Escuela Semillas"
+            onChange={(event) => setClubName(event.target.value)}
+          />
+          <label htmlFor={ids.city} className={styles.label}>
+            Ciudad o barrio
+          </label>
+          <input
+            id={ids.city}
+            className={styles.input}
+            value={city}
+            maxLength={60}
+            autoComplete="address-level2"
+            placeholder="Ej.: Kennedy, Bogotá"
+            onChange={(event) => setCity(event.target.value)}
+          />
+        </fieldset>
+
+        <fieldset className={styles.card}>
+          <legend className={styles.legend}>Tu primer grupo</legend>
+          <CategoryFields value={category} onChange={setCategory} />
+          <GroupFields value={group} onChange={setGroup} sameGender={() => 0} />
+        </fieldset>
+
+        <p className={styles.hint}>
+          Quedas de dueño de la escuela y profe del grupo. Las sedes, las demás categorías y sus
+          grupos los agregas después.
+        </p>
+        {error && (
+          <p role="alert" className={styles.alert}>
+            {error}
+          </p>
+        )}
+        <Button type="submit" busy={create.isPending}>
+          {create.isPending ? 'Creando…' : 'Crear mi escuela'}
         </Button>
       </form>
     </Screen>

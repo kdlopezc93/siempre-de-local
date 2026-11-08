@@ -1,4 +1,4 @@
-import type { ClubCodeSummary, CreateClubCodeResponse } from '@sdl/contracts';
+import type { ClubCodeSummary, ClubKind, CreateClubCodeResponse } from '@sdl/contracts';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router';
 
@@ -7,6 +7,7 @@ import { Badge, type BadgeTone } from '../../shared/ui/Badge';
 import { Button } from '../../shared/ui/Button';
 import { PageTitle } from '../../shared/ui/PageTitle';
 import { Screen } from '../../shared/ui/Screen';
+import { Segmented } from '../../shared/ui/Segmented';
 import { useCopy, whatsappUrl } from '../team-admin/use-invitations';
 import styles from './ClubCodesPage.module.css';
 import {
@@ -65,6 +66,7 @@ export function ClubCodesPage({ me }: { me: Me }) {
 function CreateCode() {
   const create = useCreateClubCode();
   const [note, setNote] = useState('');
+  const [kind, setKind] = useState<ClubKind>('club');
   const noteId = useId();
   if (create.isSuccess) {
     return (
@@ -72,6 +74,7 @@ function CreateCode() {
         created={create.data}
         onAnother={() => {
           setNote('');
+          setKind('club');
           create.reset();
         }}
       />
@@ -82,9 +85,19 @@ function CreateCode() {
       className={styles.card}
       onSubmit={(event) => {
         event.preventDefault();
-        create.mutate({ note: note.trim() || undefined });
+        create.mutate({ note: note.trim() || undefined, ...(kind === 'school' ? { kind } : {}) });
       }}
     >
+      <span className={styles.label}>¿Qué abre?</span>
+      <Segmented
+        label="Qué abre el código"
+        options={[
+          { value: 'club', label: 'Un club' },
+          { value: 'school', label: 'Una escuela' },
+        ]}
+        value={kind}
+        onChange={setKind}
+      />
       <label htmlFor={noteId} className={styles.label}>
         ¿Para quién es? (opcional)
       </label>
@@ -121,7 +134,7 @@ function FreshCode({
   const { copied, copy } = useCopy();
   const [copyFailed, setCopyFailed] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const message = clubCodeMessage(created.code, created.url);
+  const message = clubCodeMessage(created.code, created.url, created.clubCode.kind);
   useEffect(() => titleRef.current?.focus(), []);
   return (
     <section className={styles.card} aria-labelledby="fresh-title">
@@ -204,11 +217,12 @@ function CodeRow({ item }: { item: ClubCodeSummary }) {
     <li className={styles.item}>
       <div className={styles.itemHead}>
         <span className={styles.itemNote}>{item.note ?? 'Sin nota'}</span>
+        {item.kind === 'school' && <Badge tone="brand">Escuela</Badge>}
         <Badge tone={status.tone}>{status.label}</Badge>
       </div>
       <p className={styles.hint}>
         {item.club
-          ? `Creó el club ${item.club.name}`
+          ? `Creó ${item.kind === 'school' ? 'la escuela' : 'el club'} ${item.club.name}`
           : item.status === 'active'
             ? `Vence el ${DAY.format(new Date(item.expiresAt))}`
             : `Creado el ${DAY.format(new Date(item.createdAt))}`}

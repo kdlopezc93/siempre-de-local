@@ -16,6 +16,7 @@ import { initialsOf } from '../../shared/ui/TeamHeader';
 import { useUnsavedChanges } from '../../shared/ui/UnsavedChanges';
 import { FORMAT_LABEL } from '../shell/shell-nav';
 import styles from './ClubPage.module.css';
+import { SchoolTeams, SchoolVenues } from './SchoolSections';
 import { useArchiveTeam, useClub, useClubAdmin, useUpdateClub } from './use-club';
 
 /** A quién deja de vérsele el equipo al archivarlo. */
@@ -24,9 +25,6 @@ function archivedFor(members: number): string {
   if (members === 1) return 'Deja de verse para su único integrante';
   return `Deja de verse para sus ${members} integrantes`;
 }
-
-/** Hasta 3 equipos activos por club (como el API). */
-const TEAMS_PER_CLUB = 3;
 
 /**
  * /clubes/:clubId — el club (Kevin, 2026-10-29): sus datos (nombre y ciudad o barrio) y sus
@@ -56,19 +54,32 @@ export function ClubPage({ me, clubId }: { me: Me; clubId: string }) {
       </Screen>
     );
   }
-  const { club: data, teams, admins, candidates, myRole } = club.data;
+  const { club: data, teams, admins, candidates, myRole, teamsLimit, venues } = club.data;
+  const school = data.kind === 'school';
   return (
     <Screen className={styles.screen}>
       <header>
-        <PageTitle eyebrow="Club" title={data.name} subtitle={data.city ?? undefined} />
+        <PageTitle
+          eyebrow={school ? 'Escuela' : 'Club'}
+          title={data.name}
+          subtitle={data.city ?? undefined}
+        />
       </header>
+      {school ? (
+        <>
+          <SchoolTeams me={me} clubId={clubId} teams={teams} teamsLimit={teamsLimit} />
+          <SchoolVenues clubId={clubId} venues={venues} />
+        </>
+      ) : (
+        <ClubTeams me={me} clubId={clubId} teams={teams} teamsLimit={teamsLimit} />
+      )}
       <ClubData clubId={clubId} club={data} />
-      <ClubTeams me={me} clubId={clubId} teams={teams} />
       <ClubAdmins
         clubId={clubId}
         admins={admins}
         candidates={candidates}
         isOwner={myRole === 'owner'}
+        school={school}
       />
     </Screen>
   );
@@ -80,7 +91,7 @@ function ClubData({ clubId, club }: { clubId: string; club: ClubResponse['club']
     <section aria-labelledby="datos-club" className={styles.section}>
       <div className={styles.sectionHead}>
         <h2 id="datos-club" className={styles.sectionTitle}>
-          Datos del club
+          {club.kind === 'school' ? 'Datos de la escuela' : 'Datos del club'}
         </h2>
         {!editing && (
           <button type="button" className={styles.textButton} onClick={() => setEditing(true)}>
@@ -125,7 +136,11 @@ function ClubForm({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (name.trim().length < 2) return setInvalid('Escribe el nombre del club.');
+    if (name.trim().length < 2) {
+      return setInvalid(
+        club.kind === 'school' ? 'Escribe el nombre de la escuela.' : 'Escribe el nombre del club.',
+      );
+    }
     if (city.trim().length < 2) return setInvalid('Escribe la ciudad o el barrio.');
     setInvalid(null);
     update.mutate(
@@ -194,10 +209,12 @@ function ClubTeams({
   me,
   clubId,
   teams,
+  teamsLimit,
 }: {
   me: Me;
   clubId: string;
   teams: ClubResponse['teams'];
+  teamsLimit: number;
 }) {
   const active = teams.filter((t) => !t.archived);
   const mine = new Set(me.teams.map((t) => t.team.id));
@@ -210,7 +227,7 @@ function ClubTeams({
   return (
     <section aria-labelledby="equipos-club" className={styles.section}>
       <h2 id="equipos-club" className={styles.sectionTitle}>
-        Equipos ({active.length} de {TEAMS_PER_CLUB})
+        Equipos ({active.length} de {teamsLimit})
       </h2>
       {archive.isError && !archiving && (
         <p role="alert" className={styles.error}>
@@ -284,13 +301,13 @@ function ClubTeams({
           </Button>
         </div>
       </Sheet>
-      {active.length < TEAMS_PER_CLUB ? (
+      {active.length < teamsLimit ? (
         <ButtonLink to={`/clubes/${clubId}/nuevo-equipo`} variant="secondary">
           Nuevo equipo
         </ButtonLink>
       ) : (
         <p className={styles.muted}>
-          El club ya tiene {TEAMS_PER_CLUB} equipos. Para abrir otro, escríbenos.
+          El club ya tiene {teamsLimit} equipos. Para abrir otro, escríbenos.
         </p>
       )}
     </section>
@@ -306,11 +323,13 @@ function ClubAdmins({
   admins,
   candidates,
   isOwner,
+  school,
 }: {
   clubId: string;
   admins: ClubResponse['admins'];
   candidates: ClubResponse['candidates'];
   isOwner: boolean;
+  school: boolean;
 }) {
   const change = useClubAdmin(clubId);
   const [adding, setAdding] = useState(false);
@@ -327,11 +346,12 @@ function ClubAdmins({
   return (
     <section aria-labelledby="admins-club" className={styles.section}>
       <h2 id="admins-club" className={styles.sectionTitle}>
-        Admins del club
+        {school ? 'Admins de la escuela' : 'Admins del club'}
       </h2>
       <p className={styles.muted}>
-        Ven todos los equipos del club, invitan entrenadores, crean y archivan equipos y editan el
-        club. No valoran ni puntúan jugadores.
+        {school
+          ? 'Ven todos los grupos, invitan profes, crean y archivan grupos, manejan las sedes y editan la escuela. No valoran ni puntúan jugadores.'
+          : 'Ven todos los equipos del club, invitan entrenadores, crean y archivan equipos y editan el club. No valoran ni puntúan jugadores.'}
       </p>
       <ul className={styles.list}>
         {admins.map((a) => (
@@ -362,7 +382,9 @@ function ClubAdmins({
           </Button>
         ) : (
           <p className={styles.muted}>
-            Para nombrar admin a alguien, primero tiene que estar en algún equipo del club.
+            {school
+              ? 'Para nombrar admin a alguien, primero tiene que estar en algún grupo de la escuela.'
+              : 'Para nombrar admin a alguien, primero tiene que estar en algún equipo del club.'}
           </p>
         ))}
 
@@ -419,7 +441,9 @@ function ClubAdmins({
       >
         <div className={styles.sheet}>
           <p className={styles.muted}>
-            Sigue en sus equipos con sus roles; solo deja de manejar el club.
+            {school
+              ? 'Sigue en sus grupos con sus roles; solo deja de manejar la escuela.'
+              : 'Sigue en sus equipos con sus roles; solo deja de manejar el club.'}
           </p>
           {change.isError && removing && (
             <p role="alert" className={styles.error}>
