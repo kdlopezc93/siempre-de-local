@@ -80,6 +80,23 @@ describe('la escuela (2026-11-07)', () => {
     expect(body).toEqual({ name: 'Timiza', address: null });
   });
 
+  it('cada vez que se agrega una sede, el formulario empieza vacío', async () => {
+    fakeApi({
+      [`GET /api/v1/clubs/${SCHOOL}`]: { status: 200, body: schoolClub() },
+      [`POST /api/v1/clubs/${SCHOOL}/venues`]: { status: 201, body: schoolClub() },
+    });
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Agregar sede' }));
+    let sheet = await screen.findByRole('dialog', { name: 'Agregar sede' });
+    await userEvent.type(within(sheet).getByLabelText('Nombre'), 'Timiza');
+    await userEvent.type(within(sheet).getByLabelText(/Dirección/), 'Cancha sintética');
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Guardar sede' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Agregar sede' }));
+    sheet = await screen.findByRole('dialog', { name: 'Agregar sede' });
+    expect(within(sheet).getByLabelText('Nombre')).toHaveValue('');
+    expect(within(sheet).getByLabelText(/Dirección/)).toHaveValue('');
+  });
+
   it('borrar una sede pide confirmar y dice qué pasa con sus grupos', async () => {
     let deleted = false;
     fakeApi({

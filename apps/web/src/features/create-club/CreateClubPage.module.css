@@ -66,6 +66,8 @@
   border-radius: var(--sdl-radius-xl);
   background: var(--sdl-surface);
   box-shadow: var(--sdl-shadow-card);
+  /* Un fieldset crece hasta su contenido más ancho: así no se sale a 360 px. */
+  min-inline-size: 0;
 }
 
 .legend {
@@ -189,6 +191,7 @@
 
 .yearLabel {
   display: flex;
+  min-width: 0;
   flex-direction: column;
   gap: var(--sdl-space-1);
   color: var(--sdl-fg-muted);
@@ -196,6 +199,8 @@
 }
 
 .yearSelect {
+  width: 100%;
+  min-width: 0;
   min-height: 52px;
   padding-inline: var(--sdl-space-3);
   border: var(--sdl-stroke) solid transparent;

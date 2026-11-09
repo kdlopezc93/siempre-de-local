@@ -213,7 +213,9 @@ function YearStrip({
 }) {
   const segments = yearStrip(categories);
   // Un hueco largo (de Veteranos a Sub-14) ocupa a lo sumo dos columnas: la franja no se estira.
-  const width = (s: (typeof segments)[number]) => (s.kind === 'gap' ? Math.min(s.span, 2) : s.span);
+  // La abierta por abajo (Mayores) ocupa dos columnas: en una no cabe su nombre.
+  const width = (s: (typeof segments)[number]) =>
+    s.kind === 'gap' ? Math.min(s.span, 2) : s.from === null ? 2 : s.span;
   const columns = segments.reduce((n, s) => n + width(s), 0);
   const groupsOf = new Map(categories.map((c) => [categoryKey(c.category), c.groups]));
   const summary = segments
@@ -251,7 +253,7 @@ function YearStrip({
               key={s.category}
               className={styles.block}
               data-mine={mineKeys.has(categoryKey(s.category)) || undefined}
-              style={{ gridColumn: `span ${s.span}` }}
+              style={{ gridColumn: `span ${width(s)}` }}
             >
               <span className={styles.blockName}>{s.category}</span>
               {s.span > 1 && (
@@ -267,7 +269,7 @@ function YearStrip({
             ? [<span key={`gap-${s.from}`} style={{ gridColumn: 'span 2' }} />]
             : s.from === null
               ? [
-                  <span key="open" className={styles.year}>
+                  <span key="open" className={styles.year} style={{ gridColumn: 'span 2' }}>
                     ≤{String(s.to).slice(2)}
                   </span>,
                 ]
@@ -301,6 +303,8 @@ function gendersOf(groups: Team[], short = false): string {
 /** Las sedes de la escuela: agregar, cambiar y borrar (sus grupos quedan sin sede). */
 export function SchoolVenues({ clubId, venues }: { clubId: string; venues: Venue[] }) {
   const [editing, setEditing] = useState<Venue | 'new' | null>(null);
+  // Cada vez que se abre, un formulario nuevo: no arrastra lo de la sede anterior.
+  const [opened, setOpened] = useState(0);
   const [shown, setShown] = useState(editing);
   if (editing && editing !== shown) setShown(editing);
   return (
@@ -326,7 +330,10 @@ export function SchoolVenues({ clubId, venues }: { clubId: string; venues: Venue
                 type="button"
                 className={styles.textButton}
                 aria-label={`Editar ${v.name}`}
-                onClick={() => setEditing(v)}
+                onClick={() => {
+                  setOpened((n) => n + 1);
+                  setEditing(v);
+                }}
               >
                 Editar
               </button>
@@ -334,7 +341,13 @@ export function SchoolVenues({ clubId, venues }: { clubId: string; venues: Venue
           ))}
         </ul>
       )}
-      <Button variant="secondary" onClick={() => setEditing('new')}>
+      <Button
+        variant="secondary"
+        onClick={() => {
+          setOpened((n) => n + 1);
+          setEditing('new');
+        }}
+      >
         Agregar sede
       </Button>
       <Sheet
@@ -344,7 +357,7 @@ export function SchoolVenues({ clubId, venues }: { clubId: string; venues: Venue
       >
         {shown !== null && (
           <VenueForm
-            key={shown === 'new' ? 'new' : shown.id}
+            key={opened}
             clubId={clubId}
             venue={shown === 'new' ? null : shown}
             onDone={() => setEditing(null)}
