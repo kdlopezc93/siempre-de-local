@@ -79,6 +79,14 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
     TeamInvitations,
     InvitationRedemption,
   ],
-  exports: [AUTHORIZATION_READER, MEMBERSHIPS_QUERY, TEAMS_REPOSITORY, TEAM_PLAYERS_QUERY],
+  exports: [
+    AUTHORIZATION_READER,
+    MEMBERSHIPS_QUERY,
+    TEAMS_REPOSITORY,
+    TEAM_PLAYERS_QUERY,
+    // Para inscribir menores con una invitación de acudientes (families, 2026-11-08).
+    INVITATIONS_REPOSITORY,
+    InvitationRedemption,
+  ],
 })
 export class TeamsModule {}

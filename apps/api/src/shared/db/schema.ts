@@ -17,3 +17,4 @@ export * from '../../modules/lineups/infrastructure/schema.js';
 export * from '../../modules/matches/infrastructure/schema.js';
 export * from '../../modules/notifications/infrastructure/schema.js';
 export * from '../../modules/charges/infrastructure/schema.js';
+export * from '../../modules/families/infrastructure/schema.js';

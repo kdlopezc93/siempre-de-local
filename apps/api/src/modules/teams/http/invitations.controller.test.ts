@@ -161,6 +161,8 @@ describe('invitaciones', () => {
       club: { name: 'Los del Barrio' },
       role: 'player',
       alsoPlays: false,
+      forGuardians: false,
+      birthYears: null,
     });
 
     const unknown = await request('GET', '/invitations/AAAAAAAAAA');

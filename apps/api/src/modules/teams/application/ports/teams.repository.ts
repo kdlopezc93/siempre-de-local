@@ -113,6 +113,8 @@ export interface TeamsRepository {
   ): Promise<boolean>;
   /** Los roles vigentes de alguien en el equipo (vacío si no está). */
   activeRoles(teamId: string, userId: string): Promise<TeamRole[]>;
+  /** ¿Es un menor a cargo de su acudiente, sin cuenta propia? (2026-11-08) */
+  isManaged(userId: string): Promise<boolean>;
   /** Quiénes son entrenador del equipo hoy. */
   activeCoaches(teamId: string): Promise<string[]>;
   /**

@@ -17,6 +17,7 @@ const RECORD = {
   teamId: invitation.teamId,
   role: invitation.role,
   alsoPlays: invitation.alsoPlays,
+  forGuardians: invitation.forGuardians,
   expiresAt: invitation.expiresAt,
   maxUses: invitation.maxUses,
   usedCount: invitation.usedCount,
@@ -66,6 +67,9 @@ export class DrizzleInvitationsRepository implements InvitationsRepository {
           format: team.format,
           clubId: club.id,
           clubName: club.name,
+          clubKind: club.kind,
+          birthYearFrom: team.birthYearFrom,
+          birthYearTo: team.birthYearTo,
           archived: sql<boolean>`${team.archivedAt} is not null`,
         },
       })
@@ -73,7 +77,15 @@ export class DrizzleInvitationsRepository implements InvitationsRepository {
       .innerJoin(team, eq(invitation.teamId, team.id))
       .innerJoin(club, eq(team.clubId, club.id))
       .where(eq(invitation.codeHash, codeHash));
-    return row ?? null;
+    if (!row) return null;
+    const { birthYearFrom, birthYearTo, ...teamRest } = row.team;
+    return {
+      ...row,
+      team: {
+        ...teamRest,
+        birthYears: birthYearTo === null ? null : { from: birthYearFrom, to: birthYearTo },
+      },
+    };
   }
 
   redeem(inv: InvitationRecord, userId: string, now: Date): Promise<RedeemOutcome> {

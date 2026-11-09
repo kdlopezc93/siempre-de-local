@@ -50,4 +50,5 @@ export const ME_TWO_TEAMS: Me = {
     },
   ],
   clubs: [{ id: CLUB.id, name: CLUB.name, role: 'owner', kind: 'club' }],
+  children: [],
 };

@@ -47,6 +47,7 @@ function toSummary(invitation: InvitationRecord, now: Date): InvitationSummary {
     id: invitation.id,
     role: invitation.role,
     alsoPlays: invitation.alsoPlays,
+    forGuardians: invitation.forGuardians,
     status: invitationStatus(invitation, now),
     expiresAt: invitation.expiresAt.toISOString(),
     maxUses: invitation.maxUses,
@@ -69,12 +70,23 @@ export class TeamInvitations {
     now = new Date(),
   ): Promise<{ invitation: InvitationSummary; code: string }> {
     await this.authorize(actor, teamId, permissionToInvite(request.role));
+    // Para acudientes: solo de jugador y en un grupo de escuela (2026-11-08).
+    if (request.forGuardians) {
+      const team = await this.teams.findById(teamId);
+      if (request.role !== 'player' || team?.club.kind !== 'school') {
+        throw new BusinessRuleError(
+          'Las invitaciones para acudientes son de jugadores de un grupo de escuela',
+          'SCHOOL_ONLY',
+        );
+      }
+    }
     const code = generateInvitationCode();
     const invitation = await this.invitations.create({
       teamId,
       role: request.role,
       // Ser jugador no se "también" juega.
       alsoPlays: request.role !== 'player' && request.alsoPlays,
+      forGuardians: request.forGuardians,
       codeHash: hashInvitationCode(code),
       createdBy: actor.userId,
       expiresAt: new Date(now.getTime() + request.expiresInDays * DAY_MS),
@@ -131,11 +143,20 @@ export class InvitationRedemption {
       club: { name: invitation.team.clubName },
       role: invitation.role,
       alsoPlays: invitation.alsoPlays,
+      forGuardians: invitation.forGuardians,
+      birthYears: invitation.team.birthYears,
     };
   }
 
   async accept(userId: string, code: string, now = new Date()): Promise<AcceptInvitationResponse> {
     const invitation = await this.usable(code, now);
+    // La de acudientes inscribe a un niño; el adulto no entra con ella (2026-11-08).
+    if (invitation.forGuardians) {
+      throw new BusinessRuleError(
+        'Este enlace es para inscribir a tu hijo. Si eres tú quien juega, pídele al profe el tuyo.',
+        'GUARDIAN_INVITATION',
+      );
+    }
     // Ley 1581: sin autorización previa no entra al equipo (04 §1.2, paso 3).
     if (!(await this.consent.hasCurrentConsent(userId))) {
       throw new ForbiddenError('Antes de unirte acepta la política de datos.', 'CONSENT_REQUIRED');
@@ -168,7 +189,8 @@ export class InvitationRedemption {
     }
   }
 
-  private async usable(code: string, now: Date) {
+  /** La invitación que sirve (existe, su equipo está activo, no venció ni se gastó), o el error. */
+  async usable(code: string, now: Date) {
     const invitation = await this.invitations.findByCodeHash(hashInvitationCode(code));
     if (!invitation) throw NOT_FOUND();
     if (invitation.team.archived) {

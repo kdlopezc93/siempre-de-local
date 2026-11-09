@@ -58,6 +58,10 @@ export class ChangeMemberRoles {
         'COACH_CANNOT_BE_ASSISTANT',
       );
     }
+    // Un menor a cargo de su acudiente solo juega (2026-11-08).
+    if ((request.assistant || request.treasurer) && (await this.teams.isManaged(userId))) {
+      throw new BusinessRuleError('Un menor de edad solo puede ser jugador', 'MINOR_ONLY_PLAYS');
+    }
     if (request.treasurer && current.includes('coach')) {
       throw new BusinessRuleError(
         'El entrenador ya maneja los cobros',
@@ -141,6 +145,9 @@ export class TransferCoach {
   async execute(actor: Actor, teamId: string, userId: string, now = new Date()): Promise<void> {
     await authorize(this.teams, actor, teamId);
     const roles = await rolesOf(this.teams, teamId, userId);
+    if (await this.teams.isManaged(userId)) {
+      throw new BusinessRuleError('Un menor de edad solo puede ser jugador', 'MINOR_ONLY_PLAYS');
+    }
     if (roles.includes('coach')) return;
     const previous = await this.teams.activeCoaches(teamId);
     await this.teams.changeRoles(

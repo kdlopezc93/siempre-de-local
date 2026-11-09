@@ -35,6 +35,7 @@ const me: Me = {
   ],
   profile: DEFAULT_PROFILE,
   clubs: [],
+  children: [],
 };
 const AREAS = [
   { code: 'marcaje', name: 'Marcaje' },

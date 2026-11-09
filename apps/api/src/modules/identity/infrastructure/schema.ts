@@ -1,5 +1,14 @@
 import { sql } from 'drizzle-orm';
-import { boolean, index, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  index,
+  pgTable,
+  smallint,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core';
 
 /**
  * Tablas de identidad que gestiona Better Auth (docs/03-modelo-datos.md §2).
@@ -24,6 +33,13 @@ export const user = pgTable('user', {
   /** Siempre null: la foto de Google no se guarda (04 §5, minimización). */
   image: text(),
   platformAdmin: boolean().notNull().default(false),
+  /**
+   * Un menor a cargo de su acudiente (escuelas, 2026-11-08): no tiene cuenta ni método de entrada
+   * y su correo es interno (`…@menor.invalid`, nunca recibe nada). Ver `guardianship`.
+   */
+  managed: boolean().notNull().default(false),
+  /** Solo de los menores: el año de nacimiento (minimización: sin fecha completa). */
+  birthYear: smallint(),
   createdAt: createdAt(),
   updatedAt: updatedAt(),
 });

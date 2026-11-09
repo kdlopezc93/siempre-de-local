@@ -1,4 +1,4 @@
-import type { MatchFormat, InvitationRole } from '@sdl/contracts';
+import type { BirthYears, ClubKind, InvitationRole, MatchFormat } from '@sdl/contracts';
 
 import type { InvitationState } from '../invitation-status.js';
 
@@ -7,6 +7,8 @@ export interface InvitationRecord extends InvitationState {
   teamId: string;
   role: InvitationRole;
   alsoPlays: boolean;
+  /** Para acudientes: inscriben a su hijo menor (escuelas, 2026-11-08). */
+  forGuardians: boolean;
   createdAt: Date;
 }
 
@@ -17,6 +19,9 @@ export interface InvitationWithTeam extends InvitationRecord {
     format: MatchFormat;
     clubId: string;
     clubName: string;
+    clubKind: ClubKind;
+    /** Los años de la categoría, si es un grupo de escuela. */
+    birthYears: BirthYears | null;
     /** Un equipo archivado no recibe a nadie (2026-10-29). */
     archived: boolean;
   };
@@ -29,6 +34,7 @@ export interface InvitationsRepository {
     teamId: string;
     role: InvitationRole;
     alsoPlays: boolean;
+    forGuardians: boolean;
     codeHash: string;
     createdBy: string;
     expiresAt: Date;

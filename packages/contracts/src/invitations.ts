@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { InvitationRoleSchema, MatchFormatSchema } from './teams.js';
+import { BirthYearsSchema, InvitationRoleSchema, MatchFormatSchema } from './teams.js';
 
 /** POST /api/v1/teams/:teamId/invitations */
 export const CreateInvitationRequestSchema = z.object({
@@ -10,6 +10,11 @@ export const CreateInvitationRequestSchema = z.object({
    * de jugador no aplica. Las de entrenador sirven para una sola persona y pasan el mando.
    */
   alsoPlays: z.boolean().default(false),
+  /**
+   * Para acudientes (escuelas, 2026-11-08): quien la abre inscribe a su hijo menor; solo de
+   * jugador y en un grupo de escuela.
+   */
+  forGuardians: z.boolean().default(false),
   expiresInDays: z.int().min(1).max(30).default(7),
   /** 1 = individual; por defecto alcanza para un equipo completo. */
   maxUses: z.int().min(1).max(100).default(30),
@@ -22,6 +27,7 @@ export const InvitationSummarySchema = z.object({
   id: z.uuid(),
   role: InvitationRoleSchema,
   alsoPlays: z.boolean(),
+  forGuardians: z.boolean().default(false),
   status: InvitationStatusSchema,
   expiresAt: z.iso.datetime(),
   maxUses: z.int(),
@@ -46,6 +52,10 @@ export const InvitationPreviewResponseSchema = z.object({
   role: InvitationRoleSchema,
   /** Entra también como jugador. */
   alsoPlays: z.boolean(),
+  /** Para acudientes: inscribe a su hijo, no entra él (2026-11-08). */
+  forGuardians: z.boolean().default(false),
+  /** Los años de nacimiento del grupo, si es de escuela. */
+  birthYears: BirthYearsSchema.nullable().default(null),
 });
 
 /** POST /api/v1/invitations/:code/accept */

@@ -25,7 +25,7 @@ describe('cliente de identidad', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, me));
     vi.stubGlobal('fetch', fetchMock);
 
-    await expect(fetchMe()).resolves.toEqual(me);
+    await expect(fetchMe()).resolves.toEqual({ ...me, children: [] });
     const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit];
     expect(url.toString()).toBe('https://api.sdl.test/api/v1/me');
     expect(init.credentials).toBe('include');
