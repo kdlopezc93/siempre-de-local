@@ -1,9 +1,10 @@
+import type { MatchRoster, PublishedLineupResponse } from '@sdl/contracts';
+
 import {
   alpha,
   drawFooter,
   fit,
   FONT,
-  H,
   LEFT,
   NUM,
   posterCanvas,
@@ -12,6 +13,7 @@ import {
   SAFE_TOP,
   TEXT_WIDTH,
   W,
+  wrap,
 } from '../../shared/poster/poster';
 import { posterWhen } from './lineup-image';
 
@@ -37,8 +39,12 @@ export function rowSize(
   rows: number,
   available: number,
 ): { row: number; disc: number; text: number } {
-  const row = Math.min(78, Math.floor(available / Math.max(rows, 1)));
-  return { row, disc: Math.round(row * 0.4), text: Math.min(34, Math.round(row * 0.5)) };
+  const row = Math.min(92, Math.floor(available / Math.max(rows, 1)));
+  return {
+    row,
+    disc: Math.min(32, Math.round(row * 0.4)),
+    text: Math.min(38, Math.round(row * 0.5)),
+  };
 }
 
 /** Cortar un nombre con "…" hasta que quepa en el ancho. */
@@ -52,6 +58,26 @@ function clip(ctx: CanvasRenderingContext2D, text: string, width: number): strin
 export interface MatchdayPlayer {
   displayName: string;
   jerseyNumber: number | null;
+}
+
+/**
+ * Los convocados del afiche (2026-11-10, Kevin): los de la alineación publicada, titulares y
+ * después la banca; sin alineación, los que dijeron "Voy" (sin lesionados).
+ */
+export function convocados(
+  roster: MatchRoster,
+  lineup: Pick<PublishedLineupResponse, 'starters' | 'bench'> | null,
+): MatchdayPlayer[] {
+  const pick = (p: MatchdayPlayer) => ({
+    displayName: p.displayName,
+    jerseyNumber: p.jerseyNumber,
+  });
+  if (lineup) {
+    return [...lineup.starters.flatMap((s) => (s.player ? [s.player] : [])), ...lineup.bench].map(
+      pick,
+    );
+  }
+  return roster.filter((p) => p.reply === 'yes' && !p.injured).map(pick);
 }
 
 /**
@@ -77,75 +103,94 @@ export async function matchdayImage(input: {
 
   // El círculo central de tiza, asomado a la derecha.
   ctx.save();
-  ctx.strokeStyle = alpha(color.fg, 0.14);
+  ctx.strokeStyle = alpha(color.fg, 0.12);
   ctx.lineWidth = 6;
   ctx.beginPath();
-  ctx.arc(W + 20, SAFE_TOP + 300, 320, 0, Math.PI * 2);
+  ctx.arc(W + 40, SAFE_TOP + 280, 300, 0, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
 
-  // Arriba: qué partido y de quién, "Día de / partido", la hora y dónde.
+  // Arriba, con aire entre cada cosa: qué partido, "Día de / partido", la hora, el día y la
+  // cancha (en dos renglones si no cabe).
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = color.soft;
-  ctx.font = `600 34px ${FONT}`;
-  ctx.fillText(`${input.kindLine}, ${input.teamName}`, LEFT, SAFE_TOP + 30, TEXT_WIDTH);
+  ctx.font = `600 32px ${FONT}`;
+  ctx.fillText(clip(ctx, input.kindLine, TEXT_WIDTH), LEFT, SAFE_TOP + 28);
   ctx.fillStyle = color.fg;
-  ctx.font = `800 132px ${FONT}`;
-  ctx.fillText('Día de', LEFT - 4, SAFE_TOP + 150);
-  ctx.fillText('partido', LEFT - 4, SAFE_TOP + 270);
+  ctx.font = `800 116px ${FONT}`;
+  ctx.fillText('Día de', LEFT - 4, SAFE_TOP + 148);
+  ctx.fillText('partido', LEFT - 4, SAFE_TOP + 254);
 
   ctx.fillStyle = color.accent;
-  ctx.font = `700 132px ${NUM}`;
-  ctx.fillText(when.time, LEFT - 4, SAFE_TOP + 410);
+  ctx.font = `700 120px ${NUM}`;
+  ctx.fillText(when.time, LEFT - 4, SAFE_TOP + 392);
   const timeWidth = ctx.measureText(when.time).width;
-  ctx.font = `700 46px ${FONT}`;
-  ctx.fillText(when.period, LEFT + timeWidth + 14, SAFE_TOP + 410);
+  ctx.font = `700 44px ${FONT}`;
+  ctx.fillText(when.period, LEFT + timeWidth + 14, SAFE_TOP + 392);
+  ctx.fillStyle = color.fg;
+  ctx.font = `700 38px ${FONT}`;
+  ctx.fillText(when.day, LEFT, SAFE_TOP + 454, TEXT_WIDTH);
   ctx.fillStyle = color.soft;
-  ctx.font = `600 36px ${FONT}`;
-  ctx.fillText(`${when.day}, ${input.place}`, LEFT, SAFE_TOP + 466, TEXT_WIDTH);
+  ctx.font = `600 34px ${FONT}`;
+  const placeLines = wrap(ctx, input.place, TEXT_WIDTH).slice(0, 2);
+  placeLines.forEach((line, i) =>
+    ctx.fillText(clip(ctx, line, TEXT_WIDTH), LEFT, SAFE_TOP + 502 + i * 44),
+  );
 
   // La franja torcida, de lado a lado, con "VS" y el rival.
-  const bandY = SAFE_TOP + 600;
+  const bandY = SAFE_TOP + 640 + (placeLines.length - 1) * 40;
+  const BAND = 75;
+  const TILT = Math.tan((6 * Math.PI) / 180) * (W / 2);
   ctx.save();
   ctx.translate(W / 2, bandY);
   ctx.rotate((-6 * Math.PI) / 180);
   ctx.fillStyle = color.accent;
-  ctx.fillRect(-W, -84, W * 2, 168);
+  ctx.fillRect(-W, -BAND, W * 2, BAND * 2);
   ctx.textBaseline = 'middle';
   ctx.fillStyle = alpha(color.onAccent, 0.55);
-  ctx.font = `700 84px ${NUM}`;
+  ctx.font = `700 76px ${NUM}`;
   const vsX = -W / 2 + LEFT + 40;
   ctx.fillText('VS', vsX, 4);
   const vsWidth = ctx.measureText('VS').width;
   ctx.fillStyle = color.onAccent;
-  const rivalX = vsX + vsWidth + 28;
-  fit(ctx, input.opponent, (s) => `800 ${s}px ${FONT}`, 84, W / 2 - LEFT - rivalX);
+  const rivalX = vsX + vsWidth + 26;
+  fit(ctx, input.opponent, (s) => `800 ${s}px ${FONT}`, 76, W / 2 - LEFT - rivalX);
   ctx.fillText(input.opponent, rivalX, 4);
   ctx.restore();
 
-  // La media cancha de tiza detrás de la lista, con medio círculo central.
-  const pitchTop = bandY + 180;
+  // La media cancha de tiza, entera (con su borde de abajo) entre la franja y el pie: el
+  // medio círculo arriba y, abajo, el área.
+  const pitch = {
+    top: bandY + TILT + BAND + 34,
+    bottom: SAFE_BOTTOM - 96,
+    left: 48,
+    right: W - 48,
+  };
   ctx.save();
-  ctx.strokeStyle = alpha(color.fg, 0.18);
+  ctx.strokeStyle = alpha(color.fg, 0.16);
   ctx.lineWidth = 6;
   ctx.beginPath();
-  ctx.moveTo(48, H);
-  ctx.lineTo(48, pitchTop + 28);
-  ctx.arcTo(48, pitchTop, 76, pitchTop, 28);
-  ctx.lineTo(W - 76, pitchTop);
-  ctx.arcTo(W - 48, pitchTop, W - 48, pitchTop + 28, 28);
-  ctx.lineTo(W - 48, H);
+  ctx.roundRect(pitch.left, pitch.top, pitch.right - pitch.left, pitch.bottom - pitch.top, 28);
+  ctx.stroke();
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(pitch.left, pitch.top, pitch.right - pitch.left, pitch.bottom - pitch.top);
+  ctx.clip();
+  ctx.beginPath();
+  ctx.arc(W / 2, pitch.top, 120, 0, Math.PI);
   ctx.stroke();
   ctx.beginPath();
-  ctx.arc(W / 2, pitchTop, 130, 0, Math.PI);
+  ctx.arc(W / 2, pitch.bottom, 120, Math.PI, Math.PI * 2);
   ctx.stroke();
   ctx.restore();
+  ctx.restore();
 
-  // Los convocados: el título con cuántos, y dos columnas con el disco y el nombre.
+  // Los convocados: el título con cuántos y, debajo, dos columnas (tres si son muchos) con el
+  // disco y el nombre, centradas en lo que queda de cancha.
   const listLeft = LEFT + 16;
   const listWidth = W - 2 * listLeft;
-  const headY = pitchTop + 70;
+  const headY = pitch.top + 66;
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = color.fg;
   ctx.font = `800 42px ${FONT}`;
@@ -158,15 +203,19 @@ export async function matchdayImage(input: {
 
   const { shown, more } = listed(input.players);
   const entries = more > 0 ? [...shown, null] : shown;
-  const rows = Math.ceil(entries.length / 2);
-  const listTop = headY + 30;
-  const footerTop = SAFE_BOTTOM - 14 - 70;
-  const size = rowSize(rows, footerTop - listTop);
-  const colWidth = (listWidth - 32) / 2;
+  // Hasta 16 (un fútbol 11 con 5 en la banca) en dos columnas; más, en tres.
+  const columns = entries.length > 16 ? 3 : 2;
+  const rows = Math.ceil(entries.length / columns);
+  const areaTop = headY + 24;
+  const areaBottom = pitch.bottom - 24;
+  const size = rowSize(rows, areaBottom - areaTop);
+  const listTop = areaTop + Math.max(0, (areaBottom - areaTop - rows * size.row) / 2);
+  const gap = 28;
+  const colWidth = (listWidth - gap * (columns - 1)) / columns;
   entries.forEach((player, i) => {
-    const col = i < rows ? 0 : 1;
-    const row = i < rows ? i : i - rows;
-    const x = listLeft + col * (colWidth + 32);
+    const col = Math.floor(i / rows);
+    const row = i % rows;
+    const x = listLeft + col * (colWidth + gap);
     const cy = listTop + row * size.row + size.row / 2;
     if (!player) {
       ctx.fillStyle = color.soft;
@@ -188,12 +237,14 @@ export async function matchdayImage(input: {
     ctx.textAlign = 'left';
     ctx.fillStyle = color.fg;
     ctx.font = `700 ${size.text}px ${FONT}`;
-    const nameX = x + size.disc * 2 + 16;
+    const nameX = x + size.disc * 2 + 14;
     ctx.fillText(clip(ctx, player.displayName, colWidth - (nameX - x)), nameX, cy + 1);
   });
   ctx.textBaseline = 'alphabetic';
 
-  drawFooter(ctx, `${input.players.length} van`, color, SAFE_BOTTOM - 14);
+  // El equipo, en el pie (arriba ya no cabía con el torneo).
+  ctx.font = `700 28px ${NUM}`;
+  drawFooter(ctx, clip(ctx, input.teamName, 380), color, SAFE_BOTTOM - 14);
 
   return posterFile(canvas, 'dia-de-partido.png');
 }

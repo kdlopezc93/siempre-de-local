@@ -23,7 +23,7 @@ import { usePublishLineup, useLineups } from '../lineup/use-lineups';
 import { AfterMatch, FigureShare, MatchResultView } from './AfterMatch';
 import { WhoCameAlone } from './WhoCame';
 import { lineupImage } from './lineup-image';
-import { matchdayImage } from './matchday-image';
+import { convocados, matchdayImage } from './matchday-image';
 import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
 import { callUpMessage, lineupMessage, matchdayMessage } from './share-messages';
@@ -383,10 +383,6 @@ function CallUp({
                 ))}
               </ul>
             )}
-            {/* Día de partido (2026-11-10): el afiche con los que van, antes del partido. */}
-            {tone === 'yes' && match.open && isGame(match.kind) && people.length > 0 && (
-              <MatchdayShare teamId={teamId} teamName={teamName} match={match} going={people} />
-            )}
             {tone === 'wait' && match.open && (
               <>
                 <GroupShare message={message} label="Mandar la convocatoria al grupo" />
@@ -396,27 +392,33 @@ function CallUp({
           </section>
         ),
       )}
+      {/* Día de partido (2026-11-10): el afiche con los convocados, antes del partido. */}
+      {match.open && isGame(match.kind) && (
+        <MatchdayShare teamId={teamId} teamName={teamName} match={match} roster={roster} />
+      )}
     </>
   );
 }
 
 /**
- * "Mandar los convocados al grupo" (2026-11-10): el afiche "Día de partido" con los que van (sin
- * los lesionados) y su mensaje. Se dibuja en el celular, como los demás afiches.
+ * "Mandar los convocados al grupo" (2026-11-10): el afiche "Día de partido" y su mensaje. Los
+ * convocados son los de la alineación publicada (titulares y banca, Kevin); sin alineación, los
+ * que dijeron "Voy" (sin lesionados). Se dibuja en el celular, como los demás afiches.
  */
 function MatchdayShare({
   teamId,
   teamName,
   match,
-  going,
+  roster,
 }: {
   teamId: string;
   teamName: string;
   match: Match;
-  going: MatchRoster;
+  roster: MatchRoster;
 }) {
   const colors = useTeamColors(teamId);
-  const players = going.filter((p) => !p.injured);
+  const lineup = usePublishedLineup(teamId, match.id, match.published?.at ?? null);
+  const players = convocados(roster, match.published ? (lineup.data ?? null) : null);
   const image = useQuery({
     queryKey: [
       'matchday-image',
@@ -426,7 +428,7 @@ function MatchdayShare({
       match.place,
       match.opponent,
       teamName,
-      ...players.map((p) => `${p.playerId}:${p.jerseyNumber ?? ''}:${p.displayName}`),
+      ...players.map((p) => `${p.jerseyNumber ?? ''}:${p.displayName}`),
       ...(colors ?? []),
     ],
     queryFn: () =>
@@ -448,6 +450,8 @@ function MatchdayShare({
     players,
     appUrl(`/equipos/${teamId}/partidos/${match.id}`),
   );
+  // Con alineación publicada, se espera a tenerla para no mandar la lista equivocada.
+  if (players.length === 0 || (match.published && !lineup.data)) return null;
   return (
     <GroupShare
       message={message}

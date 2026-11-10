@@ -334,8 +334,8 @@ describe('partidos en la app (Fase 7)', () => {
     renderAt('/m', [
       { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
     ]);
-    const going = await screen.findByRole('region', { name: /^Van \(/ });
-    const link = within(going).getByRole('link', { name: 'Mandar los convocados al grupo' });
+    // Sin alineación publicada, los que dijeron "Voy".
+    const link = await screen.findByRole('link', { name: 'Mandar los convocados al grupo' });
     const text = new URL(link.getAttribute('href')!).searchParams.get('text')!;
     expect(text).toContain('*Día de partido*');
     expect(text).toContain('4 Ana');
