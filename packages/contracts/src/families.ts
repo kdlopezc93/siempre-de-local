@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { MyPaymentRequestSchema } from './charges.js';
 import { ClubKindSchema } from './teams.js';
 
 /**
@@ -51,3 +52,10 @@ export type GuardianRelationship = z.infer<typeof GuardianRelationshipSchema>;
 export type RegisterMinorRequest = z.input<typeof RegisterMinorRequestSchema>;
 export type RegisterMinorResponse = z.infer<typeof RegisterMinorResponseSchema>;
 export type Child = z.infer<typeof ChildSchema>;
+
+/**
+ * POST /me/children/:minorId/teams/:teamId/charges/:chargeId/payments (2026-11-10): el "Ya
+ * pagué" del acudiente por su hijo. Sin `forUserId`: un niño no patrocina a nadie.
+ */
+export const ChildPaymentRequestSchema = MyPaymentRequestSchema.omit({ forUserId: true });
+export type ChildPaymentRequest = z.infer<typeof ChildPaymentRequestSchema>;

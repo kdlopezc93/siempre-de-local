@@ -8,6 +8,7 @@ import {
   SUBSCRIPTIONS_REPOSITORY,
   type SubscriptionsRepository,
 } from './ports/push.ports.js';
+import { guardianNotice } from './guardian-notice.js';
 
 /** Avisos por Web Push (Fase 7, D16): suscribirse, desuscribirse y avisar. */
 @Injectable()
@@ -31,25 +32,46 @@ export class Notifications implements Notifier {
     return this.subscriptions.remove(userId, endpoint);
   }
 
-  /** Sin llaves VAPID no hace nada; una falla se registra y no se propaga. */
+  /**
+   * Sin llaves VAPID no hace nada; una falla se registra y no se propaga. Si alguno es un menor
+   * (escuelas, 2026-11-10), a sus acudientes les llega la copia con su nombre.
+   */
   async notifyUsers(userIds: readonly string[], message: PushMessage): Promise<void> {
     if (!this.sender.publicKey() || userIds.length === 0) return;
     try {
-      const targets = await this.subscriptions.forUsers(userIds);
+      const [targets, guardians] = await Promise.all([
+        this.subscriptions.forUsers(userIds),
+        this.subscriptions.guardiansOf(userIds),
+      ]);
+      const copies = await Promise.all(
+        guardians.map(async (g) => {
+          const notice = guardianNotice(message, g);
+          return notice
+            ? (await this.subscriptions.forUsers([g.guardianId])).map((t) => ({
+                target: t,
+                payload: JSON.stringify(notice),
+              }))
+            : [];
+        }),
+      );
       const payload = JSON.stringify(message);
       await Promise.all(
-        targets.map(async (target) => {
-          try {
-            if ((await this.sender.send(target, payload)) === 'gone') {
-              await this.subscriptions.forget(target.endpoint);
-            }
-          } catch (error) {
-            this.logger.warn(`No se pudo avisar a un celular: ${(error as Error).message}`);
-          }
-        }),
+        [...targets.map((target) => ({ target, payload })), ...copies.flat()].map((d) =>
+          this.deliver(d.target, d.payload),
+        ),
       );
     } catch (error) {
       this.logger.warn(`No se pudieron mandar los avisos: ${(error as Error).message}`);
+    }
+  }
+
+  private async deliver(target: StoredSubscription, payload: string) {
+    try {
+      if ((await this.sender.send(target, payload)) === 'gone') {
+        await this.subscriptions.forget(target.endpoint);
+      }
+    } catch (error) {
+      this.logger.warn(`No se pudo avisar a un celular: ${(error as Error).message}`);
     }
   }
 }

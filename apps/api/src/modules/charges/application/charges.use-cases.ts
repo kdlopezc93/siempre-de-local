@@ -713,7 +713,8 @@ export class Charges {
       method: request.method,
       paidOn: request.paidOn,
       status,
-      reportedBy: actor.userId,
+      // Si un acudiente reporta por su hijo, el reporte es suyo.
+      reportedBy: actor.guardianUserId ?? actor.userId,
       reviewedBy: status === 'confirmed' ? actor.userId : null,
       at: now,
     });
@@ -784,7 +785,7 @@ export class Charges {
     meta: Record<string, unknown>,
   ) {
     return this.audit.record({
-      actorUserId: actor.userId,
+      actorUserId: actor.guardianUserId ?? actor.userId,
       action,
       entity: 'charge',
       entityId: chargeId,

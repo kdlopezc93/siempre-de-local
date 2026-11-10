@@ -2,7 +2,7 @@
  * Avisar a personas (Fase 7, D16). Lo implementa el módulo notifications (Web Push); quien
  * avisa no sabe cómo llega. Un aviso que falla nunca hace fallar lo que lo causó.
  */
-export type PushMessage =
+export type PushMessage = (
   | {
       /**
        * Convocatoria (a un partido o a un entreno), alineación publicada o figura del partido
@@ -67,7 +67,14 @@ export type PushMessage =
       /** Lo mismo, para el service worker viejo (muestra el neutro con `opponent`). */
       opponent: string;
       url: string;
-    };
+    }
+) & {
+  /**
+   * La copia para el acudiente de un menor (escuelas, 2026-11-10): el nombre de pila del niño, y
+   * `url` lleva a su pantalla en la app del acudiente. Solo la pone `Notifications`.
+   */
+  child?: string;
+};
 
 export interface Notifier {
   notifyUsers(userIds: readonly string[], message: PushMessage): Promise<void>;
