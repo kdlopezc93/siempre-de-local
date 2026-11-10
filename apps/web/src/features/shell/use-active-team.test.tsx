@@ -5,12 +5,17 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ME_TWO_TEAMS, TEAM_A, TEAM_B } from '../../test/me-two-teams';
 import { useActiveTeam } from './use-active-team';
 
-let chooseFromHeader: (teamId: string) => void = () => {};
-
+/** El selector del encabezado: un botón que elige el otro equipo. */
 function Header() {
   const { active, choose } = useActiveTeam(ME_TWO_TEAMS);
-  chooseFromHeader = choose;
-  return <p>encabezado: {active?.team.id}</p>;
+  return (
+    <>
+      <p>encabezado: {active?.team.id}</p>
+      <button type="button" onClick={() => choose(TEAM_B)}>
+        Cambiar
+      </button>
+    </>
+  );
 }
 
 function Home() {
@@ -29,7 +34,7 @@ describe('el equipo activo es uno solo (2026-11-10)', () => {
       </MemoryRouter>,
     );
     expect(screen.getByText(`inicio: ${TEAM_A}`)).toBeInTheDocument();
-    act(() => chooseFromHeader(TEAM_B));
+    act(() => screen.getByRole('button', { name: 'Cambiar' }).click());
     expect(screen.getByText(`encabezado: ${TEAM_B}`)).toBeInTheDocument();
     expect(screen.getByText(`inicio: ${TEAM_B}`)).toBeInTheDocument();
   });
