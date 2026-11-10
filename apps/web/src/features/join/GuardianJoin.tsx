@@ -9,7 +9,7 @@ import { ButtonLink } from '../../shared/ui/ButtonLink';
 import { Screen } from '../../shared/ui/Screen';
 import { ConsentForm } from '../consent/ConsentForm';
 import { firstName, kidPath } from '../family/family-nav';
-import { NoticesPrompt } from '../family/NoticesPrompt';
+import { NoticesPrompt } from '../../shared/push/NoticesPrompt';
 import styles from './GuardianJoin.module.css';
 import joinStyles from './JoinPage.module.css';
 import { SignInActions } from './JoinPage';
@@ -345,7 +345,7 @@ function Done({
           Ya aparece en la lista de su profe. Cuando haya un entreno o un partido, te avisamos para
           que respondas por {name}.
         </p>
-        <NoticesPrompt name={name} />
+        <NoticesPrompt child={name} />
         <ButtonLink to={kidPath({ id: minorId, teamId: invitation.team.id })} variant="accent">
           Ver lo de {name}
         </ButtonLink>

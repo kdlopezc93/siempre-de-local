@@ -11,6 +11,7 @@ import { Wallet } from '@phosphor-icons/react/dist/csr/Wallet';
 import { Warning } from '@phosphor-icons/react/dist/csr/Warning';
 
 import type { Me } from '../../shared/api/auth';
+import { NoticesPrompt } from '../../shared/push/NoticesPrompt';
 import { Screen } from '../../shared/ui/Screen';
 import { LeadTask, TaskRow } from '../../shared/ui/TaskCard';
 import { useActiveTeam } from '../shell/use-active-team';
@@ -106,6 +107,7 @@ export function HomePage({ me }: { me: Me }) {
             todos={staffRows}
           />
           <Group title={both ? 'Como jugador' : null} todos={playerRows} />
+          <NoticesPrompt />
           {home.isError && (
             <p role="alert" className={styles.muted}>
               No pudimos cargar todo lo que te toca. Revisa tu conexión.

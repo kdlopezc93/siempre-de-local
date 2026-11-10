@@ -1,15 +1,16 @@
 import { Bell } from '@phosphor-icons/react/dist/csr/Bell';
 
-import { usePush } from '../../shared/push/use-push';
-import { Button } from '../../shared/ui/Button';
-import styles from './Family.module.css';
+import { Button } from '../ui/Button';
+import styles from './NoticesPrompt.module.css';
+import { usePush } from './use-push';
 
 /**
- * "Activa los avisos" (2026-11-10): sin ellos, el acudiente no se entera cuando convocan al niño.
- * Solo si este celular puede tenerlos y están apagados; en iPhone sin la app en el inicio, dice
- * cómo. Activados o imposibles, no sale.
+ * "Activa los avisos" (2026-11-10, para todos): sin ellos no te enteras de la convocatoria hasta
+ * abrir la app. Solo si este celular puede tenerlos y están apagados; en iPhone sin la app en el
+ * inicio, dice cómo. Activados o imposibles, no sale. `child`: en la app del acudiente, habla del
+ * niño.
  */
-export function NoticesPrompt({ name }: { name: string }) {
+export function NoticesPrompt({ child }: { child?: string }) {
   const { state, toggle } = usePush();
   if (state !== 'off' && state !== 'ios-install') return null;
   return (
@@ -23,7 +24,9 @@ export function NoticesPrompt({ name }: { name: string }) {
         </h2>
         <p className={styles.muted}>
           {state === 'off'
-            ? `Para enterarte en este celular cuando convoquen a ${name} y responder desde el aviso.`
+            ? child
+              ? `Para enterarte en este celular cuando convoquen a ${child} y responder desde el aviso.`
+              : 'Para enterarte en este celular cuando te convoquen, salga la alineación o haya un cobro, y responder desde el aviso.'
             : 'En iPhone, primero agrega la app al inicio (Compartir → Agregar a inicio) y ábrela desde ahí.'}
         </p>
         {state === 'off' && (
@@ -32,7 +35,7 @@ export function NoticesPrompt({ name }: { name: string }) {
           </Button>
         )}
         {toggle.isError && (
-          <p role="alert" className={styles.callError}>
+          <p role="alert" className={styles.error}>
             No pudimos activar los avisos. Revisa que el celular los permita e intenta de nuevo.
           </p>
         )}
