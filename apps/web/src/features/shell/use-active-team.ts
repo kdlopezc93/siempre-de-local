@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { useLocation } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
@@ -6,20 +6,34 @@ import { teamFromPath } from './shell-nav';
 
 const KEY = 'sdl.equipoActivo';
 
-// Solo una comodidad de este celular: si falla (modo privado), se usa el primer equipo.
-function read(): string | null {
+/*
+ * El equipo elegido es uno solo para toda la app (2026-11-10): el encabezado y el inicio lo leen
+ * de aquí y se enteran cuando cambia. Antes cada uno guardaba su copia y, al cambiar de equipo en
+ * el inicio, el encabezado mostraba el nuevo y "lo que toca" seguía siendo del anterior.
+ * Vive en este celular (una comodidad); sin almacenamiento (modo privado), en memoria.
+ */
+let memory: string | null = null;
+const listeners = new Set<() => void>();
+const subscribe = (listener: () => void) => {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+};
+function snapshot(): string | null {
   try {
     return localStorage.getItem(KEY);
   } catch {
-    return null;
+    return memory;
   }
 }
-function write(teamId: string) {
+function setChosen(teamId: string) {
+  if (snapshot() === teamId) return;
+  memory = teamId;
   try {
     localStorage.setItem(KEY, teamId);
   } catch {
-    // Sin almacenamiento, la próxima vez abre en el primer equipo.
+    // Queda en memoria.
   }
+  for (const listener of listeners) listener();
 }
 
 /**
@@ -28,20 +42,14 @@ function write(teamId: string) {
  */
 export function useActiveTeam(me: Me) {
   const { pathname } = useLocation();
-  const [chosen, setChosen] = useState(read);
+  const current = useSyncExternalStore(subscribe, snapshot, snapshot);
   const mine = (id: string | null) => (id ? me.teams.find((t) => t.team.id === id) : undefined);
-  const active = mine(teamFromPath(pathname)) ?? mine(chosen) ?? me.teams[0];
+  const active = mine(teamFromPath(pathname)) ?? mine(current) ?? me.teams[0];
   const activeId = active?.team.id;
 
   useEffect(() => {
-    if (activeId) write(activeId);
+    if (activeId) setChosen(activeId);
   }, [activeId]);
 
-  return {
-    active,
-    choose: (teamId: string) => {
-      setChosen(teamId);
-      write(teamId);
-    },
-  };
+  return { active, choose: setChosen };
 }
