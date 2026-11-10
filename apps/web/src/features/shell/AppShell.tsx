@@ -11,6 +11,7 @@ import { BottomNav } from '../../shared/ui/BottomNav';
 import { TeamHeader } from '../../shared/ui/TeamHeader';
 import styles from './AppShell.module.css';
 import { kidPath, kidSeats, writeLastKid } from '../family/family-nav';
+import { useKidsPending } from '../family/use-family';
 import { activeTab, switchTarget, tabsFor, toHeader, type TabId } from './shell-nav';
 import { useActiveTeam } from './use-active-team';
 import { useNavBadges } from './use-nav-badges';
@@ -32,6 +33,9 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
   const { active, choose } = useActiveTeam(me);
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const seats = kidSeats(me.children);
+  const pending = useKidsPending(seats);
+  const kids = seats.map((k) => ({ ...k, pending: pending.has(`${k.id}:${k.teamId}`) }));
   const badges = useNavBadges(active?.team.id ?? '', active?.roles ?? []);
   // Admin de club sin rol en ningún equipo: todavía no hay equipo que mostrar.
   if (!active) return <>{children}</>;
@@ -49,7 +53,7 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
         account={{ name: me.profile.displayName, to: '/cuenta' }}
         teams={me.teams.map(toHeader)}
         // Los hijos del acudiente, al lado de sus equipos (escuelas, 2026-11-10).
-        kids={kidSeats(me.children)}
+        kids={kids}
         onPickKid={(k) => void navigate(kidPath(k))}
         onSwitch={(teamId) => {
           writeLastKid(null);

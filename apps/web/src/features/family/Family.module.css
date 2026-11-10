@@ -237,3 +237,37 @@
   border-radius: var(--sdl-radius-xl);
   background: var(--sdl-surface);
 }
+
+/* "Activa los avisos" (2026-11-10): tarjeta tranquila, el bloque cobalto sigue siendo lo fuerte. */
+.notices {
+  display: flex;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-4);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.noticesIcon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--sdl-radius-sm);
+  background: var(--sdl-card-volt);
+  color: var(--sdl-on-accent);
+}
+
+.noticesText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  min-width: 0;
+}
+
+.noticesTitle {
+  margin: 0;
+  font-size: var(--sdl-text-lg);
+  font-weight: 700;
+}

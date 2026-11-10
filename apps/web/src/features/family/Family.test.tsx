@@ -176,4 +176,34 @@ describe('la app del acudiente (2026-11-10)', () => {
     ).toBeInTheDocument();
     expect(router.state.location.pathname).toBe(`/deportistas/${MINOR}/equipos/${TEAM}`);
   });
+
+  it('el punto: el otro hijo tiene una convocatoria sin responder', async () => {
+    const OTHER = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f93';
+    const two = {
+      ...ME,
+      children: [
+        ...ME.children,
+        { ...ME.children[0]!, id: OTHER, name: 'Mateo Ramírez', birthYear: 2016 },
+      ],
+    };
+    fakeApi({
+      'GET /api/v1/me': { status: 200, body: two },
+      [`GET ${BASE}/matches`]: { status: 200, body: { items: [training('yes')] } },
+      [`GET ${BASE}/charges`]: { status: 200, body: { items: [], owed: 0 } },
+      [`GET /api/v1/me/children/${OTHER}/teams/${TEAM}/matches`]: {
+        status: 200,
+        body: { items: [training(null)] },
+      },
+    });
+    renderAt(`/deportistas/${MINOR}/equipos/${TEAM}`);
+
+    const switcher = await screen.findByRole('button', {
+      name: 'Sofía. Cambiar de deportista. Hay algo pendiente',
+    });
+    await userEvent.click(switcher);
+    const mateo = await screen.findByRole('button', { name: /Mateo/ });
+    expect(within(mateo).getByText('Tiene algo por responder')).toBeInTheDocument();
+    const sofia = screen.getByRole('button', { name: /^Sofía/, current: true });
+    expect(within(sofia).queryByText('Tiene algo por responder')).toBeNull();
+  });
 });

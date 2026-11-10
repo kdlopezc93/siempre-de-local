@@ -11,6 +11,7 @@ import styles from '../shell/AppShell.module.css';
 import { toHeader } from '../shell/shell-nav';
 import { useActiveTeam } from '../shell/use-active-team';
 import { kidPath, kidTabOf, kidTabs, writeLastKid } from './family-nav';
+import { useKidsPending } from './use-family';
 
 const ICONS = { inicio: House, partidos: CalendarCheck, cuentas: Wallet } as const;
 
@@ -33,6 +34,8 @@ export function FamilyShell({
   const navigate = useNavigate();
   const { choose } = useActiveTeam(me);
   const tab = kidTabOf(pathname);
+  const pending = useKidsPending(seats);
+  const kids = seats.map((k) => ({ ...k, pending: pending.has(`${k.id}:${k.teamId}`) }));
   const tabs = kidTabs(seat);
 
   // Primitivas: el puesto se arma de nuevo en cada render.
@@ -46,7 +49,7 @@ export function FamilyShell({
       </a>
       <TeamHeader
         kid={seat}
-        kids={seats}
+        kids={kids}
         teams={me.teams.map(toHeader)}
         account={{ name: me.profile.displayName, to: '/cuenta' }}
         onPickKid={(k) => void navigate(kidPath(k, tab))}

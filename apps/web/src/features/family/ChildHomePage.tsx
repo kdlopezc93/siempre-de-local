@@ -10,6 +10,7 @@ import { TaskRow } from '../../shared/ui/TaskCard';
 import { pesos } from '../charges/charge-view';
 import { useMyCharges } from '../charges/use-charges';
 import { CallCard } from './CallCard';
+import { NoticesPrompt } from './NoticesPrompt';
 import styles from './Family.module.css';
 import { firstName, kidPath, nextCall } from './family-nav';
 import { useChildMatches } from './use-family';
@@ -54,6 +55,7 @@ export function ChildHomePage({ me, seat }: { me: Me; seat: HeaderKid }) {
           No hay convocatorias por ahora.
         </p>
       )}
+      <NoticesPrompt name={seat.name} />
       <div className={styles.group}>
         {owed > 0 && (
           <TaskRow

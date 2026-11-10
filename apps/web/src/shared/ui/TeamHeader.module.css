@@ -124,3 +124,12 @@ button.team {
 section:first-child > .group {
   margin-top: 0;
 }
+
+/* Algo por responder (2026-11-10): el punto rojo de los globos de la barra. */
+.dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--sdl-live);
+}

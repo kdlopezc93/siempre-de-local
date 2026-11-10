@@ -29,6 +29,8 @@ export interface HeaderKid {
   name: string;
   /** "Sub-10 femenino, Semillas del Sur". */
   group: string;
+  /** Tiene algo por responder (2026-11-10): un punto en el selector. */
+  pending?: boolean;
 }
 
 /** Las iniciales del escudo viven en el dominio: las usa también la vista previa de los links. */
@@ -65,6 +67,8 @@ export function TeamHeader({
   const switchable = teams.length + kids.length > 1;
   const current = kid ? null : (team ?? null);
   const title = kid ? kid.name : (current?.name ?? '');
+  // Otro hijo tiene algo pendiente: el punto también va arriba, para verlo sin abrir.
+  const elsewhere = kids.some((k) => k.pending && !sameKid(kid, k));
   const content = (
     <>
       {kid ? (
@@ -79,6 +83,7 @@ export function TeamHeader({
         </span>
       </span>
       {switchable && <CaretDown size={18} className={styles.caret} aria-hidden="true" />}
+      {elsewhere && <span className={styles.dot} aria-hidden="true" />}
     </>
   );
   const both = kids.length > 0 && teams.length > 0;
@@ -92,7 +97,7 @@ export function TeamHeader({
             type="button"
             className={styles.team}
             aria-haspopup="dialog"
-            aria-label={`${title}. ${kid ? 'Cambiar de deportista' : 'Cambiar de equipo'}`}
+            aria-label={`${title}. ${kid ? 'Cambiar de deportista' : 'Cambiar de equipo'}${elsewhere ? '. Hay algo pendiente' : ''}`}
             onClick={() => setOpen(true)}
           >
             {content}
@@ -134,6 +139,11 @@ export function TeamHeader({
                           <span className={styles.name}>{k.name}</span>
                           <span className={styles.meta}>{k.group}</span>
                         </span>
+                        {k.pending && (
+                          <span className={styles.dot}>
+                            <span className="sr-only">Tiene algo por responder</span>
+                          </span>
+                        )}
                         {here && <Check size={22} weight="bold" aria-hidden="true" />}
                       </button>
                     </li>
