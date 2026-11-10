@@ -15,13 +15,13 @@ vi.mock('../../shared/push/use-push', () => ({
   }),
 }));
 
-function renderAccount() {
+function renderAccount(me = ME_TWO_TEAMS) {
   render(
     <QueryClientProvider
       client={new QueryClient({ defaultOptions: { mutations: { retry: false } } })}
     >
       <MemoryRouter>
-        <AccountPage me={ME_TWO_TEAMS} />
+        <AccountPage me={me} />
       </MemoryRouter>
     </QueryClientProvider>,
   );
@@ -148,5 +148,56 @@ describe('Tu cuenta', () => {
     renderAccount();
     expect(screen.getByRole('switch', { name: 'Avisarme en este celular' })).toBeDisabled();
     expect(screen.getByText(/primero agrega la app al inicio/)).toBeInTheDocument();
+  });
+
+  it('tus deportistas (2026-11-10): borrar los datos de un hijo pide escribir ELIMINAR', async () => {
+    const MINOR = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f90';
+    const calls: { url: string; method: string; body: unknown }[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: URL, init: RequestInit = {}) => {
+        calls.push({
+          url: new URL(input).pathname,
+          method: init.method ?? 'GET',
+          body: init.body ? JSON.parse(init.body as string) : null,
+        });
+        return Promise.resolve(new Response(null, { status: 204 }));
+      }),
+    );
+    renderAccount({
+      ...ME_TWO_TEAMS,
+      children: [
+        {
+          id: MINOR,
+          name: 'Sofía Ramírez',
+          birthYear: 2017,
+          relationship: 'mother',
+          teams: [
+            {
+              team: { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f71', name: 'Sub-10 femenino' },
+              club: {
+                id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f72',
+                name: 'Semillas',
+                kind: 'school',
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(screen.getByRole('heading', { name: 'Tus deportistas' })).toBeInTheDocument();
+    expect(screen.getByText('Sub-10 femenino, Semillas')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Borrar los datos de Sofía' }));
+    const box = await screen.findByRole('textbox', { name: 'Escribe ELIMINAR para confirmar' });
+    const submit = screen.getByRole('button', { name: 'Borrar sus datos' });
+    expect(submit).toBeDisabled();
+    await userEvent.type(box, 'ELIMINAR');
+    await userEvent.click(submit);
+    expect(calls.find((c) => c.method === 'DELETE')).toEqual({
+      url: `/api/v1/me/children/${MINOR}`,
+      method: 'DELETE',
+      body: { confirmation: 'ELIMINAR' },
+    });
   });
 });

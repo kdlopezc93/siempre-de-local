@@ -27,6 +27,7 @@ const me = (roles: ('player' | 'coach')[]): Me => ({
         formats: ['F11'],
         season: '2026',
         colors: null,
+        birthYears: null,
       },
       club: { id: uuid(10), name: 'Los del Barrio', kind: 'club' },
       roles,

@@ -187,6 +187,8 @@ export class DrizzleTeamsRepository
             season: team.season,
             colors: team.colors,
           },
+          birthYearFrom: team.birthYearFrom,
+          birthYearTo: team.birthYearTo,
           club: { id: club.id, name: club.name, kind: club.kind },
           role: teamMembership.role,
           jerseyNumber: teamMembership.jerseyNumber,
@@ -211,7 +213,11 @@ export class DrizzleTeamsRepository
     const teams = new Map<string, MeResponse['teams'][number]>();
     for (const row of teamRows) {
       const entry = teams.get(row.team.id) ?? {
-        team: row.team,
+        team: {
+          ...row.team,
+          birthYears:
+            row.birthYearTo === null ? null : { from: row.birthYearFrom, to: row.birthYearTo },
+        },
         club: row.club,
         roles: [],
         jerseyNumber: null,

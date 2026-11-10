@@ -93,7 +93,8 @@ export function ConsentForm({ submitLabel, busy, error, onAccept }: ConsentFormP
         </label>
         {missingAge && !adult && (
           <p id={ageHintId} className={styles.fieldError}>
-            Por ahora la app es solo para mayores de edad. Marca la casilla si es tu caso.
+            Tu cuenta es para mayores de edad. Un niño entra a su escuela a cargo de su mamá, papá o
+            acudiente, con el enlace de su profe.
           </p>
         )}
       </div>

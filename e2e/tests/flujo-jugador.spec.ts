@@ -69,7 +69,7 @@ test('un jugador nuevo se une, acepta la política y hace su test', async ({ pag
   // La política: sin la mayoría de edad no avanza.
   await expect(page.getByRole('heading', { name: 'Antes de unirte' })).toBeVisible();
   await page.getByRole('button', { name: 'Acepto y me uno' }).click();
-  await expect(page.getByText(/solo para mayores de edad/)).toBeVisible();
+  await expect(page.getByText(/Tu cuenta es para mayores de edad/)).toBeVisible();
   await page.getByRole('checkbox', { name: 'Tengo 18 años o más' }).check();
   await page.getByRole('button', { name: 'Acepto y me uno' }).click();
 

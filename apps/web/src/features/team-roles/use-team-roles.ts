@@ -2,7 +2,7 @@ import type { UpdateMemberRolesRequest } from '@sdl/contracts';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { fetchTeamMembers } from '../../shared/api/squad';
-import { removeMember, transferCoach, updateMemberRoles } from '../../shared/api/teams';
+import { movePlayer, removeMember, transferCoach, updateMemberRoles } from '../../shared/api/teams';
 import { SESSION_KEY } from '../auth/use-session';
 
 /** Los integrantes, con la misma llave que Equipo → Integrantes. */
@@ -45,5 +45,17 @@ export function useRemoveMember(teamId: string) {
   return useMutation({
     mutationFn: (userId: string) => removeMember(teamId, userId),
     onSuccess: refresh,
+  });
+}
+
+/** Pasar de grupo (2026-11-10): cambian los dos grupos; se refresca lo de ambos. */
+export function useMovePlayer(teamId: string) {
+  const queryClient = useQueryClient();
+  const refresh = useRefresh(teamId);
+  return useMutation({
+    mutationFn: ({ userId, toTeamId }: { userId: string; toTeamId: string }) =>
+      movePlayer(teamId, userId, toTeamId),
+    onSuccess: (_data, { toTeamId }) =>
+      Promise.all([refresh(), queryClient.invalidateQueries({ queryKey: ['team', toTeamId] })]),
   });
 }

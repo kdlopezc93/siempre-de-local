@@ -181,3 +181,32 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* Pasar a otro grupo (2026-11-10): acción tranquila, como un enlace, sobre "Quitar". */
+.move {
+  align-self: flex-end;
+  min-height: var(--sdl-touch-min);
+  padding: 0 var(--sdl-space-2);
+  border: 0;
+  background: none;
+  color: var(--sdl-primary);
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.move:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

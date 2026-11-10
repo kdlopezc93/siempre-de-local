@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   activeTab,
   formatsLabel,
+  minorsGroup,
   rolesLabel,
   switchTarget,
   tabsFor,
@@ -55,5 +56,16 @@ describe('navegación por rol (07 §4.2)', () => {
     expect(formatsLabel(['F11'], 'F11')).toBe('Fútbol 11');
     expect(formatsLabel(['F11', 'F8'], 'F8')).toBe('Fútbol 8 y 11');
     expect(formatsLabel(['F11', 'F8', 'F5'], 'F5')).toBe('Fútbol 5, 11 y 8');
+  });
+});
+
+describe('minorsGroup (2026-11-10)', () => {
+  const entry = (kind: 'club' | 'school', birthYears: { from: number | null; to: number } | null) =>
+    ({ team: { birthYears }, club: { kind } }) as Parameters<typeof minorsGroup>[0];
+
+  it('un grupo de escuela con años de menores; no uno de mayores ni un club', () => {
+    expect(minorsGroup(entry('school', { from: 2014, to: 2015 }), 2026)).toBe(true);
+    expect(minorsGroup(entry('school', { from: null, to: 2008 }), 2026)).toBe(false);
+    expect(minorsGroup(entry('club', null), 2026)).toBe(false);
   });
 });

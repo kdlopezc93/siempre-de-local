@@ -87,6 +87,11 @@ function childText(data, when) {
         title: `${data.when === 'today' ? 'Hoy' : 'Mañana'} vence: ${data.charge}`,
         body: `Falta la parte de ${name}. Toca para ver cuánto y avisar cuando pagues.`,
       };
+    case 'group-moved':
+      return {
+        title: `${name} pasó a ${data.team}`,
+        body: 'Su profe le cambió el grupo. Toca para ver sus entrenos.',
+      };
     case 'charges-reminder':
       return {
         title: `${name} tiene cobros pendientes`,
@@ -154,6 +159,11 @@ function noticeText(data, when) {
       return {
         title: `Tienes cobros pendientes en ${data.team}`,
         body: 'Toca para ver cuánto y avisar cuando pagues.',
+      };
+    case 'group-moved':
+      return {
+        title: `Te pasaron a ${data.team}`,
+        body: 'Tu profe te cambió de grupo. Toca para ver los entrenos.',
       };
     case 'test-reminder':
       return {
