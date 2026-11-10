@@ -72,7 +72,10 @@ export function TeamHeader({
   const content = (
     <>
       {kid ? (
-        <Avatar name={kid.name} size={40} />
+        <span className={styles.badged}>
+          <Avatar name={kid.name} size={40} />
+          {elsewhere && <span className={styles.dot} aria-hidden="true" />}
+        </span>
       ) : (
         <Token text={initialsOf(title)} tone="brand" size="sm" />
       )}
@@ -83,7 +86,6 @@ export function TeamHeader({
         </span>
       </span>
       {switchable && <CaretDown size={18} className={styles.caret} aria-hidden="true" />}
-      {elsewhere && <span className={styles.dot} aria-hidden="true" />}
     </>
   );
   const both = kids.length > 0 && teams.length > 0;
@@ -134,16 +136,18 @@ export function TeamHeader({
                           if (!here) onPickKid?.(k);
                         }}
                       >
-                        <Avatar name={k.name} size={44} />
+                        <span className={styles.badged}>
+                          <Avatar name={k.name} size={44} />
+                          {k.pending && (
+                            <span className={styles.dot}>
+                              <span className="sr-only">Tiene algo por responder</span>
+                            </span>
+                          )}
+                        </span>
                         <span className={styles.text}>
                           <span className={styles.name}>{k.name}</span>
                           <span className={styles.meta}>{k.group}</span>
                         </span>
-                        {k.pending && (
-                          <span className={styles.dot}>
-                            <span className="sr-only">Tiene algo por responder</span>
-                          </span>
-                        )}
                         {here && <Check size={22} weight="bold" aria-hidden="true" />}
                       </button>
                     </li>

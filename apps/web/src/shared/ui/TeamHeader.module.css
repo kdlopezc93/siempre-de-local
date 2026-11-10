@@ -125,11 +125,29 @@ section:first-child > .group {
   margin-top: 0;
 }
 
-/* Algo por responder (2026-11-10): el punto rojo de los globos de la barra. */
-.dot {
+/* Algo por responder (2026-11-10): el punto rojo en la esquina del avatar, como el globo de la
+   barra de abajo, con un borde del fondo para que se despegue. */
+.badged {
+  position: relative;
+  display: inline-flex;
   flex: none;
-  width: 10px;
-  height: 10px;
+}
+
+.dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--sdl-live);
+  box-shadow: 0 0 0 2px var(--sdl-bg);
+}
+
+.option .dot {
+  box-shadow: 0 0 0 2px var(--sdl-surface);
+}
+
+.option[aria-current='true'] .dot {
+  box-shadow: 0 0 0 2px var(--sdl-surface-raised);
 }
