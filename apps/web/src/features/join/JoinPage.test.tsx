@@ -1,4 +1,4 @@
-import { POLICY_VERSION } from '@sdl/contracts';
+import { GUARDIAN_AUTHORIZATION_VERSION, POLICY_VERSION } from '@sdl/contracts';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -146,5 +146,71 @@ describe('JoinPage', () => {
       await screen.findByRole('heading', { name: 'Este enlace no sirve' }),
     ).toBeInTheDocument();
     expect(screen.getByText(/Pídele un enlace nuevo a tu entrenador/)).toBeInTheDocument();
+  });
+
+  it('acudiente (2026-11-10): acepta la política y la autorización e inscribe a su hija', async () => {
+    const thisYear = new Date().getFullYear();
+    const MINOR = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f90';
+    let registered: unknown;
+    const { calls } = fakeApi({
+      'GET /api/v1/me': me(null),
+      [`GET /api/v1/invitations/${CODE}`]: {
+        status: 200,
+        body: {
+          ...PREVIEW,
+          team: { ...PREVIEW.team, name: 'Sub-10 femenino' },
+          club: { name: 'Semillas' },
+          forGuardians: true,
+          birthYears: { from: thisYear - 10, to: thisYear - 9 },
+          gender: 'female',
+        },
+      },
+      'POST /api/v1/me/consent': { status: 201, body: { consent: CONSENT } },
+      [`POST /api/v1/invitations/${CODE}/minors`]: (init) => {
+        registered = JSON.parse(init.body as string);
+        return {
+          status: 201,
+          body: { teamId: PREVIEW.team.id, minorId: MINOR, alreadyMember: false },
+        };
+      },
+    });
+    renderJoin();
+
+    expect(await screen.findByRole('heading', { name: 'Sub-10 femenino' })).toBeInTheDocument();
+    expect(screen.getByText(/te invita a inscribir a tu hija en/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Empezar' }));
+
+    // Primero la política, como adulto.
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Tengo 18 años o más' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Acepto y sigo' }));
+
+    expect(screen.getByRole('heading', { name: 'Inscribe a tu hija' })).toBeInTheDocument();
+    // Sin datos ni autorización, no manda nada.
+    await userEvent.click(screen.getByRole('button', { name: 'Inscribir' }));
+    expect(screen.getByText('Escribe su nombre.')).toBeInTheDocument();
+    expect(calls.filter((c) => c.startsWith('POST'))).toEqual([]);
+
+    await userEvent.type(screen.getByLabelText('Su nombre'), 'Sofía Ramírez');
+    await userEvent.click(screen.getByRole('button', { name: String(thisYear - 9) }));
+    await userEvent.click(screen.getByRole('button', { name: 'Mamá' }));
+    await userEvent.click(screen.getByRole('checkbox', { name: /Soy su representante legal/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Inscribir a Sofía' }));
+
+    expect(
+      await screen.findByRole('heading', { name: 'Sofía ya está en el grupo' }),
+    ).toBeInTheDocument();
+    expect(calls.filter((c) => c.startsWith('POST'))).toEqual([
+      'POST /api/v1/me/consent',
+      `POST /api/v1/invitations/${CODE}/minors`,
+    ]);
+    expect(registered).toEqual({
+      child: { name: 'Sofía Ramírez', birthYear: thisYear - 9 },
+      relationship: 'mother',
+      authorizationVersion: GUARDIAN_AUTHORIZATION_VERSION,
+    });
+    expect(screen.getByRole('link', { name: 'Ver lo de Sofía' })).toHaveAttribute(
+      'href',
+      `/deportistas/${MINOR}/equipos/${PREVIEW.team.id}`,
+    );
   });
 });

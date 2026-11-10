@@ -1,6 +1,11 @@
 import { z } from 'zod';
 
-import { BirthYearsSchema, InvitationRoleSchema, MatchFormatSchema } from './teams.js';
+import {
+  BirthYearsSchema,
+  CategoryGenderSchema,
+  InvitationRoleSchema,
+  MatchFormatSchema,
+} from './teams.js';
 
 /** POST /api/v1/teams/:teamId/invitations */
 export const CreateInvitationRequestSchema = z.object({
@@ -56,6 +61,8 @@ export const InvitationPreviewResponseSchema = z.object({
   forGuardians: z.boolean().default(false),
   /** Los años de nacimiento del grupo, si es de escuela. */
   birthYears: BirthYearsSchema.nullable().default(null),
+  /** El género del grupo, si es de escuela (2026-11-10): "inscribe a tu hija". */
+  gender: CategoryGenderSchema.nullable().default(null),
 });
 
 /** POST /api/v1/invitations/:code/accept */

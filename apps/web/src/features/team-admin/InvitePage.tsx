@@ -1,4 +1,5 @@
 import type { CreateInvitationResponse, InvitationSummary, TeamResponse } from '@sdl/contracts';
+import { childWord } from '@sdl/domain';
 import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 
@@ -11,6 +12,7 @@ import {
   invitationLabel,
   invitationMessage,
   invitationRequest,
+  inviteKinds,
   type InviteKind,
   useCopy,
   useCreateInvitation,
@@ -68,13 +70,11 @@ export function InvitePage({ teamId }: { teamId: string }) {
     );
   }
 
-  // Entrenador, solo el admin del club (04 §2.2).
+  // Entrenador, solo el admin del club (04 §2.2); acudientes, en un grupo de menores.
   const clubAdmin = session.data?.clubs.some((c) => c.id === team.data.team.club.id) ?? false;
-  const kinds: InviteKind[] = clubAdmin
-    ? ['player', 'assistant', 'coach']
-    : ['player', 'assistant'];
-  // Si el elegido no se le permite (entrenador, sin ser admin del club), jugadores.
-  const kind = kinds.includes(picked) ? picked : 'player';
+  const kinds = inviteKinds(team.data.team, clubAdmin, new Date().getFullYear());
+  // Si el elegido no se le permite, el primero: acudientes o jugadores.
+  const kind = kinds.includes(picked) ? picked : kinds[0]!;
 
   return (
     <Screen className={styles.screen}>
@@ -101,9 +101,11 @@ export function InvitePage({ teamId }: { teamId: string }) {
             onAlsoPlays={setAlsoPlays}
           />
           <p>
-            {kind === 'player'
-              ? 'Crea un enlace y mándalo al grupo del equipo. '
-              : 'Crea un enlace solo para esa persona y mándaselo. '}
+            {kind === 'guardians'
+              ? `Crea un enlace y mándalo al grupo de los papás. Cada acudiente entra con su Google e inscribe a ${childWord(team.data.team.gender)} con el nombre y el año de nacimiento. `
+              : kind === 'player'
+                ? 'Crea un enlace y mándalo al grupo del equipo. '
+                : 'Crea un enlace solo para esa persona y mándaselo. '}
             {INVITE_KINDS[kind].what}
           </p>
           {create.isError && (
@@ -147,7 +149,7 @@ function InviteKindPicker({
         value={kind}
         onChange={onKind}
       />
-      {kind !== 'player' && (
+      {kind !== 'player' && kind !== 'guardians' && (
         <label className={styles.alsoPlays}>
           <input
             type="checkbox"
@@ -189,7 +191,12 @@ function FreshLink({
   const { copied, copy } = useCopy();
   const [copyFailed, setCopyFailed] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const message = invitationMessage(team, created.joinUrl, created.invitation.role);
+  const message = invitationMessage(
+    team,
+    created.joinUrl,
+    created.invitation.role,
+    created.invitation.forGuardians,
+  );
 
   // El botón "Crear enlace" desaparece: el foco pasa al enlace recién creado.
   useEffect(() => titleRef.current?.focus(), []);
@@ -229,7 +236,14 @@ function FreshLink({
           <Button
             variant="ghost"
             onClick={() =>
-              void navigator.share({ title: `Únete a ${team.name}`, text: message }).catch(() => {})
+              void navigator
+                .share({
+                  title: created.invitation.forGuardians
+                    ? `Inscripción en ${team.name}`
+                    : `Únete a ${team.name}`,
+                  text: message,
+                })
+                .catch(() => {})
             }
           >
             Más formas de compartir

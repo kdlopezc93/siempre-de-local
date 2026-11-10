@@ -1,5 +1,6 @@
 import { registerSW } from 'virtual:pwa-register';
 
+import { childKey } from '../features/family/use-family';
 import { matchesKey } from '../features/matches/use-matches';
 import { queryClient } from './query-client';
 
@@ -19,7 +20,11 @@ export function registerServiceWorker(): void {
       'teamId' in data &&
       typeof data.teamId === 'string'
     ) {
-      void queryClient.invalidateQueries({ queryKey: matchesKey(data.teamId) });
+      // Por un hijo (2026-11-10): sus partidos, en la app del acudiente.
+      const minorId = 'minorId' in data && typeof data.minorId === 'string' ? data.minorId : null;
+      void queryClient.invalidateQueries({
+        queryKey: minorId ? childKey(minorId) : matchesKey(data.teamId),
+      });
     }
   });
 }

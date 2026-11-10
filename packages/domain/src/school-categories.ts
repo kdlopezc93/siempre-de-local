@@ -168,3 +168,28 @@ export function yearStrip(categories: readonly { category: string; years: BirthY
 export function suggestCategoryName(from: number | null, currentYear: number): string {
   return from === null ? 'Mayores' : `Sub-${currentYear - from}`;
 }
+
+/** Mayor de edad en Colombia: 18 años. Con el año basta (no se guarda la fecha). */
+export const ADULT_AGE = 18;
+
+/**
+ * Quiénes caben en una categoría por sus años (escuelas, 2026-11-10): `minors` si alguno es menor
+ * este año (entra con su acudiente) y `adults` si alguno ya es mayor (entra con su cuenta). Sin
+ * años (un equipo de club), solo adultos.
+ */
+export function categoryAges(
+  years: BirthYearRange | null,
+  thisYear: number,
+): { minors: boolean; adults: boolean } {
+  if (!years) return { minors: false, adults: true };
+  const lastAdultYear = thisYear - ADULT_AGE;
+  return {
+    minors: years.to > lastAdultYear,
+    adults: years.from === null || years.from <= lastAdultYear,
+  };
+}
+
+/** "tu hija", "tu hijo" o "tu hijo o hija", según el grupo. */
+export function childWord(gender: GroupGender | null): string {
+  return gender === 'female' ? 'tu hija' : gender === 'male' ? 'tu hijo' : 'tu hijo o hija';
+}

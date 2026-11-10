@@ -8,16 +8,10 @@ import { useLocation, useNavigate } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { BottomNav } from '../../shared/ui/BottomNav';
-import { TeamHeader, type HeaderTeam } from '../../shared/ui/TeamHeader';
+import { TeamHeader } from '../../shared/ui/TeamHeader';
 import styles from './AppShell.module.css';
-import {
-  activeTab,
-  formatsLabel,
-  rolesLabel,
-  switchTarget,
-  tabsFor,
-  type TabId,
-} from './shell-nav';
+import { kidPath, kidSeats, writeLastKid } from '../family/family-nav';
+import { activeTab, switchTarget, tabsFor, toHeader, type TabId } from './shell-nav';
 import { useActiveTeam } from './use-active-team';
 import { useNavBadges } from './use-nav-badges';
 
@@ -28,14 +22,6 @@ const ICONS = {
   'mi-juego': IdentificationCard,
   equipo: ShieldCheck,
 } satisfies Record<TabId, unknown>;
-
-const toHeader = ({ team, club, roles }: Me['teams'][number]): HeaderTeam => ({
-  id: team.id,
-  name: team.name,
-  club: club.name,
-  format: formatsLabel(team.formats, team.format),
-  roles: rolesLabel(roles),
-});
 
 /**
  * El armazón de las pantallas de la app (07 §4): arriba el equipo activo (con selector si
@@ -62,7 +48,11 @@ export function AppShell({ me, children }: { me: Me; children: ReactNode }) {
         team={toHeader(active)}
         account={{ name: me.profile.displayName, to: '/cuenta' }}
         teams={me.teams.map(toHeader)}
+        // Los hijos del acudiente, al lado de sus equipos (escuelas, 2026-11-10).
+        kids={kidSeats(me.children)}
+        onPickKid={(k) => void navigate(kidPath(k))}
         onSwitch={(teamId) => {
+          writeLastKid(null);
           choose(teamId);
           const target = me.teams.find((t) => t.team.id === teamId)!;
           void navigate(switchTarget(current?.id, tabsFor(teamId, target.roles)));

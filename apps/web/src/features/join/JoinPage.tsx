@@ -9,6 +9,7 @@ import { Screen } from '../../shared/ui/Screen';
 import { GoogleMark } from '../auth/components/GoogleMark';
 import { useGoogleSignIn, useSignOut } from '../auth/use-session';
 import { ConsentForm } from '../consent/ConsentForm';
+import { GuardianJoin } from './GuardianJoin';
 import styles from './JoinPage.module.css';
 import { errorMessage, useInvitationPreview, useJoinTeam } from './use-join';
 
@@ -48,6 +49,10 @@ export function JoinPage({ code, me }: { code: string; me: Me | null }) {
   }
 
   const invitation = preview.data;
+  // Enlace para acudientes (escuelas, 2026-11-10): inscribe a su hijo, no entra él.
+  if (invitation.forGuardians) {
+    return <GuardianJoin code={code} me={me} invitation={invitation} />;
+  }
 
   if (join.isSuccess) {
     return (

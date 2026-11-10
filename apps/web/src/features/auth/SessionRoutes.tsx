@@ -6,6 +6,9 @@ import { Button } from '../../shared/ui/Button';
 import { Screen } from '../../shared/ui/Screen';
 import { HomePage } from '../home/HomePage';
 import { AppShell } from '../shell/AppShell';
+import { FamilyShell } from '../family/FamilyShell';
+import { homeKid, kidPath, kidSeats, readLastKid } from '../family/family-nav';
+import type { HeaderKid } from '../../shared/ui/TeamHeader';
 import { useInvitationPreview } from '../join/use-join';
 import { LoginPage } from './LoginPage';
 import { loginPath, safeReturn } from './return-path';
@@ -54,8 +57,14 @@ const screens = {
   newCharge: () => import('../charges/NewChargePage'),
   myCharges: () => import('../charges/MyChargesPage'),
   adoption: () => import('../adoption/AdoptionPage'),
+  childHome: () => import('../family/ChildHomePage'),
+  childMatches: () => import('../family/ChildMatchesPage'),
 };
 
+const ChildHomePage = lazy(() => screens.childHome().then((m) => ({ default: m.ChildHomePage })));
+const ChildMatchesPage = lazy(() =>
+  screens.childMatches().then((m) => ({ default: m.ChildMatchesPage })),
+);
 const JoinPage = lazy(() => screens.join().then((m) => ({ default: m.JoinPage })));
 const ConsentPage = lazy(() => screens.consent().then((m) => ({ default: m.ConsentPage })));
 const NoTeamPage = lazy(() => screens.noTeam().then((m) => ({ default: m.NoTeamPage })));
@@ -161,7 +170,7 @@ function RequireSession({ children }: { children: (me: Me) => ReactNode }) {
     <Suspense fallback={<SessionPending />}>
       {!me.consent ? (
         <ConsentPage />
-      ) : me.teams.length === 0 && me.clubs.length === 0 ? (
+      ) : me.teams.length === 0 && me.clubs.length === 0 && me.children.length === 0 ? (
         <NoTeamPage email={me.user.email} />
       ) : (
         children(me)
@@ -175,10 +184,86 @@ function ShellRoute({ children }: { children: (me: Me) => ReactNode }) {
   return <RequireSession>{(me) => <AppShell me={me}>{children(me)}</AppShell>}</RequireSession>;
 }
 
-/** "/" */
+/**
+ * "/" — el inicio del equipo; para un acudiente (escuelas, 2026-11-10), el del último hijo que
+ * vio, o el del primero si no tiene equipos propios.
+ */
 export function HomeRoute() {
   usePreloadScreens();
-  return <ShellRoute>{(me) => <HomePage me={me} />}</ShellRoute>;
+  return (
+    <RequireSession>
+      {(me) => {
+        const kid = homeKid(kidSeats(me.children), me.teams.length > 0, readLastKid());
+        if (kid) return <Navigate to={kidPath(kid)} replace />;
+        return (
+          <AppShell me={me}>
+            <HomePage me={me} />
+          </AppShell>
+        );
+      }}
+    </RequireSession>
+  );
+}
+
+/**
+ * Las pantallas del acudiente por su hijo en un grupo: con el armazón de la familia. Un niño que
+ * no es suyo (o un grupo donde ya no está) lleva al inicio.
+ */
+function KidShellRoute({ children }: { children: (me: Me, seat: HeaderKid) => ReactNode }) {
+  const { minorId = '', teamId = '' } = useParams();
+  return (
+    <RequireSession>
+      {(me) => {
+        const seats = kidSeats(me.children);
+        const seat = seats.find((s) => s.id === minorId && s.teamId === teamId);
+        if (!seat) return <Navigate to="/" replace />;
+        return (
+          <FamilyShell me={me} seat={seat} seats={seats}>
+            {children(me, seat)}
+          </FamilyShell>
+        );
+      }}
+    </RequireSession>
+  );
+}
+
+/** "/deportistas/:minorId" — el primer grupo del niño (los avisos sin pantalla propia llegan aquí). */
+export function KidRoute() {
+  const { minorId = '' } = useParams();
+  return (
+    <RequireSession>
+      {(me) => {
+        const seat = kidSeats(me.children).find((s) => s.id === minorId);
+        return <Navigate to={seat ? kidPath(seat) : '/'} replace />;
+      }}
+    </RequireSession>
+  );
+}
+
+/** "/deportistas/:minorId/equipos/:teamId" — lo que toca por el niño. */
+export function KidHomeRoute() {
+  return <KidShellRoute>{(me, seat) => <ChildHomePage me={me} seat={seat} />}</KidShellRoute>;
+}
+
+/** "/deportistas/:minorId/equipos/:teamId/partidos[/:matchId]" */
+export function KidMatchesRoute() {
+  const { matchId } = useParams();
+  return (
+    <KidShellRoute>
+      {(_me, seat) => <ChildMatchesPage seat={seat} {...(matchId ? { matchId } : {})} />}
+    </KidShellRoute>
+  );
+}
+
+/** "/deportistas/:minorId/equipos/:teamId/cuentas" — los cobros a nombre del niño. */
+export function KidChargesRoute() {
+  return (
+    <KidShellRoute>
+      {(_me, seat) => (
+        <MyChargesPage teamId={seat.teamId} child={{ id: seat.id, name: seat.name }} />
+      )}
+    </KidShellRoute>
+  );
 }
 
 /** "/entrar" — si ya hay sesión, vuelve a donde iba (`?volver=`) o al inicio. */

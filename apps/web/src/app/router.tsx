@@ -41,6 +41,10 @@ import {
   ResultRoute,
   ScienceRoute,
   SquadRoute,
+  KidRoute,
+  KidHomeRoute,
+  KidMatchesRoute,
+  KidChargesRoute,
 } from '../features/auth/SessionRoutes';
 
 /** Maqueta del sistema de diseño v2: solo en desarrollo, fuera del build de producción. */
@@ -95,6 +99,11 @@ export const router = createBrowserRouter([
   { path: '/equipos/:teamId/cobros/:chargeId', element: <ChargeRoute /> },
   { path: '/equipos/:teamId/mis-cuentas', element: <MyChargesRoute /> },
   { path: '/equipos/:teamId/la-app', element: <AdoptionRoute /> },
+  { path: '/deportistas/:minorId', element: <KidRoute /> },
+  { path: '/deportistas/:minorId/equipos/:teamId', element: <KidHomeRoute /> },
+  { path: '/deportistas/:minorId/equipos/:teamId/partidos', element: <KidMatchesRoute /> },
+  { path: '/deportistas/:minorId/equipos/:teamId/partidos/:matchId', element: <KidMatchesRoute /> },
+  { path: '/deportistas/:minorId/equipos/:teamId/cuentas', element: <KidChargesRoute /> },
   { path: '/conocimiento', element: <KnowledgeRoute /> },
   { path: '/conocimiento/examen/:examId', element: <ExamRoute /> },
   { path: '/equipos/:teamId/test', element: <QuizRoute /> },

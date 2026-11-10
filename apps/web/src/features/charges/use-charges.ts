@@ -22,9 +22,14 @@ import {
   setChargeSponsor,
   updateCharge,
 } from '../../shared/api/charges';
+import { fetchChildCharges, reportChildPayment } from '../../shared/api/family';
 
 export const chargesKey = (teamId: string) => ['team', teamId, 'charges'] as const;
-const myChargesKey = (teamId: string) => ['team', teamId, 'my-charges'] as const;
+/** Lo mío, o lo de un hijo (el acudiente, 2026-11-10). */
+const myChargesKey = (teamId: string, minorId?: string) =>
+  minorId
+    ? (['team', teamId, 'my-charges', 'child', minorId] as const)
+    : (['team', teamId, 'my-charges'] as const);
 
 export function useCharges(teamId: string, enabled = true) {
   return useQuery({
@@ -43,11 +48,14 @@ export function useCharge(teamId: string, chargeId: string) {
   });
 }
 
-/** Lo que debe quien mira; `enabled` en falso para quien no es del equipo como jugador. */
-export function useMyCharges(teamId: string, enabled = true) {
+/**
+ * Lo que debe quien mira; `enabled` en falso para quien no es del equipo como jugador. Con
+ * `minorId`, lo de ese hijo (el acudiente, 2026-11-10).
+ */
+export function useMyCharges(teamId: string, enabled = true, minorId?: string) {
   return useQuery({
-    queryKey: myChargesKey(teamId),
-    queryFn: () => fetchMyCharges(teamId),
+    queryKey: myChargesKey(teamId, minorId),
+    queryFn: () => (minorId ? fetchChildCharges(minorId, teamId) : fetchMyCharges(teamId)),
     enabled,
     networkMode: 'offlineFirst',
   });
@@ -98,14 +106,16 @@ export const useReviewPayment = (teamId: string, chargeId: string) =>
       reviewPayment(teamId, chargeId, paymentId, decision),
   );
 
-/** "Ya pagué": la respuesta trae lo mío al día. */
-export function useReportPayment(teamId: string) {
+/** "Ya pagué": la respuesta trae lo mío (o lo del hijo) al día. */
+export function useReportPayment(teamId: string, minorId?: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ chargeId, ...request }: MyPaymentRequest & { chargeId: string }) =>
-      reportPayment(teamId, chargeId, request),
+    mutationFn: ({ chargeId, forUserId, ...request }: MyPaymentRequest & { chargeId: string }) =>
+      minorId
+        ? reportChildPayment(minorId, teamId, chargeId, request)
+        : reportPayment(teamId, chargeId, { ...request, ...(forUserId ? { forUserId } : {}) }),
     onSuccess: (data) => {
-      queryClient.setQueryData(myChargesKey(teamId), data);
+      queryClient.setQueryData(myChargesKey(teamId, minorId), data);
       void queryClient.invalidateQueries({ queryKey: chargesKey(teamId) });
     },
   });

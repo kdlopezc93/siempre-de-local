@@ -114,6 +114,7 @@ describe('acudientes inscriben a sus hijos (2026-11-08)', () => {
     expect(InvitationPreviewResponseSchema.parse(res.json())).toMatchObject({
       forGuardians: true,
       birthYears: { from: 2014, to: 2015 },
+      gender: 'male',
     });
   });
 

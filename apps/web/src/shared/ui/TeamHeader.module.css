@@ -113,3 +113,14 @@ button.team {
     background: var(--sdl-surface-hover);
   }
 }
+
+/* "Tus deportistas" y "Tus equipos" cuando el acudiente también es de un equipo (2026-11-10). */
+.group {
+  margin: var(--sdl-space-4) 0 var(--sdl-space-2);
+  font-size: var(--sdl-text-lg);
+  font-weight: 700;
+}
+
+section:first-child > .group {
+  margin-top: 0;
+}

@@ -1,4 +1,10 @@
-import type { BirthYears, ClubKind, InvitationRole, MatchFormat } from '@sdl/contracts';
+import type {
+  BirthYears,
+  CategoryGender,
+  ClubKind,
+  InvitationRole,
+  MatchFormat,
+} from '@sdl/contracts';
 
 import type { InvitationState } from '../invitation-status.js';
 
@@ -22,6 +28,8 @@ export interface InvitationWithTeam extends InvitationRecord {
     clubKind: ClubKind;
     /** Los años de la categoría, si es un grupo de escuela. */
     birthYears: BirthYears | null;
+    /** Masculino, femenino o mixto, si es un grupo de escuela (2026-11-10). */
+    gender: CategoryGender | null;
     /** Un equipo archivado no recibe a nadie (2026-10-29). */
     archived: boolean;
   };

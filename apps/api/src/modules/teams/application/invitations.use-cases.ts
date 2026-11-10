@@ -145,6 +145,7 @@ export class InvitationRedemption {
       alsoPlays: invitation.alsoPlays,
       forGuardians: invitation.forGuardians,
       birthYears: invitation.team.birthYears,
+      gender: invitation.team.gender,
     };
   }
 
