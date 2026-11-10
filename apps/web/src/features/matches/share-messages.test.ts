@@ -1,7 +1,7 @@
 import type { Match, MatchRoster } from '@sdl/contracts';
 import { describe, expect, it } from 'vitest';
 
-import { callUpMessage, lineupMessage, namesList } from './share-messages';
+import { callUpMessage, lineupMessage, matchdayMessage, namesList } from './share-messages';
 
 const match = (over: Partial<Match> = {}) =>
   ({
@@ -70,5 +70,21 @@ describe('mandar al grupo (2026-11-06)', () => {
     expect(namesList([])).toBe('');
     expect(namesList(['Juan'])).toBe('Juan');
     expect(namesList(['Juan', 'Pipe', 'Ciro'])).toBe('Juan, Pipe y Ciro');
+  });
+
+  it('día de partido (2026-11-10): los convocados con su dorsal', () => {
+    const text = matchdayMessage(
+      match(),
+      [
+        { displayName: 'Ana', jerseyNumber: 4 },
+        { displayName: 'Ciro', jerseyNumber: null },
+      ],
+      'https://app/x',
+    );
+    const lines = text.split('\n');
+    expect(lines[0]).toBe('🔥 *Día de partido*');
+    expect(lines[1]).toBe('⚽ *Amistoso vs Real Bosa*');
+    expect(lines[3]).toBe('Convocados (2): 4 Ana y Ciro');
+    expect(lines[4]).toBe('Detalles 👉 https://app/x');
   });
 });

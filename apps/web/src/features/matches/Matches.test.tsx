@@ -323,6 +323,25 @@ describe('partidos en la app (Fase 7)', () => {
     expect(text).toContain(`${window.location.origin}/equipos/${TEAM_A}/partidos/${M1}`);
   });
 
+  it('día de partido (2026-11-10): "Mandar los convocados al grupo" con los que van', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: { match: match(), roster: ROSTER },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/lineups`]: { status: 200, body: { items: [] } },
+    });
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+    const going = await screen.findByRole('region', { name: /^Van \(/ });
+    const link = within(going).getByRole('link', { name: 'Mandar los convocados al grupo' });
+    const text = new URL(link.getAttribute('href')!).searchParams.get('text')!;
+    expect(text).toContain('*Día de partido*');
+    expect(text).toContain('4 Ana');
+    expect(text).toContain(`${window.location.origin}/equipos/${TEAM_A}/partidos/${M1}`);
+  });
+
   it('recordatorio (2026-11-06): "Recordarles ahora" y cuándo les recuerda la app sola', async () => {
     let posted = false;
     const reminders = {

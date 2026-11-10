@@ -23,9 +23,10 @@ import { usePublishLineup, useLineups } from '../lineup/use-lineups';
 import { AfterMatch, FigureShare, MatchResultView } from './AfterMatch';
 import { WhoCameAlone } from './WhoCame';
 import { lineupImage } from './lineup-image';
+import { matchdayImage } from './matchday-image';
 import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
-import { callUpMessage, lineupMessage } from './share-messages';
+import { callUpMessage, lineupMessage, matchdayMessage } from './share-messages';
 import { POSTER_VERSION } from '../../shared/poster/poster';
 import { useTeamColors } from '../team/use-team-colors';
 import { Reminders } from './Reminders';
@@ -176,7 +177,7 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         game ? (
           <StaffTabs teamId={teamId} teamName={teamName} match={match} roster={roster} me={me} />
         ) : (
-          <CallUp teamId={teamId} match={match} roster={roster} />
+          <CallUp teamId={teamId} teamName={teamName} match={match} roster={roster} />
         )
       ) : (
         <>
@@ -328,7 +329,17 @@ const GROUPS: {
  * van en verde, no van en rojo) en las cifras y en las píldoras, con el dorsal en un círculo.
  * Debajo de los que faltan, "Mandar la convocatoria al grupo".
  */
-function CallUp({ teamId, match, roster }: { teamId: string; match: Match; roster: MatchRoster }) {
+function CallUp({
+  teamId,
+  teamName,
+  match,
+  roster,
+}: {
+  teamId: string;
+  teamName: string;
+  match: Match;
+  roster: MatchRoster;
+}) {
   // Tres cifras; los lesionados van solo en su grupo (con cuatro, no cabían a 360 px).
   const groups = GROUPS.map((g) => ({ ...g, people: roster.filter(g.has) }));
   const message = callUpMessage(match, roster, appUrl(`/equipos/${teamId}/partidos/${match.id}`));
@@ -372,6 +383,10 @@ function CallUp({ teamId, match, roster }: { teamId: string; match: Match; roste
                 ))}
               </ul>
             )}
+            {/* Día de partido (2026-11-10): el afiche con los que van, antes del partido. */}
+            {tone === 'yes' && match.open && isGame(match.kind) && people.length > 0 && (
+              <MatchdayShare teamId={teamId} teamName={teamName} match={match} going={people} />
+            )}
             {tone === 'wait' && match.open && (
               <>
                 <GroupShare message={message} label="Mandar la convocatoria al grupo" />
@@ -382,6 +397,63 @@ function CallUp({ teamId, match, roster }: { teamId: string; match: Match; roste
         ),
       )}
     </>
+  );
+}
+
+/**
+ * "Mandar los convocados al grupo" (2026-11-10): el afiche "Día de partido" con los que van (sin
+ * los lesionados) y su mensaje. Se dibuja en el celular, como los demás afiches.
+ */
+function MatchdayShare({
+  teamId,
+  teamName,
+  match,
+  going,
+}: {
+  teamId: string;
+  teamName: string;
+  match: Match;
+  going: MatchRoster;
+}) {
+  const colors = useTeamColors(teamId);
+  const players = going.filter((p) => !p.injured);
+  const image = useQuery({
+    queryKey: [
+      'matchday-image',
+      POSTER_VERSION,
+      match.id,
+      match.startsAt,
+      match.place,
+      match.opponent,
+      teamName,
+      ...players.map((p) => `${p.playerId}:${p.jerseyNumber ?? ''}:${p.displayName}`),
+      ...(colors ?? []),
+    ],
+    queryFn: () =>
+      matchdayImage({
+        teamName,
+        kindLine: matchKindLine(match),
+        opponent: match.opponent ?? '',
+        startsAt: match.startsAt,
+        place: match.place,
+        players,
+        colors,
+      }),
+    staleTime: Infinity,
+    structuralSharing: false,
+    networkMode: 'always',
+  });
+  const message = matchdayMessage(
+    match,
+    players,
+    appUrl(`/equipos/${teamId}/partidos/${match.id}`),
+  );
+  return (
+    <GroupShare
+      message={message}
+      file={image.data ?? null}
+      label="Mandar los convocados al grupo"
+    />
   );
 }
 
@@ -418,7 +490,7 @@ function StaffTabs({
         ]}
       />
       {tab === 'convocatoria' ? (
-        <CallUp teamId={teamId} match={match} roster={roster} />
+        <CallUp teamId={teamId} teamName={teamName} match={match} roster={roster} />
       ) : (
         <LineupTab teamId={teamId} teamName={teamName} match={match} meId={me.user.id} />
       )}

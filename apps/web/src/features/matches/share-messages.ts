@@ -38,6 +38,27 @@ export function callUpMessage(match: Match, roster: MatchRoster, url: string): s
   ].join('\n');
 }
 
+/**
+ * "Día de partido" con los convocados (2026-11-10): va con su afiche. Los que van, con su
+ * dorsal, para que cada uno se busque.
+ */
+export function matchdayMessage(
+  match: Pick<Match, 'kind' | 'opponent' | 'tournament' | 'startsAt' | 'place'>,
+  going: readonly { displayName: string; jerseyNumber: number | null }[],
+  url: string,
+): string {
+  const names = going.map((p) =>
+    p.jerseyNumber !== null ? `${p.jerseyNumber} ${p.displayName}` : p.displayName,
+  );
+  return [
+    `🔥 *Día de partido*`,
+    headline(match),
+    `${upper(matchWhen(match.startsAt))} · ${match.place}`,
+    `Convocados (${going.length}): ${namesList(names)}`,
+    `Detalles 👉 ${url}`,
+  ].join('\n');
+}
+
 /** La alineación publicada: va con su imagen cuando el celular deja compartirla. */
 export function lineupMessage(match: Pick<Match, 'startsAt' | 'opponent'>, url: string): string {
   const vs = match.opponent ? ` vs ${match.opponent}` : '';
