@@ -9,7 +9,7 @@ import { ClubKindSchema } from './teams.js';
  */
 
 /** Versión vigente de la autorización del representante legal (docs/legal). */
-export const GUARDIAN_AUTHORIZATION_VERSION = '2026-11-08';
+export const GUARDIAN_AUTHORIZATION_VERSION = '2026-11-10';
 
 export const GuardianRelationshipSchema = z.enum(['mother', 'father', 'guardian']);
 

@@ -2,9 +2,9 @@
 
 > **Publicada el 2026-11-08 sin revisión legal**, como la política de datos (D7; decisión de Kevin, `08` §10). Falta que la revise alguien que conozca el régimen reforzado de niños, niñas y adolescentes de la Ley 1581 de 2012 (art. 7) y el Decreto 1377 de 2013 (art. 12). Cada cambio de texto cambia `GUARDIAN_AUTHORIZATION_VERSION` en `packages/contracts/src/families.ts`, y los acudientes vuelven a aceptarla.
 
-**Versión:** 2026-11-08 · **Vigente desde:** 8 de noviembre de 2026
+**Versión:** 2026-11-10 · **Vigente desde:** 10 de noviembre de 2026
 
-Con esta autorización, tú, como mamá, papá o acudiente, inscribes a tu hijo o hija menor de 18 años en un grupo de su escuela deportiva en Siempre de Local. Tu hijo no tiene cuenta propia: la manejas tú, con tu cuenta de Google. Además de esta autorización, aceptas como adulto la [política de tratamiento de datos](politica-tratamiento-datos.md), que aplica también a lo que se guarda de tu hijo.
+Con esta autorización, tú, como mamá, papá o acudiente, inscribes a tu hijo o hija menor de 18 años en un grupo de su escuela deportiva en Siempre de Local. Tu hijo no tiene cuenta propia: la manejas tú, con tu cuenta de Google. Además de esta autorización, aceptas como adulto la **política de tratamiento de datos**, que aplica también a lo que se guarda de tu hijo.
 
 ## 1. Quién es responsable
 

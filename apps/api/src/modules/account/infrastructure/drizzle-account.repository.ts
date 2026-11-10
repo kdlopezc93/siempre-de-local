@@ -5,6 +5,7 @@ import { and, asc, desc, eq, inArray, isNotNull, ne, or } from 'drizzle-orm';
 import type { DbConnection } from '../../../shared/db/client.js';
 import { DB_CONNECTION } from '../../../shared/db/db.module.js';
 import { coachAssessment } from '../../assessments/infrastructure/schema.js';
+import { guardianship } from '../../families/infrastructure/schema.js';
 import { dataConsent } from '../../identity/infrastructure/consent.schema.js';
 import { user } from '../../identity/infrastructure/schema.js';
 import { charge, chargeShare, payment } from '../../charges/infrastructure/schema.js';
@@ -251,6 +252,46 @@ export class DrizzleAccountRepository implements AccountRepository {
   }
 
   async deleteUser(userId: string) {
-    await this.connection.db.delete(user).where(eq(user.id, userId));
+    return this.connection.db.transaction(async (tx) => {
+      const mine = await tx
+        .select({ minorUserId: guardianship.minorUserId })
+        .from(guardianship)
+        .where(eq(guardianship.guardianUserId, userId));
+      const ids = mine.map((m) => m.minorUserId);
+      // Los que tienen otro acudiente se quedan con él.
+      const covered =
+        ids.length === 0
+          ? []
+          : await tx
+              .select({ minorUserId: guardianship.minorUserId })
+              .from(guardianship)
+              .where(
+                and(
+                  inArray(guardianship.minorUserId, ids),
+                  ne(guardianship.guardianUserId, userId),
+                ),
+              );
+      const keep = new Set(covered.map((c) => c.minorUserId));
+      const orphans = ids.filter((id) => !keep.has(id));
+      if (orphans.length > 0) {
+        await tx.delete(user).where(and(inArray(user.id, orphans), eq(user.managed, true)));
+      }
+      await tx.delete(user).where(eq(user.id, userId));
+      return { minors: orphans.length };
+    });
+  }
+
+  async minorOf(guardianUserId: string, minorUserId: string) {
+    const [row] = await this.connection.db
+      .select({ name: user.name })
+      .from(guardianship)
+      .innerJoin(user, eq(guardianship.minorUserId, user.id))
+      .where(
+        and(
+          eq(guardianship.guardianUserId, guardianUserId),
+          eq(guardianship.minorUserId, minorUserId),
+        ),
+      );
+    return row ?? null;
   }
 }

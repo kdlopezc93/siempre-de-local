@@ -19,6 +19,7 @@ import { InvitationRedemption, TeamInvitations } from './application/invitations
 import { CLUB_CODES_REPOSITORY } from './application/ports/club-codes.repository.js';
 import {
   ChangeMemberRoles,
+  MovePlayer,
   RemoveMember,
   TransferCoach,
 } from './application/member-roles.use-cases.js';
@@ -75,6 +76,7 @@ import { DrizzleTeamsRepository } from './infrastructure/drizzle-teams.repositor
     SetInjury,
     ChangeMemberRoles,
     TransferCoach,
+    MovePlayer,
     RemoveMember,
     TeamInvitations,
     InvitationRedemption,

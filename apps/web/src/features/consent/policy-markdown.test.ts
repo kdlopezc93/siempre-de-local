@@ -1,6 +1,7 @@
-import { POLICY_VERSION } from '@sdl/contracts';
+import { GUARDIAN_AUTHORIZATION_VERSION, POLICY_VERSION } from '@sdl/contracts';
 import { describe, expect, it } from 'vitest';
 
+import authorization from '../../../../../docs/legal/autorizacion-representante-legal.md?raw';
 import policy from '../../../../../docs/legal/politica-tratamiento-datos.md?raw';
 import { parsePolicy } from './policy-markdown';
 
@@ -38,5 +39,11 @@ describe('parsePolicy', () => {
 
   it('no quedan huecos `[…]` por llenar', () => {
     expect(policy).not.toMatch(/\[[^\]]*\]/);
+  });
+
+  it('la autorización del acudiente: su versión es la vigente y no lleva enlaces ni huecos (2026-11-10)', () => {
+    // El texto se muestra tal cual: un enlace `[…](…)` saldría con corchetes.
+    expect(authorization).not.toMatch(/\[[^\]]*\]/);
+    expect(authorization).toContain(`**Versión:** ${GUARDIAN_AUTHORIZATION_VERSION}`);
   });
 });
