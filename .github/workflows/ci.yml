@@ -144,8 +144,12 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Si los espejos de Ubuntu fallan (pasó el 2026-11-11), instala solo el navegador: la imagen
+      # de GitHub ya trae las librerías que necesita Chromium.
       - name: Chromium para Playwright
-        run: pnpm --filter @sdl/e2e exec playwright install --with-deps chromium
+        run: |
+          pnpm --filter @sdl/e2e exec playwright install --with-deps chromium \
+            || pnpm --filter @sdl/e2e exec playwright install chromium
 
       # Invitar → unirse (política y mayoría de edad) → test de 20 → podio → historial.
       - run: pnpm e2e
