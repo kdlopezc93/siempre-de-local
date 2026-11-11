@@ -104,9 +104,18 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
       <header className={styles.matchHero}>
         <div className={styles.heroBadges}>
           <Badge tone="white">{matchWhen(match.startsAt)}</Badge>
-          {/* Día de partido (2026-11-10, Kevin): compartir el afiche de los convocados. */}
-          {staff && roster && match.open && game && (
-            <MatchdayShare teamId={teamId} teamName={teamName} match={match} roster={roster} />
+          {/*
+            Día de partido (2026-11-10, Kevin): compartir el afiche de los convocados. El cuerpo
+            técnico, siempre; los jugadores, cuando hay alineación publicada (esa lista ya la ve
+            todo el equipo; sin ella saldría de quién respondió qué, que no ven).
+          */}
+          {match.open && game && ((staff && roster) || (player && match.published)) && (
+            <MatchdayShare
+              teamId={teamId}
+              teamName={teamName}
+              match={match}
+              roster={roster ?? []}
+            />
           )}
           {!match.open && (
             <Badge tone={match.status === 'cancelled' ? 'danger' : 'accent'}>
