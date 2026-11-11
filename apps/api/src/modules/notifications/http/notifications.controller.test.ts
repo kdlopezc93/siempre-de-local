@@ -67,11 +67,10 @@ describe('suscribirse a los avisos (Web Push)', () => {
     expect(await connection.db.select().from(pushSubscription)).toHaveLength(0);
   });
 
-  it('solo endpoints https', async () => {
-    const res = await call('POST', '/me/push-subscriptions', ana, {
-      ...SUB,
-      endpoint: 'http://evil/x',
-    });
-    expect(res.statusCode).toBe(400);
+  it('solo endpoints https de un servicio de avisos (auditoría 2026-11-10)', async () => {
+    for (const endpoint of ['http://evil/x', 'https://evil.example/fcm/send/abc']) {
+      const res = await call('POST', '/me/push-subscriptions', ana, { ...SUB, endpoint });
+      expect(res.statusCode).toBe(400);
+    }
   });
 });

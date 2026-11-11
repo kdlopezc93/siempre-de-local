@@ -212,3 +212,19 @@ Nada nuevo que salga a la red o cargue algo de afuera (analítica, reporte de er
 1. una fila en §6.2;
 2. su origen agregado a la CSP a propósito;
 3. revisar la política de datos (D7) si toca datos personales.
+
+## 8. Auditoría de seguridad (2026-11-10, toda la app)
+
+Revisión a mano de las ~120 rutas del API, la web, el despliegue y las dependencias (Kevin: "la auditoría es para toda la app", antes de la escuela piloto).
+
+**Bien:** cada ruta exige sesión salvo las públicas a propósito; los ids de la ruta (cobros, pagos, jugadores, alineaciones, exámenes, sedes, hijos) se comprueban contra el equipo, el club o el acudiente (si no, 404); CSRF por `Origin` además de `SameSite=Lax`, con test; cookies `httpOnly`, `Secure` y firmadas; vistas previas públicas sin datos de personas ni montos; `CronGuard` en tiempo constante; las respuestas de los exámenes no salen del servidor; CSV protegido contra fórmulas; CSP en la web; sin secretos en el repo; respaldos cifrados; permisos de GitHub Actions acotados.
+
+**Corregido en este PR:**
+
+- **M1 — IP del cliente falseable.** Con `trustProxy: true`, Fastify tomaba la primera IP de `X-Forwarded-For`, que manda el cliente: se podía saltar el límite de 20 por minuto de los códigos. Better Auth no reconocía `X-Forwarded-For` con dos IP (la del cliente y la de Fly) y dejaba a todos en un mismo cupo. Ahora los dos usan `Fly-Client-IP` (`shared/http/client-ip.ts`, `ClientIpThrottlerGuard`, `advanced.ipAddress`).
+- **M2 — Suscripciones de avisos a cualquier host.** El API le mandaba avisos a la dirección que dijera el cliente. Ahora solo a los servicios de avisos de los navegadores (`isPushServiceUrl` en contracts).
+- **M3 — `fast-uri` < 3.1.9** (vía Fastify): override a `^3.1.9` en `pnpm-workspace.yaml`.
+- **L1 — Sin HSTS:** `Strict-Transport-Security` en el API (con HTTPS) y en `_headers` de la web.
+- **L2 — El service worker aceptaba `//otro-sitio`** como ruta de un aviso: ahora solo rutas de la app.
+
+**Pendiente:** L3 `esbuild` ≤ 0.24.2 (solo el servidor de desarrollo); la revisión legal de la política y de la autorización del acudiente (D7); una segunda auditoría independiente con `cloudflare/security-audit-skill` sobre este código.

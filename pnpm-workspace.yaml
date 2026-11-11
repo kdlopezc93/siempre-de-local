@@ -22,3 +22,8 @@ allowBuilds:
   cpu-features: false
   ssh2: false
   protobufjs: false
+
+# Auditoría de seguridad (2026-11-10, M3): fast-uri < 3.1.9 tiene vulnerabilidades conocidas
+# (GHSA-333x-w4r6-6crp y otras); la trae Fastify por dentro (ajv). Quitar cuando Fastify la suba.
+overrides:
+  fast-uri: '^3.1.9'

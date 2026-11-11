@@ -48,7 +48,9 @@ export function createAuth(env: Env, db: Database) {
       useSecureCookies: env.BETTER_AUTH_URL.startsWith('https://'),
       crossSubDomainCookies: { enabled: true, domain: env.COOKIE_DOMAIN },
       defaultCookieAttributes: { sameSite: 'lax', httpOnly: true },
-      ipAddress: { ipAddressHeaders: ['x-forwarded-for'] },
+      // La IP para sus límites de intentos (auditoría 2026-11-10, M1): la que pone Fly, que el
+      // cliente no puede falsear; `X-Forwarded-For` solo sirve con una sola IP (local).
+      ipAddress: { ipAddressHeaders: ['fly-client-ip', 'x-forwarded-for'] },
       database: { generateId: false },
       // Better Auth apaga el chequeo de origen y callbackURL si detecta un entorno de test;
       // lo fijamos para que los tests verifiquen lo mismo que corre en producción.

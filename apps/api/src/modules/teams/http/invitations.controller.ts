@@ -9,7 +9,6 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
 import {
   type AcceptInvitationResponse,
   type CreateInvitationResponse,
@@ -19,6 +18,7 @@ import {
 } from '@sdl/contracts';
 import { z } from 'zod';
 
+import { ClientIpThrottlerGuard } from '../../../shared/http/client-ip-throttler.guard.js';
 import { ENV } from '../../../config/config.module.js';
 import type { Env } from '../../../config/env.js';
 import { Can } from '../../../shared/authz/can.decorator.js';
@@ -75,7 +75,7 @@ export class TeamInvitationsController {
 
 /** 20 peticiones por minuto y por IP entre ver y aceptar (ThrottlerModule en TeamsModule). */
 @Controller('invitations')
-@UseGuards(ThrottlerGuard)
+@UseGuards(ClientIpThrottlerGuard)
 export class InvitationsController {
   constructor(private readonly redemption: InvitationRedemption) {}
 
