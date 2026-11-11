@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
 import { createMemoryRouter, RouterProvider } from 'react-router';
@@ -321,6 +321,82 @@ describe('partidos en la app (Fase 7)', () => {
     expect(text).toContain('Van 3 · No van 1');
     expect(text).toContain('Faltan por responder: Ciro');
     expect(text).toContain(`${window.location.origin}/equipos/${TEAM_A}/partidos/${M1}`);
+  });
+
+  it('día de partido (2026-11-10): el círculo de compartir en el partido manda a los convocados', async () => {
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: { match: match(), roster: ROSTER },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/lineups`]: { status: 200, body: { items: [] } },
+    });
+    const open = vi.spyOn(window, 'open').mockReturnValue(null);
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+    // Sin alineación publicada, los que dijeron "Voy".
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Compartir el afiche de los convocados' }),
+    );
+    const href = open.mock.calls[0]![0] as string;
+    const text = new URL(href).searchParams.get('text')!;
+    expect(href).toMatch(/^https:\/\/wa\.me\/\?text=/);
+    expect(text).toContain('*Día de partido*');
+    expect(text).toContain('4 Ana');
+    open.mockRestore();
+  });
+
+  it('día de partido: el jugador comparte el afiche solo con la alineación publicada (2026-11-10)', async () => {
+    const lineup = {
+      matchId: M1,
+      format: 'F11',
+      formation: '4-4-2',
+      publishedAt: '2026-11-07T03:00:00.000Z',
+      starters: [
+        { slotId: 'POR', player: { id: ROSTER[0]!.playerId, displayName: 'Ana', jerseyNumber: 4 } },
+      ],
+      bench: [],
+    };
+    const asPlayer = {
+      ...ME_TWO_TEAMS,
+      teams: ME_TWO_TEAMS.teams.map((t) =>
+        t.team.id === TEAM_A ? { ...t, roles: ['player' as const] } : t,
+      ),
+    };
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: { match: match(), roster: null },
+      },
+    });
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={asPlayer} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+    await screen.findByRole('heading', { level: 1 });
+    expect(
+      screen.queryByRole('button', { name: 'Compartir el afiche de los convocados' }),
+    ).toBeNull();
+    cleanup();
+
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
+        status: 200,
+        body: {
+          match: match({
+            published: { lineupId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f99', at: lineup.publishedAt },
+          }),
+          roster: null,
+        },
+      },
+      [`GET /api/v1/teams/${TEAM_A}/matches/${M1}/lineup`]: { status: 200, body: lineup },
+    });
+    renderAt('/m', [
+      { path: '/m', element: <MatchPage me={asPlayer} teamId={TEAM_A} matchId={M1} /> },
+    ]);
+    expect(
+      await screen.findByRole('button', { name: 'Compartir el afiche de los convocados' }),
+    ).toBeInTheDocument();
   });
 
   it('recordatorio (2026-11-06): "Recordarles ahora" y cuándo les recuerda la app sola', async () => {
