@@ -35,6 +35,7 @@ const ME: Me = {
   ],
   profile: DEFAULT_PROFILE,
   clubs: [],
+  children: [],
 };
 
 const official = (n: number, submittedAt: string, podium: string[]) => ({

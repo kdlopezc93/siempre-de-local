@@ -36,6 +36,7 @@ const me = (roles: ('player' | 'coach')[]): Me => ({
   ],
   profile: DEFAULT_PROFILE,
   clubs: [],
+  children: [],
 });
 
 function renderQuiz(roles: ('player' | 'coach')[] = ['player']) {

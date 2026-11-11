@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { ConsentSchema } from './consent.js';
+import { ChildSchema } from './families.js';
 import { ProfileSchema } from './profile.js';
 import {
   ClubKindSchema,
@@ -55,6 +56,8 @@ export const MeResponseSchema = z.object({
       kind: ClubKindSchema.default('club'),
     }),
   ),
+  /** Los menores a su cargo (acudiente, escuelas 2026-11-08). */
+  children: z.array(ChildSchema).default([]),
 });
 
 export type MeResponse = z.infer<typeof MeResponseSchema>;

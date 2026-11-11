@@ -51,6 +51,7 @@ describe('spike de auth: Better Auth + Nest + Fastify', () => {
       consent: null,
       teams: [],
       clubs: [],
+      children: [],
     });
   });
 

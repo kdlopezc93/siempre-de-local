@@ -50,7 +50,9 @@ user ─┬─< account (Google; en el futuro otros proveedores / OIDC)
 
 Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts` (migración `0004_data_consent`), con índice por `user_id` y borrado en cascada con el usuario. Una fila por versión aceptada (es la prueba de la autorización); la vigente es la de `POLICY_VERSION` sin `revoked_at`.
 
-> Las tablas `guardian_consent`, `birth_year` e `is_minor` del diseño anterior **se eliminan** mientras todos los usuarios sean adultos. Ver `04`, §5.1 para reactivarlas.
+> **Menores a cargo de su acudiente (escuelas, 2026-11-08, migración `0037_guardians`, `08` §10).** El niño es un `user` **sin método de entrada**: no tiene fila en `account` ni sesiones, y su `email` es interno y único (`menor-<uuid>@menor.invalid`; el dominio `.invalid` no existe, RFC 2606), porque Better Auth lo exige; nunca se usa. Así convocatorias, "¿quién vino?", cobros, tarjetas y evaluaciones siguen funcionando por `user_id`. Columnas en `user`: `managed boolean default false` (es un menor a cargo de un acudiente) y `birth_year smallint null` (solo de los menores; minimización: sin fecha completa). Un menor solo juega: no es asistente, tesorero, entrenador ni admin.
+
+**guardianship** — `guardian_user_id FK user (cascade), minor_user_id FK user (cascade), relationship guardian_relationship ('mother','father','guardian'), authorization_version text, authorized_at, created_at` · PK `(guardian_user_id, minor_user_id)`, índice por `minor_user_id`. Guarda la **autorización del representante legal** que aceptó el acudiente (`docs/legal/autorizacion-representante-legal.md`, `GUARDIAN_AUTHORIZATION_VERSION`); el acudiente además acepta la política de adultos en `data_consent`. Implementado en `apps/api/src/modules/families/infrastructure/schema.ts`.
 
 ## 3. Organización y membresías
 
@@ -86,7 +88,7 @@ Implementado en `apps/api/src/modules/identity/infrastructure/consent.schema.ts`
 
 > **Tesorero** (`treasurer`, 2026-10-30, migración `0029_team_role_treasurer`): maneja los cobros y pasa lista; puede ser también jugador; el entrenador no lo es (ya maneja la plata). No se entra de tesorero con invitación (`invitation.role` sigue siendo jugador, asistente o entrenador): se nombra en Roles.
 
-**invitation** — `id, team_id, role, also_plays boolean (default false), code_hash unique, created_by null, expires_at, max_uses, used_count, revoked_at, created_at` · check `0 ≤ used_count ≤ max_uses`
+**invitation** — `id, team_id, role, also_plays boolean (default false), for_guardians boolean (default false; 2026-11-08: el acudiente inscribe a su hijo menor, no entra él; check `invitation_guardians_player`: solo de jugador), code_hash unique, created_by null, expires_at, max_uses, used_count, revoked_at, created_at` · check `0 ≤ used_count ≤ max_uses`
 - `code_hash` = SHA-256 del código normalizado (10 caracteres de un alfabeto sin 0/O/1/I/L, ~50 bits); el código en claro no se guarda.
 - `created_by` queda en null si se borra la cuenta de quien la creó.
 - `also_plays` (migración `0024_invitation_also_plays`, 2026-10-29): la de cuerpo técnico que también juega; al aceptar, entra además como jugador. La de entrenador es para una persona y, al aceptarla, pasa el mando (el anterior queda de asistente).

@@ -18,6 +18,7 @@ const ME: Me = {
   consent: { policyVersion: 'x', acceptedAt: '2026-10-21T10:00:00.000Z' },
   teams: [],
   clubs: [],
+  children: [],
 };
 
 function renderProfile() {

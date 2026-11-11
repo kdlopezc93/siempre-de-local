@@ -79,6 +79,7 @@ Los clubes se crean con un **código de alta** (2026-10-29): el administrador de
 | Evaluar a los jugadores del partido (`team.ratings.write`) | ✘ | ✔ | ✔ | ✘ | ✘ |
 | Ver las evaluaciones del partido con notas | propia, sin nota, si el equipo las muestra (D18) | ✔ | ✔ | ✔ | ✘ |
 | Invitar jugadores | ✘ | ✘ | ✔ | ✔ | ✘ |
+| Invitar acudientes a inscribir a sus hijos, en un grupo de escuela (2026-11-08) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Invitar asistentes, que pueden también jugar (`team.assistants.invite`, Kevin 2026-10-29) | ✘ | ✘ | ✔ | ✔ | ✘ |
 | Invitar entrenadores (`team.staff.invite`): una persona; al entrar pasa el mando | ✘ | ✘ | ✘ | ✔ | ✘ |
 | Quitar del equipo (`team.members.manage`): sale con su historial; al entrenador no, primero se pasa el mando | ✘ | ✘ | ✔ | ✔ | ✘ |
@@ -152,6 +153,8 @@ Medidas:
 Se reactiva el diseño previo: año de nacimiento, flujo de **autorización del representante legal** (régimen reforzado para niños, niñas y adolescentes), cuentas sin email (usuario y contraseña creados por invitación) y bloqueo de sincronización sin autorización vigente. No es un cambio menor: implica activar un método de login adicional en Better Auth y nuevas tablas. Debe pasar por revisión legal antes.
 
 **Decidido (2026-11-07, `08` §10):** primero sin cuenta del niño. El **acudiente** entra con su Google y maneja a sus deportistas; la autorización del representante legal se publica versionada, como la política de adultos (D7), sin revisión legal por ahora. La cuenta propia del niño (el método de entrada adicional) queda para después. Plan en `06` (Escuelas).
+
+**Hecho (2026-11-08, PR 2 de Escuelas):** el niño es un usuario sin método de entrada (`03` §2), a cargo de su acudiente (`guardianship`). El acudiente lo inscribe con una **invitación para acudientes** del grupo: entra con su Google, acepta la política de adultos y la **autorización del representante legal** (`docs/legal/autorizacion-representante-legal.md`, versionada en `GUARDIAN_AUTHORIZATION_VERSION`, publicada sin revisión legal como D7) y da solo el nombre y el año de nacimiento del niño. Un niño de 18 o más no entra por ahí (entra con su cuenta); uno de otros años, tampoco (`CHILD_NOT_IN_CATEGORY`). Un menor solo juega: no se le dan roles de cuerpo técnico, de tesorero ni de admin. Pendiente: que el acudiente actúe por él en la app (PR 3), las reglas de menores en lo que ya existe y sus derechos (descargar y borrar sus datos, borrar al menor con su último acudiente; PR 4), un segundo acudiente para el mismo niño, y que la política de adultos (§9 "solo mayores de 18") diga que entran menores a cargo de su acudiente: cambiarla sube `POLICY_VERSION` y todos la vuelven a aceptar.
 
 ## 6. Terceros, dependencias y encabezados de seguridad
 

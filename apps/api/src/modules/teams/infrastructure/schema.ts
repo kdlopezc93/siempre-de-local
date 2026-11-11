@@ -161,6 +161,11 @@ export const invitation = pgTable(
     role: teamRole().notNull().$type<InvitationRole>(),
     /** Cuerpo técnico que también juega: al aceptar entra además como jugador (2026-10-29). */
     alsoPlays: boolean().notNull().default(false),
+    /**
+     * Para acudientes (escuelas, 2026-11-08): quien la abre inscribe a su hijo menor como jugador;
+     * no entra él mismo. Solo de jugador.
+     */
+    forGuardians: boolean().notNull().default(false),
     /** SHA-256 del código; el código en claro no se guarda (se muestra una vez). */
     codeHash: text().notNull().unique(),
     /** Null si se borró la cuenta de quien la creó (derecho de supresión, 04 §5). */
@@ -174,6 +179,7 @@ export const invitation = pgTable(
   (t) => [
     index().on(t.teamId),
     check('invitation_uses_in_range', sql`${t.usedCount} >= 0 and ${t.usedCount} <= ${t.maxUses}`),
+    check('invitation_guardians_player', sql`not ${t.forGuardians} or ${t.role} = 'player'`),
   ],
 );
 

@@ -345,9 +345,23 @@ export class DrizzleTeamsRepository
         and(eq(clubMembership.clubId, clubId), eq(clubMembership.userId, user.id)),
       )
       .where(
-        and(eq(team.clubId, clubId), isNull(teamMembership.leftAt), isNull(clubMembership.userId)),
+        and(
+          eq(team.clubId, clubId),
+          isNull(teamMembership.leftAt),
+          isNull(clubMembership.userId),
+          // Un menor no maneja la escuela (2026-11-08).
+          eq(user.managed, false),
+        ),
       )
       .orderBy(asc(user.name));
+  }
+
+  async isManaged(userId: string): Promise<boolean> {
+    const [row] = await this.connection.db
+      .select({ managed: user.managed })
+      .from(user)
+      .where(eq(user.id, userId));
+    return row?.managed ?? false;
   }
 
   async addClubAdmin(clubId: string, userId: string) {
