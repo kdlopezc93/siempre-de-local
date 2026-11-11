@@ -3,7 +3,6 @@ import type { MatchRoster, PublishedLineupResponse } from '@sdl/contracts';
 import {
   alpha,
   drawFooter,
-  fit,
   FONT,
   LEFT,
   NUM,
@@ -45,6 +44,27 @@ export function rowSize(
     disc: Math.min(32, Math.round(row * 0.4)),
     text: Math.min(38, Math.round(row * 0.5)),
   };
+}
+
+/**
+ * La franja: los dos equipos al mismo tamaño y el "vs" a la mitad, lo más grandes que quepan
+ * (de 72 px para abajo; el rival se corta con "…" si aun así no cabe).
+ */
+function bandText(ctx: CanvasRenderingContext2D, team: string, rival: string, width: number) {
+  let size = 72;
+  for (;;) {
+    const vsSize = Math.round(size * 0.5);
+    const gap = Math.round(size * 0.28);
+    ctx.font = `800 ${size}px ${FONT}`;
+    const teamW = ctx.measureText(team).width;
+    const rivalW = ctx.measureText(rival).width;
+    ctx.font = `700 ${vsSize}px ${NUM}`;
+    const vsW = ctx.measureText('vs').width;
+    if (teamW + rivalW + vsW + 2 * gap <= width || size <= 40) {
+      return { size, vsSize, gap, team: teamW, vs: vsW };
+    }
+    size -= 4;
+  }
 }
 
 /** Cortar un nombre con "…" hasta que quepa en el ancho. */
@@ -138,7 +158,7 @@ export async function matchdayImage(input: {
     ctx.fillText(clip(ctx, line, TEXT_WIDTH), LEFT, SAFE_TOP + 502 + i * 44),
   );
 
-  // La franja torcida, de lado a lado, con "VS" y el rival.
+  // La franja torcida, de lado a lado: "QLeones FC vs Classico XXI", el "vs" chiquito.
   const bandY = SAFE_TOP + 640 + (placeLines.length - 1) * 40;
   const BAND = 75;
   const TILT = Math.tan((6 * Math.PI) / 180) * (W / 2);
@@ -148,19 +168,25 @@ export async function matchdayImage(input: {
   ctx.fillStyle = color.accent;
   ctx.fillRect(-W, -BAND, W * 2, BAND * 2);
   ctx.textBaseline = 'middle';
-  ctx.fillStyle = alpha(color.onAccent, 0.55);
-  ctx.font = `700 76px ${NUM}`;
-  const vsX = -W / 2 + LEFT + 40;
-  ctx.fillText('VS', vsX, 4);
-  const vsWidth = ctx.measureText('VS').width;
+  const band = bandText(ctx, input.teamName, input.opponent, W - 2 * LEFT - 20);
+  let x = -W / 2 + LEFT + 10;
   ctx.fillStyle = color.onAccent;
-  const rivalX = vsX + vsWidth + 26;
-  fit(ctx, input.opponent, (s) => `800 ${s}px ${FONT}`, 76, W / 2 - LEFT - rivalX);
-  ctx.fillText(input.opponent, rivalX, 4);
+  ctx.font = `800 ${band.size}px ${FONT}`;
+  ctx.fillText(input.teamName, x, 4);
+  x += band.team + band.gap;
+  ctx.fillStyle = alpha(color.onAccent, 0.6);
+  ctx.font = `700 ${band.vsSize}px ${NUM}`;
+  ctx.fillText('vs', x, 6);
+  x += band.vs + band.gap;
+  ctx.fillStyle = color.onAccent;
+  ctx.font = `800 ${band.size}px ${FONT}`;
+  const bandEnd = -W / 2 + LEFT + 10 + (W - 2 * LEFT - 20);
+  ctx.fillText(clip(ctx, input.opponent, bandEnd - x), x, 4);
   ctx.restore();
 
   // La media cancha de tiza, entera (con su borde de abajo) entre la franja y el pie: el
-  // medio círculo arriba y, abajo, el área.
+  // medio círculo arriba y, abajo, el área grande y el área chica, rectangulares (Kevin: que se
+  // vea de fútbol).
   const pitch = {
     top: bandY + TILT + BAND + 34,
     bottom: SAFE_BOTTOM - 96,
@@ -180,9 +206,8 @@ export async function matchdayImage(input: {
   ctx.beginPath();
   ctx.arc(W / 2, pitch.top, 120, 0, Math.PI);
   ctx.stroke();
-  ctx.beginPath();
-  ctx.arc(W / 2, pitch.bottom, 120, Math.PI, Math.PI * 2);
-  ctx.stroke();
+  ctx.strokeRect(W / 2 - 240, pitch.bottom - 120, 480, 120);
+  ctx.strokeRect(W / 2 - 110, pitch.bottom - 50, 220, 50);
   ctx.restore();
   ctx.restore();
 
@@ -242,9 +267,8 @@ export async function matchdayImage(input: {
   });
   ctx.textBaseline = 'alphabetic';
 
-  // El equipo, en el pie (arriba ya no cabía con el torneo).
-  ctx.font = `700 28px ${NUM}`;
-  drawFooter(ctx, clip(ctx, input.teamName, 380), color, SAFE_BOTTOM - 14);
+  // El equipo ya va en la franja: el pie, solo con la app.
+  drawFooter(ctx, '', color, SAFE_BOTTOM - 14);
 
   return posterFile(canvas, 'dia-de-partido.png');
 }
