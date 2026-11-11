@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 
 import { fetchMe, signOut, signOutEverywhere, startGoogleSignIn } from '../../shared/api/auth';
 import { clearApiCache } from '../../shared/offline/api-cache';
+import { forgetThisDevice } from '../../shared/push/push';
 
 export const SESSION_KEY = ['session'] as const;
 
@@ -44,6 +45,8 @@ function useEndSession(end: () => Promise<void>) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
+      // Antes de cerrar: borrar la suscripción necesita la sesión.
+      await forgetThisDevice();
       await end();
       await clearApiCache();
     },

@@ -258,7 +258,8 @@ self.addEventListener('push', (event) => {
   } catch {
     data = null;
   }
-  if (!data || typeof data.url !== 'string' || !data.url.startsWith('/')) return;
+  // Solo rutas de la app: "//otro-sitio" también empieza con "/" (auditoría 2026-11-10, L2).
+  if (!data || typeof data.url !== 'string' || !/^\/(?![/\\])/.test(data.url)) return;
   const when = data.startsAt ? WHEN.format(new Date(data.startsAt)) : '';
   const { title, body } = noticeText(data, when);
   const answerable = REPLY_KINDS.has(data.kind) && matchOf(data.url) !== null;

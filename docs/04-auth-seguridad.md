@@ -212,3 +212,31 @@ Nada nuevo que salga a la red o cargue algo de afuera (analítica, reporte de er
 1. una fila en §6.2;
 2. su origen agregado a la CSP a propósito;
 3. revisar la política de datos (D7) si toca datos personales.
+
+## 8. Auditoría de seguridad (2026-11-10, toda la app)
+
+Revisión a mano de las ~120 rutas del API, la web, el despliegue y las dependencias (Kevin: "la auditoría es para toda la app", antes de la escuela piloto).
+
+**Bien:** cada ruta exige sesión salvo las públicas a propósito; los ids de la ruta (cobros, pagos, jugadores, alineaciones, exámenes, sedes, hijos) se comprueban contra el equipo, el club o el acudiente (si no, 404); CSRF por `Origin` además de `SameSite=Lax`, con test; cookies `httpOnly`, `Secure` y firmadas; vistas previas públicas sin datos de personas ni montos; `CronGuard` en tiempo constante; las respuestas de los exámenes no salen del servidor; CSV protegido contra fórmulas; CSP en la web; sin secretos en el repo; respaldos cifrados; permisos de GitHub Actions acotados.
+
+**Corregido en este PR:**
+
+- **M1 — IP del cliente falseable.** Con `trustProxy: true`, Fastify tomaba la primera IP de `X-Forwarded-For`, que manda el cliente: se podía saltar el límite de 20 por minuto de los códigos. Better Auth no reconocía `X-Forwarded-For` con dos IP (la del cliente y la de Fly) y dejaba a todos en un mismo cupo. Ahora los dos usan `Fly-Client-IP` (`shared/http/client-ip.ts`, `ClientIpThrottlerGuard`, `advanced.ipAddress`).
+- **M2 — Suscripciones de avisos a cualquier host.** El API le mandaba avisos a la dirección que dijera el cliente. Ahora solo a los servicios de avisos de los navegadores (`isPushServiceUrl` en contracts).
+- **M3 — `fast-uri` < 3.1.9** (vía Fastify): override a `^3.1.9` en `pnpm-workspace.yaml`.
+- **L1 — Sin HSTS:** `Strict-Transport-Security` en el API (con HTTPS) y en `_headers` de la web.
+- **L2 — El service worker aceptaba `//otro-sitio`** como ruta de un aviso: ahora solo rutas de la app.
+
+**Pendiente:** L3 `esbuild` ≤ 0.24.2 (solo el servidor de desarrollo); la revisión legal de la política y de la autorización del acudiente (D7); la segunda auditoría quedó en §8.1.
+
+### 8.1 Segunda auditoría (2026-11-11, `cloudflare/security-audit-skill`)
+
+Corrida con alcance sobre `apps/api/src` y `apps/web/public/push-sw.js`, solo leyendo el código (21 agentes). El informe y el ledger están fuera del repo (`~/security-audit-skill/siempre-de-local/run-1/`). No encontró acceso entre equipos, clubes ni familias. Dejó cuatro pistas; tres se confirmaron con tests y se corrigieron en este PR:
+
+- **CSRF con la ruta codificada.** El chequeo de `Origin` miraba la URL cruda, pero el enrutador la decodifica: `POST /%61pi/v1/...` llegaba al handler sin chequeo. Ahora las excepciones (Better Auth y cron) se deciden con la ruta que eligió el enrutador (`request.routeOptions.url`) y todo lo demás se revisa (`shared/http/origin-check.ts`, test en `auth-spike.test.ts`).
+- **Suscripciones viejas a cualquier host.** La lista de servicios de avisos solo se revisaba al suscribirse; las guardadas antes seguían recibiendo. Ahora también se revisa al enviar y la que no pasa se olvida (`Notifications.deliver`).
+- **Avisos después de cerrar sesión.** Cerrar sesión desuscribe este celular (`forgetThisDevice`) y "cerrar todas las sesiones" borra en el servidor los celulares de la cuenta (gancho de Better Auth en `/revoke-sessions` → `Notifier.forgetDevicesOf`).
+
+**Tope de las vistas previas:** se contaba por la IP de la función de Cloudflare Pages, no por la del cliente; quien llenara ese cupo dejaba las vistas previas de WhatsApp sin tarjeta un minuto. Ahora la función manda la IP del cliente (`CF-Connecting-IP`) con la clave `PREVIEW_SECRET`, compartida con el API, y `PreviewThrottlerGuard` cuenta por esa IP solo si la clave coincide (sin ella, por `Fly-Client-IP`, así el encabezado no sirve para saltarse el tope). La clave se carga en Fly y en Pages (`deploy.md` §6); sin ella todo funciona como antes.
+
+**Pendiente:** quedan las mejoras de concurrencia (pagos simultáneos, dos entrenadores) y la cobertura que esta corrida no hizo: la web (`apps/web/src`), la CI, el despliegue y el costo de las exportaciones.

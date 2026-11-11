@@ -11,6 +11,7 @@ export const TEST_ENV = {
   GOOGLE_CLIENT_ID: 'test-client-id',
   GOOGLE_CLIENT_SECRET: 'test-client-secret',
   CRON_SECRET: 'cron-secret-de-prueba-con-mas-de-32-caracteres',
+  PREVIEW_SECRET: 'preview-secret-de-prueba-con-mas-de-32-caracteres',
 } as const;
 
 /** Levanta la app completa contra la BD indicada, lista para `app.inject`. */

@@ -27,6 +27,8 @@ describe('GET /api/v1/health', () => {
       status: 'ok',
       checks: { database: 'up' },
     });
+    // Siempre por HTTPS (auditoría 2026-11-10, L1).
+    expect(res.headers['strict-transport-security']).toBe('max-age=31536000; includeSubDomains');
   });
 
   it('responde 503 degradado si la base de datos no responde', async () => {

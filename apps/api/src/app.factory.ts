@@ -29,6 +29,7 @@ export async function createApp(
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE'],
   });
   registerOriginCheck(app.getHttpAdapter().getInstance(), env.WEB_ORIGIN);
+  const secure = env.BETTER_AUTH_URL.startsWith('https://');
   // El API solo responde JSON (y archivos): que el navegador no interprete nada más (`04`).
   app
     .getHttpAdapter()
@@ -37,6 +38,8 @@ export async function createApp(
       reply.header('X-Content-Type-Options', 'nosniff');
       reply.header('Referrer-Policy', 'no-referrer');
       reply.header('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
+      // Siempre por HTTPS (auditoría 2026-11-10, L1): el navegador no vuelve a intentar http.
+      if (secure) reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
       return payload;
     });
   app.enableShutdownHooks();

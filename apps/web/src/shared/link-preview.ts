@@ -48,6 +48,10 @@ export function previewHtml(preview: LinkPreview, pageUrl: string, apiOrigin: st
 /**
  * Lo que hace la función: si es un bot y el API conoce el enlace, la vista previa; si no (una
  * persona, un id que no existe o el API caído), la app de siempre (`next`).
+ *
+ * Con `previewSecret` (la variable `PREVIEW_SECRET` de Pages, la misma que en el API), le dice
+ * al API la IP de quien pregunta (`CF-Connecting-IP`): así el tope se cuenta por cliente y no
+ * por la IP de Cloudflare, que comparten todos (auditoría 2026-11-11).
  */
 export async function respondWithPreview({
   request,
@@ -55,19 +59,27 @@ export async function respondWithPreview({
   apiOrigin,
   kind,
   id,
-  fetcher = (url) => fetch(url),
+  previewSecret,
+  fetcher = (url, init) => fetch(url, init),
 }: {
   request: Request;
   next: () => Promise<Response>;
   apiOrigin: string;
   kind: 'matches' | 'charges';
   id: string | null;
-  fetcher?: (url: URL) => Promise<Response>;
+  previewSecret?: string | undefined;
+  fetcher?: (url: URL, init: RequestInit) => Promise<Response>;
 }): Promise<Response> {
   if (!id || !isPreviewBot(request.headers.get('user-agent'))) return next();
+  const clientIp = request.headers.get('cf-connecting-ip');
+  const headers: Record<string, string> =
+    previewSecret && clientIp
+      ? { 'x-preview-key': previewSecret, 'x-preview-client-ip': clientIp }
+      : {};
   try {
     const res = await fetcher(
       new URL(`/api/v1/previews/${kind}/${encodeURIComponent(id)}`, apiOrigin),
+      { headers },
     );
     if (!res.ok) return next();
     const preview = (await res.json()) as LinkPreview;

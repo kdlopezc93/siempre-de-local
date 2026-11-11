@@ -9,7 +9,6 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ThrottlerGuard } from '@nestjs/throttler';
 import {
   type ClubCodeListResponse,
   type ClubCodePreviewResponse,
@@ -20,6 +19,7 @@ import {
 } from '@sdl/contracts';
 import { z } from 'zod';
 
+import { ClientIpThrottlerGuard } from '../../../shared/http/client-ip-throttler.guard.js';
 import { ENV } from '../../../config/config.module.js';
 import type { Env } from '../../../config/env.js';
 import { CurrentSession } from '../../../shared/authz/current-session.decorator.js';
@@ -66,7 +66,7 @@ export class ClubCodesController {
 
 /** Ver si un código de alta sirve y crear el club con él; 20 por minuto y por IP. */
 @Controller()
-@UseGuards(ThrottlerGuard)
+@UseGuards(ClientIpThrottlerGuard)
 export class CreateClubController {
   constructor(private readonly createClub: CreateClub) {}
 

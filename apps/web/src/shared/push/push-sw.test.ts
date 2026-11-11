@@ -425,4 +425,27 @@ describe('avisos en el service worker', () => {
       });
     });
   });
+
+  it('un aviso con un enlace a otro sitio ("//...") no se muestra (auditoría 2026-11-10)', async () => {
+    const { fire, showNotification } = loadWorker();
+    await fire(
+      'push',
+      push({
+        kind: 'match-called',
+        opponent: 'X',
+        startsAt: '2026-11-01T15:00:00.000Z',
+        url: '//evil.example/x',
+      }),
+    );
+    await fire(
+      'push',
+      push({
+        kind: 'match-called',
+        opponent: 'X',
+        startsAt: '2026-11-01T15:00:00.000Z',
+        url: '/\\evil.example/x',
+      }),
+    );
+    expect(showNotification).not.toHaveBeenCalled();
+  });
 });

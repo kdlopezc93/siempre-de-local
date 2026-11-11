@@ -1,5 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 
+import { isPushServiceUrl } from '@sdl/contracts';
+
 import type { Notifier, PushMessage } from '../../../shared/notifications/notifier.port.js';
 import {
   PUSH_SENDER,
@@ -65,8 +67,22 @@ export class Notifications implements Notifier {
     }
   }
 
+  async forgetDevicesOf(userId: string): Promise<void> {
+    try {
+      await this.subscriptions.removeAll(userId);
+    } catch (error) {
+      this.logger.warn(`No se pudieron olvidar los celulares: ${(error as Error).message}`);
+    }
+  }
+
   private async deliver(target: StoredSubscription, payload: string) {
     try {
+      // La lista de servicios se revisa también aquí, no solo al suscribirse: las suscripciones
+      // guardadas antes de la lista (auditoría 2026-11-11) no deben recibir nada y se olvidan.
+      if (!isPushServiceUrl(target.endpoint)) {
+        await this.subscriptions.forget(target.endpoint);
+        return;
+      }
       if ((await this.sender.send(target, payload)) === 'gone') {
         await this.subscriptions.forget(target.endpoint);
       }

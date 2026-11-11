@@ -5,7 +5,7 @@ import { respondWithPreview } from '../../../../apps/web/src/shared/link-preview
 interface Context {
   request: Request;
   params: { matchId?: string | string[] };
-  env: { VITE_API_URL?: string };
+  env: { VITE_API_URL?: string; PREVIEW_SECRET?: string };
   next: () => Promise<Response>;
 }
 
@@ -14,6 +14,7 @@ export const onRequestGet = ({ request, params, env, next }: Context) =>
     request,
     next,
     apiOrigin: env.VITE_API_URL ?? 'https://api.siempredelocal.app',
+    previewSecret: env.PREVIEW_SECRET,
     kind: 'matches',
     id: typeof params.matchId === 'string' ? params.matchId : null,
   });

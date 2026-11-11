@@ -67,11 +67,31 @@ describe('suscribirse a los avisos (Web Push)', () => {
     expect(await connection.db.select().from(pushSubscription)).toHaveLength(0);
   });
 
-  it('solo endpoints https', async () => {
-    const res = await call('POST', '/me/push-subscriptions', ana, {
+  it('solo endpoints https de un servicio de avisos (auditoría 2026-11-10)', async () => {
+    for (const endpoint of ['http://evil/x', 'https://evil.example/fcm/send/abc']) {
+      const res = await call('POST', '/me/push-subscriptions', ana, { ...SUB, endpoint });
+      expect(res.statusCode).toBe(400);
+    }
+  });
+
+  it('cerrar todas las sesiones borra los celulares de esa cuenta (auditoría 2026-11-11)', async () => {
+    await call('POST', '/me/push-subscriptions', ana, SUB);
+    await call('POST', '/me/push-subscriptions', beto, {
       ...SUB,
-      endpoint: 'http://evil/x',
+      endpoint: 'https://fcm.googleapis.com/fcm/send/beto',
     });
-    expect(res.statusCode).toBe(400);
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/auth/revoke-sessions',
+      headers: {
+        cookie: ana.cookie,
+        origin: TEST_ENV.WEB_ORIGIN,
+        'content-type': 'application/json',
+      },
+      payload: '{}',
+    });
+    expect(res.statusCode).toBe(200);
+    const rows = await connection.db.select().from(pushSubscription);
+    expect(rows.map((r) => r.userId)).toEqual([beto.userId]);
   });
 });

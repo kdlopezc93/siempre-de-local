@@ -20,11 +20,12 @@ function setup(sender: Partial<PushSender>) {
   const repo: SubscriptionsRepository = {
     save: vi.fn(),
     remove: vi.fn(),
+    removeAll: vi.fn(),
     guardiansOf: vi.fn(async () => []),
     forUsers: vi.fn(async () => [
-      sub('https://push/a'),
-      sub('https://push/b'),
-      sub('https://push/c'),
+      sub('https://fcm.googleapis.com/fcm/send/a'),
+      sub('https://fcm.googleapis.com/fcm/send/b'),
+      sub('https://fcm.googleapis.com/fcm/send/c'),
     ]),
     forget: vi.fn(),
   };
@@ -54,7 +55,7 @@ describe('avisos (D16)', () => {
     await expect(notifications.notifyUsers(['ana', 'beto'], MESSAGE)).resolves.toBeUndefined();
     expect(send).toHaveBeenCalledTimes(3);
     expect(JSON.parse(send.mock.calls[0]![1] as string)).toEqual(MESSAGE);
-    expect(repo.forget).toHaveBeenCalledWith('https://push/b');
+    expect(repo.forget).toHaveBeenCalledWith('https://fcm.googleapis.com/fcm/send/b');
     expect(repo.forget).toHaveBeenCalledTimes(1);
   });
 });
@@ -66,12 +67,12 @@ describe('avisos de un menor a sus acudientes (2026-11-10)', () => {
       { minorId: 'nino', minorName: 'Sofía Ramírez', guardianId: 'mama' },
     ]);
     vi.mocked(repo.forUsers).mockImplementation(async (ids) =>
-      ids.includes('mama') ? [sub('https://push/mama')] : [],
+      ids.includes('mama') ? [sub('https://fcm.googleapis.com/fcm/send/mama')] : [],
     );
     await notifications.notifyUsers(['nino'], MESSAGE);
     expect(sender.send).toHaveBeenCalledTimes(1);
     const [target, payload] = vi.mocked(sender.send).mock.calls[0]!;
-    expect(target.endpoint).toBe('https://push/mama');
+    expect(target.endpoint).toBe('https://fcm.googleapis.com/fcm/send/mama');
     expect(JSON.parse(payload)).toEqual({
       ...MESSAGE,
       child: 'Sofía',
@@ -85,7 +86,7 @@ describe('avisos de un menor a sus acudientes (2026-11-10)', () => {
       { minorId: 'nino', minorName: 'Sofía', guardianId: 'mama' },
     ]);
     vi.mocked(repo.forUsers).mockImplementation(async (ids) =>
-      ids.includes('mama') ? [sub('https://push/mama')] : [],
+      ids.includes('mama') ? [sub('https://fcm.googleapis.com/fcm/send/mama')] : [],
     );
     await notifications.notifyUsers(['nino'], {
       kind: 'test-reminder',
@@ -103,5 +104,23 @@ describe('guardianUrl', () => {
     expect(guardianUrl('/equipos/t/partidos', 'n')).toBe('/deportistas/n/equipos/t/partidos');
     expect(guardianUrl('/equipos/t/mis-cuentas', 'n')).toBe('/deportistas/n/equipos/t/cuentas');
     expect(guardianUrl('/equipos/t/tarjeta', 'n')).toBe('/deportistas/n');
+  });
+});
+
+describe('solo a servicios de avisos conocidos (auditoría 2026-11-11)', () => {
+  it('una suscripción guardada con otro host no recibe nada y se olvida', async () => {
+    const { notifications, repo, sender } = setup({});
+    vi.mocked(repo.forUsers).mockResolvedValue([
+      sub('https://127.0.0.1:8443/x'),
+      sub('https://interno.example/hook'),
+      sub('https://fcm.googleapis.com/fcm/send/ok'),
+    ]);
+    await notifications.notifyUsers(['ana'], MESSAGE);
+    expect(sender.send).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(sender.send).mock.calls[0]![0].endpoint).toBe(
+      'https://fcm.googleapis.com/fcm/send/ok',
+    );
+    expect(repo.forget).toHaveBeenCalledWith('https://127.0.0.1:8443/x');
+    expect(repo.forget).toHaveBeenCalledWith('https://interno.example/hook');
   });
 });
