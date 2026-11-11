@@ -4,6 +4,9 @@ import { isMinorsGroup } from '@sdl/domain';
 import type { Me } from '../../shared/api/auth';
 import type { HeaderTeam } from '../../shared/ui/TeamHeader';
 
+import type { Me } from '../../shared/api/auth';
+import type { HeaderTeam } from '../../shared/ui/TeamHeader';
+
 export type TabId = 'inicio' | 'plantilla' | 'partidos' | 'mi-juego' | 'equipo';
 
 export interface Tab {

@@ -1,5 +1,6 @@
 import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
 import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { ShareNetwork } from '@phosphor-icons/react/dist/csr/ShareNetwork';
 import { Wallet } from '@phosphor-icons/react/dist/csr/Wallet';
 import { XCircle } from '@phosphor-icons/react/dist/csr/XCircle';
 import type { Match, MatchRoster } from '@sdl/contracts';
@@ -10,7 +11,8 @@ import { Link, useSearchParams } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
-import { appUrl } from '../../shared/share';
+import { appUrl, canShareFiles, whatsappUrl } from '../../shared/share';
+import { IconButton } from '../../shared/ui/IconButton';
 import { Button } from '../../shared/ui/Button';
 import { Chips } from '../../shared/ui/Chips';
 import { GroupShare } from '../../shared/ui/GroupShare';
@@ -26,7 +28,7 @@ import { lineupImage } from './lineup-image';
 import { minorsGroup } from '../shell/shell-nav';
 import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
-import { callUpMessage, lineupMessage } from './share-messages';
+import { callUpMessage, lineupMessage, matchdayMessage } from './share-messages';
 import { POSTER_VERSION } from '../../shared/poster/poster';
 import { useTeamColors } from '../team/use-team-colors';
 import { Reminders } from './Reminders';
@@ -104,6 +106,19 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
       <header className={styles.matchHero}>
         <div className={styles.heroBadges}>
           <Badge tone="white">{matchWhen(match.startsAt)}</Badge>
+          {/*
+            Día de partido (2026-11-10, Kevin): compartir el afiche de los convocados. El cuerpo
+            técnico, siempre; los jugadores, cuando hay alineación publicada (esa lista ya la ve
+            todo el equipo; sin ella saldría de quién respondió qué, que no ven).
+          */}
+          {match.open && game && ((staff && roster) || (player && match.published)) && (
+            <MatchdayShare
+              teamId={teamId}
+              teamName={teamName}
+              match={match}
+              roster={roster ?? []}
+            />
+          )}
           {!match.open && (
             <Badge tone={match.status === 'cancelled' ? 'danger' : 'accent'}>
               {match.status === 'cancelled' ? 'Cancelado' : 'Jugado'}
@@ -390,6 +405,74 @@ function CallUp({ teamId, match, roster }: { teamId: string; match: Match; roste
         ),
       )}
     </>
+  );
+}
+
+/**
+ * "Mandar los convocados al grupo" (2026-11-10): el afiche "Día de partido" y su mensaje. Los
+ * convocados son los de la alineación publicada (titulares y banca, Kevin); sin alineación, los
+ * que dijeron "Voy" (sin lesionados). Se dibuja en el celular, como los demás afiches.
+ */
+function MatchdayShare({
+  teamId,
+  teamName,
+  match,
+  roster,
+}: {
+  teamId: string;
+  teamName: string;
+  match: Match;
+  roster: MatchRoster;
+}) {
+  const colors = useTeamColors(teamId);
+  const lineup = usePublishedLineup(teamId, match.id, match.published?.at ?? null);
+  const players = convocados(roster, match.published ? (lineup.data ?? null) : null);
+  const image = useQuery({
+    queryKey: [
+      'matchday-image',
+      POSTER_VERSION,
+      match.id,
+      match.startsAt,
+      match.place,
+      match.opponent,
+      teamName,
+      ...players.map((p) => `${p.jerseyNumber ?? ''}:${p.displayName}`),
+      ...(colors ?? []),
+    ],
+    queryFn: () =>
+      matchdayImage({
+        teamName,
+        kindLine: matchKindLine(match),
+        opponent: match.opponent ?? '',
+        startsAt: match.startsAt,
+        place: match.place,
+        players,
+        colors,
+      }),
+    staleTime: Infinity,
+    structuralSharing: false,
+    networkMode: 'always',
+  });
+  const url = appUrl(`/equipos/${teamId}/partidos/${match.id}`);
+  // Con alineación publicada, se espera a tenerla para no mandar la lista equivocada.
+  if (players.length === 0 || (match.published && !lineup.data)) return null;
+  const file = image.data ?? null;
+  return (
+    <IconButton
+      variant="accent"
+      label="Compartir el afiche de los convocados"
+      icon={<ShareNetwork size={22} weight="bold" aria-hidden="true" />}
+      onClick={() => {
+        // Con la imagen, el menú de compartir del celular; si no deja, WhatsApp con el mensaje.
+        if (file && canShareFiles([file])) {
+          const text = matchdayMessage(match, players, url);
+          void navigator.share({ files: [file], text }).catch(() => {});
+        } else {
+          const text = matchdayMessage(match, players, url, { withNames: true });
+          window.open(whatsappUrl(text), '_blank', 'noopener,noreferrer');
+        }
+      }}
+    />
   );
 }
 
