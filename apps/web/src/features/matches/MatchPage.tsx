@@ -183,7 +183,7 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
         game ? (
           <StaffTabs teamId={teamId} teamName={teamName} match={match} roster={roster} me={me} />
         ) : (
-          <CallUp teamId={teamId} teamName={teamName} match={match} roster={roster} />
+          <CallUp teamId={teamId} match={match} roster={roster} />
         )
       ) : (
         <>
@@ -335,17 +335,7 @@ const GROUPS: {
  * van en verde, no van en rojo) en las cifras y en las píldoras, con el dorsal en un círculo.
  * Debajo de los que faltan, "Mandar la convocatoria al grupo".
  */
-function CallUp({
-  teamId,
-  teamName,
-  match,
-  roster,
-}: {
-  teamId: string;
-  teamName: string;
-  match: Match;
-  roster: MatchRoster;
-}) {
+function CallUp({ teamId, match, roster }: { teamId: string; match: Match; roster: MatchRoster }) {
   // Tres cifras; los lesionados van solo en su grupo (con cuatro, no cabían a 360 px).
   const groups = GROUPS.map((g) => ({ ...g, people: roster.filter(g.has) }));
   const message = callUpMessage(match, roster, appUrl(`/equipos/${teamId}/partidos/${match.id}`));
@@ -505,7 +495,7 @@ function StaffTabs({
         ]}
       />
       {tab === 'convocatoria' ? (
-        <CallUp teamId={teamId} teamName={teamName} match={match} roster={roster} />
+        <CallUp teamId={teamId} match={match} roster={roster} />
       ) : (
         <LineupTab teamId={teamId} teamName={teamName} match={match} meId={me.user.id} />
       )}
