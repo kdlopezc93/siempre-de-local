@@ -60,3 +60,111 @@ export function formatBirthYears(years: BirthYearRange): string {
   if (years.from === null) return `${years.to} o antes`;
   return years.from === years.to ? `${years.to}` : `${years.from}–${years.to}`;
 }
+
+export type GroupGender = 'male' | 'female' | 'mixed';
+
+export const GENDER_LABEL: Record<GroupGender, string> = {
+  male: 'Masculino',
+  female: 'Femenino',
+  mixed: 'Mixto',
+};
+
+const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+/**
+ * El nombre que se sugiere para un grupo nuevo de una categoría: "Masculino" si es el primero de
+ * ese género; si ya hay, la letra siguiente ("Masculino B", "Masculino C"). Mixto, el primero
+ * no lleva nombre (el grupo se llama como la categoría).
+ */
+export function suggestGroupName(gender: GroupGender, sameGenderGroups: number): string {
+  const base = GENDER_LABEL[gender];
+  if (sameGenderGroups === 0) return gender === 'mixed' ? '' : base;
+  return `${base} ${LETTERS[Math.min(sameGenderGroups, LETTERS.length - 1)]}`;
+}
+
+/** El nombre completo del equipo: "Sub-12" + "Masculino B" → "Sub-12 masculino B". */
+export function groupTeamName(category: string, group: string): string {
+  const c = category.trim();
+  const g = group.trim();
+  return g ? `${c} ${g[0]!.toLowerCase()}${g.slice(1)}` : c;
+}
+
+/** El nombre del grupo dentro de su categoría: "Sub-12 masculino B" → "Masculino B". */
+export function groupLabel(teamName: string, category: string, gender: GroupGender | null) {
+  const name = teamName.trim();
+  const prefix = category.trim();
+  const rest =
+    prefix && categoryKey(name).startsWith(categoryKey(prefix))
+      ? name.slice(prefix.length).trim()
+      : name;
+  if (!rest) return gender ? GENDER_LABEL[gender] : name;
+  return rest[0]!.toUpperCase() + rest.slice(1);
+}
+
+/** "Este año tienen 11 y 12 años", para quien llena los años. */
+export function agesHint(years: BirthYearRange, currentYear: number): string {
+  const oldest = years.from === null ? null : currentYear - years.from;
+  const youngest = currentYear - years.to;
+  if (oldest === null) return `Este año tienen ${youngest} años o más.`;
+  if (oldest === youngest) return `Este año tienen ${youngest} años.`;
+  return `Este año tienen ${youngest} y ${oldest} años.`;
+}
+
+export interface CategoryWithGroups<T> {
+  category: string;
+  years: BirthYearRange;
+  groups: T[];
+}
+
+/** Junta los grupos por categoría, de la mayor a la menor (Mayores, Sub-14, Sub-12…). */
+export function groupByCategory<
+  T extends { category: string | null; birthYears: BirthYearRange | null },
+>(teams: readonly T[]): CategoryWithGroups<T>[] {
+  const byKey = new Map<string, CategoryWithGroups<T>>();
+  for (const team of teams) {
+    if (!team.category || !team.birthYears) continue;
+    const key = categoryKey(team.category);
+    const entry = byKey.get(key) ?? {
+      category: team.category,
+      years: team.birthYears,
+      groups: [],
+    };
+    entry.groups.push(team);
+    byKey.set(key, entry);
+  }
+  return [...byKey.values()].sort((a, b) => a.years.to - b.years.to);
+}
+
+export type StripSegment =
+  | { kind: 'category'; category: string; from: number | null; to: number; span: number }
+  | { kind: 'gap'; from: number; to: number; span: number };
+
+/**
+ * La franja "Quiénes caben hoy": de la categoría más vieja a la más joven, una columna por año
+ * (la abierta por abajo ocupa una) y los años sin categoría como huecos.
+ */
+export function yearStrip(categories: readonly { category: string; years: BirthYearRange }[]) {
+  const sorted = [...categories].sort((a, b) => a.years.to - b.years.to);
+  const segments: StripSegment[] = [];
+  let next: number | null = null;
+  for (const { category, years } of sorted) {
+    const start = years.from ?? years.to;
+    if (next !== null && start > next) {
+      segments.push({ kind: 'gap', from: next, to: start - 1, span: start - next });
+    }
+    segments.push({
+      kind: 'category',
+      category,
+      from: years.from,
+      to: years.to,
+      span: years.from === null ? 1 : years.to - years.from + 1,
+    });
+    next = years.to + 1;
+  }
+  return segments;
+}
+
+/** "Sub-12" para los nacidos desde 2014 en 2026 (la edad del mayor); "Mayores" si es abierta. */
+export function suggestCategoryName(from: number | null, currentYear: number): string {
+  return from === null ? 'Mayores' : `Sub-${currentYear - from}`;
+}

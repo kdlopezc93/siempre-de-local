@@ -1,0 +1,312 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.sectionTitle {
+  font-family: var(--sdl-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.count {
+  font-family: var(--sdl-font-numeric);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--sdl-text-base);
+  font-weight: 600;
+  color: var(--sdl-fg-muted);
+}
+
+.muted {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.error {
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}
+
+/* La franja "Quiénes caben hoy": el bloque cobalto protagonista de la pantalla. */
+.strip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  color: var(--sdl-on-brand);
+}
+
+.stripHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sdl-space-2);
+}
+
+.stripTitle {
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-lg);
+  font-weight: 800;
+}
+
+.stripHint {
+  color: var(--sdl-on-brand-muted);
+  font-size: var(--sdl-text-xs);
+}
+
+.stripGrid {
+  display: grid;
+  gap: 4px;
+}
+
+.block {
+  display: flex;
+  min-width: 0;
+  min-height: 64px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--sdl-space-2) 2px;
+  border-radius: var(--sdl-radius-sm);
+  background: var(--sdl-color-white);
+  color: var(--sdl-color-ink-900);
+  text-align: center;
+}
+
+.block[data-mine] {
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
+}
+
+.blockName {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.blockGroups {
+  font-size: 11px;
+  color: var(--sdl-color-ink-700);
+}
+
+.gap {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: center;
+  border: var(--sdl-stroke) dashed var(--sdl-color-cobalt-200);
+  border-radius: var(--sdl-radius-sm);
+}
+
+.gapYears {
+  padding: 2px;
+  font-family: var(--sdl-font-numeric);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--sdl-on-brand-muted);
+}
+
+.year {
+  font-family: var(--sdl-font-numeric);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--sdl-text-xs);
+  font-weight: 600;
+  text-align: center;
+  color: var(--sdl-on-brand-muted);
+}
+
+/* Cada categoría: su tarjeta con los años y sus grupos. */
+.category {
+  overflow: hidden;
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.category[data-mine] {
+  box-shadow:
+    inset 0 0 0 2px var(--sdl-accent),
+    var(--sdl-shadow-card);
+}
+
+.categoryHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sdl-space-3);
+  padding: var(--sdl-space-4) var(--sdl-space-4) var(--sdl-space-1);
+}
+
+.categoryName {
+  overflow-wrap: anywhere;
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-lg);
+  font-weight: 800;
+}
+
+.years {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  color: var(--sdl-fg-muted);
+}
+
+.groups,
+.venues {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.group,
+.venue {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  padding: var(--sdl-space-2) var(--sdl-space-2) var(--sdl-space-2) var(--sdl-space-4);
+}
+
+.group + .group,
+.venue + .venue {
+  border-top: 1px solid var(--sdl-border);
+}
+
+.venues {
+  overflow: hidden;
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.groupText {
+  display: flex;
+  min-width: 0;
+  min-height: var(--sdl-touch-min);
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  color: inherit;
+  text-decoration: none;
+}
+
+a.groupText:focus-visible {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+  border-radius: var(--sdl-radius-sm);
+}
+
+.groupName {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
+.meta {
+  overflow-wrap: anywhere;
+  font-size: var(--sdl-text-sm);
+  color: var(--sdl-fg-muted);
+}
+
+.groupAction,
+.textButton {
+  flex-shrink: 0;
+  min-height: var(--sdl-touch-min);
+  padding: 0 var(--sdl-space-2);
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.groupAction {
+  color: var(--sdl-fg-muted);
+}
+
+.textButton {
+  color: var(--sdl-primary);
+}
+
+@media (hover: hover) {
+  .groupAction:hover {
+    color: var(--sdl-fg);
+  }
+
+  .textButton:hover {
+    color: var(--sdl-primary-hover);
+  }
+
+  a.groupText:hover .groupName {
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+}
+
+.groupAction:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.groupAction:focus-visible,
+.textButton:focus-visible {
+  outline: var(--sdl-focus-width) solid var(--sdl-focus-ring);
+  outline-offset: var(--sdl-focus-offset);
+  border-radius: var(--sdl-radius-sm);
+}
+
+.archived summary {
+  min-height: var(--sdl-touch-min);
+  display: flex;
+  align-items: center;
+  color: var(--sdl-fg-muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-3);
+}
+
+.label {
+  font-size: var(--sdl-text-sm);
+  font-weight: 600;
+}
+
+.optional {
+  font-weight: 500;
+  color: var(--sdl-fg-muted);
+}
+
+.input {
+  min-height: 52px;
+  padding-inline: var(--sdl-space-3);
+  border: var(--sdl-stroke) solid transparent;
+  border-radius: var(--sdl-radius-md);
+  background: var(--sdl-surface-sunken);
+  color: var(--sdl-fg);
+  font: inherit;
+  font-size: var(--sdl-text-base);
+}
+
+.input:focus-visible {
+  border-color: var(--sdl-focus-ring);
+  outline: none;
+}

@@ -76,6 +76,33 @@ describe('códigos de alta (2026-10-29)', () => {
     expect(await within(list).findByText('Juan, Barrio Unido')).toBeInTheDocument();
   });
 
+  it('un código de escuela lo dice en la lista y en el mensaje (2026-11-07)', async () => {
+    let body: unknown;
+    fakeApi({
+      'GET /api/v1/admin/club-codes': { status: 200, body: { items: [] } },
+      'POST /api/v1/admin/club-codes': (init) => {
+        body = JSON.parse(init.body as string);
+        return {
+          status: 201,
+          body: {
+            clubCode: code(4, 'active', { kind: 'school' }),
+            code: 'K7Q2M9XDAB',
+            url: 'https://app.sdl.test/crear-club/K7Q2M9XDAB',
+          },
+        };
+      },
+    });
+    renderPage();
+    await userEvent.click(await screen.findByRole('button', { name: 'Una escuela' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Crear código' }));
+    expect(await screen.findByRole('heading', { name: 'Tu código está listo' })).toBeVisible();
+    expect(body).toEqual({ kind: 'school' });
+    expect(screen.getByRole('link', { name: 'Compartir por WhatsApp' })).toHaveAttribute(
+      'href',
+      expect.stringContaining(encodeURIComponent('creas tu escuela y su primer grupo')),
+    );
+  });
+
   it('anular pide confirmar', async () => {
     const { calls } = fakeApi({
       'GET /api/v1/admin/club-codes': { status: 200, body: { items: [code(3, 'active')] } },

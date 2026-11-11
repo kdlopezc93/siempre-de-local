@@ -10,6 +10,7 @@ import { Screen } from '../../shared/ui/Screen';
 import { Segmented } from '../../shared/ui/Segmented';
 import { SESSION_KEY } from '../auth/use-session';
 import { errorMessage } from '../join/use-join';
+import { NewGroupPage } from './NewGroupPage';
 import styles from './CreateClubPage.module.css';
 import { emptyTeam, TeamFields, teamProblem, teamRequest } from './TeamFields';
 
@@ -36,6 +37,7 @@ export function NewTeamPage({ me, clubId }: { me: Me; clubId: string }) {
     },
   });
 
+  if (club?.kind === 'school') return <NewGroupPage clubId={clubId} clubName={club.name} />;
   if (!club) {
     return (
       <Screen className={styles.screen}>
