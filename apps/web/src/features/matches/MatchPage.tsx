@@ -26,6 +26,7 @@ import { AfterMatch, FigureShare, MatchResultView } from './AfterMatch';
 import { WhoCameAlone } from './WhoCame';
 import { lineupImage } from './lineup-image';
 import { convocados, matchdayImage } from './matchday-image';
+import { minorsGroup } from '../shell/shell-nav';
 import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
 import { callUpMessage, lineupMessage, matchdayMessage } from './share-messages';
@@ -96,6 +97,8 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
   // cuerpo técnico, en el partido, le llega dentro de "después del partido".
   const listAlone = takesList && roster !== null && started && !(staff && game);
   const teamName = membership?.team.name ?? 'Nosotros';
+  // Con niños (2026-11-10, Kevin): el afiche del resultado sin "la figura" ni su afiche aparte.
+  const minors = membership ? minorsGroup(membership) : false;
 
   return (
     <Screen className={styles.screen}>
@@ -152,9 +155,14 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
 
       {/* El resultado al grupo (2026-11-06): el afiche "Marcador gigante", del cuerpo técnico. */}
       {played && staff && match.result && (
-        <ResultShare teamId={teamId} teamName={teamName} match={match} result={match.result} />
+        <ResultShare
+          teamId={teamId}
+          teamName={teamName}
+          match={match}
+          result={minors ? { ...match.result, figure: null } : match.result}
+        />
       )}
-      {played && staff && match.result?.figure && (
+      {played && staff && !minors && match.result?.figure && (
         <FigureShare
           teamId={teamId}
           teamName={teamName}
@@ -728,7 +736,16 @@ function ResultShare({
 }) {
   const colors = useTeamColors(teamId);
   const image = useQuery({
-    queryKey: ['result-image', POSTER_VERSION, match.id, result.at, teamName, ...(colors ?? [])],
+    // Con la figura o sin ella (grupos de menores): dos afiches distintos.
+    queryKey: [
+      'result-image',
+      POSTER_VERSION,
+      match.id,
+      result.at,
+      result.figure?.id ?? 'sin-figura',
+      teamName,
+      ...(colors ?? []),
+    ],
     queryFn: () => resultImage({ match, result, teamName, kindLine: matchKindLine(match), colors }),
     staleTime: Infinity,
     structuralSharing: false,

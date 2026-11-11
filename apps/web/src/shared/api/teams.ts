@@ -114,6 +114,14 @@ export async function removeMember(teamId: string, userId: string): Promise<void
   await apiFetch(`/api/v1/teams/${teamId}/members/${userId}`, { method: 'DELETE' });
 }
 
+/** Pasar a un jugador a otro grupo de la escuela (2026-11-10). */
+export async function movePlayer(teamId: string, userId: string, toTeamId: string): Promise<void> {
+  await apiFetch(`/api/v1/teams/${teamId}/members/${userId}/move`, {
+    method: 'POST',
+    body: JSON.stringify({ toTeamId }),
+  });
+}
+
 /** Pasar el mando de entrenador; el anterior queda de asistente. */
 export async function transferCoach(teamId: string, userId: string): Promise<void> {
   await apiFetch(`/api/v1/teams/${teamId}/coach`, {

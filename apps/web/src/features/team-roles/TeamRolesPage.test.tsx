@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { fakeApi } from '../../test/fake-api';
-import { TEAM_A } from '../../test/me-two-teams';
+import { ME_TWO_TEAMS, TEAM_A } from '../../test/me-two-teams';
 import { teamPeople } from './roles-view';
 import { TeamRolesPage } from './TeamRolesPage';
 
@@ -149,5 +149,61 @@ describe('cuerpo técnico y roles (2026-10-29)', () => {
       'Solo el entrenador y los administradores del club cambian los roles.',
     );
     expect(screen.queryByRole('switch')).toBeNull();
+  });
+
+  it('en una escuela, el profe pasa a un jugador a otro grupo de su categoría (2026-11-10)', async () => {
+    const GROUP_B = '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6fd1';
+    const years = { from: 2014, to: 2015 };
+    const schoolTeam = (id: string, name: string) => ({
+      team: {
+        id,
+        name,
+        format: 'F8',
+        formats: ['F8'],
+        season: '2026',
+        colors: null,
+        birthYears: years,
+      },
+      club: { id: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f10', name: 'Semillas', kind: 'school' },
+      roles: ['coach'],
+      jerseyNumber: null,
+      injury: null,
+    });
+    let moved: unknown;
+    renderPage(['coach'], {
+      [`GET /api/v1/teams/${TEAM_A}`]: {
+        status: 200,
+        body: {
+          ...team(['coach']),
+          team: {
+            ...team(['coach']).team,
+            name: 'Sub-12 masculino A',
+            club: { ...team(['coach']).team.club, name: 'Semillas', kind: 'school' },
+            birthYears: years,
+            gender: 'male',
+          },
+        },
+      },
+      'GET /api/v1/me': {
+        status: 200,
+        body: {
+          ...ME_TWO_TEAMS,
+          clubs: [],
+          teams: [
+            schoolTeam(TEAM_A, 'Sub-12 masculino A'),
+            schoolTeam(GROUP_B, 'Sub-12 masculino B'),
+          ],
+        },
+      },
+      [`POST /api/v1/teams/${TEAM_A}/members/${ANA}/move`]: (init) => {
+        moved = JSON.parse(init.body as string);
+        return { status: 204 };
+      },
+    });
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Pasar a Ana a otro grupo' }));
+    const sheet = await screen.findByRole('dialog', { name: '¿A qué grupo pasa Ana?' });
+    await userEvent.click(within(sheet).getByRole('button', { name: 'Sub-12 masculino B' }));
+    expect(moved).toEqual({ toTeamId: GROUP_B });
   });
 });

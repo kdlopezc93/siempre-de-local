@@ -1,4 +1,5 @@
 import type { MatchFormat, TeamRole } from '@sdl/contracts';
+import { isMinorsGroup } from '@sdl/domain';
 
 import type { Me } from '../../shared/api/auth';
 import type { HeaderTeam } from '../../shared/ui/TeamHeader';
@@ -126,3 +127,12 @@ export const toHeader = ({ team, club, roles }: Me['teams'][number]): HeaderTeam
   format: formatsLabel(team.formats, team.format),
   roles: rolesLabel(roles),
 });
+
+/**
+ * Un grupo de menores de una escuela (2026-11-10): sin tablas ni comparaciones con el grupo, y los
+ * afiches sin "la figura". La regla vive en el dominio (`isMinorsGroup`), igual que en el API.
+ */
+export const minorsGroup = (
+  { team, club }: Pick<Me['teams'][number], 'team' | 'club'>,
+  thisYear = new Date().getFullYear(),
+) => isMinorsGroup({ clubKind: club.kind, birthYears: team.birthYears }, thisYear);

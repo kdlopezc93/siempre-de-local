@@ -391,6 +391,17 @@ describe('avisos en el service worker', () => {
         }),
       );
       expect(last(showNotification)[0]).toBe('Nuevo cobro a nombre de Sofía: Mensualidad');
+      await fire(
+        'push',
+        push({
+          kind: 'group-moved',
+          team: 'Sub-12 B',
+          opponent: 'Sub-12 B',
+          url: '/deportistas/n1',
+          child: 'Sofía',
+        }),
+      );
+      expect(last(showNotification)[0]).toBe('Sofía pasó a Sub-12 B');
     });
 
     it('"Va" responde por el niño en su ruta', async () => {

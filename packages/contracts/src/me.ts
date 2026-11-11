@@ -4,6 +4,7 @@ import { ConsentSchema } from './consent.js';
 import { ChildSchema } from './families.js';
 import { ProfileSchema } from './profile.js';
 import {
+  BirthYearsSchema,
   ClubKindSchema,
   InjurySchema,
   MatchFormatSchema,
@@ -38,6 +39,11 @@ export const MeResponseSchema = z.object({
         season: z.string(),
         /** Los colores del equipo para los afiches, o null: los de la app (2026-11-06). */
         colors: TeamColorsSchema.nullable().default(null),
+        /**
+         * En una escuela, los años de la categoría (2026-11-10): la app sabe si es un grupo de
+         * menores (`isMinorsGroup`), sin tablas ni "la figura".
+         */
+        birthYears: BirthYearsSchema.nullable().default(null),
       }),
       /** Club o escuela (2026-11-07): en una escuela, el equipo se llama categoría. */
       club: z.object({ id: z.uuid(), name: z.string(), kind: ClubKindSchema.default('club') }),

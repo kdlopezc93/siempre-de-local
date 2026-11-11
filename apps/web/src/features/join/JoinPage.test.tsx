@@ -108,7 +108,7 @@ describe('JoinPage', () => {
     expect(screen.getByRole('heading', { name: 'Antes de unirte' })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Acepto y me uno' }));
-    expect(screen.getByText(/solo para mayores de edad/)).toBeInTheDocument();
+    expect(screen.getByText(/Tu cuenta es para mayores de edad/)).toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: 'Tengo 18 años o más' })).toHaveFocus();
     expect(calls).not.toContain('POST /api/v1/me/consent');
 

@@ -1,6 +1,8 @@
+import type { ClubResponse, TeamResponse } from '@sdl/contracts';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 
+import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
 import { Avatar } from '../../shared/ui/Avatar';
 import { Badge } from '../../shared/ui/Badge';
@@ -10,10 +12,12 @@ import { Screen } from '../../shared/ui/Screen';
 import { Sheet } from '../../shared/ui/Sheet';
 import switchStyles from '../../shared/ui/Switch.module.css';
 import { useSession } from '../auth/use-session';
+import { useClub } from '../club/use-club';
 import { useTeam } from '../team-admin/use-invitations';
 import { teamPeople, type TeamPerson } from './roles-view';
 import styles from './TeamRolesPage.module.css';
 import {
+  useMovePlayer,
   useRemoveMember,
   useTeamMembers,
   useTransferCoach,
@@ -31,6 +35,13 @@ const failed = (error: unknown, fallback: string) =>
 export function TeamRolesPage({ teamId }: { teamId: string }) {
   const team = useTeam(teamId);
   const members = useTeamMembers(teamId);
+  const session = useSession();
+  const school = team.data?.team.club.kind === 'school';
+  const clubId = team.data?.team.club.id ?? '';
+  // El admin de la escuela ve todos sus grupos; el profe, los suyos (en /me).
+  const club = useClub(clubId, {
+    enabled: school && !!session.data?.clubs.some((c) => c.id === clubId),
+  });
   const back = (
     <Link to={`/equipos/${teamId}/equipo`} className={styles.back}>
       Equipo
@@ -63,6 +74,8 @@ export function TeamRolesPage({ teamId }: { teamId: string }) {
   }
 
   const people = teamPeople(members.data);
+  // Los otros grupos de su categoría, a los que se puede pasar a un jugador (2026-11-10).
+  const otherGroups = sameCategoryGroups(team.data.team, club.data?.teams, session.data);
   const coach = people.find((p) => p.coach);
   return (
     <Screen className={styles.screen}>
@@ -75,7 +88,7 @@ export function TeamRolesPage({ teamId }: { teamId: string }) {
         </p>
       </header>
       <CoachSection teamId={teamId} coach={coach} people={people} />
-      <PeopleSection teamId={teamId} people={people} />
+      <PeopleSection teamId={teamId} people={people} groups={otherGroups} />
     </Screen>
   );
 }
@@ -173,9 +186,18 @@ function CoachSection({
   );
 }
 
-function PeopleSection({ teamId, people }: { teamId: string; people: TeamPerson[] }) {
+function PeopleSection({
+  teamId,
+  people,
+  groups,
+}: {
+  teamId: string;
+  people: TeamPerson[];
+  groups: Group[];
+}) {
   const update = useUpdateRoles(teamId);
   const [removing, setRemoving] = useState<TeamPerson | null>(null);
+  const [moving, setMoving] = useState<TeamPerson | null>(null);
   const pending = update.isPending ? update.variables : undefined;
   return (
     <section aria-labelledby="roles" className={styles.section}>
@@ -248,6 +270,17 @@ function PeopleSection({ teamId, people }: { teamId: string; people: TeamPerson[
                   />
                 )}
               </div>
+              {p.player && groups.length > 0 && (
+                <button
+                  type="button"
+                  className={styles.move}
+                  aria-label={`Pasar a ${p.displayName} a otro grupo`}
+                  disabled={busy}
+                  onClick={() => setMoving(p)}
+                >
+                  Pasar a otro grupo
+                </button>
+              )}
               {!p.coach && (
                 <button
                   type="button"
@@ -264,7 +297,98 @@ function PeopleSection({ teamId, people }: { teamId: string; people: TeamPerson[
         })}
       </ul>
       <RemoveSheet teamId={teamId} person={removing} onClose={() => setRemoving(null)} />
+      <MoveSheet teamId={teamId} person={moving} groups={groups} onClose={() => setMoving(null)} />
     </section>
+  );
+}
+
+interface Group {
+  id: string;
+  name: string;
+}
+
+/**
+ * Los grupos de la misma categoría (mismos años) en esa escuela, sin el actual: los del club si
+ * eres su admin; si no, los que entrenas.
+ */
+function sameCategoryGroups(
+  team: TeamResponse['team'],
+  clubTeams: ClubResponse['teams'] | undefined,
+  me: Me | null | undefined,
+): Group[] {
+  if (team.club.kind !== 'school' || !team.birthYears) return [];
+  const years = (y: { from: number | null; to: number } | null) =>
+    y ? `${y.from ?? ''}-${y.to}` : '';
+  const key = years(team.birthYears);
+  if (clubTeams) {
+    return clubTeams
+      .filter((t) => !t.archived && t.id !== team.id && years(t.birthYears) === key)
+      .map((t) => ({ id: t.id, name: t.name }));
+  }
+  return (me?.teams ?? [])
+    .filter(
+      (t) =>
+        t.club.id === team.club.id &&
+        t.team.id !== team.id &&
+        t.roles.includes('coach') &&
+        years(t.team.birthYears) === key,
+    )
+    .map((t) => ({ id: t.team.id, name: t.team.name }));
+}
+
+/** ¿A qué grupo pasa? Sale de este con su historial y le avisamos (a un niño, a su acudiente). */
+function MoveSheet({
+  teamId,
+  person,
+  groups,
+  onClose,
+}: {
+  teamId: string;
+  person: TeamPerson | null;
+  groups: Group[];
+  onClose: () => void;
+}) {
+  const move = useMovePlayer(teamId);
+  const [shown, setShown] = useState(person);
+  if (person && person !== shown) {
+    setShown(person);
+    move.reset();
+  }
+  const name = shown?.displayName ?? '';
+  return (
+    <Sheet open={person !== null} onClose={onClose} title={`¿A qué grupo pasa ${name}?`}>
+      <div className={styles.sheet}>
+        <p className={styles.sheetText}>
+          Sale de este grupo con su historial y entra al otro. Le avisamos (si es un niño, a su
+          acudiente).
+        </p>
+        <ul className={styles.groups}>
+          {groups.map((g) => (
+            <li key={g.id}>
+              <Button
+                variant="secondary"
+                busy={move.isPending && move.variables?.toTeamId === g.id}
+                disabled={move.isPending}
+                onClick={() =>
+                  shown &&
+                  move.mutate({ userId: shown.userId, toTeamId: g.id }, { onSuccess: onClose })
+                }
+              >
+                {g.name}
+              </Button>
+            </li>
+          ))}
+        </ul>
+        {move.isError && (
+          <p role="alert" className={styles.error}>
+            {failed(move.error, 'No pudimos pasarlo de grupo. Revisa tu conexión.')}
+          </p>
+        )}
+        <Button variant="ghost" disabled={move.isPending} onClick={onClose}>
+          Cancelar
+        </Button>
+      </div>
+    </Sheet>
   );
 }
 
