@@ -11,7 +11,10 @@ const PREVIEW = {
 const WHATSAPP = 'WhatsApp/2.23.20.0 A';
 const PAGE = 'https://app.siempredelocal.app/equipos/t1/partidos/m1';
 
-const request = (userAgent: string) => new Request(PAGE, { headers: { 'user-agent': userAgent } });
+const request = (userAgent: string, ip?: string) =>
+  new Request(PAGE, {
+    headers: { 'user-agent': userAgent, ...(ip ? { 'cf-connecting-ip': ip } : {}) },
+  });
 const app = () => Promise.resolve(new Response('la app'));
 
 describe('vista previa de los enlaces (2026-11-06, ADR-10)', () => {
@@ -69,5 +72,24 @@ describe('vista previa de los enlaces (2026-11-06, ADR-10)', () => {
       'la app',
     );
     expect(await (await respondWithPreview({ ...base, id: null })).text()).toBe('la app');
+  });
+
+  it('con la clave, le dice al API la IP de quien pregunta; sin ella, nada', async () => {
+    const fetcher = vi.fn(async (_url: URL, _init: RequestInit) => Response.json(PREVIEW));
+    const args = { next: app, apiOrigin: 'https://api.x', kind: 'matches' as const, id: 'm1' };
+
+    await respondWithPreview({
+      ...args,
+      request: request(WHATSAPP, '203.0.113.7'),
+      previewSecret: 'clave',
+      fetcher,
+    });
+    expect(fetcher.mock.calls[0]![1].headers).toEqual({
+      'x-preview-key': 'clave',
+      'x-preview-client-ip': '203.0.113.7',
+    });
+
+    await respondWithPreview({ ...args, request: request(WHATSAPP, '203.0.113.7'), fetcher });
+    expect(fetcher.mock.calls[1]![1].headers).toEqual({});
   });
 });

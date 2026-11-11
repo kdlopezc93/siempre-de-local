@@ -26,6 +26,12 @@ const EnvSchema = z.object({
    * `Authorization: Bearer <CRON_SECRET>`. Sin ella, esas rutas no existen (404).
    */
   CRON_SECRET: z.string().min(32).optional(),
+  /**
+   * Vistas previas (auditoría 2026-11-11): la función de Cloudflare Pages la manda en
+   * `X-Preview-Key` junto con la IP del cliente, para que el tope se cuente por cliente y no por
+   * la IP de Cloudflare. Sin ella, el tope se cuenta por la IP que llega (como antes).
+   */
+  PREVIEW_SECRET: z.string().min(32).optional(),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

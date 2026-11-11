@@ -4,7 +4,7 @@ import { LinkPreviewSchema } from '@sdl/contracts';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { createDb, type DbConnection } from '../../../shared/db/client.js';
-import { bootApp } from '../../../test/app.js';
+import { bootApp, TEST_ENV } from '../../../test/app.js';
 import { startMigratedPostgres } from '../../../test/postgres.js';
 import { charge } from '../../charges/infrastructure/schema.js';
 import { teamMatch } from '../../matches/infrastructure/schema.js';
@@ -93,5 +93,32 @@ describe('vista previa de los enlaces (2026-11-06, ADR-10)', () => {
     expect((await get(`matches/0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f00`)).statusCode).toBe(404);
     expect((await get('matches/x')).statusCode).toBe(400);
     expect((await get(`otros/${matchId}`)).statusCode).toBe(400);
+  });
+
+  // El tope (120/min) se cuenta por cliente: con la clave, por la IP que reenvía la función de
+  // Pages; sin ella, el encabezado no sirve para saltarse el tope (auditoría 2026-11-11).
+  it('el tope de uno no deja sin vistas previas a los demás', async () => {
+    const missing = 'matches/0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f01';
+    const viaPages = (clientIp: string, key: string = TEST_ENV.PREVIEW_SECRET) =>
+      app.inject({
+        method: 'GET',
+        url: `/api/v1/previews/${missing}`,
+        headers: {
+          'fly-client-ip': '198.51.100.1',
+          'x-preview-key': key,
+          'x-preview-client-ip': clientIp,
+        },
+      });
+
+    for (let i = 0; i < 120; i++) expect((await viaPages('203.0.113.66')).statusCode).toBe(404);
+    expect((await viaPages('203.0.113.66')).statusCode).toBe(429);
+    // Otro cliente, por la misma IP de Cloudflare: sigue viendo su vista previa.
+    expect((await viaPages('203.0.113.7')).statusCode).toBe(404);
+
+    // Sin la clave correcta, cuenta la IP que llega a Fly, aunque invente otra.
+    for (let i = 0; i < 120; i++) {
+      expect((await viaPages(`203.0.113.${i % 250}`, 'otra-clave')).statusCode).toBe(404);
+    }
+    expect((await viaPages('192.0.2.200', 'otra-clave')).statusCode).toBe(429);
   });
 });

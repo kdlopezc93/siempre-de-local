@@ -73,6 +73,17 @@ Crear un proyecto de Pages conectado al repo de GitHub:
 
 Pages también despliega las funciones de `/functions` (en la raíz del repo, ADR-10): la vista previa de los enlaces. Leen `VITE_API_URL` de las variables del proyecto; sin ella usan `https://api.siempredelocal.app`.
 
+**Tope de las vistas previas por cliente (2026-11-11):** las funciones llegan al API desde las IP de Cloudflare, que comparten todos. Con la misma clave `PREVIEW_SECRET` en Fly y en Pages, la función le dice al API la IP de quien pregunta y el tope (120 por minuto) se cuenta por cliente. Sin ella todo sigue funcionando, pero el tope es uno solo para todos. La clave no pasa por la pantalla:
+
+```bash
+s="$(openssl rand -hex 32)"
+fly secrets set --app sdl-api-staging PREVIEW_SECRET="$s"
+printf %s "$s" | npx wrangler pages secret put PREVIEW_SECRET --project-name <proyecto-de-pages>
+unset s
+```
+
+O en el panel: Workers & Pages → el proyecto → Settings → Variables and Secrets → Add → tipo **Secret**, nombre `PREVIEW_SECRET` (Production). El secreto de Pages se aplica en el siguiente despliegue: **Retry deployment** del último.
+
 Luego **Dominios personalizados → `app.siempredelocal.app`** (Cloudflare crea el DNS solo). Pages sirve la SPA y aplica `apps/web/public/_headers`.
 
 ## 7. Google

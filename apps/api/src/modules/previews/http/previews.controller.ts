@@ -3,19 +3,20 @@ import { Throttle } from '@nestjs/throttler';
 import type { LinkPreview } from '@sdl/contracts';
 import { z } from 'zod';
 
-import { ClientIpThrottlerGuard } from '../../../shared/http/client-ip-throttler.guard.js';
 import { Public } from '../../../shared/authz/public.decorator.js';
 import { parseInput } from '../../../shared/http/validation.js';
 import { LinkPreviews } from '../application/previews.use-case.js';
+import { PreviewThrottlerGuard } from './preview-throttler.guard.js';
 
 const Kind = z.enum(['matches', 'charges']);
 
 /**
  * La vista previa de los enlaces en WhatsApp (2026-11-06, nivel 2): la pide la función de
- * Cloudflare Pages cuando quien abre el enlace es un bot de vistas previas. Pública y con tope.
+ * Cloudflare Pages cuando quien abre el enlace es un bot de vistas previas. Pública y con tope
+ * por cliente (`PreviewThrottlerGuard`).
  */
 @Controller('previews')
-@UseGuards(ClientIpThrottlerGuard)
+@UseGuards(PreviewThrottlerGuard)
 @Throttle({ default: { ttl: 60_000, limit: 120 } })
 export class PreviewsController {
   constructor(private readonly previews: LinkPreviews) {}
