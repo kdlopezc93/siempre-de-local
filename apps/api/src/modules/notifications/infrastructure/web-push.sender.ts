@@ -1,4 +1,4 @@
-import webpush from 'web-push';
+import { sendNotification, setVapidDetails } from 'web-push';
 
 import type { PushSender, StoredSubscription } from '../application/ports/push.ports.js';
 
@@ -13,7 +13,7 @@ export class WebPushSender implements PushSender {
     private readonly keys: { publicKey?: string; privateKey?: string; subject?: string },
   ) {
     this.enabled = Boolean(keys.publicKey && keys.privateKey && keys.subject);
-    if (this.enabled) webpush.setVapidDetails(keys.subject!, keys.publicKey!, keys.privateKey!);
+    if (this.enabled) setVapidDetails(keys.subject!, keys.publicKey!, keys.privateKey!);
   }
 
   publicKey() {
@@ -22,7 +22,7 @@ export class WebPushSender implements PushSender {
 
   async send(s: StoredSubscription, payload: string): Promise<'sent' | 'gone'> {
     try {
-      await webpush.sendNotification(
+      await sendNotification(
         { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
         payload,
         // Que no se acumulen si el celular está apagado: un día alcanza.
