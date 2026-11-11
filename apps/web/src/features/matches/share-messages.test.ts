@@ -72,19 +72,18 @@ describe('mandar al grupo (2026-11-06)', () => {
     expect(namesList(['Juan', 'Pipe', 'Ciro'])).toBe('Juan, Pipe y Ciro');
   });
 
-  it('día de partido (2026-11-10): los convocados con su dorsal', () => {
-    const text = matchdayMessage(
-      match(),
-      [
-        { displayName: 'Ana', jerseyNumber: 4 },
-        { displayName: 'Ciro', jerseyNumber: null },
-      ],
-      'https://app/x',
-    );
-    const lines = text.split('\n');
-    expect(lines[0]).toBe('🔥 *Día de partido*');
-    expect(lines[1]).toBe('⚽ *Amistoso vs Real Bosa*');
-    expect(lines[3]).toBe('Convocados (2): 4 Ana y Ciro');
-    expect(lines[4]).toBe('Detalles 👉 https://app/x');
+  it('día de partido (2026-11-10): con la imagen, sin la lista; sin imagen, con los dorsales', () => {
+    const going = [
+      { displayName: 'Ana', jerseyNumber: 4 },
+      { displayName: 'Ciro', jerseyNumber: null },
+    ];
+    const withImage = matchdayMessage(match(), going, 'https://app/x').split('\n');
+    expect(withImage[0]).toBe('🔥 *Día de partido*');
+    expect(withImage[1]).toBe('⚽ *Amistoso vs Real Bosa*');
+    expect(withImage).toHaveLength(4);
+    expect(withImage.join('\n')).not.toContain('Ana');
+    expect(withImage[3]).toBe('Detalles 👉 https://app/x');
+    const alone = matchdayMessage(match(), going, 'https://app/x', { withNames: true });
+    expect(alone.split('\n')[3]).toBe('Convocados (2): 4 Ana y Ciro');
   });
 });

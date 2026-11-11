@@ -39,13 +39,15 @@ export function callUpMessage(match: Match, roster: MatchRoster, url: string): s
 }
 
 /**
- * "Día de partido" con los convocados (2026-11-10): va con su afiche. Los que van, con su
- * dorsal, para que cada uno se busque.
+ * "Día de partido" (2026-11-10): con el afiche, sin la lista (ya está en la imagen; a los del
+ * grupo no les gustaba verla dos veces). Solo si sale sin imagen (`withNames`), los convocados
+ * con su dorsal, para que cada uno se busque.
  */
 export function matchdayMessage(
   match: Pick<Match, 'kind' | 'opponent' | 'tournament' | 'startsAt' | 'place'>,
   going: readonly { displayName: string; jerseyNumber: number | null }[],
   url: string,
+  { withNames = false }: { withNames?: boolean } = {},
 ): string {
   const names = going.map((p) =>
     p.jerseyNumber !== null ? `${p.jerseyNumber} ${p.displayName}` : p.displayName,
@@ -54,7 +56,7 @@ export function matchdayMessage(
     `🔥 *Día de partido*`,
     headline(match),
     `${upper(matchWhen(match.startsAt))} · ${match.place}`,
-    `Convocados (${going.length}): ${namesList(names)}`,
+    ...(withNames ? [`Convocados (${going.length}): ${namesList(names)}`] : []),
     `Detalles 👉 ${url}`,
   ].join('\n');
 }

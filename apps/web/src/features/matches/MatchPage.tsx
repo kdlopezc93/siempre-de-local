@@ -437,11 +437,7 @@ function MatchdayShare({
     structuralSharing: false,
     networkMode: 'always',
   });
-  const message = matchdayMessage(
-    match,
-    players,
-    appUrl(`/equipos/${teamId}/partidos/${match.id}`),
-  );
+  const url = appUrl(`/equipos/${teamId}/partidos/${match.id}`);
   // Con alineación publicada, se espera a tenerla para no mandar la lista equivocada.
   if (players.length === 0 || (match.published && !lineup.data)) return null;
   const file = image.data ?? null;
@@ -453,9 +449,11 @@ function MatchdayShare({
       onClick={() => {
         // Con la imagen, el menú de compartir del celular; si no deja, WhatsApp con el mensaje.
         if (file && canShareFiles([file])) {
-          void navigator.share({ files: [file], text: message }).catch(() => {});
+          const text = matchdayMessage(match, players, url);
+          void navigator.share({ files: [file], text }).catch(() => {});
         } else {
-          window.open(whatsappUrl(message), '_blank', 'noopener,noreferrer');
+          const text = matchdayMessage(match, players, url, { withNames: true });
+          window.open(whatsappUrl(text), '_blank', 'noopener,noreferrer');
         }
       }}
     />
