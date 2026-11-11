@@ -1,5 +1,6 @@
 import { MapPin } from '@phosphor-icons/react/dist/csr/MapPin';
 import { PencilSimple } from '@phosphor-icons/react/dist/csr/PencilSimple';
+import { ShareNetwork } from '@phosphor-icons/react/dist/csr/ShareNetwork';
 import { Wallet } from '@phosphor-icons/react/dist/csr/Wallet';
 import { XCircle } from '@phosphor-icons/react/dist/csr/XCircle';
 import type { Match, MatchRoster } from '@sdl/contracts';
@@ -10,7 +11,8 @@ import { Link, useSearchParams } from 'react-router';
 
 import type { Me } from '../../shared/api/auth';
 import { ApiError } from '../../shared/api/http';
-import { appUrl } from '../../shared/share';
+import { appUrl, canShareFiles, whatsappUrl } from '../../shared/share';
+import { IconButton } from '../../shared/ui/IconButton';
 import { Button } from '../../shared/ui/Button';
 import { Chips } from '../../shared/ui/Chips';
 import { GroupShare } from '../../shared/ui/GroupShare';
@@ -102,6 +104,10 @@ export function MatchPage({ me, teamId, matchId }: { me: Me; teamId: string; mat
       <header className={styles.matchHero}>
         <div className={styles.heroBadges}>
           <Badge tone="white">{matchWhen(match.startsAt)}</Badge>
+          {/* Día de partido (2026-11-10, Kevin): compartir el afiche de los convocados. */}
+          {staff && roster && match.open && game && (
+            <MatchdayShare teamId={teamId} teamName={teamName} match={match} roster={roster} />
+          )}
           {!match.open && (
             <Badge tone={match.status === 'cancelled' ? 'danger' : 'accent'}>
               {match.status === 'cancelled' ? 'Cancelado' : 'Jugado'}
@@ -392,10 +398,6 @@ function CallUp({
           </section>
         ),
       )}
-      {/* Día de partido (2026-11-10): el afiche con los convocados, antes del partido. */}
-      {match.open && isGame(match.kind) && (
-        <MatchdayShare teamId={teamId} teamName={teamName} match={match} roster={roster} />
-      )}
     </>
   );
 }
@@ -452,11 +454,20 @@ function MatchdayShare({
   );
   // Con alineación publicada, se espera a tenerla para no mandar la lista equivocada.
   if (players.length === 0 || (match.published && !lineup.data)) return null;
+  const file = image.data ?? null;
   return (
-    <GroupShare
-      message={message}
-      file={image.data ?? null}
-      label="Mandar los convocados al grupo"
+    <IconButton
+      variant="accent"
+      label="Compartir el afiche de los convocados"
+      icon={<ShareNetwork size={22} weight="bold" aria-hidden="true" />}
+      onClick={() => {
+        // Con la imagen, el menú de compartir del celular; si no deja, WhatsApp con el mensaje.
+        if (file && canShareFiles([file])) {
+          void navigator.share({ files: [file], text: message }).catch(() => {});
+        } else {
+          window.open(whatsappUrl(message), '_blank', 'noopener,noreferrer');
+        }
+      }}
     />
   );
 }

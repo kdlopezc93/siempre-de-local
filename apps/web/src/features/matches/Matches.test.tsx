@@ -323,7 +323,7 @@ describe('partidos en la app (Fase 7)', () => {
     expect(text).toContain(`${window.location.origin}/equipos/${TEAM_A}/partidos/${M1}`);
   });
 
-  it('día de partido (2026-11-10): "Mandar los convocados al grupo" con los que van', async () => {
+  it('día de partido (2026-11-10): el círculo de compartir en el partido manda a los convocados', async () => {
     fakeApi({
       [`GET /api/v1/teams/${TEAM_A}/matches/${M1}`]: {
         status: 200,
@@ -331,15 +331,20 @@ describe('partidos en la app (Fase 7)', () => {
       },
       [`GET /api/v1/teams/${TEAM_A}/lineups`]: { status: 200, body: { items: [] } },
     });
+    const open = vi.spyOn(window, 'open').mockReturnValue(null);
     renderAt('/m', [
       { path: '/m', element: <MatchPage me={ME_TWO_TEAMS} teamId={TEAM_A} matchId={M1} /> },
     ]);
     // Sin alineación publicada, los que dijeron "Voy".
-    const link = await screen.findByRole('link', { name: 'Mandar los convocados al grupo' });
-    const text = new URL(link.getAttribute('href')!).searchParams.get('text')!;
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Compartir el afiche de los convocados' }),
+    );
+    const href = open.mock.calls[0]![0] as string;
+    const text = new URL(href).searchParams.get('text')!;
+    expect(href).toMatch(/^https:\/\/wa\.me\/\?text=/);
     expect(text).toContain('*Día de partido*');
     expect(text).toContain('4 Ana');
-    expect(text).toContain(`${window.location.origin}/equipos/${TEAM_A}/partidos/${M1}`);
+    open.mockRestore();
   });
 
   it('recordatorio (2026-11-06): "Recordarles ahora" y cuándo les recuerda la app sola', async () => {
