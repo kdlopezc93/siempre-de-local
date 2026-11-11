@@ -14,6 +14,8 @@ export interface SubscriptionsRepository {
   /** Guarda o mueve (si el celular cambió de cuenta) la suscripción de un navegador. */
   save(userId: string, subscription: StoredSubscription): Promise<void>;
   remove(userId: string, endpoint: string): Promise<void>;
+  /** Borra todas las suscripciones de una persona. */
+  removeAll(userId: string): Promise<void>;
   forUsers(userIds: readonly string[]): Promise<StoredSubscription[]>;
   /**
    * Los acudientes de los que son menores entre esos usuarios (escuelas, 2026-11-10): el niño no

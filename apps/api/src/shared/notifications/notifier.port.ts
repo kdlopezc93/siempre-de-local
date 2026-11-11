@@ -79,6 +79,11 @@ export type PushMessage = (
 
 export interface Notifier {
   notifyUsers(userIds: readonly string[], message: PushMessage): Promise<void>;
+  /**
+   * Deja de avisar a todos los celulares de una persona: al cerrar todas sus sesiones (un
+   * celular perdido o prestado no debe seguir mostrando sus avisos; auditoría 2026-11-11).
+   */
+  forgetDevicesOf(userId: string): Promise<void>;
 }
 
 export const NOTIFIER = Symbol('NOTIFIER');

@@ -73,4 +73,25 @@ describe('suscribirse a los avisos (Web Push)', () => {
       expect(res.statusCode).toBe(400);
     }
   });
+
+  it('cerrar todas las sesiones borra los celulares de esa cuenta (auditoría 2026-11-11)', async () => {
+    await call('POST', '/me/push-subscriptions', ana, SUB);
+    await call('POST', '/me/push-subscriptions', beto, {
+      ...SUB,
+      endpoint: 'https://fcm.googleapis.com/fcm/send/beto',
+    });
+    const res = await app.inject({
+      method: 'POST',
+      url: '/api/auth/revoke-sessions',
+      headers: {
+        cookie: ana.cookie,
+        origin: TEST_ENV.WEB_ORIGIN,
+        'content-type': 'application/json',
+      },
+      payload: '{}',
+    });
+    expect(res.statusCode).toBe(200);
+    const rows = await connection.db.select().from(pushSubscription);
+    expect(rows.map((r) => r.userId)).toEqual([beto.userId]);
+  });
 });

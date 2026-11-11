@@ -227,4 +227,14 @@ Revisión a mano de las ~120 rutas del API, la web, el despliegue y las dependen
 - **L1 — Sin HSTS:** `Strict-Transport-Security` en el API (con HTTPS) y en `_headers` de la web.
 - **L2 — El service worker aceptaba `//otro-sitio`** como ruta de un aviso: ahora solo rutas de la app.
 
-**Pendiente:** L3 `esbuild` ≤ 0.24.2 (solo el servidor de desarrollo); la revisión legal de la política y de la autorización del acudiente (D7); una segunda auditoría independiente con `cloudflare/security-audit-skill` sobre este código.
+**Pendiente:** L3 `esbuild` ≤ 0.24.2 (solo el servidor de desarrollo); la revisión legal de la política y de la autorización del acudiente (D7); la segunda auditoría quedó en §8.1.
+
+### 8.1 Segunda auditoría (2026-11-11, `cloudflare/security-audit-skill`)
+
+Corrida con alcance sobre `apps/api/src` y `apps/web/public/push-sw.js`, solo leyendo el código (21 agentes). El informe y el ledger están fuera del repo (`~/security-audit-skill/siempre-de-local/run-1/`). No encontró acceso entre equipos, clubes ni familias. Dejó cuatro pistas; tres se confirmaron con tests y se corrigieron en este PR:
+
+- **CSRF con la ruta codificada.** El chequeo de `Origin` miraba la URL cruda, pero el enrutador la decodifica: `POST /%61pi/v1/...` llegaba al handler sin chequeo. Ahora las excepciones (Better Auth y cron) se deciden con la ruta que eligió el enrutador (`request.routeOptions.url`) y todo lo demás se revisa (`shared/http/origin-check.ts`, test en `auth-spike.test.ts`).
+- **Suscripciones viejas a cualquier host.** La lista de servicios de avisos solo se revisaba al suscribirse; las guardadas antes seguían recibiendo. Ahora también se revisa al enviar y la que no pasa se olvida (`Notifications.deliver`).
+- **Avisos después de cerrar sesión.** Cerrar sesión desuscribe este celular (`forgetThisDevice`) y "cerrar todas las sesiones" borra en el servidor los celulares de la cuenta (gancho de Better Auth en `/revoke-sessions` → `Notifier.forgetDevicesOf`).
+
+**Pendiente:** el tope de las vistas previas (120 por minuto) se cuenta por la IP de la función de Cloudflare Pages, no por la del cliente; quien llene ese cupo deja las vistas previas de WhatsApp sin tarjeta un minuto. Se arregla con un secreto compartido para que la función mande la IP del cliente, o con un cupo propio. También quedan las mejoras de concurrencia (pagos simultáneos, dos entrenadores) y la cobertura que esta corrida no hizo: la web (`apps/web/src`), la CI, el despliegue y el costo de las exportaciones.

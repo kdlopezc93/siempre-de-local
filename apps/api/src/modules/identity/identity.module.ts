@@ -5,6 +5,7 @@ import type { Env } from '../../config/env.js';
 import type { DbConnection } from '../../shared/db/client.js';
 import { DB_CONNECTION } from '../../shared/db/db.module.js';
 import { CONSENT_CHECKER } from '../../shared/consent/consent.port.js';
+import { NOTIFIER, type Notifier } from '../../shared/notifications/notifier.port.js';
 import { AcceptConsent } from './application/accept-consent.use-case.js';
 import { GetCurrentUser } from './application/get-current-user.use-case.js';
 import { CONSENT_REPOSITORY } from './application/ports/consent.repository.js';
@@ -21,8 +22,12 @@ import { MeController } from './http/me.controller.js';
   providers: [
     {
       provide: BETTER_AUTH,
-      inject: [ENV, DB_CONNECTION],
-      useFactory: (env: Env, connection: DbConnection): Auth => createAuth(env, connection.db),
+      inject: [ENV, DB_CONNECTION, { token: NOTIFIER, optional: true }],
+      useFactory: (env: Env, connection: DbConnection, notifier?: Notifier): Auth =>
+        createAuth(env, connection.db, {
+          // Un celular perdido deja de recibir avisos al cerrar todas las sesiones.
+          sessionsRevoked: (userId) => notifier?.forgetDevicesOf(userId) ?? Promise.resolve(),
+        }),
     },
     {
       provide: IDENTITY_PROVIDER,

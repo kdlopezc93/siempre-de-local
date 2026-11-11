@@ -31,6 +31,10 @@ export class DrizzleSubscriptionsRepository implements SubscriptionsRepository {
       .where(and(eq(pushSubscription.userId, userId), eq(pushSubscription.endpoint, endpoint)));
   }
 
+  async removeAll(userId: string) {
+    await this.connection.db.delete(pushSubscription).where(eq(pushSubscription.userId, userId));
+  }
+
   async forUsers(userIds: readonly string[]) {
     if (userIds.length === 0) return [];
     return this.connection.db

@@ -150,4 +150,36 @@ describe('spike de auth: Better Auth + Nest + Fastify', () => {
     expect(res.statusCode).toBe(403);
     expect(ErrorBodySchema.parse(res.json()).error.code).toBe('FORBIDDEN_ORIGIN');
   });
+
+  // El enrutador decodifica la ruta (%61 → a) antes de elegir el handler; el chequeo no puede
+  // mirar la URL cruda o `/%61pi/v1/...` llega a /api/v1 sin pasar por él.
+  it.each(['/%61pi/v1/me', '/api/v%31/me', '/%2561pi/v1/me'])(
+    'un POST a %s desde otro origen → 403 (ruta codificada)',
+    async (url) => {
+      const res = await app.inject({
+        method: 'POST',
+        url,
+        headers: { origin: 'https://evil.example', cookie: session.cookie },
+      });
+      expect([403, 404]).toContain(res.statusCode);
+      if (res.statusCode === 403) {
+        expect(ErrorBodySchema.parse(res.json()).error.code).toBe('FORBIDDEN_ORIGIN');
+      }
+    },
+  );
+
+  it('un POST codificado a una ruta real de /api/v1 desde otro origen → 403', async () => {
+    const res = await app.inject({
+      method: 'POST',
+      url: '/%61pi/v1/me/push-subscriptions',
+      headers: {
+        origin: 'https://evil.example',
+        cookie: session.cookie,
+        'content-type': 'application/json',
+      },
+      payload: JSON.stringify({}),
+    });
+    expect(res.statusCode).toBe(403);
+    expect(ErrorBodySchema.parse(res.json()).error.code).toBe('FORBIDDEN_ORIGIN');
+  });
 });

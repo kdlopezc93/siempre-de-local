@@ -77,3 +77,13 @@ export async function disablePush(): Promise<PushState> {
   }
   return 'off';
 }
+
+/**
+ * Al cerrar sesión, este celular deja de recibir los avisos de la cuenta (auditoría
+ * 2026-11-11): en un celular prestado o compartido no deben seguir llegando. Nunca bloquea
+ * el cierre de sesión: sin red o sin service worker, sigue igual.
+ */
+export async function forgetThisDevice(): Promise<void> {
+  if (!supported()) return;
+  await disablePush().catch(() => undefined);
+}
