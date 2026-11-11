@@ -163,6 +163,7 @@ describe('invitaciones', () => {
       alsoPlays: false,
       forGuardians: false,
       birthYears: null,
+      gender: null,
     });
 
     const unknown = await request('GET', '/invitations/AAAAAAAAAA');

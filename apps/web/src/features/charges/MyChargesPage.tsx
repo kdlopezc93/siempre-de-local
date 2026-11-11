@@ -33,14 +33,23 @@ const itemKey = (i: Item) => `${i.charge.id}:${i.forPlayer?.userId ?? 'mia'}`;
 const itemTitle = (i: Item) =>
   i.forPlayer ? `${chargeTitle(i.charge)} de ${i.forPlayer.displayName}` : chargeTitle(i.charge);
 
+/** El hijo de quien mira (el acudiente, 2026-11-10): sus cuentas, no las propias. */
+export interface ChargesChild {
+  id: string;
+  /** Nombre de pila. */
+  name: string;
+}
+
 /**
  * /equipos/:teamId/mis-cuentas — lo que debe y pagó cada jugador en los cobros del equipo: solo
- * lo suyo (`06` Cobros). "Ya pagué" avisa al tesorero, que lo confirma cuando le llegue.
+ * lo suyo (`06` Cobros). "Ya pagué" avisa al tesorero, que lo confirma cuando le llegue. Con
+ * `child`, las de ese hijo en la app del acudiente (/deportistas/:minorId/equipos/:teamId/cuentas).
  */
-export function MyChargesPage({ teamId }: { teamId: string }) {
-  const mine = useMyCharges(teamId);
+export function MyChargesPage({ teamId, child }: { teamId: string; child?: ChargesChild }) {
+  const mine = useMyCharges(teamId, true, child?.id);
   const [paying, setPaying] = useState<Item | null>(null);
-  const back = (
+  // En la app del acudiente, Cuentas es una pestaña: no hay a dónde volver.
+  const back = child ? null : (
     <Link to={`/equipos/${teamId}/mi-juego`} className={styles.back}>
       Mi juego
     </Link>
@@ -74,22 +83,36 @@ export function MyChargesPage({ teamId }: { teamId: string }) {
   return (
     <Screen className={styles.screen}>
       {back}
-      <PageTitle eyebrow="Mi juego" title="Tus cuentas" />
-      <section aria-label="Lo que debes" className={styles.lead}>
-        <span className={styles.leadLabel}>{owed > 0 ? 'Debes' : 'Estás al día'}</span>
+      <PageTitle
+        eyebrow={child ? child.name : 'Mi juego'}
+        title={child ? 'Cuentas' : 'Tus cuentas'}
+      />
+      <section
+        aria-label={child ? 'Lo que falta por pagar' : 'Lo que debes'}
+        className={styles.lead}
+      >
+        <span className={styles.leadLabel}>
+          {owed > 0 ? (child ? 'Por pagar' : 'Debes') : child ? 'Al día' : 'Estás al día'}
+        </span>
         <span className={styles.leadAmount}>{pesos(owed)}</span>
         <span className={styles.leadSub}>
           {openCharges === 0
-            ? 'No debes nada en los cobros del equipo.'
-            : `En ${openCharges} ${openCharges === 1 ? 'cobro' : 'cobros'} del equipo.`}
+            ? child
+              ? `${child.name} no debe nada.`
+              : 'No debes nada en los cobros del equipo.'
+            : `En ${openCharges} ${openCharges === 1 ? 'cobro' : 'cobros'}${child ? ` a nombre de ${child.name}` : ' del equipo'}.`}
         </span>
       </section>
 
       {open.length > 0 && (
-        <ul className={styles.list} aria-label="Lo que debes">
+        <ul className={styles.list} aria-label={child ? 'Lo que falta por pagar' : 'Lo que debes'}>
           {open.map((item) => (
             <li key={itemKey(item)}>
-              <Debt item={item} onPay={() => setPaying(item)} />
+              <Debt
+                item={item}
+                onPay={() => setPaying(item)}
+                {...(child ? { confirmer: 'la escuela' } : {})}
+              />
             </li>
           ))}
         </ul>
@@ -121,6 +144,7 @@ export function MyChargesPage({ teamId }: { teamId: string }) {
             key={itemKey(paying)}
             teamId={teamId}
             item={paying}
+            {...(child ? { minorId: child.id } : {})}
             onDone={() => setPaying(null)}
           />
         )}
@@ -129,7 +153,16 @@ export function MyChargesPage({ teamId }: { teamId: string }) {
   );
 }
 
-function Debt({ item, onPay }: { item: Item; onPay?: () => void }) {
+function Debt({
+  item,
+  onPay,
+  confirmer = 'el tesorero',
+}: {
+  item: Item;
+  onPay?: () => void;
+  /** Quién confirma los pagos: el tesorero; en una escuela, "la escuela". */
+  confirmer?: string;
+}) {
   const Glyph = KIND_ICON[item.charge.kind];
   const badge = shareBadge(item, true);
   const covered = item.status === 'covered';
@@ -174,7 +207,7 @@ function Debt({ item, onPay }: { item: Item; onPay?: () => void }) {
       )}
       {onPay && item.reported > 0 && (
         <p className={styles.note}>
-          Avisaste que pagaste <b>{pesos(item.reported)}</b>: falta que el tesorero lo confirme.
+          Avisaste que pagaste <b>{pesos(item.reported)}</b>: falta que {confirmer} lo confirme.
         </p>
       )}
       {onPay && left > 0 && (
@@ -186,9 +219,19 @@ function Debt({ item, onPay }: { item: Item; onPay?: () => void }) {
   );
 }
 
-function PayForm({ teamId, item, onDone }: { teamId: string; item: Item; onDone: () => void }) {
+function PayForm({
+  teamId,
+  item,
+  minorId,
+  onDone,
+}: {
+  teamId: string;
+  item: Item;
+  minorId?: string;
+  onDone: () => void;
+}) {
   const id = useId();
-  const report = useReportPayment(teamId);
+  const report = useReportPayment(teamId, minorId);
   const left = payable(item.amount, item.paid, item.reported);
   const [amount, setAmount] = useState(pesos(left));
   const [method, setMethod] = useState<PaymentMethod>('nequi');
@@ -220,8 +263,8 @@ function PayForm({ teamId, item, onDone }: { teamId: string; item: Item; onDone:
       />
       <MethodPicker value={method} onChange={setMethod} />
       <p className={styles.note}>
-        El tesorero lo confirma cuando le llegue. Si pagaste una parte, pon solo lo que pagaste
-        (falta <b>{pesos(left)}</b>).
+        {minorId ? 'La escuela' : 'El tesorero'} lo confirma cuando le llegue. Si pagaste una parte,
+        pon solo lo que pagaste (falta <b>{pesos(left)}</b>).
       </p>
       {report.isError && (
         <p role="alert" className={styles.error}>

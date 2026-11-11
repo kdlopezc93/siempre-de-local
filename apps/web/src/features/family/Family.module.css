@@ -1,0 +1,239 @@
+/* La app del acudiente (escuelas, PR 3, 2026-11-10). Registro familia: claro y cálido. */
+.screen {
+  gap: var(--sdl-space-3);
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sectionTitle {
+  margin: var(--sdl-space-4) 0 var(--sdl-space-1);
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.muted {
+  margin: 0;
+  color: var(--sdl-fg-muted);
+}
+
+.done {
+  display: flex;
+  align-items: center;
+  gap: var(--sdl-space-2);
+  margin: 0;
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+  color: var(--sdl-success);
+  font-weight: 600;
+}
+
+/* La convocatoria: en el inicio, el bloque cobalto; en Partidos, una tarjeta. */
+.lead,
+.call {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sdl-space-2);
+  scroll-margin: calc(var(--sdl-header-height) + var(--sdl-space-4));
+}
+
+.lead {
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-brand);
+  box-shadow: var(--sdl-shadow-brand);
+  color: var(--sdl-on-brand);
+}
+
+.call {
+  padding: var(--sdl-space-4);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.call[data-focused] {
+  outline: 2px solid var(--sdl-primary);
+  outline-offset: 2px;
+}
+
+.callHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sdl-space-2);
+}
+
+.overline {
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-eyebrow);
+  font-weight: 700;
+  letter-spacing: var(--sdl-tracking-eyebrow);
+  text-transform: uppercase;
+}
+
+.lead .overline {
+  color: var(--sdl-on-brand-muted);
+}
+
+.callTitle {
+  margin: 0;
+  font-family: var(--sdl-font-display);
+  font-size: var(--sdl-text-lg);
+  font-weight: 700;
+  line-height: var(--sdl-leading-display);
+  text-wrap: balance;
+}
+
+.lead .callTitle {
+  font-size: var(--sdl-text-xl);
+  font-weight: 800;
+  letter-spacing: var(--sdl-tracking-display);
+}
+
+.callWhen {
+  margin: 0;
+  color: var(--sdl-fg-muted);
+  font-size: var(--sdl-text-sm);
+}
+
+.lead .callWhen {
+  color: var(--sdl-on-brand-muted);
+}
+
+.callError {
+  margin: 0;
+  color: var(--sdl-danger-fg);
+  font-size: var(--sdl-text-sm);
+}
+
+.lead .callError {
+  color: var(--sdl-on-brand);
+  font-weight: 600;
+}
+
+/* Va / No va: hundidas y la elegida rellena de tinta; sobre cobalto, la elegida en volt. */
+.replies {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sdl-space-2);
+  margin-top: var(--sdl-space-2);
+}
+
+.reply {
+  min-height: 48px;
+  border: 0;
+  border-radius: var(--sdl-radius-pill);
+  background: var(--sdl-surface-sunken);
+  color: var(--sdl-fg);
+  font: inherit;
+  font-size: var(--sdl-text-base);
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform var(--sdl-duration-fast) var(--sdl-ease-out);
+}
+
+@media (hover: hover) {
+  .reply:hover:not([aria-pressed='true'], :disabled) {
+    background: var(--sdl-border);
+  }
+
+  .replies[data-on-brand] .reply:hover:not([aria-pressed='true'], :disabled) {
+    background: rgb(255 255 255 / 22%);
+  }
+}
+
+.reply:active:not(:disabled) {
+  transform: scale(var(--sdl-press-scale));
+}
+
+.reply:disabled {
+  cursor: progress;
+}
+
+.reply[aria-pressed='true'] {
+  background: var(--sdl-inverse);
+  color: var(--sdl-on-inverse);
+}
+
+.replies[data-on-brand] .reply {
+  /* Como los controles sobre cobalto del partido: borde que llega a 3:1 y fondo tenue. */
+  box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 60%);
+  background: rgb(255 255 255 / 12%);
+  color: var(--sdl-on-brand);
+}
+
+.replies[data-on-brand] .reply[aria-pressed='true'] {
+  box-shadow: none;
+  background: var(--sdl-accent);
+  color: var(--sdl-on-accent);
+}
+
+.reply:focus-visible {
+  outline: 2px solid var(--sdl-focus-ring);
+  outline-offset: 3px;
+}
+
+.replies[data-on-brand] .reply:focus-visible {
+  outline-color: var(--sdl-on-brand);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reply {
+    transition: none;
+  }
+}
+
+/* Un partido que ya no se responde. */
+.played {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sdl-space-3);
+  min-height: 60px;
+  padding: var(--sdl-space-3) var(--sdl-space-4);
+  border-radius: var(--sdl-radius-lg);
+  background: var(--sdl-surface);
+  box-shadow: var(--sdl-shadow-card);
+}
+
+.playedText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: var(--sdl-text-sm);
+}
+
+.playedTitle {
+  font-size: var(--sdl-text-base);
+  font-weight: 700;
+}
+
+.score {
+  flex: none;
+  font-family: var(--sdl-font-numeric);
+  font-size: var(--sdl-text-xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.empty {
+  padding: var(--sdl-space-5);
+  border-radius: var(--sdl-radius-xl);
+  background: var(--sdl-surface);
+}

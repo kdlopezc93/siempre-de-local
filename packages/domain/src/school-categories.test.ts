@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  categoryAges,
+  childWord,
   agesHint,
   categoryConflict,
   formatBirthYears,
@@ -113,5 +115,21 @@ describe('nombre sugerido de la categoría', () => {
   it('la edad del mayor del grupo, o Mayores', () => {
     expect(suggestCategoryName(2014, 2026)).toBe('Sub-12');
     expect(suggestCategoryName(null, 2026)).toBe('Mayores');
+  });
+});
+
+describe('categoryAges (2026-11-10)', () => {
+  it('dice si en la categoría hay menores, mayores o los dos', () => {
+    expect(categoryAges({ from: 2016, to: 2017 }, 2026)).toEqual({ minors: true, adults: false });
+    expect(categoryAges({ from: null, to: 2008 }, 2026)).toEqual({ minors: false, adults: true });
+    expect(categoryAges({ from: 2007, to: 2009 }, 2026)).toEqual({ minors: true, adults: true });
+    expect(categoryAges(null, 2026)).toEqual({ minors: false, adults: true });
+  });
+
+  it('el niño según el grupo', () => {
+    expect(childWord('female')).toBe('tu hija');
+    expect(childWord('male')).toBe('tu hijo');
+    expect(childWord('mixed')).toBe('tu hijo o hija');
+    expect(childWord(null)).toBe('tu hijo o hija');
   });
 });

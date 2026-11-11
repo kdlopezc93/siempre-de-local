@@ -1,5 +1,8 @@
 import type { MatchFormat, TeamRole } from '@sdl/contracts';
 
+import type { Me } from '../../shared/api/auth';
+import type { HeaderTeam } from '../../shared/ui/TeamHeader';
+
 export type TabId = 'inicio' | 'plantilla' | 'partidos' | 'mi-juego' | 'equipo';
 
 export interface Tab {
@@ -114,3 +117,12 @@ export function formatsLabel(formats: readonly MatchFormat[], principal: MatchFo
   const last = numbers.pop()!;
   return numbers.length ? `Fútbol ${numbers.join(', ')} y ${last}` : FORMAT_LABEL[principal];
 }
+
+/** Un equipo de `/me` como lo muestra el encabezado (y su selector). */
+export const toHeader = ({ team, club, roles }: Me['teams'][number]): HeaderTeam => ({
+  id: team.id,
+  name: team.name,
+  club: club.name,
+  format: formatsLabel(team.formats, team.format),
+  roles: rolesLabel(roles),
+});

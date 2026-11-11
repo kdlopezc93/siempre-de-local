@@ -4,7 +4,7 @@ import {
   type RegisterMinorRequestSchema,
   type RegisterMinorResponse,
 } from '@sdl/contracts';
-import { formatBirthYears } from '@sdl/domain';
+import { ADULT_AGE, formatBirthYears } from '@sdl/domain';
 import type { z } from 'zod';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
@@ -16,9 +16,6 @@ import {
   type InvitationsRepository,
 } from '../../teams/application/ports/invitations.repository.js';
 import { FAMILIES_REPOSITORY, type FamiliesRepository } from './ports/families.repository.js';
-
-/** Mayor de edad en Colombia: 18 años. Con el año basta (no se guarda la fecha). */
-const ADULT_AGE = 18;
 
 /**
  * Inscribir a un hijo menor con una invitación para acudientes (escuelas, 2026-11-08, `08` §10):

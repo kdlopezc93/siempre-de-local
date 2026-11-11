@@ -70,6 +70,7 @@ export class DrizzleInvitationsRepository implements InvitationsRepository {
           clubKind: club.kind,
           birthYearFrom: team.birthYearFrom,
           birthYearTo: team.birthYearTo,
+          gender: team.gender,
           archived: sql<boolean>`${team.archivedAt} is not null`,
         },
       })

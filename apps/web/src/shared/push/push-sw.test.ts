@@ -361,4 +361,57 @@ describe('avisos en el service worker', () => {
       expect(openWindow).toHaveBeenCalledWith('https://app.sdl.test/equipos/t1/partidos/m1');
     });
   });
+
+  describe('avisos de un hijo para su acudiente (2026-11-10)', () => {
+    afterEach(() => vi.unstubAllGlobals());
+    const FOR_CHILD = {
+      kind: 'training-called',
+      opponent: 'Entrenamiento',
+      startsAt: '2026-11-14T13:00:00.000Z',
+      url: '/deportistas/n1/equipos/t1/partidos/m1',
+      child: 'Sofía',
+    };
+
+    it('el texto habla del niño y los botones dicen "Va" y "No va"', async () => {
+      const { fire, showNotification } = loadWorker();
+      await fire('push', push(FOR_CHILD));
+      expect(last(showNotification)[0]).toBe('Convocaron a Sofía a entrenar');
+      expect(lastOptions(showNotification).actions).toEqual([
+        { action: 'yes', title: 'Va' },
+        { action: 'no', title: 'No va' },
+      ]);
+      await fire(
+        'push',
+        push({
+          kind: 'charge-created',
+          charge: 'Mensualidad',
+          opponent: 'x',
+          url: '/deportistas/n1/equipos/t1/cuentas',
+          child: 'Sofía',
+        }),
+      );
+      expect(last(showNotification)[0]).toBe('Nuevo cobro a nombre de Sofía: Mensualidad');
+    });
+
+    it('"Va" responde por el niño en su ruta', async () => {
+      const fetch = vi.fn(async () => new Response('{}', { status: 200 }));
+      vi.stubGlobal('fetch', fetch);
+      const postMessage = vi.fn();
+      const { fire, showNotification } = loadWorker([{ postMessage }]);
+      await fire('push', push(FOR_CHILD));
+      await fire('notificationclick', {
+        action: 'yes',
+        notification: { close: vi.fn(), data: lastOptions(showNotification).data },
+      });
+      const [url] = fetch.mock.calls[0] as unknown as [URL];
+      expect(url.href).toBe('https://api.sdl.test/api/v1/me/children/n1/teams/t1/matches/m1/reply');
+      expect(last(showNotification)[0]).toBe('Listo, Sofía va al entreno');
+      expect(postMessage).toHaveBeenCalledWith({
+        type: 'sdl:match-replied',
+        minorId: 'n1',
+        teamId: 't1',
+        matchId: 'm1',
+      });
+    });
+  });
 });

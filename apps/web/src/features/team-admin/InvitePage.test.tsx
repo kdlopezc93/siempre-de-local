@@ -214,4 +214,59 @@ describe('InvitePage', () => {
       'Solo el entrenador y los administradores del club pueden invitar',
     );
   });
+
+  it('en un grupo de niños de una escuela, el enlace es para acudientes (2026-11-10)', async () => {
+    let body: unknown;
+    const thisYear = new Date().getFullYear();
+    fakeApi({
+      [`GET /api/v1/teams/${TEAM_ID}`]: {
+        status: 200,
+        body: {
+          ...TEAM,
+          team: {
+            ...TEAM.team,
+            name: 'Sub-10 femenino',
+            club: { ...TEAM.team.club, name: 'Semillas', kind: 'school' },
+            birthYears: { from: thisYear - 10, to: thisYear - 9 },
+            gender: 'female',
+          },
+        },
+      },
+      [`GET /api/v1/teams/${TEAM_ID}/invitations`]: { status: 200, body: { items: [] } },
+      [`POST /api/v1/teams/${TEAM_ID}/invitations`]: (init) => {
+        body = JSON.parse(init.body as string);
+        return {
+          status: 201,
+          body: {
+            invitation: { ...summary(ACTIVE_ID, 'active'), forGuardians: true },
+            code: 'K7Q2M9XDAB',
+            joinUrl: 'https://app.sdl.test/unirse/K7Q2M9XDAB',
+          },
+        };
+      },
+    });
+    renderPage();
+
+    const kinds = await screen.findByRole('group', { name: 'A quién invitas' });
+    expect(within(kinds).queryByRole('button', { name: 'Jugadores' })).toBeNull();
+    expect(within(kinds).getByRole('button', { name: 'Acudientes' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    expect(
+      screen.getByText(/Cada acudiente entra con su Google e inscribe a tu hija/),
+    ).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Crear enlace' }));
+    expect(
+      await screen.findByRole('heading', { name: 'Tu enlace está listo' }),
+    ).toBeInTheDocument();
+    expect(body).toEqual({ role: 'player', forGuardians: true });
+    expect(screen.getByRole('link', { name: 'Compartir por WhatsApp' })).toHaveAttribute(
+      'href',
+      expect.stringContaining(
+        encodeURIComponent('Inscribe a tu hija en Sub-10 femenino (Semillas)'),
+      ),
+    );
+  });
 });

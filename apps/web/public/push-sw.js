@@ -8,6 +8,10 @@
  * La convocatoria y su recordatorio traen "Voy" y "No voy" (2026-11-06, Kevin): responden sin abrir la app, con la
  * cookie de la sesión, al API que dice sw-config.js. En iPhone no hay botones: el toque abre el
  * partido. Si no se puede responder (sin señal, sin sesión), abre el partido.
+ *
+ * Los avisos de un menor le llegan a su acudiente (escuelas, 2026-11-10) con `child` (su nombre
+ * de pila) y la ruta de su pantalla (/deportistas/:minorId/…): el texto habla del niño y "Va" /
+ * "No va" responden por él.
  */
 const WHEN = new Intl.DateTimeFormat('es-419', {
   weekday: 'short',
@@ -40,12 +44,67 @@ function reminderBody(data, when) {
     : `Faltas tú por responder. ${when}.`;
 }
 
+/** El texto para el acudiente: lo mismo, dicho del niño. null: el texto de siempre. */
+function childText(data, when) {
+  const name = data.child;
+  switch (data.kind) {
+    case 'match-called':
+      return { title: `Convocaron a ${name}: ${data.opponent}`, body: `${when}. ¿Va?` };
+    case 'training-called':
+      return { title: `Convocaron a ${name} a entrenar`, body: `${when}. ¿Va?` };
+    case 'match-reminder':
+      return {
+        title: `¿${name} va ${dayWord(data.startsAt)} contra ${data.opponent}?`,
+        body: `Falta que respondas por ${name}. ${when}.`,
+      };
+    case 'training-reminder':
+      return {
+        title: `¿${name} va a entrenar ${dayWord(data.startsAt)}?`,
+        body: `Falta que respondas por ${name}. ${when}.`,
+      };
+    case 'lineup-published':
+      return {
+        title: `Ya está la alineación: ${data.opponent}`,
+        body: `${when}. Mira lo de ${name}.`,
+      };
+    case 'match-figure':
+      return {
+        title: `¡${name} fue la figura contra ${data.opponent}!`,
+        body: 'Felicitaciones de su profe.',
+      };
+    case 'charge-created':
+      return {
+        title: `Nuevo cobro a nombre de ${name}: ${data.charge}`,
+        body: 'Toca para ver cuánto es y avisar cuando pagues.',
+      };
+    case 'charge-covered':
+      return {
+        title: `Le cubrieron la parte a ${name}: ${data.charge}`,
+        body: 'Ya no debe nada de este cobro.',
+      };
+    case 'charge-due':
+      return {
+        title: `${data.when === 'today' ? 'Hoy' : 'Mañana'} vence: ${data.charge}`,
+        body: `Falta la parte de ${name}. Toca para ver cuánto y avisar cuando pagues.`,
+      };
+    case 'charges-reminder':
+      return {
+        title: `${name} tiene cobros pendientes`,
+        body: 'Toca para ver cuánto y avisar cuando pagues.',
+      };
+    default:
+      return null;
+  }
+}
+
 /**
  * El texto de cada tipo de aviso. Uno que este service worker no conoce (lo agregó una versión
  * más nueva del servidor y el celular todavía no abrió la app) lleva un texto neutro: nunca el
  * de otro tipo.
  */
 function noticeText(data, when) {
+  const forChild = typeof data.child === 'string' && data.child ? childText(data, when) : null;
+  if (forChild) return forChild;
   switch (data.kind) {
     case 'match-called':
       return { title: `Te convocaron: ${data.opponent}`, body: `${when}. ¿Vas?` };
@@ -119,16 +178,32 @@ const REPLY_ACTIONS = [
   { action: 'yes', title: 'Voy' },
   { action: 'no', title: 'No voy' },
 ];
+/** Por el niño (2026-11-10). */
+const CHILD_REPLY_ACTIONS = [
+  { action: 'yes', title: 'Va' },
+  { action: 'no', title: 'No va' },
+];
 
-/** El equipo y el partido de "/equipos/:teamId/partidos/:matchId", o null. */
+/**
+ * El equipo y el partido de "/equipos/:teamId/partidos/:matchId", o del niño en
+ * "/deportistas/:minorId/equipos/:teamId/partidos/:matchId" (con `minorId`); o null.
+ */
 function matchOf(url) {
-  const found = /^\/equipos\/([^/]+)\/partidos\/([^/?#]+)$/.exec(url);
-  return found ? { teamId: found[1], matchId: found[2] } : null;
+  const own = /^\/equipos\/([^/]+)\/partidos\/([^/?#]+)$/.exec(url);
+  if (own) return { teamId: own[1], matchId: own[2] };
+  const child = /^\/deportistas\/([^/]+)\/equipos\/([^/]+)\/partidos\/([^/?#]+)$/.exec(url);
+  return child ? { minorId: child[1], teamId: child[2], matchId: child[3] } : null;
 }
 
 /** El aviso que reemplaza a la convocatoria cuando se respondió desde ahí. */
-function replyText(reply, opponent) {
+function replyText(reply, opponent, child) {
   const what = opponent ? `contra ${opponent}` : 'al entreno';
+  if (child) {
+    return {
+      title: reply === 'yes' ? `Listo, ${child} va ${what}` : `Listo, ${child} no va ${what}`,
+      body: 'Si cambian los planes, respóndelo en la app hasta la hora del partido.',
+    };
+  }
   return {
     title: reply === 'yes' ? `Listo, vas ${what}` : `Listo, no vas ${what}`,
     body: 'Si cambias de idea, respóndelo en la app hasta la hora del partido.',
@@ -136,10 +211,13 @@ function replyText(reply, opponent) {
 }
 
 /** Guarda la respuesta en el API con la sesión del celular; true si quedó. */
-async function sendReply({ teamId, matchId }, reply) {
+async function sendReply({ minorId, teamId, matchId }, reply) {
   const api = self.SDL_API_URL || self.location.origin;
+  const path = minorId
+    ? `/api/v1/me/children/${minorId}/teams/${teamId}/matches/${matchId}/reply`
+    : `/api/v1/teams/${teamId}/matches/${matchId}/reply`;
   try {
-    const res = await fetch(new URL(`/api/v1/teams/${teamId}/matches/${matchId}/reply`, api), {
+    const res = await fetch(new URL(path, api), {
       method: 'PUT',
       credentials: 'include',
       headers: { 'content-type': 'application/json' },
@@ -190,8 +268,9 @@ self.addEventListener('push', (event) => {
               kind: data.kind,
               // El entreno no tiene rival: "Listo, vas al entreno".
               opponent: data.kind.startsWith('training') ? null : (data.opponent ?? null),
+              child: typeof data.child === 'string' ? data.child : null,
             },
-            actions: REPLY_ACTIONS,
+            actions: data.child ? CHILD_REPLY_ACTIONS : REPLY_ACTIONS,
           }
         : { data: { url: data.url } }),
     }),
@@ -200,14 +279,14 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const { url = '/', kind, opponent = null } = event.notification.data ?? {};
+  const { url = '/', kind, opponent = null, child = null } = event.notification.data ?? {};
   const target = matchOf(url);
   const reply = event.action === 'yes' || event.action === 'no' ? event.action : null;
   event.waitUntil(
     (async () => {
       if (!reply || !target || !REPLY_KINDS.has(kind)) return openApp(url);
       if (!(await sendReply(target, reply))) return openApp(url);
-      const { title, body } = replyText(reply, opponent);
+      const { title, body } = replyText(reply, opponent, child);
       await self.registration.showNotification(title, {
         body,
         icon: '/pwa-192x192.png',
