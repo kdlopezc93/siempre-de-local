@@ -17,15 +17,20 @@ const team = (id: string, name: string, extra: object = {}) => ({
   format: 'F8',
   season: '2026',
   archived: false,
+  birthYears: null,
+  gender: null,
+  venue: null,
   members: 12,
   ...extra,
 });
 const club = (extra: object = {}) => ({
-  club: { id: CLUB, name: 'Los del Barrio', city: null, ...extra },
+  club: { id: CLUB, name: 'Los del Barrio', city: null, kind: 'club', sport: 'football', ...extra },
   myRole: 'owner',
+  teamsLimit: 3,
   teams: [team(TEAM_A, 'Primer equipo', { category: 'Libre' }), team(OTHER, 'Los del jueves')],
   admins: [{ userId: ME_TWO_TEAMS.user.id, name: 'Kevin López', role: 'owner' }],
   candidates: [{ userId: '0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6f55', name: 'Stiven Rios' }],
+  venues: [],
 });
 
 function renderPage() {

@@ -20,6 +20,7 @@ import {
   type TeamSettings,
   type TeamsRepository,
 } from './ports/teams.repository.js';
+import { assertNoCategoryConflict, assertSchool, assertVenueOfClub } from './school-rules.js';
 
 @Injectable()
 export class GetTeam {
@@ -66,6 +67,30 @@ export class UpdateTeam {
         'TEAM_FORMAT_NOT_PLAYED',
       );
     }
+    // Años de nacimiento y sede, solo en escuelas; la sede, de la misma escuela (2026-11-07).
+    if (
+      changes.birthYears !== undefined ||
+      changes.gender !== undefined ||
+      changes.venueId !== undefined
+    ) {
+      assertSchool(team.club.kind);
+    }
+    if (changes.venueId) await assertVenueOfClub(this.teams, team.club.id, changes.venueId);
+    // En una escuela, la categoría y sus años no se cruzan con las demás (2026-11-07).
+    if (
+      team.club.kind === 'school' &&
+      (changes.birthYears !== undefined || changes.category !== undefined)
+    ) {
+      await assertNoCategoryConflict(
+        this.teams,
+        team.club.id,
+        {
+          category: changes.category === undefined ? team.category : changes.category,
+          years: changes.birthYears ?? team.birthYears,
+        },
+        team.id,
+      );
+    }
     if ((await this.teams.updateSettings(team.id, changes)) === 'name-taken') {
       throw new ConflictError(
         'Ya hay otro equipo con ese nombre en el club esta temporada',
@@ -80,7 +105,8 @@ export class UpdateTeam {
       teamId: team.id,
       meta: { ...changes },
     });
-    return { team: { ...team, ...changes }, myRoles: [...(actor.teams.get(team.id) ?? [])] };
+    const updated = (await this.teams.findById(team.id)) ?? team;
+    return { team: updated, myRoles: [...(actor.teams.get(team.id) ?? [])] };
   }
 }
 

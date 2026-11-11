@@ -12,6 +12,7 @@ const ADMIN = { ...ME_TWO_TEAMS, user: { ...ME_TWO_TEAMS.user, platformAdmin: tr
 const code = (n: number, status: string, extra: object = {}) => ({
   id: `0192f0c4-7f6b-7c3e-9d1a-2b3c4d5e6a${n}0`,
   note: null,
+  kind: 'club',
   status,
   expiresAt: '2026-11-12T12:00:00.000Z',
   createdAt: '2026-10-29T12:00:00.000Z',

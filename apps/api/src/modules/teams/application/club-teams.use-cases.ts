@@ -2,6 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import type {
   AddClubAdminRequest,
   ClubResponse,
+  CreateVenueRequestSchema,
+  UpdateVenueRequestSchema,
   CreateTeamRequestSchema,
   CreateTeamResponse,
   UpdateClubRequest,
@@ -21,9 +23,20 @@ import {
   NotFoundError,
 } from '../../../shared/errors/application-errors.js';
 import { TEAMS_REPOSITORY, type TeamsRepository } from './ports/teams.repository.js';
+import {
+  assertCategory,
+  assertNoCategoryConflict,
+  assertSchool,
+  assertVenueOfClub,
+  teamsLimit,
+} from './school-rules.js';
 
-/** Hasta 3 equipos activos por club (Kevin, 2026-10-29); más, cuando haya plan pago. */
-export const TEAMS_PER_CLUB = 3;
+/** El club, o 404. */
+async function clubOrThrow(teams: TeamsRepository, clubId: string) {
+  const club = await teams.findClub(clubId);
+  if (!club) throw new NotFoundError('Club no encontrado');
+  return club;
+}
 
 /**
  * Otro equipo del club (Kevin, 2026-10-29): lo crea el dueño o un admin del club y queda de
@@ -48,6 +61,20 @@ export class CreateTeam {
     if (!mine.clubs.has(clubId)) {
       throw new ForbiddenError('Solo el dueño y los admins del club crean equipos');
     }
+    const club = await clubOrThrow(this.teams, clubId);
+    // En una escuela, la categoría nace con sus años y su género; sedes, solo en escuelas (2026-11-07).
+    assertCategory(club.kind, request);
+    if (club.kind === 'school') {
+      await assertNoCategoryConflict(this.teams, clubId, {
+        category: request.category ?? null,
+        years: request.birthYears ?? null,
+      });
+    }
+    if (request.venueId) {
+      assertSchool(club.kind);
+      await assertVenueOfClub(this.teams, clubId, request.venueId);
+    }
+    const limit = teamsLimit(club.kind);
     const outcome = await this.teams.createTeam(
       clubId,
       userId,
@@ -57,19 +84,27 @@ export class CreateTeam {
         format: request.format,
         season: request.season,
         alsoPlays: request.alsoPlays,
+        birthYears: request.birthYears ?? null,
+        gender: request.gender ?? null,
+        venueId: request.venueId ?? null,
       },
-      TEAMS_PER_CLUB,
+      limit,
       now,
     );
+    const school = club.kind === 'school';
     if (outcome === 'limit') {
       throw new ConflictError(
-        `El club ya tiene ${TEAMS_PER_CLUB} equipos. Para abrir otro, escríbenos.`,
+        school
+          ? `La escuela ya tiene ${limit} categorías. Para abrir otra, escríbenos.`
+          : `El club ya tiene ${limit} equipos. Para abrir otro, escríbenos.`,
         'TEAM_LIMIT_REACHED',
       );
     }
     if (outcome === 'name-taken') {
       throw new ConflictError(
-        'Ya hay otro equipo con ese nombre en el club esta temporada',
+        school
+          ? 'Ya hay otra categoría con ese nombre en la escuela esta temporada'
+          : 'Ya hay otro equipo con ese nombre en el club esta temporada',
         'TEAM_NAME_TAKEN',
       );
     }
@@ -102,14 +137,14 @@ export class GetClub {
 
   async execute(userId: string, clubId: string): Promise<ClubResponse> {
     const myRole = await clubRoleOf(this.memberships, userId, clubId);
-    const club = await this.teams.findClub(clubId);
-    if (!club) throw new NotFoundError('Club no encontrado');
-    const [teams, admins, candidates] = await Promise.all([
+    const club = await clubOrThrow(this.teams, clubId);
+    const [teams, admins, candidates, venues] = await Promise.all([
       this.teams.clubTeams(clubId),
       this.teams.clubAdmins(clubId),
       this.teams.clubCandidates(clubId),
+      this.teams.clubVenues(clubId),
     ]);
-    return { club, myRole, teams, admins, candidates };
+    return { club, myRole, teamsLimit: teamsLimit(club.kind), teams, admins, candidates, venues };
   }
 }
 
@@ -159,11 +194,15 @@ export class ArchiveTeam {
     now = new Date(),
   ): Promise<ClubResponse> {
     await clubRoleOf(this.memberships, userId, clubId);
-    const outcome = await this.teams.setArchived(clubId, teamId, archived, TEAMS_PER_CLUB, now);
+    const club = await clubOrThrow(this.teams, clubId);
+    const limit = teamsLimit(club.kind);
+    const outcome = await this.teams.setArchived(clubId, teamId, archived, limit, now);
     if (outcome === 'not-found') throw new NotFoundError('Ese equipo no es del club');
     if (outcome === 'limit') {
       throw new ConflictError(
-        `El club ya tiene ${TEAMS_PER_CLUB} equipos activos. Archiva otro antes de volver a abrir este.`,
+        club.kind === 'school'
+          ? `La escuela ya tiene ${limit} categorías activas. Archiva otra antes de volver a abrir esta.`
+          : `El club ya tiene ${limit} equipos activos. Archiva otro antes de volver a abrir este.`,
         'TEAM_LIMIT_REACHED',
       );
     }
@@ -230,4 +269,83 @@ export class ClubAdmins {
       meta: { clubId },
     });
   }
+}
+
+/**
+ * Sedes de la escuela (2026-11-07): las crean, cambian y borran el dueño y los admins. Borrar
+ * una deja a sus categorías sin sede. Devuelven el club.
+ */
+@Injectable()
+export class ClubVenues {
+  constructor(
+    @Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository,
+    @Inject(AUTHORIZATION_READER) private readonly memberships: AuthorizationReader,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+  ) {}
+
+  async create(
+    userId: string,
+    clubId: string,
+    request: z.output<typeof CreateVenueRequestSchema>,
+  ): Promise<ClubResponse> {
+    await this.assertSchoolAdmin(userId, clubId);
+    const created = await this.teams.createVenue(clubId, {
+      name: request.name,
+      address: request.address ?? null,
+    });
+    if (created === 'name-taken') throw venueNameTaken();
+    await this.record(userId, clubId, created.id, 'venue.created');
+    return this.club(userId, clubId);
+  }
+
+  async update(
+    userId: string,
+    clubId: string,
+    venueId: string,
+    patch: z.output<typeof UpdateVenueRequestSchema>,
+  ): Promise<ClubResponse> {
+    await this.assertSchoolAdmin(userId, clubId);
+    const changes = Object.fromEntries(
+      Object.entries(patch).filter(([, value]) => value !== undefined),
+    ) as Partial<{ name: string; address: string | null }>;
+    const outcome = await this.teams.updateVenue(clubId, venueId, changes);
+    if (outcome === 'not-found') {
+      throw new NotFoundError('Esa sede no es de la escuela', 'VENUE_NOT_FOUND');
+    }
+    if (outcome === 'name-taken') throw venueNameTaken();
+    await this.record(userId, clubId, venueId, 'venue.updated');
+    return this.club(userId, clubId);
+  }
+
+  async remove(userId: string, clubId: string, venueId: string): Promise<ClubResponse> {
+    await this.assertSchoolAdmin(userId, clubId);
+    if (!(await this.teams.deleteVenue(clubId, venueId))) {
+      throw new NotFoundError('Esa sede no es de la escuela', 'VENUE_NOT_FOUND');
+    }
+    await this.record(userId, clubId, venueId, 'venue.deleted');
+    return this.club(userId, clubId);
+  }
+
+  private async assertSchoolAdmin(userId: string, clubId: string) {
+    await clubRoleOf(this.memberships, userId, clubId);
+    assertSchool((await clubOrThrow(this.teams, clubId)).kind);
+  }
+
+  private club(userId: string, clubId: string) {
+    return new GetClub(this.teams, this.memberships).execute(userId, clubId);
+  }
+
+  private record(userId: string, clubId: string, venueId: string, action: string) {
+    return this.audit.record({
+      actorUserId: userId,
+      action,
+      entity: 'venue',
+      entityId: venueId,
+      meta: { clubId },
+    });
+  }
+}
+
+function venueNameTaken(): ConflictError {
+  return new ConflictError('Ya hay otra sede con ese nombre en la escuela', 'VENUE_NAME_TAKEN');
 }

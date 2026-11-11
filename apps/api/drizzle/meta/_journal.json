@@ -253,6 +253,13 @@
       "when": 1794022622374,
       "tag": "0035_call_up_reminders",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1794096084824,
+      "tag": "0036_schools",
+      "breakpoints": true
     }
   ]
 }

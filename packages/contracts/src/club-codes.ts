@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
-import { MatchFormatSchema } from './teams.js';
+import {
+  BirthYearsSchema,
+  CategoryGenderSchema,
+  ClubKindSchema,
+  MatchFormatSchema,
+  SportSchema,
+} from './teams.js';
 
 /**
  * Códigos de alta (2026-10-29): para crear un club desde la app hace falta uno, y los genera el
@@ -11,6 +17,8 @@ import { MatchFormatSchema } from './teams.js';
 export const CreateClubCodeRequestSchema = z.object({
   /** Para quién es, para reconocerlo en la lista ("Pedro, Los Tigres"). */
   note: z.string().trim().max(80).optional(),
+  /** Si abre un club de barrio o una escuela (2026-11-07). */
+  kind: ClubKindSchema.default('club'),
   expiresInDays: z.int().min(1).max(60).default(14),
 });
 
@@ -20,6 +28,7 @@ export const ClubCodeStatusSchema = z.enum(['active', 'expired', 'used', 'revoke
 export const ClubCodeSummarySchema = z.object({
   id: z.uuid(),
   note: z.string().nullable(),
+  kind: ClubKindSchema,
   status: ClubCodeStatusSchema,
   expiresAt: z.iso.datetime(),
   createdAt: z.iso.datetime(),
@@ -44,7 +53,11 @@ export type CreateClubCodeResponse = z.infer<typeof CreateClubCodeResponseSchema
 export type ClubCodeListResponse = z.infer<typeof ClubCodeListResponseSchema>;
 
 /** GET /api/v1/club-codes/:code — público: si el código sirve, antes de llenar el formulario. */
-export const ClubCodePreviewResponseSchema = z.object({ expiresAt: z.iso.datetime() });
+export const ClubCodePreviewResponseSchema = z.object({
+  expiresAt: z.iso.datetime(),
+  /** Qué abre: el formulario de un club o el de una escuela (2026-11-07). */
+  kind: ClubKindSchema,
+});
 
 const Name = z.string().trim().min(2).max(60);
 
@@ -62,6 +75,10 @@ export const CreateClubRequestSchema = z.object({
   format: MatchFormatSchema,
   season: z.string().trim().min(4).max(9),
   alsoPlays: z.boolean().default(false),
+  /** En una escuela, obligatorio: los años de nacimiento de su primera categoría (2026-11-07). */
+  birthYears: BirthYearsSchema.optional(),
+  /** En una escuela, obligatorio: masculina, femenina o mixta. */
+  gender: CategoryGenderSchema.optional(),
 });
 
 export const CreateClubResponseSchema = z.object({ clubId: z.uuid(), teamId: z.uuid() });
@@ -81,6 +98,12 @@ export const CreateTeamRequestSchema = z.object({
   format: MatchFormatSchema,
   season: z.string().trim().min(4).max(9),
   alsoPlays: z.boolean().default(false),
+  /** En una escuela, obligatorio: los años de nacimiento de la categoría (2026-11-07). */
+  birthYears: BirthYearsSchema.optional(),
+  /** En una escuela, obligatorio: masculina, femenina o mixta (2026-11-07). */
+  gender: CategoryGenderSchema.optional(),
+  /** En una escuela, opcional: la sede donde entrena (2026-11-07). */
+  venueId: z.uuid().optional(),
 });
 
 export const CreateTeamResponseSchema = z.object({ teamId: z.uuid() });
@@ -93,8 +116,17 @@ export type CreateTeamResponse = z.infer<typeof CreateTeamResponseSchema>;
  * equipos, activos y archivados.
  */
 export const ClubResponseSchema = z.object({
-  club: z.object({ id: z.uuid(), name: z.string(), city: z.string().nullable() }),
+  club: z.object({
+    id: z.uuid(),
+    name: z.string(),
+    city: z.string().nullable(),
+    /** Club o escuela (2026-11-07): en una escuela, los equipos son categorías. */
+    kind: ClubKindSchema,
+    sport: SportSchema,
+  }),
   myRole: z.enum(['owner', 'admin']),
+  /** Cuántos equipos activos puede tener: 3 en un club, 30 categorías (o grupos) en una escuela. */
+  teamsLimit: z.int(),
   teams: z.array(
     z.object({
       id: z.uuid(),
@@ -103,6 +135,11 @@ export const ClubResponseSchema = z.object({
       format: MatchFormatSchema,
       season: z.string(),
       archived: z.boolean(),
+      /** En una escuela, los años de nacimiento de la categoría, o null (2026-11-07). */
+      birthYears: BirthYearsSchema.nullable(),
+      gender: CategoryGenderSchema.nullable(),
+      /** La sede donde entrena, o null (2026-11-07). */
+      venue: z.object({ id: z.uuid(), name: z.string() }).nullable(),
       /** Personas activas en el equipo (cada una una vez, aunque tenga varios roles). */
       members: z.int(),
     }),
@@ -113,6 +150,16 @@ export const ClubResponseSchema = z.object({
   ),
   /** Quiénes se pueden nombrar admin: integrantes de sus equipos activos que aún no lo son. */
   candidates: z.array(z.object({ userId: z.uuid(), name: z.string() })),
+  /** Las sedes de la escuela, por nombre (2026-11-07); vacío en un club. */
+  venues: z.array(
+    z.object({
+      id: z.uuid(),
+      name: z.string(),
+      address: z.string().nullable(),
+      /** Categorías activas que entrenan ahí. */
+      teams: z.int(),
+    }),
+  ),
 });
 
 /** PATCH /api/v1/clubs/:clubId — nombre y ciudad o barrio; solo lo que cambia. */
@@ -136,3 +183,26 @@ export type UpdateClubTeamRequest = z.infer<typeof UpdateClubTeamRequestSchema>;
 export const AddClubAdminRequestSchema = z.object({ userId: z.uuid() });
 
 export type AddClubAdminRequest = z.infer<typeof AddClubAdminRequestSchema>;
+
+/**
+ * POST /api/v1/clubs/:clubId/venues — una sede de la escuela (dueño o admin, 2026-11-07).
+ * PATCH /api/v1/clubs/:clubId/venues/:venueId — solo lo que cambia. Las dos devuelven el club.
+ */
+export const CreateVenueRequestSchema = z.object({
+  name: Name,
+  address: z
+    .string()
+    .trim()
+    .max(120)
+    .transform((value) => value || null)
+    .nullable()
+    .optional(),
+});
+
+export const UpdateVenueRequestSchema = CreateVenueRequestSchema.partial().refine(
+  (patch) => Object.keys(patch).length > 0,
+  'Nada que cambiar',
+);
+
+export type CreateVenueRequest = z.input<typeof CreateVenueRequestSchema>;
+export type UpdateVenueRequest = z.input<typeof UpdateVenueRequestSchema>;

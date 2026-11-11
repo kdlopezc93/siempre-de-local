@@ -18,6 +18,7 @@ import {
   NotFoundError,
 } from '../../../shared/errors/application-errors.js';
 import { generateInvitationCode, hashInvitationCode } from './invitation-code.js';
+import { assertCategory } from './school-rules.js';
 import {
   CLUB_CODES_REPOSITORY,
   type ClubCodeRecord,
@@ -42,6 +43,7 @@ function toSummary(code: ClubCodeRecord, now: Date): ClubCodeSummary {
   return {
     id: code.id,
     note: code.note,
+    kind: code.kind,
     status: clubCodeStatus(code, now),
     expiresAt: code.expiresAt.toISOString(),
     createdAt: code.createdAt.toISOString(),
@@ -71,6 +73,7 @@ export class ClubCodes {
     const created = await this.codes.create({
       codeHash: hashInvitationCode(code),
       note: request.note || null,
+      kind: request.kind,
       createdBy: actor.userId,
       expiresAt: new Date(now.getTime() + request.expiresInDays * DAY_MS),
     });
@@ -112,7 +115,7 @@ export class CreateClub {
   /** Público: si el código sirve, antes de llenar el formulario. */
   async preview(code: string, now = new Date()): Promise<ClubCodePreviewResponse> {
     const found = await this.usable(code, now);
-    return { expiresAt: found.expiresAt.toISOString() };
+    return { expiresAt: found.expiresAt.toISOString(), kind: found.kind };
   }
 
   async execute(
@@ -128,10 +131,14 @@ export class CreateClub {
         'CONSENT_REQUIRED',
       );
     }
+    assertCategory(code.kind, request);
     const outcome = await this.codes.createClub(
       code.id,
       userId,
       {
+        kind: code.kind,
+        birthYears: request.birthYears ?? null,
+        gender: request.gender ?? null,
         clubName: request.clubName,
         city: request.city,
         teamName: request.teamName,
@@ -145,7 +152,9 @@ export class CreateClub {
     if (outcome === 'unavailable') throw unusable('used');
     if (outcome === 'limit') {
       throw new ConflictError(
-        'Ya eres dueño de un club. Para abrir otro equipo, créalo dentro de tu club.',
+        code.kind === 'school'
+          ? 'Ya eres dueño de una escuela. Para abrir otro grupo, créalo dentro de tu escuela.'
+          : 'Ya eres dueño de un club. Para abrir otro equipo, créalo dentro de tu club.',
         'CLUB_LIMIT_REACHED',
       );
     }
@@ -155,7 +164,7 @@ export class CreateClub {
       entity: 'club',
       entityId: outcome.clubId,
       teamId: outcome.teamId,
-      meta: { clubCodeId: code.id },
+      meta: { clubCodeId: code.id, kind: code.kind },
     });
     return outcome;
   }

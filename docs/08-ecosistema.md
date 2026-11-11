@@ -158,7 +158,13 @@ La etapa 5 empieza sin esperar las entrevistas (`10`): la base (escuela, categor
 
 | # | Decisión | Elegido |
 |---|---|---|
-| 1 | Cómo encaja la escuela | **Un club de tipo escuela**; cada **categoría** es un **equipo** con su rango de años de nacimiento; la **sede** es una tabla nueva. Se reusa todo lo del equipo (permisos, invitaciones, convocatorias, "¿quién vino?", cobros). Descartado: una entidad escuela aparte, que duplicaría permisos, convocatorias y cobros |
+| 1 | Cómo encaja la escuela | **Un club de tipo escuela**; cada **categoría** es un **equipo** con su rango de años de nacimiento y su género (masculina, femenina o mixta); la **sede** es una tabla nueva. Se reusa todo lo del equipo (permisos, invitaciones, convocatorias, "¿quién vino?", cobros). Descartado: una entidad escuela aparte, que duplicaría permisos, convocatorias y cobros |
 | 2 | Quién tiene la cuenta del niño | **El acudiente**, con su Google, maneja a uno o varios deportistas. El niño no entra a la app todavía; su cuenta propia (sin Google) queda para después. ADR-04 no cambia |
 | 3 | Revisión legal | **Como la política de adultos (D7):** la autorización del representante legal se publica versionada y se acepta en la app, sin revisión de un abogado por ahora. La revisión queda pendiente y es lo primero si una escuela con niños reales la pide o algo cambia |
 | 4 | Primer PR | **Plan y base de la escuela**; los menores y acudientes en los siguientes |
+| 5 | Categorías masculinas, femeninas o mixtas | **Sí:** cada categoría tiene su género, obligatorio en una escuela |
+| 6 | Categorías muy grandes que se dividen en grupos | **Cada grupo es una categoría más** ("Sub-12 masculino A" y "B", mismos años y género): tiene su profe, su horario y su sede, y se convoca y se pasa lista por separado. Hasta 30 activas por escuela. Pasar un niño de un grupo a otro de un toque, con los acudientes. Descartado: subgrupos dentro de la categoría (rehacer convocatorias, asistencia y cobros) |
+| 7 | Categorías y sus años | **Por años y sin cruces:** cada categoría tiene sus años y no se cruza con otra; sus grupos comparten los mismos. Hay categorías **18+** (abiertas por abajo: "2008 o antes"). Un mayor de edad entra con su cuenta; el acudiente es para los menores (PR 2) |
+| 8 | La sede en la convocatoria | **No:** la convocatoria ya dice dónde es la cancha |
+| 9 | Entrenador o profe | **Profe** en las pantallas de escuela |
+| 10 | ¿Dueño de un club y de una escuela? | **Sí, uno de cada** (2026-11-08): un profe con su equipo de barrio y su escuela. Dos escuelas o dos clubes, no (más con plan pago) |
