@@ -25,6 +25,7 @@ import { usePublishLineup, useLineups } from '../lineup/use-lineups';
 import { AfterMatch, FigureShare, MatchResultView } from './AfterMatch';
 import { WhoCameAlone } from './WhoCame';
 import { lineupImage } from './lineup-image';
+import { convocados, matchdayImage } from './matchday-image';
 import { minorsGroup } from '../shell/shell-nav';
 import { matchKindLine, matchWhen, slotName } from './match-view';
 import { PublishedBoard } from './PublishedBoard';
