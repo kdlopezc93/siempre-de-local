@@ -17,6 +17,8 @@ export interface FamiliesRepository {
    * acudiente con la autorización que aceptó. Devuelve el id del menor.
    */
   createMinor(minor: NewMinor): Promise<string>;
+  /** Si ese menor está a cargo de ese acudiente (2026-11-10). */
+  isGuardianOf(guardianUserId: string, minorUserId: string): Promise<boolean>;
 }
 
 export const FAMILIES_REPOSITORY = Symbol('FAMILIES_REPOSITORY');

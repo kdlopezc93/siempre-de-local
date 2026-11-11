@@ -13,6 +13,11 @@ export interface Actor {
   clubs: ReadonlyMap<string, ClubRole>;
   /** Equipo → roles activos en él (sin `left_at`). */
   teams: ReadonlyMap<string, readonly TeamRole[]>;
+  /**
+   * Un acudiente actúa por su hijo menor (escuelas, 2026-11-10): `userId` es el del niño y este,
+   * el del acudiente, que es quien queda en la auditoría y en lo que se reporta.
+   */
+  guardianUserId?: string;
 }
 
 /** El equipo sobre el que se actúa: el club decide qué pueden hacer sus admins. */

@@ -53,6 +53,20 @@ export class DrizzleFamiliesRepository implements FamiliesRepository, ChildrenQu
     });
   }
 
+  async isGuardianOf(guardianUserId: string, minorUserId: string) {
+    const rows = await this.connection.db
+      .select({ minor: guardianship.minorUserId })
+      .from(guardianship)
+      .where(
+        and(
+          eq(guardianship.guardianUserId, guardianUserId),
+          eq(guardianship.minorUserId, minorUserId),
+        ),
+      )
+      .limit(1);
+    return rows.length > 0;
+  }
+
   async childrenOf(guardianUserId: string): Promise<Child[]> {
     const rows = await this.connection.db
       .select({

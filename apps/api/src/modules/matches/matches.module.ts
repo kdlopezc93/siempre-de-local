@@ -29,6 +29,7 @@ import { DrizzleMatchesRepository } from './infrastructure/drizzle-matches.repos
     { provide: OPEN_MATCHES_QUERY, useExisting: DrizzleMatchesRepository },
     Matches,
   ],
-  exports: [MATCH_GATEWAY, OPEN_MATCHES_QUERY],
+  // Matches: el acudiente responde la convocatoria por su hijo (families, 2026-11-10).
+  exports: [MATCH_GATEWAY, OPEN_MATCHES_QUERY, Matches],
 })
 export class MatchesModule {}

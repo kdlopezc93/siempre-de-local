@@ -10,6 +10,9 @@ import {
   InvitationPreviewResponseSchema,
   MeResponseSchema,
   POLICY_VERSION,
+  MatchListResponseSchema,
+  MatchResponseSchema,
+  MyChargesResponseSchema,
   RegisterMinorResponseSchema,
 } from '@sdl/contracts';
 import { and, eq, isNull } from 'drizzle-orm';
@@ -20,6 +23,8 @@ import { bootApp, TEST_ENV } from '../../../test/app.js';
 import { startMigratedPostgres } from '../../../test/postgres.js';
 import { seedUserWithSession, type SeededUser } from '../../../test/sessions.js';
 import { account, user } from '../../identity/infrastructure/schema.js';
+import { auditLog } from '../../audit/infrastructure/schema.js';
+import { payment } from '../../charges/infrastructure/schema.js';
 import { teamMembership } from '../../teams/infrastructure/schema.js';
 import { guardianship } from '../infrastructure/schema.js';
 
@@ -235,5 +240,96 @@ describe('acudientes inscriben a sus hijos (2026-11-08)', () => {
       forGuardians: true,
     });
     expect(errorCode(res)).toBe('SCHOOL_ONLY');
+  });
+
+  describe('el acudiente actúa por su hijo (PR 3, 2026-11-10)', () => {
+    let minorId: string;
+    const child = (who: SeededUser, method: 'GET' | 'PUT' | 'POST', path: string, body?: object) =>
+      call(method, `/me/children/${minorId}/teams/${groupId}${path}`, who, body);
+
+    beforeAll(async () => {
+      const [link] = await connection.db
+        .select({ minorUserId: guardianship.minorUserId })
+        .from(guardianship)
+        .where(eq(guardianship.guardianUserId, mama.userId));
+      minorId = link!.minorUserId;
+    });
+
+    it('ve los partidos de su hijo y responde la convocatoria por él', async () => {
+      const startsAt = new Date(Date.now() + 3 * 86_400_000).toISOString();
+      const { match } = MatchResponseSchema.parse(
+        (
+          await call('POST', `/teams/${groupId}/matches`, director, {
+            kind: 'training',
+            format: 'F8',
+            startsAt,
+            place: 'Sede Kennedy',
+          })
+        ).json(),
+      );
+      const list = MatchListResponseSchema.parse((await child(mama, 'GET', '/matches')).json());
+      expect(list.items.map((m) => [m.id, m.myReply])).toEqual([[match.id, null]]);
+
+      const replied = await child(mama, 'PUT', `/matches/${match.id}/reply`, { reply: 'yes' });
+      expect(replied.statusCode).toBe(200);
+      const view = MatchResponseSchema.parse(replied.json());
+      expect(view.match.myReply).toBe('yes');
+      // Como jugador: sin la lista de quién respondió qué.
+      expect(view.roster).toBeNull();
+
+      // El profe ve la respuesta del niño.
+      const staff = MatchResponseSchema.parse(
+        (await call('GET', `/teams/${groupId}/matches/${match.id}`, director)).json(),
+      );
+      expect(staff.roster?.find((p) => p.playerId === minorId)?.reply).toBe('yes');
+    });
+
+    it('ve sus cobros y reporta el pago; el reporte queda a nombre del acudiente', async () => {
+      const created = await call('POST', `/teams/${groupId}/charges`, director, {
+        kind: 'other',
+        title: 'Mensualidad de noviembre',
+        split: 'per_person',
+        amount: 120_000,
+        playerIds: [minorId],
+      });
+      expect(created.statusCode).toBe(201);
+      const mine = MyChargesResponseSchema.parse((await child(mama, 'GET', '/charges')).json());
+      expect(mine.owed).toBe(120_000);
+      const chargeId = mine.items[0]!.charge.id;
+
+      const today = new Date().toISOString().slice(0, 10);
+      const reported = await child(mama, 'POST', `/charges/${chargeId}/payments`, {
+        amount: 120_000,
+        method: 'nequi',
+        paidOn: today,
+        // Un niño no patrocina a nadie: se ignora.
+        forUserId: papa.userId,
+      });
+      expect(reported.statusCode).toBe(201);
+      expect(MyChargesResponseSchema.parse(reported.json()).items[0]).toMatchObject({
+        status: 'pending',
+        reported: 120_000,
+      });
+      const [row] = await connection.db
+        .select({ userId: payment.userId, reportedBy: payment.reportedBy })
+        .from(payment)
+        .where(eq(payment.chargeId, chargeId));
+      expect(row).toEqual({ userId: minorId, reportedBy: mama.userId });
+      const audit = await connection.db
+        .select({ actor: auditLog.actorUserId })
+        .from(auditLog)
+        .where(and(eq(auditLog.entityId, chargeId), eq(auditLog.action, 'payment.reported')));
+      expect(audit).toEqual([{ actor: mama.userId }]);
+    });
+
+    it('un niño ajeno no existe para quien no es su acudiente', async () => {
+      for (const who of [papa, director]) {
+        const res = await child(who, 'GET', '/matches');
+        expect(res.statusCode).toBe(404);
+        expect(errorCode(res)).toBe('CHILD_NOT_FOUND');
+      }
+      // Y el acudiente no entra al equipo por las rutas de siempre.
+      expect((await call('GET', `/teams/${groupId}/matches`, mama)).statusCode).toBe(403);
+    });
   });
 });

@@ -7,6 +7,8 @@ import type {
   StoredSubscription,
   SubscriptionsRepository,
 } from '../application/ports/push.ports.js';
+import { guardianship } from '../../families/infrastructure/schema.js';
+import { user } from '../../identity/infrastructure/schema.js';
 import { pushSubscription } from './schema.js';
 
 @Injectable()
@@ -39,6 +41,19 @@ export class DrizzleSubscriptionsRepository implements SubscriptionsRepository {
       })
       .from(pushSubscription)
       .where(inArray(pushSubscription.userId, [...userIds]));
+  }
+
+  async guardiansOf(userIds: readonly string[]) {
+    if (userIds.length === 0) return [];
+    return this.connection.db
+      .select({
+        minorId: guardianship.minorUserId,
+        minorName: user.name,
+        guardianId: guardianship.guardianUserId,
+      })
+      .from(guardianship)
+      .innerJoin(user, eq(guardianship.minorUserId, user.id))
+      .where(inArray(guardianship.minorUserId, [...userIds]));
   }
 
   async forget(endpoint: string) {

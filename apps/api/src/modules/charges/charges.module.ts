@@ -17,5 +17,7 @@ import { DrizzleChargesRepository } from './infrastructure/drizzle-charges.repos
     { provide: CHARGES_REPOSITORY, useExisting: DrizzleChargesRepository },
     Charges,
   ],
+  // El acudiente ve y reporta los cobros de su hijo (families, 2026-11-10).
+  exports: [Charges],
 })
 export class ChargesModule {}

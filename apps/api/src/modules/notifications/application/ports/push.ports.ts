@@ -4,11 +4,22 @@ export interface StoredSubscription {
   auth: string;
 }
 
+export interface MinorGuardian {
+  minorId: string;
+  minorName: string;
+  guardianId: string;
+}
+
 export interface SubscriptionsRepository {
   /** Guarda o mueve (si el celular cambió de cuenta) la suscripción de un navegador. */
   save(userId: string, subscription: StoredSubscription): Promise<void>;
   remove(userId: string, endpoint: string): Promise<void>;
   forUsers(userIds: readonly string[]): Promise<StoredSubscription[]>;
+  /**
+   * Los acudientes de los que son menores entre esos usuarios (escuelas, 2026-11-10): el niño no
+   * tiene celular en la app; los avisos le llegan a quien lo maneja.
+   */
+  guardiansOf(userIds: readonly string[]): Promise<MinorGuardian[]>;
   /** El servicio de push dijo que ya no existe. */
   forget(endpoint: string): Promise<void>;
 }
