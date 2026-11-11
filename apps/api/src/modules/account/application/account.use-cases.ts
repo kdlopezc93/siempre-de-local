@@ -96,3 +96,47 @@ export class MyData {
     await this.accounts.deleteUser(user.id);
   }
 }
+
+/**
+ * Los derechos del acudiente sobre los datos de su hijo (escuelas, PR 4, 2026-11-10; la
+ * autorización del representante legal, §6): descargarlos y borrarlos (retirar la autorización).
+ * Solo sobre un menor a su cargo; si no, 404 sin revelar si existe.
+ */
+@Injectable()
+export class MinorData {
+  constructor(
+    @Inject(ACCOUNT_REPOSITORY) private readonly accounts: AccountRepository,
+    private readonly myData: MyData,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+  ) {}
+
+  private async minor(guardianUserId: string, minorUserId: string) {
+    const minor = await this.accounts.minorOf(guardianUserId, minorUserId);
+    if (!minor) {
+      throw new NotFoundError(
+        'No encontramos a ese deportista entre los tuyos.',
+        'CHILD_NOT_FOUND',
+      );
+    }
+    return { id: minorUserId, name: minor.name };
+  }
+
+  async export(guardianUserId: string, minorUserId: string): Promise<MyDataExport> {
+    const data = await this.myData.export(await this.minor(guardianUserId, minorUserId));
+    // Su correo es interno (`@menor.invalid`): no es un dato suyo.
+    return { ...data, account: { ...data.account, email: '' } };
+  }
+
+  async delete(guardianUserId: string, minorUserId: string): Promise<void> {
+    await this.minor(guardianUserId, minorUserId);
+    // Sin datos del niño en la auditoría: quién lo pidió y que se borró.
+    await this.audit.record({
+      actorUserId: guardianUserId,
+      action: 'minor.deleted',
+      entity: 'user',
+      entityId: minorUserId,
+      meta: {},
+    });
+    await this.accounts.deleteUser(minorUserId);
+  }
+}

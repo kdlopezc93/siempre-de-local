@@ -18,6 +18,7 @@ import type {
 import {
   hasMatchStarted,
   goalsProblem,
+  isMinorsGroup,
   tallyEvents,
   isGame,
   isMatchEditable,
@@ -138,8 +139,14 @@ export class Matches {
    * Goleadores, asistencias y tarjetas de los partidos del equipo (2026-11-06): lo ve todo el
    * equipo. Solo quien tiene algo, de más goles a menos (y después asistencias).
    */
-  async scorers(actor: Actor, teamId: string): Promise<TeamScorersResponse> {
-    await this.authorize(actor, teamId, 'team.read');
+  async scorers(actor: Actor, teamId: string, now = new Date()): Promise<TeamScorersResponse> {
+    const team = await this.authorize(actor, teamId, 'team.read');
+    // Con niños no hay tabla (2026-11-10): ni siquiera se calcula.
+    if (
+      isMinorsGroup({ clubKind: team.club.kind, birthYears: team.birthYears }, now.getFullYear())
+    ) {
+      return { players: [], forMinors: true };
+    }
     const [records, players] = await Promise.all([
       this.matches.listByTeam(teamId),
       this.players.activePlayers(teamId),
@@ -169,6 +176,7 @@ export class Matches {
     const profiles = await this.profilesOf([...names.values()]);
     const jersey = new Map(players.map((p) => [p.userId, p.jerseyNumber]));
     return {
+      forMinors: false,
       players: [...tally]
         .map(([id, counts]) => ({
           player: {

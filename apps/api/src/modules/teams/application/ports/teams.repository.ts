@@ -115,6 +115,13 @@ export interface TeamsRepository {
   activeRoles(teamId: string, userId: string): Promise<TeamRole[]>;
   /** ¿Es un menor a cargo de su acudiente, sin cuenta propia? (2026-11-08) */
   isManaged(userId: string): Promise<boolean>;
+  /** El año de nacimiento de un menor (los adultos no lo tienen). */
+  birthYearOf(userId: string): Promise<number | null>;
+  /**
+   * Pasa al jugador de un grupo a otro (2026-11-10), en una transacción: deja de ser jugador del
+   * primero (con su historial) y lo es del segundo; sin lesión ni dorsal en el nuevo.
+   */
+  movePlayer(fromTeamId: string, toTeamId: string, userId: string, now: Date): Promise<void>;
   /** Quiénes son entrenador del equipo hoy. */
   activeCoaches(teamId: string): Promise<string[]>;
   /**

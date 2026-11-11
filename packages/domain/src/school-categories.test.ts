@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   categoryAges,
   childWord,
+  isMinorsGroup,
   agesHint,
   categoryConflict,
   formatBirthYears,
@@ -115,6 +116,18 @@ describe('nombre sugerido de la categoría', () => {
   it('la edad del mayor del grupo, o Mayores', () => {
     expect(suggestCategoryName(2014, 2026)).toBe('Sub-12');
     expect(suggestCategoryName(null, 2026)).toBe('Mayores');
+  });
+});
+
+describe('isMinorsGroup (2026-11-10)', () => {
+  it('solo un grupo de escuela con años de menores', () => {
+    expect(isMinorsGroup({ clubKind: 'school', birthYears: { from: 2014, to: 2015 } }, 2026)).toBe(
+      true,
+    );
+    expect(isMinorsGroup({ clubKind: 'school', birthYears: { from: null, to: 2008 } }, 2026)).toBe(
+      false,
+    );
+    expect(isMinorsGroup({ clubKind: 'club', birthYears: null }, 2026)).toBe(false);
   });
 });
 

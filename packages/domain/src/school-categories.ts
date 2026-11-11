@@ -189,6 +189,17 @@ export function categoryAges(
   };
 }
 
+/**
+ * Un grupo de menores (2026-11-10, Kevin): de escuela y con algún año de menores. Con niños no hay
+ * tablas ni comparaciones con el grupo (goleadores) ni "la figura" en los afiches.
+ */
+export function isMinorsGroup(
+  team: { clubKind: 'club' | 'school'; birthYears: BirthYearRange | null },
+  thisYear: number,
+): boolean {
+  return team.clubKind === 'school' && categoryAges(team.birthYears, thisYear).minors;
+}
+
 /** "tu hija", "tu hijo" o "tu hijo o hija", según el grupo. */
 export function childWord(gender: GroupGender | null): string {
   return gender === 'female' ? 'tu hija' : gender === 'male' ? 'tu hijo' : 'tu hijo o hija';

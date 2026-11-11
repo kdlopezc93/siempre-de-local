@@ -356,6 +356,42 @@ export class DrizzleTeamsRepository
       .orderBy(asc(user.name));
   }
 
+  async birthYearOf(userId: string): Promise<number | null> {
+    const [row] = await this.connection.db
+      .select({ birthYear: user.birthYear })
+      .from(user)
+      .where(eq(user.id, userId));
+    return row?.birthYear ?? null;
+  }
+
+  async movePlayer(fromTeamId: string, toTeamId: string, userId: string, now: Date) {
+    await this.connection.db.transaction(async (tx) => {
+      const key = (teamId: string) =>
+        and(
+          eq(teamMembership.teamId, teamId),
+          eq(teamMembership.userId, userId),
+          eq(teamMembership.role, 'player'),
+        );
+      await tx
+        .update(teamMembership)
+        // Si vuelve a este grupo, no vuelve lesionado de hace meses.
+        .set({ leftAt: now, injuredAt: null, injuryReturnOn: null })
+        .where(and(key(fromTeamId), isNull(teamMembership.leftAt)));
+      const [existing] = await tx
+        .select({ leftAt: teamMembership.leftAt })
+        .from(teamMembership)
+        .where(key(toTeamId))
+        .for('update');
+      if (!existing) {
+        await tx
+          .insert(teamMembership)
+          .values({ teamId: toTeamId, userId, role: 'player', joinedAt: now });
+      } else if (existing.leftAt) {
+        await tx.update(teamMembership).set({ leftAt: null, joinedAt: now }).where(key(toTeamId));
+      }
+    });
+  }
+
   async isManaged(userId: string): Promise<boolean> {
     const [row] = await this.connection.db
       .select({ managed: user.managed })

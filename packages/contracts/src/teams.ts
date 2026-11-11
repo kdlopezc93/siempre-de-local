@@ -107,6 +107,14 @@ export const UpdateMemberRolesRequestSchema = z
 
 export type UpdateMemberRolesRequest = z.infer<typeof UpdateMemberRolesRequestSchema>;
 
+/**
+ * POST /api/v1/teams/:teamId/members/:userId/move — pasa a un jugador a otro grupo de la misma
+ * escuela (2026-11-10): sale de este con su historial y entra al otro de jugador.
+ */
+export const MovePlayerRequestSchema = z.object({ toTeamId: z.uuid() });
+
+export type MovePlayerRequest = z.infer<typeof MovePlayerRequestSchema>;
+
 /** PUT /api/v1/teams/:teamId/coach — pasa el mando; el entrenador anterior queda de asistente. */
 export const TransferCoachRequestSchema = z.object({ userId: z.uuid() });
 

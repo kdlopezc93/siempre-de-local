@@ -15,8 +15,12 @@ export interface AccountRepository {
   /**
    * Borra la cuenta: en cascada todo lo suyo (perfil, tests, exámenes, tarjetas y valoraciones
    * sobre él, membresías, sesiones, consentimientos); lo que hizo sobre otros queda sin autor.
+   * En la misma transacción, los menores que solo tenían a esta persona de acudiente (2026-11-10:
+   * un niño no queda en la app sin nadie que lo maneje). Devuelve cuántos menores se borraron.
    */
-  deleteUser(userId: string): Promise<void>;
+  deleteUser(userId: string): Promise<{ minors: number }>;
+  /** El menor a cargo de ese acudiente (su nombre), o null si no es suyo (2026-11-10). */
+  minorOf(guardianUserId: string, minorUserId: string): Promise<{ name: string } | null>;
 }
 
 /** Sus tests de orientación (lo implementa quiz). */

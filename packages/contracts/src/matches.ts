@@ -186,6 +186,11 @@ export const TeamScorersResponseSchema = z.object({
       red: z.int(),
     }),
   ),
+  /**
+   * Un grupo de menores (2026-11-10): sin tabla de goleadores (`players` vacío). Con niños, nada
+   * de rankings ni comparaciones con el grupo.
+   */
+  forMinors: z.boolean().default(false),
 });
 
 /**

@@ -2,7 +2,7 @@
 
 > **Publicada el 2026-10-30 sin revisión legal (D7)**, completa para staging y para publicar el inicio de sesión con Google. Falta que la revise alguien que conozca la Ley 1581 de 2012 y el Decreto 1377 de 2013, sobre todo la transferencia internacional (art. 26). Cada cambio de texto cambia `POLICY_VERSION` en `packages/contracts/src/consent.ts` y todos vuelven a aceptarla.
 
-**Versión:** 2026-11-06 · **Vigente desde:** 6 de noviembre de 2026
+**Versión:** 2026-11-10 · **Vigente desde:** 10 de noviembre de 2026
 
 ## 1. Quién es responsable de tus datos
 
@@ -63,11 +63,13 @@ Para ejercerlos escribe a **datos@siempredelocal.app**. Respondemos consultas en
 
 ## 8. Cuánto tiempo los guardamos
 
-Mientras tengas tu cuenta. Si la borras desde la app, eliminamos tus datos personales en el momento; si nos lo pides por correo, en máximo 30 días. Las copias de seguridad se sobrescriben en máximo 30 días. Los resultados pueden conservarse solo de forma anónima para estadísticas.
+Mientras tengas tu cuenta. Si la borras desde la app, eliminamos tus datos personales en el momento (y los de los menores que solo tú manejas, ver §9); si nos lo pides por correo, en máximo 30 días. Las copias de seguridad se sobrescriben en máximo 30 días. Los resultados pueden conservarse solo de forma anónima para estadísticas.
 
-## 9. Mayoría de edad
+## 9. Mayoría de edad y menores
 
-Por ahora la app es solo para **mayores de 18 años**. Al aceptar declaras que lo eres.
+Para tener tu propia cuenta tienes que ser **mayor de 18 años**. Al aceptar declaras que lo eres.
+
+Los **menores de 18 años** no tienen cuenta: entran a su escuela **a cargo de su mamá, papá o acudiente**, que los inscribe con su propia cuenta y acepta, además de esta política, la **autorización del representante legal**, donde está qué guardamos de ellos y para qué. Su acudiente puede descargar y borrar sus datos desde la app en cualquier momento.
 
 ## 10. Cambios en esta política
 

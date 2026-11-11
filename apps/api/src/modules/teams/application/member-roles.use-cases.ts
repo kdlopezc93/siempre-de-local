@@ -1,10 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { TeamRole, UpdateMemberRolesRequest } from '@sdl/contracts';
+import { formatBirthYears } from '@sdl/domain';
 
 import { AUDIT_LOG, type AuditLog } from '../../../shared/audit/audit.port.js';
+import { NOTIFIER, type Notifier } from '../../../shared/notifications/notifier.port.js';
 import { can, type Actor } from '../../../shared/authz/policy.js';
 import {
   BusinessRuleError,
+  ConflictError,
   ForbiddenError,
   NotFoundError,
 } from '../../../shared/errors/application-errors.js';
@@ -21,6 +24,7 @@ async function authorize(teams: TeamsRepository, actor: Actor, teamId: string) {
   if (!can(actor, 'team.members.manage', { teamId: team.id, clubId: team.club.id })) {
     throw new ForbiddenError('No tienes permiso para esto');
   }
+  return team;
 }
 
 async function rolesOf(teams: TeamsRepository, teamId: string, userId: string) {
@@ -169,6 +173,75 @@ export class TransferCoach {
       entityId: userId,
       teamId,
       meta: { from: previous },
+    });
+  }
+}
+
+/**
+ * Pasar a un jugador a otro grupo de la misma escuela (2026-11-10, Kevin): "Sub-12 masculino A"
+ * a "B" de un toque. Quien lo hace maneja los dos grupos (su profe en ambos, o el admin de la
+ * escuela). Un menor solo pasa a un grupo de sus años. Le avisa (a un menor, a sus acudientes).
+ */
+@Injectable()
+export class MovePlayer {
+  constructor(
+    @Inject(TEAMS_REPOSITORY) private readonly teams: TeamsRepository,
+    @Inject(AUDIT_LOG) private readonly audit: AuditLog,
+    @Inject(NOTIFIER) private readonly notifier: Notifier,
+  ) {}
+
+  async execute(
+    actor: Actor,
+    teamId: string,
+    userId: string,
+    toTeamId: string,
+    now = new Date(),
+  ): Promise<void> {
+    const from = await authorize(this.teams, actor, teamId);
+    if (toTeamId === teamId) {
+      throw new BusinessRuleError('Ya está en ese grupo', 'SAME_GROUP');
+    }
+    const to = await this.teams.findById(toTeamId);
+    if (!to || to.club.id !== from.club.id) {
+      throw new NotFoundError('Ese grupo no es de esta escuela', 'GROUP_NOT_FOUND');
+    }
+    if (from.club.kind !== 'school') {
+      throw new BusinessRuleError('Esto es solo para escuelas', 'SCHOOL_ONLY');
+    }
+    await authorize(this.teams, actor, toTeamId);
+    const roles = await rolesOf(this.teams, teamId, userId);
+    if (!roles.includes('player')) {
+      throw new BusinessRuleError('Solo se pasa de grupo a los jugadores', 'NOT_A_PLAYER');
+    }
+    if ((await this.teams.activeRoles(toTeamId, userId)).includes('player')) {
+      throw new ConflictError('Ya juega en ese grupo', 'ALREADY_IN_GROUP');
+    }
+    const birthYear = await this.teams.birthYearOf(userId);
+    const years = to.birthYears;
+    if (
+      birthYear !== null &&
+      years &&
+      (birthYear > years.to || (years.from !== null && birthYear < years.from))
+    ) {
+      throw new BusinessRuleError(
+        `${to.name} es de nacidos en ${formatBirthYears(years)}.`,
+        'CHILD_NOT_IN_CATEGORY',
+      );
+    }
+    await this.teams.movePlayer(teamId, toTeamId, userId, now);
+    await this.audit.record({
+      actorUserId: actor.userId,
+      action: 'team.player_moved',
+      entity: 'team_membership',
+      entityId: userId,
+      teamId,
+      meta: { toTeamId },
+    });
+    await this.notifier.notifyUsers([userId], {
+      kind: 'group-moved',
+      team: to.name,
+      opponent: to.name,
+      url: `/equipos/${toTeamId}/partidos`,
     });
   }
 }

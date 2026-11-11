@@ -5,6 +5,9 @@ import {
   CreateClubCodeResponseSchema,
   CreateClubResponseSchema,
   CreateInvitationResponseSchema,
+  CreateTeamResponseSchema,
+  MyDataExportSchema,
+  TeamScorersResponseSchema,
   ErrorBodySchema,
   GUARDIAN_AUTHORIZATION_VERSION,
   InvitationPreviewResponseSchema,
@@ -331,6 +334,121 @@ describe('acudientes inscriben a sus hijos (2026-11-08)', () => {
       }
       // Y el acudiente no entra al equipo por las rutas de siempre.
       expect((await call('GET', `/teams/${groupId}/matches`, mama)).statusCode).toBe(403);
+    });
+  });
+
+  describe('reglas de menores y derechos del acudiente (PR 4, 2026-11-10)', () => {
+    let minorId: string;
+    let groupB: string;
+    let sub10: string;
+
+    const newGroup = async (body: object) =>
+      CreateTeamResponseSchema.parse(
+        (
+          await call('POST', `/clubs/${schoolId}/teams`, director, {
+            format: 'F8',
+            season: '2026',
+            ...body,
+          })
+        ).json(),
+      ).teamId;
+
+    beforeAll(async () => {
+      const [link] = await connection.db
+        .select({ minorUserId: guardianship.minorUserId })
+        .from(guardianship)
+        .where(eq(guardianship.guardianUserId, mama.userId));
+      minorId = link!.minorUserId;
+      groupB = await newGroup({
+        name: 'Sub-12 masculino B',
+        category: 'Sub-12',
+        birthYears: { from: 2014, to: 2015 },
+        gender: 'male',
+      });
+      sub10 = await newGroup({
+        name: 'Sub-10',
+        category: 'Sub-10',
+        birthYears: { from: 2016, to: 2017 },
+        gender: 'mixed',
+      });
+    });
+
+    it('en un grupo de menores no hay tabla de goleadores', async () => {
+      const res = await call('GET', `/teams/${groupId}/scorers`, director);
+      expect(TeamScorersResponseSchema.parse(res.json())).toEqual({ players: [], forMinors: true });
+    });
+
+    it('el profe pasa al niño de un grupo a otro de sus años, y no a uno de otros años', async () => {
+      const wrong = await call('POST', `/teams/${groupId}/members/${minorId}/move`, director, {
+        toTeamId: sub10,
+      });
+      expect(errorCode(wrong)).toBe('CHILD_NOT_IN_CATEGORY');
+
+      const moved = await call('POST', `/teams/${groupId}/members/${minorId}/move`, director, {
+        toTeamId: groupB,
+      });
+      expect(moved.statusCode).toBe(204);
+      const active = await connection.db
+        .select({ teamId: teamMembership.teamId })
+        .from(teamMembership)
+        .where(and(eq(teamMembership.userId, minorId), isNull(teamMembership.leftAt)));
+      expect(active).toEqual([{ teamId: groupB }]);
+      // El acudiente lo ve en su grupo nuevo.
+      const me = MeResponseSchema.parse((await call('GET', '/me', mama)).json());
+      expect(me.children[0]!.teams.map((t) => t.team.id)).toEqual([groupB]);
+
+      const again = await call('POST', `/teams/${groupB}/members/${minorId}/move`, director, {
+        toTeamId: groupB,
+      });
+      expect(errorCode(again)).toBe('SAME_GROUP');
+      // Quien no maneja el grupo, no.
+      const stranger = await call('POST', `/teams/${groupB}/members/${minorId}/move`, papa, {
+        toTeamId: groupId,
+      });
+      expect(stranger.statusCode).toBe(403);
+    });
+
+    it('el acudiente descarga los datos de su hijo; nadie más', async () => {
+      const res = await call('GET', `/me/children/${minorId}/export`, mama);
+      expect(res.statusCode).toBe(200);
+      const data = MyDataExportSchema.parse(res.json());
+      expect(data.account).toMatchObject({ name: 'Juan Pérez', email: '' });
+      // Su grupo actual va en sus datos.
+      expect(JSON.stringify(data.memberships)).toContain(groupB);
+      const other = await call('GET', `/me/children/${minorId}/export`, papa);
+      expect(other.statusCode).toBe(404);
+      expect(errorCode(other)).toBe('CHILD_NOT_FOUND');
+    });
+
+    it('si el acudiente borra su cuenta, se borra el niño que solo él manejaba', async () => {
+      const deleted = await call('DELETE', '/me', mama, { confirmation: 'ELIMINAR' });
+      expect(deleted.statusCode).toBe(204);
+      expect(await connection.db.select().from(user).where(eq(user.id, minorId))).toEqual([]);
+    });
+
+    it('el acudiente borra los datos de su hijo con la confirmación', async () => {
+      // Un niño nuevo, de otra mamá.
+      const otra = await seedUserWithSession(container.getConnectionUri(), {
+        name: 'Rosa',
+        email: 'rosa@example.com',
+      });
+      await consent(otra);
+      const { minorId: hijo } = RegisterMinorResponseSchema.parse(
+        (await register(otra, { child: { name: 'Tomás', birthYear: 2015 } })).json(),
+      );
+      const sin = await call('DELETE', `/me/children/${hijo}`, otra, {});
+      expect(sin.statusCode).toBe(400);
+      expect(
+        (await call('DELETE', `/me/children/${hijo}`, papa, { confirmation: 'ELIMINAR' }))
+          .statusCode,
+      ).toBe(404);
+      const ok = await call('DELETE', `/me/children/${hijo}`, otra, { confirmation: 'ELIMINAR' });
+      expect(ok.statusCode).toBe(204);
+      expect(await connection.db.select().from(user).where(eq(user.id, hijo))).toEqual([]);
+      // Su acudiente sigue.
+      expect(
+        await connection.db.select({ id: user.id }).from(user).where(eq(user.id, otra.userId)),
+      ).toEqual([{ id: otra.userId }]);
     });
   });
 });

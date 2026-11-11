@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put } from '@nestjs/common';
 import {
+  MovePlayerRequestSchema,
   SetInjuryRequestSchema,
   type TeamResponse,
   TransferCoachRequestSchema,
@@ -16,6 +17,7 @@ import { parseInput } from '../../../shared/http/validation.js';
 import { GetTeam, SetInjury, UpdateMember, UpdateTeam } from '../application/get-team.use-case.js';
 import {
   ChangeMemberRoles,
+  MovePlayer,
   RemoveMember,
   TransferCoach,
 } from '../application/member-roles.use-cases.js';
@@ -30,6 +32,7 @@ export class TeamsController {
     private readonly changeRoles: ChangeMemberRoles,
     private readonly transferCoach: TransferCoach,
     private readonly removeMember: RemoveMember,
+    private readonly movePlayer: MovePlayer,
   ) {}
 
   @Get(':teamId')
@@ -93,6 +96,24 @@ export class TeamsController {
     @Param('userId') userId: string,
   ): Promise<void> {
     await this.removeMember.execute(actor, teamId, parseInput(z.uuid(), userId));
+  }
+
+  /** Pasar a un jugador a otro grupo de la escuela (2026-11-10). */
+  @Post(':teamId/members/:userId/move')
+  @Can('team.members.manage', { teamParam: 'teamId' })
+  @HttpCode(204)
+  async move(
+    @CurrentActor() actor: Actor,
+    @Param('teamId') teamId: string,
+    @Param('userId') userId: string,
+    @Body() body: unknown,
+  ): Promise<void> {
+    await this.movePlayer.execute(
+      actor,
+      teamId,
+      parseInput(z.uuid(), userId),
+      parseInput(MovePlayerRequestSchema, body).toTeamId,
+    );
   }
 
   /** Pasar el mando de entrenador (2026-10-29). */
